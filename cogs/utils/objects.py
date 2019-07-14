@@ -148,7 +148,7 @@ class Skill:
     def __repr__(self):
         return (f"Skill(name='{self.name}', "
                 f"type={self.type.value}, "
-                f"severity={self.severity.value}, "
+                f"severity='{self.severity.name}', "
                 f"cost={self.cost}, "
                 f"desc='{self.description}', "
                 f"accuracy={self.accuracy})")
