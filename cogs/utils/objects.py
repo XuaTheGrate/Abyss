@@ -251,7 +251,7 @@ class Player:
                 f"skills={self._skills}, "
                 f"exp={self.exp}, "
                 f"stats=[{self.strength}, {self.magic}, {self.endurance}, {self.agility}, {self.luck}], "
-                f"resistances=[{', '.join(k.value for k in self.resistances.values())}])")
+                f"resistances=[{', '.join(str(k.value) for k in self.resistances.values())}])")
 
     @property
     def hp(self):

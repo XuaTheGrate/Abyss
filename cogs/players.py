@@ -17,10 +17,11 @@ class Players(commands.Cog):
             f"\t{self._skill_cache_task!r}>"
 
     async def prepare_players(self):
-        await self.bot.prepared.wait()
+        await self._skill_cache_task
 
         async for data in self.bot.db.adventure2.accounts.find():
             player = Player(**data)
+            player._populate_skills(self.bot)
             self.players[data['owner_id']] = player
 
     async def cache_skills(self):
