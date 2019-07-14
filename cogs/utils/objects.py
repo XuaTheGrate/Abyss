@@ -234,8 +234,12 @@ class Player:
     def __init__(self, **kwargs):
         self._owner_id = kwargs.pop("owner")
         self.owner = None
-        self._skills = kwargs.pop("skills")
-        self.skills = []
+        skills = kwargs.pop("skills")
+        if all(isinstance(x, Skill) for x in skills):
+            self.skills = skills
+        else:
+            self.skills = []
+            self._skills = skills
         self.exp = kwargs.pop("exp")
         self.strength, self.magic, self.endurance, self.agility, self.luck = kwargs.pop("stats")
         self.resistances = dict(zip(SkillType, map(ResistanceModifier, kwargs.pop("resistances"))))
@@ -248,7 +252,7 @@ class Player:
 
     def __repr__(self):
         return (f"Player(owner={self._owner_id}, "
-                f"skills={self._skills}, "
+                f"skills={self.skills}, "
                 f"exp={self.exp}, "
                 f"stats=[{self.strength}, {self.magic}, {self.endurance}, {self.agility}, {self.luck}], "
                 f"resistances=[{', '.join(str(k.value) for k in self.resistances.values())}])")
