@@ -100,7 +100,7 @@ class JSONable:
                 attr = attr.to_json()
             elif isinstance(k, Severity):
                 attr = attr.name
-            elif isinstance(k, Enum):
+            elif issubclass(getattr(k, '_actual_enum_cls_', type(None)), Enum):
                 attr = attr.value
             elif isinstance(k, list) and all(isinstance(z, JSONable) for z in k):
                 attr = list(map(JSONable.to_json, attr))
@@ -236,7 +236,7 @@ class Skill(JSONable):
         return min(target.hp, base)
 
 
-class Player:
+class Player(JSONable):
     """The Player object, designated for every account found.
     Mostly contains helpers for internal stuff.
 
