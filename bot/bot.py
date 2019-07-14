@@ -86,6 +86,8 @@ class AdventureTwo(commands.Bot):
 
         self.debug_hook = config.DEBUG_WEBHOOK
 
+        self.help_command = commands.MinimalHelpCommand(verify_checks=False)
+
         self.prepare_extensions()
 
     # noinspection PyTypeChecker
@@ -211,7 +213,7 @@ class AdventureTwo(commands.Bot):
             cfg = await self.get_guild_config(guild)
             PREFIXES[guild.id] = set(cfg['prefixes'])
 
-        return list(PREFIXES[guild.id] | {f"<@{self.user.id}>", f"<@!{self.user.id}>"})
+        return list(PREFIXES[guild.id] | {f"<@{self.user.id}> ", f"<@!{self.user.id}> "})
 
     async def add_prefixes(self, guild, *prefix):
         """Appends a prefix to the allowed prefixes.
