@@ -71,7 +71,7 @@ class AdventureTwo(commands.Bot):
             is a prepared webhook for sending errors to.
     """
     def __init__(self):
-        super().__init__(self.prefix)
+        super().__init__('$')
         self.prepared = asyncio.Event()
         # `prepared` is to make sure the bot has loaded the database and such
 
