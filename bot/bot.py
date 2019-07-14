@@ -161,7 +161,7 @@ class AdventureTwo(commands.Bot):
         if not data:
             data = CONFIG_NEW.copy()
             data['guild'] = guild.id
-            await self.db.adventure2.guildconfig.insert(data)
+            await self.db.adventure2.guildconfig.insert_one(data)
         return data
 
     async def prefix(self, bot, message):
