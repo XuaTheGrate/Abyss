@@ -1,3 +1,4 @@
+import json
 import math
 import random
 
@@ -81,8 +82,29 @@ CRITICAL_BASE = 4
 
 
 class JSONable:
-    """Not to be instantiated normally."""
+    """To be subclassed.
+    Allows objects to be JSON serializable, via :meth:`.to_json`."""
     __json__ = ()
+
+    @staticmethod
+    def _serialize(o):
+        if not hasattr(o, '__json__'):
+            return str(o)
+        return {k: o.keygetter(k) for k in o.__json__ if not k.startswith('_')}
+
+    def keygetter(self, key):
+        """Allows you to map certain attributes to other names.
+
+        Parameters
+        ----------
+        key: :class:`str`
+            The key to get.
+
+        Returns
+        -------
+        Any
+            The attribute."""
+        return getattr(self, key)
 
     def to_json(self):
         """Converts this object into a JSON-like object.
@@ -91,22 +113,7 @@ class JSONable:
         -------
         :class:`dict`
             The object converted for json storage."""
-        ret = {}
-        for k in self.__json__:
-            attr = getattr(self, k)
-            if isinstance(attr, dict):
-                attr = list(attr.values())
-            if isinstance(k, JSONable):
-                attr = attr.to_json()
-            elif isinstance(k, Severity):
-                attr = attr.name
-            elif issubclass(getattr(k, '_actual_enum_cls_', type(None)), Enum):
-                attr = attr.value
-            elif isinstance(k, list) and all(isinstance(z, JSONable) for z in k):
-                attr = list(map(JSONable.to_json, attr))
-            elif isinstance(k, User):
-                attr = attr.id
-            ret[k] = attr
+        ret = json.loads(json.dumps(self, default=self._serialize))
         return ret
 
 
@@ -163,8 +170,18 @@ class Skill(JSONable):
     accuracy: :class:`int`
         The skills sub accuracy. 90 if it's not an instant kill
         type move."""
-    __slots__ = ('name', 'type', 'severity', 'cost', 'description', 'accuracy')
-    __json__ = __slots__
+    __slots__ = ('name', 'type', 'severity', 'cost', 'accuracy', 'description')
+    __json__ = (*__slots__[:-1], 'desc')
+
+    def keygetter(self, key):
+        """"""
+        if key == 'type':
+            return self.type.value
+        elif key == 'severity':
+            return self.severity.name
+        elif key == 'desc':
+            return self.description
+        return getattr(self, key)
 
     def __init__(self, **kwargs):
         self.name = kwargs.pop("name")
@@ -271,6 +288,15 @@ class Player(JSONable):
     __slots__ = ('_owner_id', 'owner', 'name', 'skills', '_skills', 'exp', 'strength', 'magic', 'endurance',
                  'agility', 'luck', 'resistances', '_damage_taken', '_sp_used', '_stat_mod', '_stat_up')
     __json__ = ('owner', 'name', 'skills', 'exp', 'stats', 'resistances')
+
+    def keygetter(self, key):
+        if key == 'owner':
+            return self._owner_id
+        elif key == 'skills':
+            return list([z.name for z in self.skills])
+        elif key in ('stats', 'resistances'):
+            return list([z.value for z in getattr(self, key)])
+        return getattr(self, key)
 
     def __init__(self, **kwargs):
         self._owner_id = kwargs.pop("owner")
