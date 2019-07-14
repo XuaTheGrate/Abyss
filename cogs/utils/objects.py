@@ -275,7 +275,7 @@ class Player:
 
     @hp.setter
     def hp(self, value):
-        self._damage_taken = min(0, self._damage_taken + value)
+        self._damage_taken = max(0, self._damage_taken + value)
 
     @property
     def max_hp(self):
