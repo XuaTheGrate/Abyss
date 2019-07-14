@@ -207,6 +207,8 @@ class Player:
 
     Attributes
     ----------
+    name: :class:`str`
+        The name of the demon for this player.
     owner: :class:`discord.User`
         The user this player is wrapped around.
     skills: List[:class:`Skill`]
@@ -234,6 +236,7 @@ class Player:
     def __init__(self, **kwargs):
         self._owner_id = kwargs.pop("owner")
         self.owner = None
+        self.name = kwargs.pop("name")
         skills = kwargs.pop("skills")
         if all(isinstance(x, Skill) for x in skills):
             self.skills = skills
@@ -252,6 +255,7 @@ class Player:
 
     def __repr__(self):
         return (f"Player(owner={self._owner_id}, "
+                f"name='{self.name}', "
                 f"skills={self.skills}, "
                 f"exp={self.exp}, "
                 f"stats=[{self.strength}, {self.magic}, {self.endurance}, {self.agility}, {self.luck}], "
