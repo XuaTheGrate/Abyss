@@ -28,3 +28,7 @@ class Players(commands.Cog):
 
         async for skill in self.bot.db.adventure2.skills.find():
             self.skill_cache[skill['name']] = Skill(**skill)
+
+
+def setup(bot):
+    bot.add_cog(Players(bot))
