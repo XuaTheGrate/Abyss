@@ -150,7 +150,7 @@ class Skill:
                 f"type={self.type.value}, "
                 f"severity={self.severity.value}, "
                 f"cost={self.cost}, "
-                f"desc={self.description}, "
+                f"desc='{self.description}', "
                 f"accuracy={self.accuracy})")
 
     @property
