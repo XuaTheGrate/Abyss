@@ -468,8 +468,9 @@ class Player(JSONable):
 
         base = skill.damage_calc(attacker, self)
 
-        if attacker.try_crit(self.luck, self.affected_by(StatModifier.SUKU)):
-            base *= 1.75
+        if not skill.uses_sp:
+            if attacker.try_crit(self.luck, self.affected_by(StatModifier.SUKU)):
+                base *= 1.75
 
         if res is ResistanceModifier.WEAK:
             base *= 1.5
@@ -502,12 +503,12 @@ class Player(JSONable):
         :class:`bool`
             Whether a critical hit was landed."""
         base = CRITICAL_BASE
-        base /= suku_mod
+        base *= suku_mod
         base += ((self.luck/10) - (luck_mod/10))
-        base *= self.affected_by(StatModifier.SUKU)
+        base /= self.affected_by(StatModifier.SUKU)
         return random.randint(1, 100) <= base
 
-    def try_evade(self, modifier, skill):
+    def try_evade(self, modifier, skill, suku_mod):
         """Returns a bool indicating whether you successfully evaded the attack.
         Formula as follows:
             (non instant kill)
@@ -522,6 +523,8 @@ class Player(JSONable):
             The agility modifier of the attacking demon.
         skill: :class:`Skill`
             The skill to attempt to evade.
+        suku_mod: :class:`int`
+            The Suku* modifier of the attacking demon.
 
         Returns
         -------
@@ -538,6 +541,7 @@ class Player(JSONable):
                 base *= 0.9
 
         base *= self.affected_by(StatModifier.SUKU)
+        base /= suku_mod
 
         return random.randint(1, 100) > base
 
