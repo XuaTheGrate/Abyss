@@ -71,7 +71,7 @@ class AdventureTwo(commands.Bot):
             is a prepared webhook for sending errors to.
     """
     def __init__(self):
-        super().__init__('$')
+        super().__init__(self.prefix)
         self.prepared = asyncio.Event()
         # `prepared` is to make sure the bot has loaded the database and such
 
@@ -211,7 +211,7 @@ class AdventureTwo(commands.Bot):
             cfg = await self.get_guild_config(guild)
             PREFIXES[guild.id] = set(cfg['prefixes'])
 
-        return list(PREFIXES[guild.id] & set(config.PREFIX) & {f"<@{self.user.id}>", f"<@!{self.user.id}>"})
+        return list(PREFIXES[guild.id] | {f"<@{self.user.id}>", f"<@!{self.user.id}>"})
 
     async def add_prefixes(self, guild, *prefix):
         """Appends a prefix to the allowed prefixes.
