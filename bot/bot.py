@@ -281,9 +281,8 @@ class AdventureTwo(commands.Bot):
         if self.prepared.is_set():
             return
 
-        # begin with postgres as thats the most important one.
         try:
-            await self.db.adventure2.accounts.find({}).to_list(None)
+            await self.db.adventure2.accounts.find().to_list(None)
             # dummy query to ensure the db is connected
         except Exception as e:
             self.logger.error("COULD NOT CONNECT TO MONGODB DATABASE.")
@@ -295,9 +294,12 @@ class AdventureTwo(commands.Bot):
         self.logger.warning("Successfully loaded.")
 
     def run(self):
+        """"""
+        # stupid sphinx inheriting bug
         super().run(config.TOKEN)
 
     async def close(self):
+        """"""
         for guild in self.guilds:
             if not PREFIXES[guild.id]:
                 continue

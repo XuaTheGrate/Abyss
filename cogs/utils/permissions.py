@@ -5,7 +5,7 @@ from discord.ext.commands import check
 def check_permissions(*, allow_owner=True, **permissions):
     """A decorator applied to commands.
     This is an alternative to :func:`discord.ext.commands.has_permissions`,
-    which stores the permissions inside `command.callback.required_permissions.
+    which stores the permissions inside ``command.callback.required_permissions.``
 
     Parameters
     ----------

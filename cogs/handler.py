@@ -26,27 +26,13 @@ _handles = {
 
 
 class ErrorHandler(commands.Cog):
-    """The error handler for the bot. You shouldn't be reading this.
+    """The error handler for the bot. You shouldn't be reading this."""
 
-    Attributes
-    ----------
-    bot: :class:`bot.bot.AdventureTwo`
-        The botto.
-    """
     def __init__(self, bot):
         self.bot = bot
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, exc):
-        """Handles all command like errors in the bot.
-
-        Parameters
-        ----------
-        ctx: :class:`discord.ext.commands.Context`
-            The invocation context for the errored command.
-        exc: :class:`Exception`
-            The error that occured during invocation.
-        """
         if isinstance(exc, commands.CommandInvokeError):
             exc = exc.original
             await ctx.send("An internal error occured.")

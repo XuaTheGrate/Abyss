@@ -3,13 +3,7 @@ from discord.ext import commands
 
 
 class Prefixes(commands.Cog):
-    """Handles all prefix related actions.
-
-    Attributes
-    ----------
-    bot: :class:`bot.bot.AdventureTwo`
-        Le botto
-    """
+    """Handles all prefix related actions."""
     def __init__(self, bot):
         self.bot = bot
 
