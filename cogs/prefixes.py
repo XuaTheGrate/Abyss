@@ -7,11 +7,11 @@ class Prefixes(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group()
+    @commands.group(invoke_without_command=True)
     async def prefix(self, ctx: commands.Context):
         """Base command for prefix related commands.
         Empty invocation will show a list of all prefixes."""
-        prefixes = await self.bot.get_guild_prefixes(ctx.guild)
+        prefixes = await self.bot.prefixes_for(ctx.guild)
         prefixes = prefixes.copy()
         prefixes.remove(self.bot.user.mention)
         embed = discord.Embed(colour=discord.Colour.blurple(), title=f"{ctx.guild} prefixes")
