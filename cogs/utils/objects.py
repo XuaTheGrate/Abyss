@@ -1,6 +1,7 @@
 import math
 import random
 
+from discord.abc import User
 from discord.enums import Enum
 
 
@@ -79,6 +80,36 @@ SKILL_BASE = 65
 CRITICAL_BASE = 4
 
 
+class JSONable:
+    """Not to be instantiated normally."""
+    __json__ = ()
+
+    def to_json(self):
+        """Converts this object into a JSON-like object.
+
+        Returns
+        -------
+        :class:`dict`
+            The object converted for json storage."""
+        ret = {}
+        for k in self.__json__:
+            attr = getattr(self, k)
+            if isinstance(attr, dict):
+                attr = list(attr.values())
+            if isinstance(k, JSONable):
+                attr = attr.to_json()
+            elif isinstance(k, Severity):
+                attr = attr.name
+            elif isinstance(k, Enum):
+                attr = attr.value
+            elif isinstance(k, list) and all(isinstance(z, JSONable) for z in k):
+                attr = list(map(JSONable.to_json, attr))
+            elif isinstance(k, User):
+                attr = attr.id
+            ret[k] = attr
+        return ret
+
+
 class DamageResult:
     """Details about the result of a demon taking damage.
 
@@ -97,6 +128,8 @@ class DamageResult:
     was_reflected: :class:`bool`
         Whether the skill was initially reflected.
     """
+    __slots__ = ('resistance', 'damage_dealt', 'critical', 'miss', 'fainted', 'was_reflected')
+
     def __init__(self):
         self.resistance = ResistanceModifier.NORMAL
         self.damage_dealt = 0
@@ -110,7 +143,7 @@ class DamageResult:
                 f"critical={self.critical} miss={self.miss}>")
 
 
-class Skill:
+class Skill(JSONable):
     """A skill used for battling stuff.
     These aren't created manually, rather cached for later use.
 
@@ -130,6 +163,8 @@ class Skill:
     accuracy: :class:`int`
         The skills sub accuracy. 90 if it's not an instant kill
         type move."""
+    __slots__ = ('name', 'type', 'severity', 'cost', 'description', 'accuracy')
+    __json__ = __slots__
 
     def __init__(self, **kwargs):
         self.name = kwargs.pop("name")
@@ -233,6 +268,10 @@ class Player:
         Determines how often status effects land, as well as
         your critical chance.
     """
+    __slots__ = ('_owner_id', 'owner', 'name', 'skills', '_skills', 'exp', 'strength', 'magic', 'endurance',
+                 'agility', 'luck', 'resistances', '_damage_taken', '_sp_used', '_stat_mod', '_stat_up')
+    __json__ = ('owner', 'name', 'skills', 'exp', 'stats', 'resistances')
+
     def __init__(self, **kwargs):
         self._owner_id = kwargs.pop("owner")
         self.owner = None
@@ -260,6 +299,10 @@ class Player:
                 f"exp={self.exp}, "
                 f"stats=[{self.strength}, {self.magic}, {self.endurance}, {self.agility}, {self.luck}], "
                 f"resistances=[{', '.join(str(k.value) for k in self.resistances.values())}])")
+
+    @property
+    def stats(self):
+        return [self.strength, self.magic, self.endurance, self.agility, self.luck]
 
     @property
     def hp(self):
@@ -471,3 +514,4 @@ class Player:
         base *= self.affected_by(StatModifier.SUKU)
 
         return random.randint(1, 100) > base
+
