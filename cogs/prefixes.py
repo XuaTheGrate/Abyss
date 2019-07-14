@@ -30,7 +30,7 @@ class Prefixes(commands.Cog):
             To add a prefix with a space in it, use quotes, e.g.
                 `prefix add "foo bar"`
         """
-        await self.bot.add_prefies(ctx.guild, *prefixes)
+        await self.bot.add_prefixes(ctx.guild, *prefixes)
         await ctx.send(self.bot.tick_yes)
 
     @prefix.command()
