@@ -305,6 +305,6 @@ class AdventureTwo(commands.Bot):
                 continue
             await self.db.adventure2.guildconfig.update_one(
                 {"guild": guild.id},
-                {"$set": {"maps": list(PREFIXES[guild.id])}})
+                {"$set": {"prefixes": list(PREFIXES[guild.id])}})
         self.db.close()
         await super().close()
