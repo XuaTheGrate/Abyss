@@ -3,6 +3,7 @@ import io
 import logging
 import os
 from collections import defaultdict
+from contextlib import suppress
 from logging.handlers import TimedRotatingFileHandler
 
 import aiohttp
@@ -12,6 +13,14 @@ import motor.motor_asyncio
 
 import config
 from cogs import utils
+
+
+def do_next_script(msg):
+    def check(r, u):
+        return u.id == msg.author.id and \
+            r.message.id == msg.id and \
+            str(r.emoji) == '\u25b6'
+    return check
 
 
 def get_logger():
@@ -83,18 +92,52 @@ class AdventureTwo(commands.Bot):
 
         self.tick_yes = config.TICK_YES
         self.tick_no = config.TICK_NO
-
         self.debug_hook = config.DEBUG_WEBHOOK
+        self.unload_tasks = {}
 
         self.help_command = commands.MinimalHelpCommand(verify_checks=False)
 
+        self.add_check(self.global_check)
         self.prepare_extensions()
 
+    async def wait_for_close(self):
+        """Helper function that waits for all cogs to finish unloading."""
+        for cog, task in self.unload_tasks.items():
+            try:
+                await asyncio.wait_for(task, timeout=30)
+            except asyncio.TimeoutError:
+                self.logger.warning(f"{cog!r} unload task did not finish in time.")
+                task.cancel()
+
+    async def global_check(self, ctx):
+        if not ctx.guild:
+            raise commands.NoPrivateMessage
+        return True
+
+    async def continue_script(self, msg):
+        """Helper function that tells my message handler to go to the next script.
+
+        Parameters
+        ----------
+        msg: :class:`discord.Message`
+            The message to wait on.
+
+        Returns
+        -------
+        :class:`bool`
+            Whether to continue or not."""
+        try:
+            await self.wait_for("reaction_add", check=do_next_script(msg), timeout=120)
+        except asyncio.TimeoutError:
+            return False
+        else:
+            return True
+        finally:
+            with suppress(discord.HTTPException):
+                await msg.clear_reactions()
+
     # noinspection PyTypeChecker
-    async def _send_error(self, message, *, is_file=False):
-        if is_file:  # blame pycharm
-            if not isinstance(message, discord.File):
-                raise ValueError("uwot")
+    async def _send_error(self, message):
 
         # Hey, if you've stumbled upon this, you might be asking:
         # "Xua, why are you instantiating your own DMChannel?"
@@ -122,7 +165,7 @@ class AdventureTwo(commands.Bot):
 
                 # no mystbin, fallback to files
                 f = io.BytesIO(message.encode())
-                return await self._send_error(discord.File(f, "error.txt"), is_file=True)
+                return await self._send_error(discord.File(f, "error.txt"))
         elif isinstance(message, discord.File):
             await self.debug_hook.send(file=message)
         else:
@@ -302,6 +345,8 @@ class AdventureTwo(commands.Bot):
 
     async def close(self):
         """"""
+        self.dispatch("logout")
+        await self.wait_for_close()
         for guild in self.guilds:
             if not PREFIXES[guild.id]:
                 continue

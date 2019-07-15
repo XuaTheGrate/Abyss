@@ -2,7 +2,6 @@ import json
 import math
 import random
 
-from discord.abc import User
 from discord.enums import Enum
 
 
@@ -457,7 +456,7 @@ class Player(JSONable):
         if res is ResistanceModifier.IMMUNE:
             return result
 
-        if self.try_evade(attacker.agility/10, skill):
+        if self.try_evade(attacker.agility/10, skill, attacker.affected_by(StatModifier.SUKU)):
             result.miss = True
             return result
 
@@ -523,7 +522,7 @@ class Player(JSONable):
             The agility modifier of the attacking demon.
         skill: :class:`Skill`
             The skill to attempt to evade.
-        suku_mod: :class:`int`
+        suku_mod: :class:`float`
             The Suku* modifier of the attacking demon.
 
         Returns
@@ -545,3 +544,6 @@ class Player(JSONable):
 
         return random.randint(1, 100) > base
 
+    async def save(self, bot):
+        data = self.to_json()
+        await bot.db.adventure2.accounts.update_one({"owner": self._owner_id}, data)
