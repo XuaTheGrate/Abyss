@@ -72,7 +72,7 @@ class Players(commands.Cog):
         async for skill in self.bot.db.adventure2.skills.find():
             self.skill_cache[skill['name']] = Skill(**skill)
 
-        async for demon in self.bot.adventure2.basedemons.find():
+        async for demon in self.bot.db.adventure2.basedemons.find():
             self._base_demon_cache[demon['name']] = demon
 
     # -- finally, some fucking commands -- #
