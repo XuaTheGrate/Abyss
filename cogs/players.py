@@ -49,6 +49,10 @@ class Players(commands.Cog):
     def __repr__(self):
         return f"<PlayerHandler {len(self.players)} loaded,\n\t{self._skill_cache_task!r}>"
 
+    def cog_unload(self):
+        task = self.bot.unload_tasks.pop(self)
+        task.cancel()
+
     async def cog_before_invoke(self, ctx):
         try:
             ctx.player = self.players[ctx.author.id]
