@@ -53,7 +53,7 @@ class Players(commands.Cog):
         try:
             ctx.player = self.players[ctx.author.id]
         except KeyError:
-            data = self.bot.db.adventure2.accounts.find_one({"owner": ctx.author.id})
+            data = await self.bot.db.adventure2.accounts.find_one({"owner": ctx.author.id})
             if not data:
                 ctx.player = None
                 return
