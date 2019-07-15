@@ -7,6 +7,7 @@ from contextlib import suppress
 from logging.handlers import TimedRotatingFileHandler
 
 import aiohttp
+import aioredis
 import discord
 from discord.ext import commands
 import motor.motor_asyncio
@@ -68,6 +69,8 @@ class AdventureTwo(commands.Bot):
         The logger used for logging stuff.
     db: :class:`motor.motor_asyncio.AsyncIOMotorClient`
         The MongoDB database for storing shit.
+    redis: :class:`aioredis.ConnectionsPool`
+        The Redis connection.
     session: :class:`aiohttp.ClientSession`
         Session for internet getting stuff.
     tick_yes: :class:`str`
@@ -88,6 +91,7 @@ class AdventureTwo(commands.Bot):
 
         self.db = motor.motor_asyncio.AsyncIOMotorClient(
             username=config.MONGODB_USER, password=config.MONGODB_PASS, authSource=config.MONGODB_DBSE)
+        self.redis = None
         self.session = aiohttp.ClientSession()
 
         self.tick_yes = config.TICK_YES
@@ -334,6 +338,12 @@ class AdventureTwo(commands.Bot):
             self.logger.error("This could lead to fatal errors. Falling back prefixes to mentions only.")
             self.send_error(f"FAILED TO CONNECT TO MONGODB\n```py\n{utils.format_exc(e)}\n```")
             return
+
+        try:
+            self.redis = await aioredis.create_redis_pool(**config.REDIS)
+        except Exception as e:
+            self.logger.error("couldnt connect to redis")
+            self.send_error(F"failed to connect to redis\n```py\n{utils.format_exc(e)}\n```")
 
         self.prepared.set()
         self.logger.warning("Successfully loaded.")
