@@ -16,9 +16,11 @@ import config
 from cogs import utils
 
 
-def do_next_script(msg):
+def do_next_script(msg, author=None):
+    author = author or msg.author
+
     def check(r, u):
-        return u.id == msg.author.id and \
+        return u.id == author.id and \
             r.message.id == msg.id and \
             str(r.emoji) == '\u25b6'
     return check

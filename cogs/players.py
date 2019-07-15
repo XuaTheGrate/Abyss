@@ -86,10 +86,10 @@ class Players(commands.Cog):
         Todo:
         If you are a premium user, you can choose your demon.
         Otherwise, your demon will be fixed."""
-        for msg in await self.bot.redis.smembers(f"messages:0"):
+        for msg in await self.bot.redis.smembers("messages:0"):
             n = await ctx.send(msg)
             await n.add_reaction('\u25b6')
-            if not await self.bot.continue_script(n):
+            if not await self.bot.continue_script(n, ctx.author):
                 return
             await asyncio.sleep(10)
 
