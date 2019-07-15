@@ -87,7 +87,7 @@ class Players(commands.Cog):
         If you are a premium user, you can choose your demon.
         Otherwise, your demon will be fixed."""
         for msg in await self.bot.redis.smembers("messages:0"):
-            n = await ctx.send(msg)
+            n = await ctx.send(msg.decode())
             await n.add_reaction('\u25b6')
             if not await self.bot.continue_script(n, ctx.author):
                 return
