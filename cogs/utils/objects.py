@@ -9,6 +9,31 @@ from discord.enums import Enum
 # DMG = (5 * sqrt(Strength or Magic/Endurance*SkillPower) * random(0.95, 1.05)) / Raku
 
 
+class Arcana(Enum):
+    """Enumeration for various Arcana's."""
+    FOOL = 0
+    MAGICIAN = 1
+    PRIESTESS = 2
+    EMPRESS = 3
+    EMPEROR = 4
+    HIEROPHANT = 5
+    LOVERS = 6
+    CHARIOT = 7
+    JUSTICE = 8
+    HERMIT = 9
+    FORTUNE = 10
+    STRENGTH = 11
+    HANGED = 12
+    DEATH = 13
+    TEMPERANCE = 14
+    DEVIL = 15
+    TOWER = 16
+    STAR = 17
+    MOON = 18
+    SUN = 19
+    JUDGEMENT = 20
+
+
 class SkillType(Enum):
     """Enumeration for various skill types."""
     # -- physical -- #
@@ -266,6 +291,9 @@ class Player(JSONable):
         A list of skills this player has learnt and can use.
     exp: :class:`int`
         The total experience of this player.
+    resistances: Mapping[:class:`SkillType`, :class:`ResistanceModifier`]
+        A mapping of types and modifiers to denote the demon's
+        resistances.
     strength: :class:`int`
         Between 1-99, denotes the total physical strength of
         this player. Determines strength of physical attacks.

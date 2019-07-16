@@ -106,6 +106,10 @@ class AdventureTwo(commands.Bot):
         self.add_check(self.global_check)
         self.prepare_extensions()
 
+    @property
+    def players(self):
+        return self.get_cog("Players")
+
     async def wait_for_close(self):
         """Helper function that waits for all cogs to finish unloading."""
         for cog, task in self.unload_tasks.items():

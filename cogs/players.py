@@ -74,9 +74,11 @@ class Players(commands.Cog):
         await self.bot.prepared.wait()
 
         async for skill in self.bot.db.adventure2.skills.find():
+            skill.pop("_id")
             self.skill_cache[skill['name']] = Skill(**skill)
 
         async for demon in self.bot.db.adventure2.basedemons.find():
+            demon.pop("_id")
             self._base_demon_cache[demon['name']] = demon
 
     # -- finally, some fucking commands -- #
@@ -92,10 +94,10 @@ class Players(commands.Cog):
         Otherwise, your demon will be fixed."""
         for msg in await self.bot.redis.smembers("messages:0"):
             n = await ctx.send(msg.decode())
+            await asyncio.sleep(10)
             await n.add_reaction('\u25b6')
             if not await self.bot.continue_script(n, ctx.author):
                 return
-            await asyncio.sleep(10)
 
         random.seed(ctx.author.id)
         demon = random.choice(self._base_demon_cache.keys())
