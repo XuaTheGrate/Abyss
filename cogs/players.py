@@ -94,13 +94,13 @@ class Players(commands.Cog):
         Otherwise, your demon will be fixed."""
         for msg in await self.bot.redis.smembers("messages:0"):
             n = await ctx.send(msg.decode())
-            await asyncio.sleep(10)
+            await asyncio.sleep(5)
             await n.add_reaction('\u25b6')
             if not await self.bot.continue_script(n, ctx.author):
                 return
 
         random.seed(ctx.author.id)
-        demon = random.choice(self._base_demon_cache.keys())
+        demon = random.choice(list(self._base_demon_cache.keys()))
         random.seed(int(datetime.datetime.utcnow().timestamp()))
         await ctx.send(self._base_demon_cache[demon])
 
