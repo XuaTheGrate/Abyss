@@ -294,6 +294,8 @@ class Player(JSONable):
     resistances: Mapping[:class:`SkillType`, :class:`ResistanceModifier`]
         A mapping of types and modifiers to denote the demon's
         resistances.
+    arcana: :class:`Arcana`
+        The arcana for this demon.
     strength: :class:`int`
         Between 1-99, denotes the total physical strength of
         this player. Determines strength of physical attacks.
@@ -313,7 +315,7 @@ class Player(JSONable):
         your critical chance.
     """
     __slots__ = ('_owner_id', 'owner', 'name', 'skills', '_skills', 'exp', 'strength', 'magic', 'endurance',
-                 'agility', 'luck', 'resistances', '_damage_taken', '_sp_used', '_stat_mod', '_stat_up')
+                 'agility', 'luck', 'resistances', 'arcana', '_damage_taken', '_sp_used', '_stat_mod', '_stat_up')
     __json__ = ('owner', 'name', 'skills', 'exp', 'stats', 'resistances')
 
     def keygetter(self, key):
@@ -323,6 +325,8 @@ class Player(JSONable):
             return list([z.name for z in self.skills])
         elif key == 'resistances':
             return list([z.value for z in self.resistances.values()])
+        elif key == 'arcana':
+            return self.arcana.value
         return getattr(self, key)
 
     def __init__(self, **kwargs):
@@ -338,6 +342,7 @@ class Player(JSONable):
         self.exp = kwargs.pop("exp")
         self.strength, self.magic, self.endurance, self.agility, self.luck = kwargs.pop("stats")
         self.resistances = dict(zip(SkillType, map(ResistanceModifier, kwargs.pop("resistances"))))
+        self.arcana = Arcana(kwargs.pop("arcana"))
         self._damage_taken = 0
         self._sp_used = 0
         self._stat_mod = '000'
