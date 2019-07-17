@@ -328,7 +328,7 @@ class Player(JSONable):
             return list([z.value for z in self.resistances.values()])
         elif key == 'arcana':
             return self.arcana.value
-        elif key == 'speciality':
+        elif key == 'specialty':
             return self.specialty.name
         return getattr(self, key)
 
