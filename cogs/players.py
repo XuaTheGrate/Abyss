@@ -138,7 +138,7 @@ class Players(commands.Cog):
         embed.set_author(name=ctx.author, icon_url=ctx.author.avatar_url_as(format="png", size=32))
         res = {}
         for key, value_iter in itertools.groupby(list(ctx.player.resistances.items()), key=itemgetter(1)):
-            res.setdefault(key.name.lower(), []).append([v[0].name.lower() for v in value_iter])
+            res.setdefault(key.name.lower(), []).extend([v[0].name.lower() for v in value_iter])
         res.pop("normal", None)
         desc = _("""{this.description}
         
