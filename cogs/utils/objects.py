@@ -346,7 +346,7 @@ class Player(JSONable):
         self.strength, self.magic, self.endurance, self.agility, self.luck = kwargs.pop("stats")
         self.resistances = dict(zip(SkillType, map(ResistanceModifier, kwargs.pop("resistances"))))
         self.arcana = Arcana(kwargs.pop("arcana"))
-        self.specialty = SkillType[kwargs.pop("specialty")]
+        self.specialty = SkillType[kwargs.pop("specialty").upper()]
         self.description = kwargs.pop("description", "<no description found, report to Xua>")
         self._damage_taken = 0
         self._sp_used = 0
