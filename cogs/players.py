@@ -147,7 +147,7 @@ __Resistances__
 {res_fmt}
 """).format(
             this=ctx.player,
-            spec=f"{lookups.TYPE_TO_EMOJI[ctx.player.specialty.name]} {ctx.player.specialty.name}",
+            spec=f"{lookups.TYPE_TO_EMOJI[ctx.player.specialty.name.lower()]} {ctx.player.specialty.name.title()}",
             res_fmt="\n".join([f"{FMT[k]}: {' '.join(map(lambda x: lookups.TYPE_TO_EMOJI[x.lower()], v))}"
                                for k, v in res.items()]))
         embed.description = desc
