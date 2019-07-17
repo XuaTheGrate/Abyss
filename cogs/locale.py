@@ -34,3 +34,7 @@ class Locale(commands.Cog):
     async def list(self, ctx):
         """Lists all valid locales."""
         await ctx.send(", ".join(sorted(i18n.locales)))
+
+
+def setup(bot):
+    bot.add_cog(Locale(bot))
