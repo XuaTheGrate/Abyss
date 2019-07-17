@@ -20,7 +20,7 @@ class Locale(commands.Cog):
             get = 'en_US'
         else:
             get = get.decode()
-        await ctx.send(_("Your current locale is set to `{0}`.").foramt(get))
+        await ctx.send(_("Your current locale is set to `{0}`.").format(get))
 
     @locale.command()
     async def set(self, ctx, *, locale):
