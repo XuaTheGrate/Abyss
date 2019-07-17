@@ -314,9 +314,9 @@ class Player(JSONable):
         Determines how often status effects land, as well as
         your critical chance.
     """
-    __slots__ = ('_owner_id', 'owner', 'name', 'skills', '_skills', 'exp', 'strength', 'magic', 'endurance',
+    __slots__ = ('_owner_id', 'owner', 'name', 'skills', '_skills', 'exp', 'strength', 'magic', 'endurance', 'specialty',
                  'agility', 'luck', 'resistances', 'arcana', '_damage_taken', '_sp_used', '_stat_mod', '_stat_up')
-    __json__ = ('owner', 'name', 'skills', 'exp', 'stats', 'resistances')
+    __json__ = ('owner', 'name', 'skills', 'exp', 'stats', 'resistances', 'arcana', 'specialty')
 
     def keygetter(self, key):
         if key == 'owner':
@@ -327,6 +327,8 @@ class Player(JSONable):
             return list([z.value for z in self.resistances.values()])
         elif key == 'arcana':
             return self.arcana.value
+        elif key == 'speciality':
+            return self.specialty.name
         return getattr(self, key)
 
     def __init__(self, **kwargs):
@@ -343,6 +345,7 @@ class Player(JSONable):
         self.strength, self.magic, self.endurance, self.agility, self.luck = kwargs.pop("stats")
         self.resistances = dict(zip(SkillType, map(ResistanceModifier, kwargs.pop("resistances"))))
         self.arcana = Arcana(kwargs.pop("arcana"))
+        self.specialty = SkillType[kwargs.pop("speciality")]
         self._damage_taken = 0
         self._sp_used = 0
         self._stat_mod = '000'
@@ -545,8 +548,11 @@ class Player(JSONable):
         Formula as follows:
             (non instant kill)
             ``(SkillAccuracy + (Modifier / 10) / 2) - (Agility / 10) / 2``
+
             (instant kill)
             ``SkillAccuracy - (Agility / 10) / 2``
+
+            The base is then * by our Suku* boost, finally / the attackers Suku* boost.
 
 
         Parameters

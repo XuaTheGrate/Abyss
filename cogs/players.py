@@ -7,7 +7,7 @@ from .utils.objects import Player, Skill
 import collections
 
 
-class lru_dict(collections.OrderedDict):
+class LRUDict(collections.OrderedDict):
     """a dictionary with fixed size, sorted by last use
 
     credit to lambda#0987"""
@@ -40,7 +40,7 @@ class lru_dict(collections.OrderedDict):
 class Players(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.players = lru_dict(20, bot)
+        self.players = LRUDict(20, bot)
         self.skill_cache = {}
         self._base_demon_cache = {}
         self._skill_cache_task = self.bot.loop.create_task(self.cache_skills())
@@ -92,9 +92,18 @@ class Players(commands.Cog):
         Todo:
         If you are a premium user, you can choose your demon.
         Otherwise, your demon will be fixed."""
-        for msg in await self.bot.redis.smembers("messages:0"):
-            n = await ctx.send(msg.decode())
+        if ctx.player:
+            return await ctx.send("You already own a player.")
+
+        msg = _("This appears to be a public server. The messages sent can get spammy, or cause ratelimits.\n"
+                "It is advised to use a private server/channel.")
+
+        if sum(not m.bot for m in ctx.guild.members) > 100:
+            await ctx.send(msg)
             await asyncio.sleep(5)
+
+        for msg in reversed(await self.bot.redis.smembers("messages:0")):
+            n = await ctx.send(msg.decode())
             await n.add_reaction('\u25b6')
             if not await self.bot.continue_script(n, ctx.author):
                 return
@@ -102,7 +111,15 @@ class Players(commands.Cog):
         random.seed(ctx.author.id)
         demon = random.choice(list(self._base_demon_cache.keys()))
         random.seed(int(datetime.datetime.utcnow().timestamp()))
-        await ctx.send(self._base_demon_cache[demon])
+        data = self._base_demon_cache[demon]
+        data['owner'] = ctx.author.id
+        data['exp'] = 0
+        player = Player(**data)
+        player._populate_skills(self.bot)
+        await player.save(self.bot)
+
+        await ctx.send(
+            _("???: The deed is done. You have been given the demon `{player.name}`. Use its power wisely..."))
 
 
 def setup(bot):

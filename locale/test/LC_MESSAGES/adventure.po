@@ -1,0 +1,36 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR ORGANIZATION
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2019-07-17 18:04+1200\n"
+"PO-Revision-Date: 2019-07-17 18:22+1200\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.5\n"
+"X-Generator: Poedit 2.2.3\n"
+"Last-Translator: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Language: ja_JA\n"
+
+#: cogs/players.py:98
+msgid ""
+"This appears to be a public server. The messages sent can get spammy, or "
+"cause ratelimits.\n"
+"It is advised to use a private server/channel."
+msgstr ""
+"これはパブリック サーバーに似ています。送信されたメッセージはスパムと見な"
+"されるか、レート制限の原因です。\n"
+"プライベート サーバー/チャネルを使用することをお勧めします。"
+
+#: cogs/players.py:122
+msgid ""
+"???: The deed is done. You have been given the demon `{player.name}`. Use "
+"its power wisely..."
+msgstr ""
+"???:行為が行われます。悪魔`{player.name}`が与えられました。賢明にその力を"
+"使って..."
