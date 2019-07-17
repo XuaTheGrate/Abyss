@@ -314,8 +314,9 @@ class Player(JSONable):
         Determines how often status effects land, as well as
         your critical chance.
     """
-    __slots__ = ('_owner_id', 'owner', 'name', 'skills', '_skills', 'exp', 'strength', 'magic', 'endurance', 'specialty',
-                 'agility', 'luck', 'resistances', 'arcana', '_damage_taken', '_sp_used', '_stat_mod', '_stat_up')
+    __slots__ = ('_owner_id', 'owner', 'name', 'skills', '_skills', 'exp', 'strength', 'magic', 'endurance',
+                 'specialty', 'agility', 'luck', 'resistances', 'arcana', '_damage_taken', '_sp_used', '_stat_mod',
+                 '_stat_up', '_next_level')
     __json__ = ('owner', 'name', 'skills', 'exp', 'stats', 'resistances', 'arcana', 'specialty')
 
     def keygetter(self, key):
@@ -345,12 +346,14 @@ class Player(JSONable):
         self.strength, self.magic, self.endurance, self.agility, self.luck = kwargs.pop("stats")
         self.resistances = dict(zip(SkillType, map(ResistanceModifier, kwargs.pop("resistances"))))
         self.arcana = Arcana(kwargs.pop("arcana"))
-        self.specialty = SkillType[kwargs.pop("speciality")]
+        self.specialty = SkillType[kwargs.pop("specialty")]
+        self.description = kwargs.pop("description", "<no description found, report to Xua>")
         self._damage_taken = 0
         self._sp_used = 0
         self._stat_mod = '000'
         # [attack][defense][agility]
         self._stat_up = '000'
+        self._next_level = self.level+1
         # 1 if the corresponding key is a boost, 0 if its a debuff
 
     def __repr__(self):
@@ -403,6 +406,18 @@ class Player(JSONable):
         :class:`int`
             The current player's level."""
         return min(99, max(math.ceil(self.exp**.334), 1))
+
+    def has_levelled_up(self):
+        """Returns a bool indicated that the player has levelled up.
+
+        Returns
+        -------
+        :class:`bool`
+            The player has levelled up."""
+        if self._next_level >= self.level:
+            self._next_level = self.level + 1
+            return True
+        return False
 
     def _populate_skills(self, bot):
         self.owner = bot.get_user(self._owner_id)
