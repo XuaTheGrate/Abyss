@@ -422,7 +422,7 @@ class Player(JSONable):
     def _populate_skills(self, bot):
         self.owner = bot.get_user(self._owner_id)
         for skill in self._skills:
-            self.skills.append(bot.get_cog("Players").skill_cache[skill])
+            self.skills.append(bot.players.skill_cache[skill])
 
     def affected_by(self, modifier):
         """Returns a calculation modifier for specified key.
