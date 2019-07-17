@@ -134,11 +134,11 @@ class Players(commands.Cog):
         """Gets your current players status."""
         if not ctx.player:
             return await ctx.send(_("You don't own a player."))
-        embed = discord.Embed(title=ctx.player.name, colour=lookups.TYPE_TO_COLOUR[ctx.player.specialty.name])
+        embed = discord.Embed(title=ctx.player.name, colour=lookups.TYPE_TO_COLOUR[ctx.player.specialty.name.lower()])
         embed.set_author(name=ctx.author, icon_url=ctx.author.avatar_url_as(format="png", size=32))
         res = {}
         for key, value_iter in itertools.groupby(list(ctx.player.resistances.items()), key=itemgetter(1)):
-            res.setdefault(key.name().lower(), []).append([v[0].name().lower() for v in value_iter])
+            res.setdefault(key.name.lower(), []).append([v[0].name.lower() for v in value_iter])
         res.pop("normal", None)
         desc = _("""{this.description}
         
@@ -148,7 +148,7 @@ __Resistances__
 """).format(
             this=ctx.player,
             spec=f"{lookups.TYPE_TO_EMOJI[ctx.player.specialty.name]} {ctx.player.specialty.name}",
-            res_fmt="\n".join([f"{FMT[k]}: {' '.join(map(lambda x: lookups.TYPE_TO_EMOJI[x], v))}"
+            res_fmt="\n".join([f"{FMT[k]}: {' '.join(map(lambda x: lookups.TYPE_TO_EMOJI[x.lower()], v))}"
                                for k, v in res.items()]))
         embed.description = desc
         await ctx.send(embed=embed)
