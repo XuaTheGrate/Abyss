@@ -600,4 +600,4 @@ class Player(JSONable):
 
     async def save(self, bot):
         data = self.to_json()
-        await bot.db.adventure2.accounts.replace_one({"owner": self._owner_id}, data)
+        await bot.db.adventure2.accounts.replace_one({"owner": self._owner_id}, data, upsert=True)
