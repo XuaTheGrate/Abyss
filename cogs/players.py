@@ -1,10 +1,24 @@
 import asyncio
+import itertools
 import random
-import datetime
+from operator import itemgetter
+
+import discord
 from discord.ext import commands
+
+from .utils import lookups
 from .utils.objects import Player, Skill
 
 import collections
+
+
+FMT = {
+    'weak': 'Weak to:',
+    'resisted': 'Resists:',
+    'immune': 'Immune to:',
+    'absorb': 'Absorbs:',
+    'reflect': 'Reflects:'
+}
 
 
 class LRUDict(collections.OrderedDict):
@@ -84,16 +98,12 @@ class Players(commands.Cog):
     # -- finally, some fucking commands -- #
 
     @commands.command()
+    @commands.cooldown(1, 86400, commands.BucketType.user)
     async def create(self, ctx):
         """Creates a new player.
-        You will be given a random demon to use throughout your journey.
-        You cannot change this, it is the same demon even if you reset your account.
-
-        Todo:
-        If you are a premium user, you can choose your demon.
-        Otherwise, your demon will be fixed."""
+        You will be given a random demon to use throughout your journey."""
         if ctx.player:
-            return await ctx.send("You already own a player.")
+            return await ctx.send(_("You already own a player."))
 
         msg = _("This appears to be a public server. The messages sent can get spammy, or cause ratelimits.\n"
                 "It is advised to use a private server/channel.")
@@ -108,9 +118,7 @@ class Players(commands.Cog):
             if not await self.bot.continue_script(n, ctx.author):
                 return
 
-        random.seed(ctx.author.id)
         demon = random.choice(list(self._base_demon_cache.keys()))
-        random.seed(int(datetime.datetime.utcnow().timestamp()))
         data = self._base_demon_cache[demon]
         data['owner'] = ctx.author.id
         data['exp'] = 0
@@ -120,6 +128,30 @@ class Players(commands.Cog):
 
         await ctx.send(
             _("???: The deed is done. You have been given the demon `{player.name}`. Use its power wisely..."))
+
+    @commands.command()
+    async def status(self, ctx):
+        """Gets your current players status."""
+        if not ctx.player:
+            return await ctx.send(_("You don't own a player."))
+        embed = discord.Embed(title=ctx.player.name, colour=lookups.TYPE_TO_COLOUR[ctx.player.specialty.name])
+        embed.set_author(name=ctx.author, icon_url=ctx.author.avatar_url_as(format="png", size=32))
+        res = {}
+        for key, value_iter in itertools.groupby(list(ctx.player.resistances.items()), key=itemgetter(1)):
+            res.setdefault(key.name().lower(), []).append([v[0].name().lower() for v in value_iter])
+        res.pop("normal", None)
+        desc = _("""{this.description}
+        
+Specialty: {spec}
+__Resistances__
+{res_fmt}
+""").format(
+            this=ctx.player,
+            spec=f"{lookups.TYPE_TO_EMOJI[ctx.player.specialty.name]} {ctx.player.specialty.name}",
+            res_fmt="\n".join([f"{FMT[k]}: {' '.join(map(lambda x: lookups.TYPE_TO_EMOJI[x], v))}"
+                               for k, v in res.items()]))
+        embed.description = desc
+        await ctx.send(embed=embed)
 
 
 def setup(bot):
