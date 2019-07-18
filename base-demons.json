@@ -1,0 +1,12 @@
+[
+    {
+        "name": "Arsene",
+        "stats": [2, 2, 2, 3, 1],
+        "resistances": [2, 2, 2, 3, 2, 2, 3, 1, 2],
+        "skills": ["Eiha"],
+        "exp": 0,
+        "owner": null,
+        "specialty": "curse",
+        "arcana": "fool"
+    }
+]

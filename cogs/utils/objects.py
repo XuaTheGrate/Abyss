@@ -296,6 +296,10 @@ class Player(JSONable):
         resistances.
     arcana: :class:`Arcana`
         The arcana for this demon.
+    specialty: :class:`SkillType`
+        The type of skill this demon specializes in.
+    stat_points: :class:`int`
+        The remaining unspent skill points this player has.
     strength: :class:`int`
         Between 1-99, denotes the total physical strength of
         this player. Determines strength of physical attacks.
@@ -314,10 +318,7 @@ class Player(JSONable):
         Determines how often status effects land, as well as
         your critical chance.
     """
-    __slots__ = ('_owner_id', 'owner', 'name', 'skills', '_skills', 'exp', 'strength', 'magic', 'endurance',
-                 'specialty', 'agility', 'luck', 'resistances', 'arcana', '_damage_taken', '_sp_used', '_stat_mod',
-                 '_stat_up', '_next_level')
-    __json__ = ('owner', 'name', 'skills', 'exp', 'stats', 'resistances', 'arcana', 'specialty')
+    __json__ = ('owner', 'name', 'skills', 'exp', 'stats', 'resistances', 'arcana', 'specialty', 'stat_points')
 
     def keygetter(self, key):
         if key == 'owner':
@@ -348,13 +349,13 @@ class Player(JSONable):
         self.arcana = Arcana(kwargs.pop("arcana"))
         self.specialty = SkillType[kwargs.pop("specialty").upper()]
         self.description = kwargs.pop("description", "<no description found, report to Xua>")
+        self.stat_points = kwargs.pop("stat_points", 0)
         self._damage_taken = 0
         self._sp_used = 0
         self._stat_mod = '000'
         # [attack][defense][agility]
-        self._stat_up = '000'
+        self._until_clear = [0, 0, 0]  # turns until it gets cleared for each stat, max of 3 turns
         self._next_level = self.level+1
-        # 1 if the corresponding key is a boost, 0 if its a debuff
 
     def __repr__(self):
         return (f"Player(owner={self._owner_id}, "
@@ -362,11 +363,13 @@ class Player(JSONable):
                 f"skills={self.skills}, "
                 f"exp={self.exp}, "
                 f"stats=[{self.strength}, {self.magic}, {self.endurance}, {self.agility}, {self.luck}], "
-                f"resistances=[{', '.join(str(k.value) for k in self.resistances.values())}])")
+                f"resistances=[{', '.join(str(k.value) for k in self.resistances.values())}], "
+                f"description='{self.description}', "
+                f"stat_points={self.stat_points})")
 
     @property
     def stats(self):
-        return [self.strength, self.magic, self.endurance, self.agility, self.luck]
+        return self.strength, self.magic, self.endurance, self.agility, self.luck
 
     @property
     def hp(self):
@@ -394,6 +397,35 @@ class Player(JSONable):
         :class:`int`
             The maximum HP."""
         return math.ceil(50 + (4.7 * self.level))
+        
+    @property
+    def sp(self):
+        """Returns the total SP this player has remaining.
+        SP is used for non special moves such as Curse or
+        Healing types.
+        
+        Returns
+        -------
+        :class:`int`
+            The SP remaining.
+        """
+        return self.max_sp - self._sp_used
+        
+    @sp.setter
+    def sp(self, value):
+        self._sp_used = max(0, self._sp_used + value)
+        
+    @property
+    def max_sp(self):
+        """Returns the total SP this player can have.
+        ``ceil(30 + (3.6 * level))``
+        
+        Returns
+        -------
+        :class:`int`
+            The maximum SP.
+            """
+        return math.ceil(30 + (3.6 * self.level))
 
     @property
     def level(self):
@@ -407,17 +439,28 @@ class Player(JSONable):
             The current player's level."""
         return min(99, max(math.ceil(self.exp**.334), 1))
 
-    def has_levelled_up(self):
-        """Returns a bool indicated that the player has levelled up.
+    def level_up(self):
+        """Levels up the player."""
+        self._next_level += 1
+
+    @property
+    def can_level_up(self):
+        """Returns whether or not you are able to level up.
 
         Returns
         -------
         :class:`bool`
-            The player has levelled up."""
-        if self._next_level >= self.level:
-            self._next_level = self.level + 1
-            return True
-        return False
+            The player is ready to level up."""
+        return self._next_level >= self.level
+
+    def exp_to_next_level(self):
+        """Returns the total experience until the next level.
+
+        Returns
+        -------
+        :class:`int`
+            The total experience this player has until he can level up."""
+        return self._next_level**3 - self.exp
 
     def _populate_skills(self, bot):
         self.owner = bot.get_user(self._owner_id)
@@ -438,11 +481,9 @@ class Player(JSONable):
             The total modifier."""
         modifier = getattr(modifier, 'value', modifier)
 
-        if self._stat_mod[modifier] == '0':
-            return 1.0
-        if self._stat_up[modifier] == '1':
-            return 1.1
-        return 0.9
+        return 1.0 if self._stat_mod[modifier] == '0' \
+            else 1.05 if self._stat_mod[modifier] == '1' \
+            else 0.95
 
     def resists(self, type):
         """Gets how resisted the type is.
@@ -459,6 +500,8 @@ class Player(JSONable):
         try:
             return self.resistances[type]
         except KeyError:
+            if not isinstance(type, SkillType):
+                raise
             return ResistanceModifier.NORMAL
 
     def is_fainted(self):
@@ -535,11 +578,12 @@ class Player(JSONable):
             result.fainted = self.is_fainted()
         else:
             self.hp = -base
+            result.damage_dealt = -base
 
         return result
 
     def try_crit(self, luck_mod, suku_mod):
-        """Returns a bool indicating whether you landed a successful critical hit.
+        """Returns a bool indicating whether ``self`` landed a successful critical hit.
 
         Parameters
         ----------
@@ -553,13 +597,53 @@ class Player(JSONable):
         :class:`bool`
             Whether a critical hit was landed."""
         base = CRITICAL_BASE
-        base *= suku_mod
+        base /= suku_mod
         base += ((self.luck/10) - (luck_mod/10))
-        base /= self.affected_by(StatModifier.SUKU)
-        return random.randint(1, 100) <= base
+        base *= self.affected_by(StatModifier.SUKU)
+        return random.uniform(1, 100) <= base
+        
+    """ evasion / critical reference
+In [58]: for my_suku in (0.95, 1.0, 1.05):
+    ...:     for attacker_suku in (0.95, 1.0, 1.05):
+    ...:         base = 90  # todo: determine properly
+    ...:         base *= attacker_suku
+    ...:         base /= my_suku
+    ...:         print(f"Attacker: {attacker_suku:.2f}/{90*attacker_suku:.2f} | Me: {my_suku:.2f}/{90/my_suku:.2f} | {100-base:.2f} evasion chance")
+    ...:
+Attacker: mod \ base * mod | Me: mod \ base / mod | overall evasion chance
+Attacker: 0.95/85.50 | Me: 0.95/94.74 | 10.00 evasion chance
+Attacker: 1.00/90.00 | Me: 0.95/94.74 | 5.26 evasion chance
+Attacker: 1.05/94.50 | Me: 0.95/94.74 | 0.53 evasion chance
+Attacker: 0.95/85.50 | Me: 1.00/90.00 | 14.50 evasion chance
+Attacker: 1.00/90.00 | Me: 1.00/90.00 | 10.00 evasion chance
+Attacker: 1.05/94.50 | Me: 1.00/90.00 | 5.50 evasion chance
+Attacker: 0.95/85.50 | Me: 1.05/85.71 | 18.57 evasion chance
+Attacker: 1.00/90.00 | Me: 1.05/85.71 | 14.29 evasion chance
+Attacker: 1.05/94.50 | Me: 1.05/85.71 | 10.00 evasion chance
+
+In [59]: for my_suku in (0.95, 1.0, 1.05):
+    ...:     for attacker_suku in (0.95, 1.0, 1.05):
+    ...:         base = 4
+    ...:         base /= attacker_suku
+    ...:         base += ((my_luck/10) - (attacker_luck/10))
+    ...:         base *= my_suku
+    ...:         print(f"Attacker: {attacker_suku:.2f} | Me: {my_suku:.2f} | {base:.2f} chance to crit")
+    ...:
+    ...:
+Attacker: mod  | Me: mod  | overall chance to crit
+Attacker: 0.95 | Me: 0.95 | 4.00 chance to crit
+Attacker: 1.00 | Me: 0.95 | 3.80 chance to crit
+Attacker: 1.05 | Me: 0.95 | 3.62 chance to crit
+Attacker: 0.95 | Me: 1.00 | 4.21 chance to crit
+Attacker: 1.00 | Me: 1.00 | 4.00 chance to crit
+Attacker: 1.05 | Me: 1.00 | 3.81 chance to crit
+Attacker: 0.95 | Me: 1.05 | 4.42 chance to crit
+Attacker: 1.00 | Me: 1.05 | 4.20 chance to crit
+Attacker: 1.05 | Me: 1.05 | 4.00 chance to crit
+    """
 
     def try_evade(self, modifier, skill, suku_mod):
-        """Returns a bool indicating whether you successfully evaded the attack.
+        """Returns a bool indicating whether ``self`` successfully evaded the attack.
         Formula as follows:
             (non instant kill)
             ``(SkillAccuracy + (Modifier / 10) / 2) - (Agility / 10) / 2``
@@ -567,7 +651,8 @@ class Player(JSONable):
             (instant kill)
             ``SkillAccuracy - (Agility / 10) / 2``
 
-            The base is then * by our Suku* boost, finally / the attackers Suku* boost.
+            The base is then * by ``self``'s Suku* boost, finally / the attackers Suku* boost.
+            If the attack is an instant kill, the base is also * by ``self``'s resistance.
 
 
         Parameters
@@ -596,8 +681,17 @@ class Player(JSONable):
         base *= self.affected_by(StatModifier.SUKU)
         base /= suku_mod
 
-        return random.randint(1, 100) > base
+        return random.uniform(1, 100) < base
 
     async def save(self, bot):
+        """Flushes the player to the database.
+        Usually not called manually.
+        Requires passing of the ``bot`` parameter to access the database.
+        
+        Parameters
+        ----------
+        bot: :class:`bot.bot.AdventureTwo`
+            The bot object to save
+        """
         data = self.to_json()
         await bot.db.adventure2.accounts.replace_one({"owner": self._owner_id}, data, upsert=True)

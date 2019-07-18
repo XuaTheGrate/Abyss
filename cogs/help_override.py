@@ -18,4 +18,4 @@ class I18nHelpCommand(commands.MinimalHelpCommand):
 
 
 def setup(bot):
-    bot.help_command = I18nHelpCommand(verify_checks=False)
+    bot.help_command = I18nHelpCommand()

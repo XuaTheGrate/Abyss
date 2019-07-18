@@ -14,7 +14,7 @@ import collections
 
 FMT = {
     'weak': 'Weak to:',
-    'resisted': 'Resists:',
+    'resist': 'Resists:',
     'immune': 'Immune to:',
     'absorb': 'Absorbs:',
     'reflect': 'Reflects:'
@@ -143,6 +143,7 @@ class Players(commands.Cog):
         desc = _("""{this.description}
         
 Specialty: {spec}
+
 __Resistances__
 {res_fmt}
 """).format(

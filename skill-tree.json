@@ -1,0 +1,162 @@
+{
+    "curse": [
+        {
+            "identifier": "curse:0",
+            "skills": ["Eiha", "Curse Shield"],
+            "unlocks": ["curse:1", "dark:0"],
+            "cost": 5000
+        },
+        {
+            "identifier": "curse:1",
+            "skills": ["Maeiha", "Curse Shield"],
+            "unlocks": ["curse:2"],
+            "cost": 10000
+        },
+        {
+            "identifier": "curse:2",
+            "skills": ["Eiga"],
+            "unlocks": ["curse:3"],
+            "cost": 15000
+        },
+        {
+            "identifier": "curse:3",
+            "skills": ["Maeiga"],
+            "unlocks": ["curse:4"],
+            "cost": 20000
+        },
+        {
+            "identifier": "curse:4",
+            "skills": ["Eigaon", "Curse Boost"],
+            "unlocks": ["curse:5"],
+            "cost": 25000
+        },
+        {
+            "identifier": "curse:5",
+            "skills": ["Maeigaon", "Repel Curse"],
+            "unlocks": ["curse:6"],
+            "cost": 35000
+        },
+        {
+            "identifier": "curse:6",
+            "skills": ["Hell's Curse", "Curse Amp"],
+            "unlocks": ["curse:7"],
+            "cost": 50000
+        },
+        {
+            "identifier": "curse:7",
+            "skills": ["Ungodly Prudence", "Absorb Curse"],
+            "cost": 75000
+        }
+    ],
+    "dark": [
+        {
+            "identifier": "dark:0",
+            "skills": ["Mudo"],
+            "cost": 20000,
+            "unlocks": ["dark:1"]
+        },
+        {
+            "identifier": "dark:1",
+            "skills": ["Mamudo", "Resist Dark"],
+            "cost": 30000,
+            "unlocks": ["dark:2"]
+        },
+        {
+            "identifier": "dark:2",
+            "skills": ["Mudoon", "Null Dark"],
+            "cost": 40000,
+            "unlocks": ["dark:3"]
+        },
+        {
+            "identifier": "dark:3",
+            "skills": ["Mamudoon", "Mudo Boost"],
+            "cost": 50000,
+            "unlocks": ["dark:4"]
+        },
+        {
+            "identifier": "dark:4",
+            "skills": ["Die for Me!", "Repel Dark"],
+            "cost": 75000
+        }
+    ],
+    "bless": [
+        {
+            "identifier": "bless:0",
+            "skills": ["Kouha"],
+            "unlocks": ["bless:1", "light:0"],
+            "cost": 5000
+        },
+        {
+            "identifier": "bless:1",
+            "skills": ["Makouha", "Bless Shield"],
+            "unlocks": ["bless:2"],
+            "cost": 10000
+        },
+        {
+            "identifier": "bless:2",
+            "skills": ["Kouga"],
+            "unlocks": ["bless:3"],
+            "cost": 15000
+        },
+        {
+            "identifier": "bless:3",
+            "skills": ["Makouga", "Null Bless"],
+            "unlocks": ["bless:4"],
+            "cost": 20000
+        },
+        {
+            "identifier": "bless:4",
+            "skills": ["Kougaon", "Bless Boost"],
+            "unlocks": "bless:5",
+            "cost": 25000
+        },
+        {
+            "identifier": "bless:5",
+            "skills": ["Makougaon", "Repel Bless"],
+            "unlocks": "bless:6",
+            "cost": 35000
+        },
+        {
+            "identifier": "bless:6",
+            "skills": ["Heaven's Blessing", "Bless Amp"],
+            "unlocks": "bless:7",
+            "cost": 50000
+        },
+        {
+            "identifier": "bless:7",
+            "skills": ["Divine Judgement", "Absorb Bless"],
+            "cost": 750000
+        }
+    ],
+    "light": [
+        {
+            "identifier": "light:0",
+            "skills": ["Hama"],
+            "unlocks": "light:1",
+            "cost": 20000
+        },
+        {
+            "identifier": "light:1",
+            "skills": ["Mahama", "Resist Light"],
+            "unlocks": "light:2",
+            "cost": 30000
+        },
+        {
+            "identifier": "light:2",
+            "skills": ["Hamaon", "Null Light"],
+            "unlocks": ["light:3"],
+            "cost": 40000
+        },
+        {
+            "identifier": "light:3",
+            "skills": ["Mahamaon", "Hama Boost"],
+            "unlocks": ["light:4"],
+            "cost": 50000
+        },
+        {
+            "identifier": "light:4",
+            "skills": ["Samsara", "Repel Light"],
+            "cost": 75000
+        }
+    ]
+}
