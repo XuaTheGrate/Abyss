@@ -1,12 +1,16 @@
 import json5
 import math
 import random
+import re
 
 from discord.enums import Enum
 
 
 # Damage calc
 # DMG = (5 * sqrt(Strength or Magic/Endurance*SkillPower) * random(0.95, 1.05)) / Raku
+
+QUOT_REPL_ALPHA = re.compile(r"({|, )(')(.*?)(')([^, ])")  # \2\4
+QUOT_REPL_BETA = re.compile(r"(')(.+)(')")  # "\2"
 
 
 class Arcana(Enum):
@@ -266,7 +270,8 @@ class JSONable:
     @staticmethod
     def _serialize(o):
         if not hasattr(o, '__json__'):
-            return str(o)
+            i = QUOT_REPL_ALPHA.sub(r'\2\4', repr(o))
+            return QUOT_REPL_BETA.sub(r'"\2"', i)
         return {k: o.keygetter(k) for k in o.__json__ if not k.startswith('_')}
 
     def keygetter(self, key):
