@@ -1,4 +1,4 @@
-import json
+import json5
 import math
 import random
 
@@ -290,7 +290,7 @@ class JSONable:
         -------
         :class:`dict`
             The object converted for json storage."""
-        ret = json.loads(json.dumps(self, default=self._serialize))
+        ret = json5.loads(json5.dumps(self, default=self._serialize))
         return ret
 
 
@@ -453,6 +453,8 @@ class Player(JSONable):
         The type of skill this demon specializes in.
     stat_points: :class:`int`
         The remaining unspent skill points this player has.
+    description: :class:`str`
+        The demons description about its past.
     strength: :class:`int`
         Between 1-99, denotes the total physical strength of
         this player. Determines strength of physical attacks.
@@ -503,12 +505,17 @@ class Player(JSONable):
         self.specialty = SkillType[kwargs.pop("specialty").upper()]
         self.description = kwargs.pop("description", "<no description found, report to Xua>")
         self.stat_points = kwargs.pop("stat_points", 0)
+        self.debug = kwargs.pop("testing", False)
         self._damage_taken = 0
         self._sp_used = 0
         self._stat_mod = '000'
         # [attack][defense][agility]
         self._until_clear = [0, 0, 0]  # turns until it gets cleared for each stat, max of 3 turns
         self._next_level = self.level+1
+
+        if kwargs:
+            import warnings
+            warnings.warn(f"{self.name}: kwargs not cleared, {kwargs}", UserWarning)
 
     def __repr__(self):
         return (f"Player(owner={self._owner_id}, "

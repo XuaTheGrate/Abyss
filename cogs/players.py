@@ -118,8 +118,14 @@ class Players(commands.Cog):
             if not await self.bot.continue_script(n, ctx.author):
                 return
 
-        demon = random.choice(list(self._base_demon_cache.keys()))
-        data = self._base_demon_cache[demon]
+        if not await self.bot.is_owner(ctx.author):
+            demon = random.choice(list(self._base_demon_cache.keys()))
+            data = self._base_demon_cache[demon]
+            while data['testing']:
+                demon = random.choice(list(self._base_demon_cache.keys()))
+                data = self._base_demon_cache[demon]
+        else:
+            data = self._base_demon_cache['debug']
         data['owner'] = ctx.author.id
         data['exp'] = 0
         player = Player(**data)
@@ -127,7 +133,8 @@ class Players(commands.Cog):
         await player.save(self.bot)
 
         await ctx.send(
-            _("???: The deed is done. You have been given the demon `{player.name}`. Use its power wisely..."))
+            _("???: The deed is done. You have been given the demon `{player.name}`. Use its power wisely...").format(
+                player=player))
 
     @commands.command()
     async def status(self, ctx):

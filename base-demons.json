@@ -1,12 +1,26 @@
 [
     {
-        "name": "Arsene",
-        "stats": [2, 2, 2, 3, 1],
-        "resistances": [2, 2, 2, 3, 2, 2, 3, 1, 2],
-        "skills": ["Eiha"],
-        "exp": 0,
-        "owner": null,
-        "specialty": "curse",
-        "arcana": 0
+        name: "Arsene",
+        stats: [2, 2, 2, 3, 1],
+        resistances: [2, 2, 2, 3, 2, 2, 3, 1, 2, 2, 2],
+        skills: ["Eiha"],
+        exp: 0,
+        owner: null,
+        specialty: "curse",
+        arcana: 0,
+        description: null,
+        testing: false
+    },
+    {
+        name: "debug",
+        stats: [3, 3, 3, 3, 3],
+        resistances: [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+        skills: ["Morning Star"],
+        exp: 0,
+        owner: null,
+        specialty: "almighty",
+        arcana: 20,
+        description: "you shouldnt be seeing this",
+        testing: true
     }
 ]
