@@ -443,9 +443,8 @@ Skill
         if self.is_instant_kill:
             return target.hp
 
-        base = 5 * math.sqrt((attacker.magic if self.uses_sp else attacker.strength) / target.endurance * SKILL_BASE
-                             ) * random.uniform(0.95, 1.05)
-        base *= self.severity.value
+        base = 5 * math.sqrt((attacker.magic if self.uses_sp else attacker.strength) / target.endurance * (
+                SKILL_BASE * self.severity.value)) * random.uniform(0.95, 1.05)
         base *= attacker.affected_by(StatModifier.TARU)
         base /= target.affected_by(StatModifier.RAKU)
         return min(target.hp, base)
