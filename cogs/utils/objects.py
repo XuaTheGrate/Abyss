@@ -275,8 +275,7 @@ class JSONable:
             i = QUOT_REPL_ALPHA.sub(r'\1\3\5', o)
             return QUOT_REPL_BETA.sub(r'"\2"', i)
         # noinspection PyTypeChecker
-        return self._serialize({k: self._serialize(
-            o.keygetter(k)) for k in o.__json__ if not k.startswith('_')})
+        return self._serialize({k: o.keygetter(k) for k in o.__json__ if not k.startswith('_')})
 
     def keygetter(self, key):
         """Allows you to map certain attributes to other names.
