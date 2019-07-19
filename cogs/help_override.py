@@ -40,14 +40,11 @@ class I18nHelpCommand(commands.MinimalHelpCommand):
             cmdhelp = ""
         for line in cmdhelp.split('\n'):
             self.paginator.add_line(line.strip())
-        self.paginator.add_line("")
-        if not isinstance(command, commands.Group) or len(command.commands) > 0:
-            self.paginator.add_line(self.get_opening_note())
-        else:
-            self.paginator.add_line(self.get_opening_note(), empty=True)
-            self.paginator.add_line(_("**Commands**"))
-            for cmd in set(command.commands):
-                self.paginator.add_line(f"{self.clean_prefix}{command.qualified_name} {cmd.name}")
+        self.paginator.add_line()
+        self.paginator.add_line(self.get_opening_note(), empty=True)
+        self.paginator.add_line(_("**Commands**"))
+        for cmd in set(command.commands):
+            self.paginator.add_line(f"{self.clean_prefix}{command.qualified_name} {cmd.name}")
         await self.send_pages()
 
     async def send_command_help(self, command):
