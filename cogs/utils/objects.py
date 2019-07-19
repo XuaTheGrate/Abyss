@@ -267,12 +267,15 @@ class JSONable:
     Allows objects to be JSON serializable, via :meth:`.to_json`."""
     __json__ = ()
 
-    @staticmethod
-    def _serialize(o):
+    def _serialize(self, o):
         if not hasattr(o, '__json__'):
-            i = QUOT_REPL_ALPHA.sub(r'\2\4', repr(o))
+            if not isinstance(o, str):
+                o = repr(o)
+            i = QUOT_REPL_ALPHA.sub(r'\2\4', o)
             return QUOT_REPL_BETA.sub(r'"\2"', i)
-        return {k: o.keygetter(k) for k in o.__json__ if not k.startswith('_')}
+        # noinspection PyTypeChecker
+        return self._serialize({k: self._serialize(
+            o.keygetter(k)) for k in o.__json__ if not k.startswith('_')})
 
     def keygetter(self, key):
         """Allows you to map certain attributes to other names.
