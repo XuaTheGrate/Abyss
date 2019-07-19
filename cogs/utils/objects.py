@@ -9,8 +9,9 @@ from discord.enums import Enum
 # Damage calc
 # DMG = (5 * sqrt(Strength or Magic/Endurance*SkillPower) * random(0.95, 1.05)) / Raku
 
-QUOT_REPL_ALPHA = re.compile(r"({|, )(')(.*?)(')([^, ])")  # \2\4
-QUOT_REPL_BETA = re.compile(r"(')(.+)(')")  # "\2"
+QUOT_REPL_ALPHA = re.compile(r"({|, )(')(.*?)(')([^, ])")  # \1\3\5
+QUOT_REPL_BETA = re.compile(r"(')([^:]+)?(')")  # "\2"
+# TODO: hi this is a reminder, dont use `:` in your demon descriptions kthx
 
 
 class Arcana(Enum):
@@ -271,7 +272,7 @@ class JSONable:
         if not hasattr(o, '__json__'):
             if not isinstance(o, str):
                 o = repr(o)
-            i = QUOT_REPL_ALPHA.sub(r'\2\4', o)
+            i = QUOT_REPL_ALPHA.sub(r'\1\3\5', o)
             return QUOT_REPL_BETA.sub(r'"\2"', i)
         # noinspection PyTypeChecker
         return self._serialize({k: self._serialize(
