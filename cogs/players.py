@@ -126,6 +126,7 @@ class Players(commands.Cog):
                 data = self._base_demon_cache[demon]
         else:
             data = self._base_demon_cache['debug']
+            data['testing'] = True
         data['owner'] = ctx.author.id
         data['exp'] = 0
         self.players[ctx.author.id] = player = Player(**data)

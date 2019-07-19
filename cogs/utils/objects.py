@@ -509,6 +509,7 @@ class Player(JSONable):
         return getattr(self, key)
 
     def __init__(self, **kwargs):
+        kwargs.pop("_id")
         self._owner_id = kwargs.pop("owner")
         self.owner = None
         self.name = kwargs.pop("name")
