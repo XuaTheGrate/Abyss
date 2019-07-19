@@ -1,5 +1,6 @@
 import json5
 import math
+import operator
 import random
 import re
 
@@ -373,7 +374,7 @@ class Skill(JSONable):
         type_ = kwargs.pop("type")
         try:
             self.type = SkillType[type_.upper()]
-        except (AttributeError, KeyError):
+        except AttributeError:
             # noinspection PyArgumentList
             self.type = SkillType(type_)
         self.severity = Severity[kwargs.pop("severity").upper()]
@@ -389,6 +390,17 @@ class Skill(JSONable):
                 f"cost={self.cost}, "
                 f"desc='{self.description}', "
                 f"accuracy={self.accuracy})")
+
+    def _debug_repr(self):
+        return f"""```
+Skill
+    name:     {self.name}
+    type:     {self.type!r}
+    severity: {self.severity!r}
+    cost:     {self.cost}
+    desc:     {self.description}
+    accuracy: {self.accuracy}
+```"""
 
     @property
     def uses_sp(self):
@@ -489,7 +501,7 @@ class Player(JSONable):
         elif key == 'skills':
             return list([z.name for z in self.skills])
         elif key == 'resistances':
-            return list([z.value for z in self.resistances.values()])
+            return self._resistances
         elif key == 'arcana':
             return self.arcana.value
         elif key == 'specialty':
@@ -508,7 +520,13 @@ class Player(JSONable):
             self._skills = skills
         self.exp = kwargs.pop("exp")
         self.strength, self.magic, self.endurance, self.agility, self.luck = kwargs.pop("stats")
-        self.resistances = dict(zip(SkillType, map(ResistanceModifier, kwargs.pop("resistances"))))
+        # self.resistances = dict(zip(SkillType, map(ResistanceModifier, kwargs.pop("resistances"))))
+        self._resistances = kwargs.pop("resistances")
+        self.resistances = dict(zip(SkillType, [
+                    ResistanceModifier.WEAK if x == 3
+                    else ResistanceModifier.RESIST if x == 1
+                    else ResistanceModifier.NORMAL
+                    for x in self._resistances]))
         self.arcana = Arcana(kwargs.pop("arcana"))
         self.specialty = SkillType[kwargs.pop("specialty").upper()]
         self.description = kwargs.pop("description", "<no description found, report to Xua>")
@@ -516,7 +534,7 @@ class Player(JSONable):
         self.debug = kwargs.pop("testing", False)
         self._damage_taken = 0
         self._sp_used = 0
-        self._stat_mod = '000'
+        self._stat_mod = [0, 0, 0]
         # [attack][defense][agility]
         self._until_clear = [0, 0, 0]  # turns until it gets cleared for each stat, max of 3 turns
         self._next_level = self.level+1
@@ -530,10 +548,33 @@ class Player(JSONable):
                 f"name='{self.name}', "
                 f"skills={self.skills}, "
                 f"exp={self.exp}, "
-                f"stats=[{self.strength}, {self.magic}, {self.endurance}, {self.agility}, {self.luck}], "
-                f"resistances=[{', '.join(str(k.value) for k in self.resistances.values())}], "
+                f"stats={self.stats}, "
+                f"resistances={self._resistances}, "
                 f"description='{self.description}', "
-                f"stat_points={self.stat_points})")
+                f"stat_points={self.stat_points}, "
+                f"arcana={self.arcana.value}, "
+                f"specialty='{self.specialty.name}')")
+
+    def _debug_repr(self):
+        return f"""```
+Player
+    name:          {self.name}
+    skills:        {", ".join(map(operator.attrgetter('name', self.skills)))}
+    exp:           {self.exp}
+    stats:         {self.stats}
+    resistances:   {self._resistances}
+    description:   {self.description}
+    stat_points:   {self.stat_points}
+    arcana:        {self.arcana!r}
+    specialty:     {self.specialty!r}
+
+    debug:         {self.debug}
+    _damage_taken: {self._damage_taken}    
+    _sp_used:      {self._sp_used}
+    _stat_mod:     {self._stat_mod}
+    _until_clear:  {self._until_clear}
+    _next_level:   {self._next_level} 
+```"""
 
     @property
     def stats(self):
@@ -565,7 +606,7 @@ class Player(JSONable):
         :class:`int`
             The maximum HP."""
         return math.ceil(50 + (4.7 * self.level))
-        
+
     @property
     def sp(self):
         """Returns the total SP this player has remaining.
@@ -578,11 +619,11 @@ class Player(JSONable):
             The SP remaining.
         """
         return self.max_sp - self._sp_used
-        
+
     @sp.setter
     def sp(self, value):
         self._sp_used = max(0, self._sp_used + value)
-        
+
     @property
     def max_sp(self):
         """Returns the total SP this player can have.
@@ -649,8 +690,8 @@ class Player(JSONable):
             The total modifier."""
         modifier = getattr(modifier, 'value', modifier)
 
-        return 1.0 if self._stat_mod[modifier] == '0' \
-            else 1.05 if self._stat_mod[modifier] == '1' \
+        return 1.0 if self._stat_mod[modifier] == 0 \
+            else 1.05 if self._stat_mod[modifier] == 1 \
             else 0.95
 
     def resists(self, type):
@@ -682,8 +723,7 @@ class Player(JSONable):
         :class:`bool`
             The player has fainted."""
         if self.hp <= 0:
-            self._stat_mod = '000'
-            self._stat_up = '000'
+            self._stat_mod = [0, 0, 0]
             return True
         return False
 
@@ -769,7 +809,7 @@ class Player(JSONable):
         base += ((self.luck/10) - (luck_mod/10))
         base *= self.affected_by(StatModifier.SUKU)
         return random.uniform(1, 100) <= base
-        
+
     """ evasion / critical reference
 In [58]: for my_suku in (0.95, 1.0, 1.05):
     ...:     for attacker_suku in (0.95, 1.0, 1.05):
