@@ -361,12 +361,10 @@ class AdventureTwo(commands.Bot):
         if message.author.bot:
             return
 
-        ctx = await self.get_context(message)
-        if ctx.valid:
-            current = await self.redis.get(f"locale:{message.author.id}")
-            if not current:
-                current = i18n.LOCALE_DEFAULT.encode()
-            i18n.current_locale.set(current.decode())
+        current = await self.redis.get(f"locale:{message.author.id}")
+        if not current:
+            current = i18n.LOCALE_DEFAULT.encode()
+        i18n.current_locale.set(current.decode())
 
         await self.process_commands(message)
 
