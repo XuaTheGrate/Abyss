@@ -2,8 +2,6 @@ import os
 
 from discord.ext import commands
 
-from .utils import i18n
-
 
 class I18nHelpCommand(commands.MinimalHelpCommand):
     def __init__(self, **options):
@@ -23,6 +21,9 @@ class I18nHelpCommand(commands.MinimalHelpCommand):
     def get_opening_note(self):
         return _("Use `{0}help [command]` for more info on a command.").format(self.clean_prefix)
 
+    async def send_cog_help(self, cog):  # no cog specific help
+        return await self.send_bot_help(self.get_bot_mapping())
+
     async def send_group_help(self, command):
         self.paginator.add_line(self.get_command_signature(command), empty=True)
         locale = await self.context.bot.redis.get(f"locale:{self.context.author.id}")
@@ -32,19 +33,19 @@ class I18nHelpCommand(commands.MinimalHelpCommand):
             locale = locale.decode()
         if not os.path.isfile(f"cogs/help/{locale}/{command.qualified_name.replace(' ', '_')}"):
             cmdhelp = command.help
-            self.context.bot.logger.warning(
-                f"no such file: cogs/help/{locale}/{command.qualified_name.replace(' ', '_')}")
+            # self.context.bot.logger.warning(
+            #     f"no such file: cogs/help/{locale}/{command.qualified_name.replace(' ', '_')}")
         else:
             with open(f"cogs/help/{locale}/{command.qualified_name.replace(' ', '_')}") as f:
                 cmdhelp = f.read().strip()
         if not cmdhelp:
             cmdhelp = ""
         for line in cmdhelp.split('\n'):
-            self.paginator.add_line(line.strip())
+            self.paginator.add_line(line)
         self.paginator.add_line()
         self.paginator.add_line(self.get_opening_note(), empty=True)
         self.paginator.add_line(_("**Commands**"))
-        for cmd in set(command.commands):
+        for cmd in sorted(set(command.commands), key=lambda m: m.name):
             self.paginator.add_line(f"{self.clean_prefix}{command.qualified_name} {cmd.name}")
         await self.send_pages()
 
@@ -57,18 +58,19 @@ class I18nHelpCommand(commands.MinimalHelpCommand):
             locale = locale.decode()
         if not os.path.isfile(f"cogs/help/{locale}/{command.qualified_name.replace(' ', '_')}"):
             cmdhelp = command.help
-            self.context.bot.logger.warning(
-                f"no such file: cogs/help/{locale}/{command.qualified_name.replace(' ', '_')}")
+            # self.context.bot.logger.warning(
+            #     f"no such file: cogs/help/{locale}/{command.qualified_name.replace(' ', '_')}")
         else:
             with open(f"cogs/help/{locale}/{command.qualified_name.replace(' ', '_')}") as f:
                 cmdhelp = f.read().strip()
         if not cmdhelp:
             cmdhelp = ""
         for line in cmdhelp.split('\n'):
-            self.paginator.add_line(line.strip())
+            self.paginator.add_line(line)
         self.paginator.add_line()
         self.paginator.add_line(self.get_opening_note())
         await self.send_pages()
+
 
 
 def setup(bot):
