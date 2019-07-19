@@ -271,7 +271,7 @@ class JSONable:
     def _serialize(self, o):
         if not hasattr(o, '__json__'):
             if not isinstance(o, str):
-                o = repr(o)
+                o = str(o)
             i = QUOT_REPL_ALPHA.sub(r'\1\3\5', o)
             return QUOT_REPL_BETA.sub(r'"\2"', i)
         # noinspection PyTypeChecker
