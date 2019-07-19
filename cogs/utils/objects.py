@@ -537,7 +537,7 @@ class Player(JSONable):
 
     @property
     def stats(self):
-        return self.strength, self.magic, self.endurance, self.agility, self.luck
+        return [self.strength, self.magic, self.endurance, self.agility, self.luck]
 
     @property
     def hp(self):
