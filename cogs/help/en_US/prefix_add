@@ -1,0 +1,9 @@
+Adds prefixes to the available guild prefixes.
+Extraneous whitespace will be stripped.
+"thing " will become "thing"
+
+Parameters
+`*prefixes`
+    A list of prefixes to add. Must be split by a single space.
+    To add a prefix with a space in it, use quotes, e.g.
+        `prefix add "foo bar"`

@@ -1,0 +1,10 @@
+Removes prefixes available to the server.
+Will silently ignore unknown prefixes.
+Invoke the prefix command with no subcommand to see all
+available prefixes. You cannot remove the @mentions.
+
+Parameters
+`*prefixes`
+    A list of prefixes to remove. Must be split by a single space.
+    To remove a prefix with a space in it, use quotes, e.g.
+        `prefix remove "foo bar"`
