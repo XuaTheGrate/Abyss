@@ -559,7 +559,7 @@ class Player(JSONable):
         return f"""```
 Player
     name:          {self.name}
-    skills:        {", ".join(map(operator.attrgetter('name', self.skills)))}
+    skills:        {", ".join(map(operator.attrgetter('name'), self.skills))}
     exp:           {self.exp}
     stats:         {self.stats}
     resistances:   {self._resistances}
