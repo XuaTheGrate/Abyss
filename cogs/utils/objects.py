@@ -447,7 +447,7 @@ Skill
                 SKILL_BASE * self.severity.value)) * random.uniform(0.95, 1.05)
         base *= attacker.affected_by(StatModifier.TARU)
         base /= target.affected_by(StatModifier.RAKU)
-        return min(target.hp, base)
+        return base
 
 
 class Player(JSONable):
