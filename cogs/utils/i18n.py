@@ -3,7 +3,7 @@ import gettext
 import os.path
 from glob import glob
 
-import aiocontextvars
+import contextvars
 
 from main import BASE_DIR
 
@@ -35,7 +35,7 @@ def use_current_gettext(*args, **kwargs):
     )
 
 
-current_locale = aiocontextvars.ContextVar('i18n')
+current_locale = contextvars.ContextVar('i18n')
 builtins._ = use_current_gettext
 
 
