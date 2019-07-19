@@ -128,7 +128,7 @@ class Players(commands.Cog):
             data = self._base_demon_cache['debug']
         data['owner'] = ctx.author.id
         data['exp'] = 0
-        player = Player(**data)
+        self.players[ctx.author.id] = player = Player(**data)
         player._populate_skills(self.bot)
         await player.save(self.bot)
 
