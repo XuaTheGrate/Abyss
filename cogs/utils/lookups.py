@@ -28,3 +28,27 @@ TYPE_TO_EMOJI = {
     'curse': PartialEmoji(animated=False, name="curse", id=596540064096321548),
     'almighty': PartialEmoji(animated=False, name="almighty", id=596540181088305153)
 }
+
+ROMAN_NUMERAL = [
+    '0',
+    'I',
+    'II',
+    'III',
+    'IV',
+    'V',
+    'VI',
+    'VII',
+    'VIII',
+    'IX',
+    'X',
+    'XI',
+    'XII',
+    'XIII',
+    'XIV',
+    'XV',
+    'XVI',
+    'XVII',
+    'XVIII',
+    'XIX',
+    'XX'
+]

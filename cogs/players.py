@@ -148,17 +148,18 @@ class Players(commands.Cog):
         for key, value_iter in itertools.groupby(list(ctx.player.resistances.items()), key=itemgetter(1)):
             res.setdefault(key.name.lower(), []).extend([v[0].name.lower() for v in value_iter])
         res.pop("normal", None)
-        desc = _("""{this.description}
-        
-Specialty: {spec}
+        spec = f"{lookups.TYPE_TO_EMOJI[ctx.player.specialty.name.lower()]} {ctx.player.specialty.name.title()}"
+        res_fmt = "\n".join([f"{FMT[k]}: {' '.join(map(lambda x: str(lookups.TYPE_TO_EMOJI[x.lower()]), v))}"
+                             for k, v in res.items()])
+        arcana = lookups.ROMAN_NUMERAL[ctx.player.arcana.value]
+        desc = _("""{ctx.player.description}
+{arcana} {ctx.player.arcana.name}
+
+Specializes in {spec} type skills.
 
 __Resistances__
 {res_fmt}
-""").format(
-            this=ctx.player,
-            spec=f"{lookups.TYPE_TO_EMOJI[ctx.player.specialty.name.lower()]} {ctx.player.specialty.name.title()}",
-            res_fmt="\n".join([f"{FMT[k]}: {' '.join(map(lambda x: str(lookups.TYPE_TO_EMOJI[x.lower()]), v))}"
-                               for k, v in res.items()]))
+""").format(**locals())
         embed.description = desc
         await ctx.send(embed=embed)
 

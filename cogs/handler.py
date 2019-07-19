@@ -35,6 +35,7 @@ class ErrorHandler(commands.Cog):
     @commands.Cog.listener()
     async def on_command_error(self, ctx, exc):
         if isinstance(exc, commands.CommandInvokeError):
+            ctx.command.reset_cooldown(ctx)
             exc = exc.original
             await ctx.send(_("An internal error occured."))
             self.bot.send_error(f"""Error during execution of command
@@ -56,6 +57,8 @@ Bot permissions: {ctx.channel.permissions_for(ctx.me).value}
             time = datetime.timedelta(seconds=exc.retry_after)
             await ctx.send(_("Command on cooldown, try again in `{time}`.").format(time=time))
             return
+
+        ctx.command.reset_cooldown(ctx)
 
         if isinstance(exc, commands.TooManyArguments):
             if isinstance(ctx.command, commands.Group):

@@ -493,7 +493,8 @@ class Player(JSONable):
         Determines how often status effects land, as well as
         your critical chance.
     """
-    __json__ = ('owner', 'name', 'skills', 'exp', 'stats', 'resistances', 'arcana', 'specialty', 'stat_points')
+    __json__ = ('owner', 'name', 'skills', 'exp', 'stats', 'resistances', 'arcana', 'specialty', 'stat_points',
+                'description')
 
     def keygetter(self, key):
         if key == 'owner':
