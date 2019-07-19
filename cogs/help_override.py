@@ -19,7 +19,7 @@ class I18nHelpCommand(commands.MinimalHelpCommand):
         return _("Command '{0}' has no subcommands.").format(command)
 
     def get_opening_note(self):
-        return _("Use `{0}help [command]` for more info on a command.").format(self.clean_prefix)
+        return _("Use `{0}{1} [command]` for more info on a command.").format(self.clean_prefix, 'help')
 
     async def send_cog_help(self, cog):  # no cog specific help
         return await self.send_bot_help(self.get_bot_mapping())
@@ -70,7 +70,6 @@ class I18nHelpCommand(commands.MinimalHelpCommand):
         self.paginator.add_line()
         self.paginator.add_line(self.get_opening_note())
         await self.send_pages()
-
 
 
 def setup(bot):
