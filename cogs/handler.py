@@ -35,7 +35,7 @@ class ErrorHandler(commands.Cog):
     async def on_command_error(self, ctx, exc):
         if isinstance(exc, commands.CommandInvokeError):
             exc = exc.original
-            await ctx.send("An internal error occured.")
+            await ctx.send(_("An internal error occured."))
             self.bot.send_error(f"""Error during execution of command
 `{ctx.message.clean_content}`
 User: {ctx.author}
@@ -53,7 +53,7 @@ Bot permissions: {ctx.channel.permissions_for(ctx.me).value}
 
         if isinstance(exc, commands.CommandOnCooldown):
             time = datetime.timedelta(seconds=exc.retry_after)
-            await ctx.send(f"Command on cooldown, try again in `{time}`.")
+            await ctx.send(_("Command on cooldown, try again in `{time}`.").format(time=time))
             return
 
         if isinstance(exc, commands.TooManyArguments):
@@ -66,7 +66,7 @@ Bot permissions: {ctx.channel.permissions_for(ctx.me).value}
             self.bot.logger.warning(f"No handle for {type(exc)}.")
             return
 
-        await ctx.send(msg)
+        await ctx.send(_(msg))
 
 
 def setup(bot):

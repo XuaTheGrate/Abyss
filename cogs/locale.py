@@ -7,12 +7,12 @@ class Locale(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group()
+    @commands.group(aliases=['言語'])
     async def locale(self, ctx):
         """The base locale command. Does nothing by itself."""
         pass
 
-    @locale.command()
+    @locale.command(aliases=['得る'])
     async def get(self, ctx):
         """Returns your currently active locale."""
         get = await self.bot.redis.get(f"locale:{ctx.author.id}")
@@ -22,7 +22,7 @@ class Locale(commands.Cog):
             get = get.decode()
         await ctx.send(_("Your current locale is set to `{0}`.").format(get))
 
-    @locale.command()
+    @locale.command(aliases=['置く'])
     async def set(self, ctx, *, locale):
         """Sets your active locale."""
         if locale not in i18n.locales:
@@ -30,7 +30,7 @@ class Locale(commands.Cog):
         await self.bot.redis.set(f"locale:{ctx.author.id}", locale)
         await ctx.send(self.bot.tick_yes)
 
-    @locale.command()
+    @locale.command(aliases=['目録'])
     async def list(self, ctx):
         """Lists all valid locales."""
         await ctx.send(", ".join(sorted(i18n.locales)))

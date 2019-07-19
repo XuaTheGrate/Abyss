@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: 2019-07-17 18:29+1200\n"
-"PO-Revision-Date: 2019-07-19 20:40+1200\n"
+"PO-Revision-Date: 2019-07-19 22:07+1200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: ja_JA\n"
@@ -14,7 +14,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
-"X-Generator: Poedit 2.2.3\n"
+"X-Generator: Poedit 2.2\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 #: cogs/help_override.py:7
@@ -46,7 +46,8 @@ msgid ""
 "This appears to be a public server. The messages sent can get spammy, or cause ratelimits.\n"
 "It is advised to use a private server/channel."
 msgstr ""
-"これはパブリック サーバーのようです。送信されたメッセージは、スパムを受け取ったり、レート制限を引き起こす可能性があります。\n"
+"これはパブリック サーバーのようです。送信されたメッセージは、スパムを受け取ったり、レート制限を引き"
+"起こす可能性があります。\n"
 "プライベート サーバー/チャネルを使用することをお勧めします。"
 
 #: cogs/players.py:122
@@ -66,3 +67,59 @@ msgstr "コマンドの詳細については、'{0}{1} [コマンド]' を使用
 
 msgid "**Commands**"
 msgstr "**コマンド**"
+
+#: cogs/handler.py:9
+msgid ""
+"This command is disabled, because it is broken, in development or some other unspecified reason."
+msgstr "このコマンドは、開発中、またはその他の不特定の理由で壊れているため、無効になります。"
+
+#: cogs/handler.py:11
+msgid "Bad argument passed to this command. Refer to the help command."
+msgstr "このコマンドに渡された不正な引数。ヘルプ コマンドを参照してください。"
+
+#: cogs/handler.py:12
+msgid ""
+"I am missing permissions to run this command. Check the help command for required permissions."
+msgstr ""
+"このコマンドを実行するためのアクセス許可がありません。ヘルプ コマンドで、必要なアクセス許可を確認し"
+"ます。"
+
+#: cogs/handler.py:14
+msgid "You are unauthorized to use this command."
+msgstr "このコマンドを使用する権限はありません。"
+
+#: cogs/handler.py:15
+msgid ""
+"You are missing permissions to run this command. Check the help command for required permissions."
+msgstr ""
+"このコマンドを実行するためのアクセス許可がありません。ヘルプ コマンドで、必要なアクセス許可を確認し"
+"ます。"
+
+#: cogs/handler.py:17
+msgid ""
+"Not enough arguments were passed to this command. Check the help command for proper arguments."
+msgstr "このコマンドに渡された引数が不足しています。help コマンドで適切な引数を確認してください。"
+
+#: cogs/handler.py:19
+msgid "This command may not be used in DMs."
+msgstr "このコマンドは、DM では使用できません。"
+
+#: cogs/handler.py:20
+msgid "This command is for my developers only."
+msgstr "このコマンドは開発者専用です。"
+
+#: cogs/handler.py:21
+msgid "Failed to parse arguments for this command. Check the help command for proper arguments."
+msgstr "このコマンドの引数の解析に失敗しました。help コマンドで適切な引数を確認してください。"
+
+#: cogs/handler.py:23
+msgid "Too many arguments were passed to the command. Check the help command for proper arguments."
+msgstr "コマンドに渡された引数が多すぎます。help コマンドで適切な引数を確認してください。"
+
+#: cogs/handler.py:38
+msgid "An internal error occured."
+msgstr "内部エラーが発生しました。"
+
+#: cogs/handler.py:56
+msgid "Command on cooldown, try again in `{time}`."
+msgstr "あなたはレート制限されています。`{time}`にもう一度やり直してください。"
