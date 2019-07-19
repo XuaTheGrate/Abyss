@@ -21,7 +21,34 @@ class I18nHelpCommand(commands.MinimalHelpCommand):
         return _("Command '{0}' has no subcommands.").format(command)
 
     def get_opening_note(self):
-        return _("Use `{prefix}{command_name} [command]` for more info on a command.")
+        return _("Use `{0}help [command]` for more info on a command.").format(self.clean_prefix)
+
+    async def send_group_help(self, command):
+        self.paginator.add_line(self.get_command_signature(command), empty=True)
+        locale = await self.context.bot.redis.get(f"locale:{self.context.author.id}")
+        if not locale:
+            locale = 'en_US'
+        else:
+            locale = locale.decode()
+        if not os.path.isfile(f"cogs/help/{locale}/{command.qualified_name.replace(' ', '_')}"):
+            cmdhelp = command.help
+            self.context.bot.logger.warning(f"no translation for {locale}")
+        else:
+            with open(f"cogs/help/{locale}/{command.qualified_name.replace(' ', '_')}") as f:
+                cmdhelp = f.read().strip()
+        if not cmdhelp:
+            cmdhelp = ""
+        for line in cmdhelp.split('\n'):
+            self.paginator.add_line(line.strip())
+        self.paginator.add_line("")
+        if not isinstance(command, commands.Group) or len(command.commands) > 0:
+            self.paginator.add_line(self.get_opening_note())
+        else:
+            self.paginator.add_line(self.get_opening_note(), empty=True)
+            self.paginator.add_line(_("**Commands**"))
+            for cmd in set(command.commands):
+                self.paginator.add_line(f"{self.clean_prefix}{command.qualified_name} {cmd.name}")
+        await self.send_pages()
 
     async def send_command_help(self, command):
         self.paginator.add_line(self.get_command_signature(command), empty=True)
@@ -40,7 +67,7 @@ class I18nHelpCommand(commands.MinimalHelpCommand):
             cmdhelp = ""
         for line in cmdhelp.split('\n'):
             self.paginator.add_line(line.strip())
-        self.paginator.add_line("")
+        self.paginator.add_line()
         self.paginator.add_line(self.get_opening_note())
         await self.send_pages()
 
