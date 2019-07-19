@@ -1,0 +1,135 @@
+/*
+type: {
+    identifier: name,
+    skills: [list, of, skills],
+    cost: total gold cost, ap cost is this / 1000
+    -- if the demon specializes in this type, it is half price (both ap and gold)
+    unlocks: [unlocks in, skill tree],
+    unlockRequires: [previous, unlocks]
+}
+*/
+{
+    curse: [
+        {
+            identifier: "curse:0",
+            skills: ["Eiha", "Curse Shield"],
+            cost: 5000,
+            unlocks: ["curse:1", "dark:0"]
+        },
+        {
+            identifier: "curse:1",
+            skills: ["Maeiha"],
+            cost: 10000,
+            unlocks: ["curse:2"]
+        },
+        {
+            identifier: "curse:2",
+            skills: ["Eiga"],
+            cost: 15000,
+            unlocks: ["curse:3"]
+        },
+        {
+            identifier: "curse:3",
+            skills: ["Maeiga", "Null Curse"],
+            cost: 20000,
+            unlocks: ["curse:4"]
+        },
+        {
+            identifier: "curse:4",
+            skills: ["Eigaon", "Curse Boost"],
+            cost: 25000,
+            unlocks: ["curse:5"]
+        },
+        {
+            identifier: "curse:5",
+            skills: ["Maeigaon", "Repel Curse"],
+            cost: 35000,
+            unlocks: "curse:6"
+        },
+        {
+            identifier: "curse:6",
+            skills: ["Hell's Curse", "Curse Amp"],
+            cost: 50000,
+            unlocks: "curse:7"
+        },
+        {
+            identifier: "curse:7",
+            skills: ["Ungodly Prudence", "Absorb Curse"],
+            cost: 75000
+        }
+    ],
+    dark: [
+        {
+            identifier: "dark:0",
+            skills: ["Mudo"],
+            cost: 20000,
+            unlocks: "dark:1"
+        },
+        {
+            identifier: "dark:1",
+            skills: ["Mamudo", "Resist Dark"],
+            cost: 30000,
+            unlocks: "dark:2"
+        },
+        {
+            identifier: "dark:2",
+            skills: ["Mudoon", "Null Dark"],
+            cost: 50000,
+            unlocks: "dark:3"
+        },
+        {
+            identifier: "dark:3",
+            skills: ["Mamudoon", "Mudo Boost"],
+            cost: 75000,
+            unlocks: "dark:4"
+        },
+        {
+            identifier: "dark:4",
+            skills: ["Die for Me!", "Repel Dark"]
+        }
+    ],
+    almighty: [
+        {
+            identifier: "almighty:0",
+            unlockRequires: ["curse:7"],
+            cost: 50000,
+            skills: ["Megido"],
+            unlocks: ["almighty:1"]
+        },
+        {
+            identifier: "almighty:1",
+            cost: 100000,
+            skills: ["Megidola"],
+            unlocks: ["almighty:2"]
+        },
+        {
+            identifier: "almighty:2",
+            cost: 200000,
+            skills: ["Almighty Boost"],
+            unlocks: ["almighty:3"]
+        },
+        {
+            identifier: "almighty:3",
+            cost: 400000,
+            skills: ["Megidolaon"],
+            unlocks: ["almighty:4"]
+        },
+        {
+            identifier: "almighty:4",
+            cost: 800000,
+            skills: ["Black Viper"],
+            unlocks: ["almighty:5"]
+        },
+        {
+            identifier: "almigty:5",
+            cost: 1600000,
+            skills: ["Almighty Amp"],
+            unlocks: ["almighty:6"]
+        },
+        {
+            identifier: "almighty:6",
+            cost: 3200000, // 3,200,000 G, 3,200 AP | 1,600,000 G, 1,600 AP if specializes
+            skills: ["Morning Star"]
+        }
+    ]
+}

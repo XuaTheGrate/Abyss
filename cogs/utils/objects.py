@@ -10,7 +10,31 @@ from discord.enums import Enum
 
 
 class Arcana(Enum):
-    """Enumeration for various Arcana's."""
+    """Enumeration for various Arcana's.
+
+    Class Attributes
+    ----------------
+    FOOL
+    MAGICIAN
+    PRIESTESS
+    EMPRESS
+    EMPEROR
+    HIEROPHANT
+    LOVERS
+    CHARIOT
+    JUSTICE
+    HERMIT
+    FORTUNE
+    STRENGTH
+    HANGED
+    DEATH
+    TEMPERANCE
+    DEVIL
+    TOWER
+    STAR
+    MOON
+    SUN
+    JUDGEMENT"""
     FOOL = 0
     MAGICIAN = 1
     PRIESTESS = 2
@@ -35,7 +59,48 @@ class Arcana(Enum):
 
 
 class SkillType(Enum):
-    """Enumeration for various skill types."""
+    """Enumeration for various skill types.
+
+    Class Attributes
+    ----------------
+    PHYSICAL
+        Physical type damage. May be split into the Persona 3 types.
+    GUN
+        Gun type damage. Rare. May be swapped into Pierce type.
+    FIRE
+        Fire type damage. Chance to inflict :attr:`Ailment.BURN`.
+    ICE
+        Ice type damage. Chance to inflict :attr:`Ailment.FREEZE`.
+    ELECTRIC
+        Electric type damage. Chance to inflict :attr:`Ailment.SHOCK`.
+    WIND
+        Wind type damage.
+    NUCLEAR
+        Nuke type damage.
+    PSYCHOKINETIC
+        Psychic type damage.
+    BLESS
+        Bless type damage. ``Hama`` is not under this type, but under :attr:`.LIGHT`.
+    CURSE
+        Curse type damage. ``Mudo`` is not under this type, but under :attr:`.DARK`.
+    ALMIGHTY
+        Typeless damage. Cannot be resisted, nullified, reflected or absorbed.
+        On the other hand, nothing is weak to it.
+    DARK
+        Curse type instant kill. ``Mudo`` goes here.
+    LIGHT
+        Bless type instant kill. ``Hama`` goes here.
+    HEALING
+        Non-damaging skills used for healing the player's HP.
+    AILMENT
+        Non-damaging skills used for inflicting :class:`Ailment`'s on the
+        opposition.
+    SUPPORT
+        Non-damaging skills used for buffing your team, or debuffing the
+        opposition.
+    PASSIVE
+        Skills that activate automatically during battle.
+    """
     # -- physical -- #
     PHYSICAL      = 1   # tempest slash
     GUN           = 2   # triple down
@@ -46,9 +111,12 @@ class SkillType(Enum):
     WIND          = 6   # garu,   magarula
     PSYCHOKINETIC = 7   # psi,    mapsio
     NUCLEAR       = 8   # frei,   mafreila
-    BLESS         = 9   # kouha,  hama
-    CURSE         = 10  # eiha,   mudo
+    BLESS         = 9   # kouha,  makouga
+    CURSE         = 10  # eiha,   maeiga
     ALMIGHTY      = 11  # megido, black viper
+    # -- instant death -- #
+    DARK          = 16  # mudo, alice is only specialty
+    LIGHT         = 17  # hama, daisoujou is only specialty
     # -- support -- #
     HEALING       = 12  # dia,     patra
     AILMENT       = 13  # dormina, pulinpa
@@ -58,8 +126,23 @@ class SkillType(Enum):
 
 
 class Severity(Enum):
-    """Enumeration lookup for skill severity modifiers."""
-    null = 0.0
+    """Enumeration lookup for skill severity modifiers.
+    Mostly for damage calculation, not used anywhere else.
+
+    Class Attributes
+    ----------------
+    MINISCULE
+        0.5x
+    LIGHT
+        0.75x
+    MEDIUM
+        1x
+    HEAVY
+        1.5x
+    SEVERE
+        3x
+    COLOSSAL
+        5x"""
     MINISCULE = 0.5
     LIGHT = 0.75
     MEDIUM = 1.0
@@ -69,14 +152,41 @@ class Severity(Enum):
 
 
 class StatModifier(Enum):
-    """Enumeration for *kaja and *nda."""
+    """Enumeration for *kaja and *nda.
+
+    Class Attributes
+    ----------------
+    TARU
+        Attack (de)buff.
+    RAKU
+        Defense (de)buff.
+    SUKU
+        Agility (de)buff."""
     TARU = 0  # attack
     RAKU = 1  # defense
     SUKU = 2  # accuracy/evasion
 
 
 class ResistanceModifier(Enum):
-    """Enumeration for the resistances."""
+    """Enumeration for the resistances.
+
+    .. note:: Any resistance that isnt ``NORMAL`` or ``WEAK``, will be transformed into ``RESIST``.
+              The rest apply only when you have ``Null X``, ``Repel X`` or ``Absorb X``.
+
+    Class Attributes
+    ----------------
+    IMMUNE
+        Immune to the attack. 0x damage taken.
+    RESIST
+        Resists the attack. 0.5x damage taken.
+    NORMAL
+        No special resistance. 1x damage taken.
+    WEAK
+        Weak to the attack. 1.5x damage taken.
+    REFLECT
+        Repels the attack. Attacker takes 0.5x damage.
+    ABSORB
+        Absorbs the attack. Heals for 0.5x damage."""
     IMMUNE = 0
     RESIST = 1
     NORMAL = 2
@@ -86,7 +196,50 @@ class ResistanceModifier(Enum):
 
 
 class Ailment(Enum):
-    """Enumeration for various ailments."""
+    """Enumeration for various ailments.
+
+    Class Attributes
+    ----------
+    DESPAIR
+        You are unable to move. SP will slowly decrease,
+        and after a few turns you will instantly die.
+        ``Technical``: :attr:`SkillType.PSYCHOKINETIC`
+    BRAINWASH
+        May randomly use a support/healing skill on the enemy.
+        ``Technical``: :attr:`SkillType.PSYCHOKINETIC`
+    DIZZY
+        Lowers accuracy by 50%
+        ``Technical``: :attr:`SkillType.PSYCHOKINETIC`
+    FEAR
+        80% chance of ignoring commands, and may occasionally
+        run from battle.
+        ``Technical``: :attr:`SkillType.PSYCHOKINETIC`
+    SLEEP
+        Cannot move, but will slowly regain HP and SP.
+        Will awaken if struck by a physical attack.
+        ``Technical``: ``All attacks``
+    HUNGER
+        Lowers power of your attacks by 80%
+        ``Technical``: :attr:`SkillType.PSYCHOKINETIC`
+    FORGET
+        Unable to use your skills.
+        ``Technical``: :attr:`SkillType.PSYCHOKINETIC`
+    RAGE
+        Physical attack power is doubled, but defense is halved.
+        Stops listening to your commands and will automatically
+        perform melee attacks.
+        ``Technical``: :attr:`SkillType.PSYCHOKINETIC`
+    BURN
+        Every turn, takes 16% HP of damage.
+        ``Technical``: :attr:`SkillType.WIND`, :attr:`SkillType.NUCLEAR`
+    FREEZE
+        Completely unable to move.
+        ``Technical``: :attr:`SkillType.PHYSICAL`, :attr:`SkillType.NUCLEAR`
+    SHOCK
+        Completely unable to move. If you melee attack a shocked
+        enemy, you may also become shocked.
+        ``Technical``: :attr:`SkillType.PHYSICAL`, :attr:`SkillType.NUCLEAR`
+    """
     DESPAIR = 0
     BRAINWASH = 1
     DIZZY = 2

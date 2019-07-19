@@ -4,3 +4,4 @@ psutil
 motor
 aioredis
 aiocontextvars
+json5
