@@ -35,7 +35,7 @@ def use_current_gettext(*args, **kwargs):
     )
 
 
-current_locale = aiocontextvars.ContextVar('i18n', default=LOCALE_DEFAULT)
+current_locale = aiocontextvars.ContextVar('i18n')
 builtins._ = use_current_gettext
 
 

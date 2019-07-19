@@ -357,15 +357,18 @@ class AdventureTwo(commands.Bot):
         self.prepared.set()
         self.logger.warning("Successfully loaded.")
 
-    async def get_context(self, message, *, cls=None):
-        """"""
-        ctx = await super().get_context(message)
+    async def on_message(self, message):
+        if message.author.bot:
+            return
+
+        ctx = await self.get_context(message)
         if ctx.valid:
             current = await self.redis.get(f"locale:{message.author.id}")
             if not current:
                 current = i18n.LOCALE_DEFAULT.encode()
             i18n.current_locale.set(current.decode())
-        return ctx
+
+        await self.process_commands(message)
 
     def run(self):
         """"""
