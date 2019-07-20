@@ -211,7 +211,8 @@ class Players(commands.Cog):
         if not ctx.player:
             return await ctx.send(_("You don't own a player."))
         
-        await ctx.send(embed=embed)
+        session = Status(ctx.player)
+        await session.start(ctx)
 
 
 def setup(bot):
