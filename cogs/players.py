@@ -57,7 +57,7 @@ def prepare_skill_tree_page(player):
     embed.title = "Skill tree status"
     embed.set_author(name=player.name, icon_url=player.owner.avatar_url_as(format="png", size=32))
     embed.description = f"""Current leaf: {player._active_leaf}
-AP Points: {player.ap_points}/{player.leaf['cost']//1000}"""
+AP Points: {player.ap_points}/{player.leaf['cost']//1000 if player.leaf else 'N/A'}"""
     embed.set_footer(text="todo: make this better")
     return embed
 
