@@ -494,7 +494,7 @@ class Player(JSONable):
         your critical chance.
     """
     __json__ = ('owner', 'name', 'skills', 'exp', 'stats', 'resistances', 'arcana', 'specialty', 'stat_points',
-                'description')
+                'description', 'skill_leaf', 'ap')
 
     def keygetter(self, key):
         if key == 'owner':
@@ -507,6 +507,10 @@ class Player(JSONable):
             return self.arcana.value
         elif key == 'specialty':
             return self.specialty.name
+        elif key == 'skill_leaf':
+            return self._active_leaf
+        elif key == 'ap':
+            return self.ap_points
         return getattr(self, key)
 
     def __init__(self, **kwargs):
@@ -534,6 +538,9 @@ class Player(JSONable):
         self.description = kwargs.pop("description", "<no description found, report to Xua>")
         self.stat_points = kwargs.pop("stat_points", 0)
         self.debug = kwargs.pop("testing", False)
+        self._active_leaf = kwargs.pop("skill_leaf", None)
+        self.leaf = None
+        self.ap_points = kwargs.pop("ap", 0)
         self._damage_taken = 0
         self._sp_used = 0
         self._stat_mod = [0, 0, 0]
@@ -555,27 +562,32 @@ class Player(JSONable):
                 f"description='{self.description}', "
                 f"stat_points={self.stat_points}, "
                 f"arcana={self.arcana.value}, "
-                f"specialty='{self.specialty.name}')")
+                f"specialty='{self.specialty.name}', "
+                f"skill_leaf='{self._active_leaf}', "
+                f"ap={self.ap_points})")
 
     def _debug_repr(self):
         return f"""```
 Player
-    name:          {self.name}
-    skills:        {", ".join(map(operator.attrgetter('name'), self.skills))}
-    exp:           {self.exp}
-    stats:         {self.stats}
-    resistances:   {self._resistances}
-    description:   {self.description}
-    stat_points:   {self.stat_points}
-    arcana:        {self.arcana!r}
-    specialty:     {self.specialty!r}
+    name: {self.name}
+    skills: {", ".join(map(operator.attrgetter('name'), self.skills))}
+    exp: {self.exp}
+    stats: {self.stats}
+    resistances: {self._resistances}
+    description: {self.description}
+    stat_points: {self.stat_points}
+    arcana: {self.arcana!r}
+    specialty: {self.specialty!r}
+    leaf: {self.leaf}
+    ap_points: {self.ap_points}
 
-    debug:         {self.debug}
+    debug: {self.debug}
     _damage_taken: {self._damage_taken}    
-    _sp_used:      {self._sp_used}
-    _stat_mod:     {self._stat_mod}
-    _until_clear:  {self._until_clear}
-    _next_level:   {self._next_level} 
+    _sp_used: {self._sp_used}
+    _stat_mod: {self._stat_mod}
+    _until_clear: {self._until_clear}
+    _next_level: {self._next_level}
+    _active_leaf: {self._active_leaf}
 ```"""
 
     @property

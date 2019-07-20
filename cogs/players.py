@@ -4,7 +4,8 @@ import random
 from operator import itemgetter
 
 import discord
-from discord.ext import commands
+import json5
+from discord.ext import commands, ui
 
 from .utils import lookups, scripts, i18n
 from .utils.objects import Player, Skill
@@ -51,6 +52,65 @@ class LRUDict(collections.OrderedDict):
         super().__setitem__(key, value)
 
 
+def prepare_skill_tree_page(player):
+    embed = discord.Embed(colour=lookups.TYPE_TO_COLOUR[player.specialty.name.lower()])
+    embed.title = "Skill tree status"
+    embed.set_author(name=player.name, icon_url=player.owner.avatar_url_as(format="png", size=32))
+    embed.description = f"""Current leaf: {player._active_leaf}
+AP Points: {player.ap_points}/{player.leaf['cost']//1000}"""
+    embed.set_footer(text="todo: make this better")
+    return embed
+
+
+class Status(ui.Session):
+    def __init__(self, player):
+        super().__init__(timeout=120)
+        embed = discord.Embed(title=player.name, colour=lookups.TYPE_TO_COLOUR[player.specialty.name.lower()])
+        embed.set_author(name=player.owner, icon_url=player.owner.avatar_url_as(format="png", size=32))
+        res = {}
+        for key, value_iter in itertools.groupby(list(player.resistances.items()), key=itemgetter(1)):
+            res.setdefault(key.name.lower(), []).extend([v[0].name.lower() for v in value_iter])
+        res.pop("normal", None)
+        spec = f"{lookups.TYPE_TO_EMOJI[player.specialty.name.lower()]} {player.specialty.name.title()}"
+        res_fmt = "\n".join(
+            [f"{FMT[k]}: {' '.join(map(lambda x: str(lookups.TYPE_TO_EMOJI[x.lower()]), v))}" for k, v in res.items()])
+        arcana = lookups.ROMAN_NUMERAL[player.arcana.value]
+        desc = _("""**{arcana}** {player.arcana.name}
+
+{player.description}
+
+Specializes in {spec} type skills.
+
+__Resistances__
+{res_fmt}""").format(**locals())
+        embed.description = desc
+        self.pages = [embed, prepare_skill_tree_page(player)]
+        self.current_page = 0
+
+    async def send_initial_message(self):
+        return await self.context.send(embed=self.pages[0])
+
+    @ui.button('\u25b6')
+    async def next(self, payload):
+        if self.current_page+1 < len(self.pages):
+            self.current_page += 1
+        else:
+            return
+        await self.message.edit(embed=self.pages[self.current_page])
+
+    @ui.button('\u23f9')
+    async def _stop(self, payload):
+        await self.stop()
+
+    @ui.button('\u25c0')
+    async def back(self, payload):
+        if self.current_page+1 > 0:
+            self.current_page -= 1
+        else:
+            return
+        await self.message.edit(embed=self.pages[self.current_page])
+
+
 class Players(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -59,6 +119,9 @@ class Players(commands.Cog):
         self._base_demon_cache = {}
         self._skill_cache_task = self.bot.loop.create_task(self.cache_skills())
         self.bot.unload_tasks[self] = self._unloader_task = self.bot.loop.create_task(self.flush_cached_players())
+
+        with open("skilltree.json") as f:
+            self.skill_tree = json5.load(f)
 
     def __repr__(self):
         return f"<PlayerHandler {len(self.players)} loaded,\n\t{self._skill_cache_task!r}>"
@@ -77,6 +140,8 @@ class Players(commands.Cog):
                 return
             ctx.player = self.players[ctx.author.id] = player = Player(**data)
             player._populate_skills(self.bot)
+            if player._active_leaf is not None:
+                player.leaf = self.skill_tree[player._active_leaf]
 
     async def flush_cached_players(self):
         await self.bot.wait_for("logout")
@@ -125,6 +190,7 @@ class Players(commands.Cog):
             data['testing'] = True
         data['owner'] = ctx.author.id
         data['exp'] = 0
+        data['skill_leaf'] = None
         player = Player(**data)
 
         await task
@@ -144,25 +210,7 @@ class Players(commands.Cog):
         """Gets your current players status."""
         if not ctx.player:
             return await ctx.send(_("You don't own a player."))
-        embed = discord.Embed(title=ctx.player.name, colour=lookups.TYPE_TO_COLOUR[ctx.player.specialty.name.lower()])
-        embed.set_author(name=ctx.author, icon_url=ctx.author.avatar_url_as(format="png", size=32))
-        res = {}
-        for key, value_iter in itertools.groupby(list(ctx.player.resistances.items()), key=itemgetter(1)):
-            res.setdefault(key.name.lower(), []).extend([v[0].name.lower() for v in value_iter])
-        res.pop("normal", None)
-        spec = f"{lookups.TYPE_TO_EMOJI[ctx.player.specialty.name.lower()]} {ctx.player.specialty.name.title()}"
-        res_fmt = "\n".join([f"{FMT[k]}: {' '.join(map(lambda x: str(lookups.TYPE_TO_EMOJI[x.lower()]), v))}" for k, v in res.items()])
-        arcana = lookups.ROMAN_NUMERAL[ctx.player.arcana.value]
-        desc = _("""**{arcana}** {ctx.player.arcana.name}
-
-{ctx.player.description}
-
-Specializes in {spec} type skills.
-
-__Resistances__
-{res_fmt}
-""").format(**locals())
-        embed.description = desc
+        
         await ctx.send(embed=embed)
 
 
