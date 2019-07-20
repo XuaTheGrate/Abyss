@@ -1,5 +1,4 @@
 import asyncio
-import base64
 import os
 from contextlib import suppress
 
@@ -33,7 +32,7 @@ async def do_script(ctx, script, lang="en_US"):
         return await do_script(ctx, script)
 
     with open(path) as f:
-        data = base64.b64decode(f.read()).decode()
+        data = f.read()
 
     for line in data.splitlines():
         m = await ctx.send(line.strip())
