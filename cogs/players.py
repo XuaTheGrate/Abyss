@@ -57,7 +57,7 @@ def prepare_skill_tree_page(player):
     embed.title = "Skill tree status"
     embed.set_author(name=player.name, icon_url=player.owner.avatar_url_as(format="png", size=32))
     embed.description = f"""Current leaf: {player._active_leaf}
-AP Points: {player.ap_points}/{player.leaf['cost']//1000 if player.leaf else 'N/A'}"""
+AP Points: {player.ap_points} | {player.leaf['cost']//1000 if player.leaf else 'N/A'} to finish."""
     embed.set_footer(text="todo: make this better")
     return embed
 
@@ -90,10 +90,17 @@ __Resistances__
     async def send_initial_message(self):
         return await self.context.send(embed=self.pages[0])
 
-    @ui.button('\u25b6')
-    async def next(self, payload):
-        if self.current_page+1 < len(self.pages):
-            self.current_page += 1
+    async def handle_timeout(self):
+        await self.stop()
+
+    async def stop(self):
+        await self.message.delete()
+        await super().stop()
+
+    @ui.button('\u25c0')
+    async def back(self, payload):
+        if self.current_page + 1 > 0:
+            self.current_page -= 1
         else:
             return
         await self.message.edit(embed=self.pages[self.current_page])
@@ -102,10 +109,10 @@ __Resistances__
     async def _stop(self, payload):
         await self.stop()
 
-    @ui.button('\u25c0')
-    async def back(self, payload):
-        if self.current_page+1 > 0:
-            self.current_page -= 1
+    @ui.button('\u25b6')
+    async def next(self, payload):
+        if self.current_page + 1 < len(self.pages):
+            self.current_page += 1
         else:
             return
         await self.message.edit(embed=self.pages[self.current_page])
