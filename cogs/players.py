@@ -148,7 +148,9 @@ class Players(commands.Cog):
             ctx.player = self.players[ctx.author.id] = player = Player(**data)
             player._populate_skills(self.bot)
             if player._active_leaf is not None:
-                player.leaf = self.skill_tree[player._active_leaf]
+                key, _ = player._active_leaf.split(':')
+                branch = self.skill_tree[key]
+                player.leaf = branch[player._active_leaf]
 
     async def flush_cached_players(self):
         await self.bot.wait_for("logout")
