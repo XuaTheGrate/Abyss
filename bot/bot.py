@@ -125,30 +125,6 @@ class AdventureTwo(commands.Bot):
             raise commands.NoPrivateMessage
         return True
 
-    async def continue_script(self, msg, author=None):
-        """Helper function that tells my message handler to go to the next script.
-
-        Parameters
-        ----------
-        msg: :class:`discord.Message`
-            The message to wait on.
-        author: Optional[:class:`discord.Member`, :class:`discord.User`]
-            A seperate author to wait on.
-
-        Returns
-        -------
-        :class:`bool`
-            Whether to continue or not."""
-        try:
-            await self.wait_for("reaction_add", check=do_next_script(msg, author), timeout=120)
-        except asyncio.TimeoutError:
-            return False
-        else:
-            return True
-        finally:
-            with suppress(discord.HTTPException):
-                await msg.clear_reactions()
-
     # noinspection PyTypeChecker
     async def _send_error(self, message):
 

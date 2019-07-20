@@ -74,24 +74,25 @@ type: {
         {
             identifier: "dark:2",
             skills: ["Mudoon", "Null Dark"],
-            cost: 50000,
+            cost: 4000,
             unlocks: "dark:3"
         },
         {
             identifier: "dark:3",
             skills: ["Mamudoon", "Mudo Boost"],
-            cost: 75000,
+            cost: 50000,
             unlocks: "dark:4"
         },
         {
             identifier: "dark:4",
-            skills: ["Die for Me!", "Repel Dark"]
+            skills: ["Die for Me!", "Repel Dark"],
+            cost: 75000
         }
     ],
     almighty: [
         {
             identifier: "almighty:0",
-            unlockRequires: ["curse:7"],
+            unlockRequires: ["curse:7", "bless:7", "fire:7", "ice:7", "elec:7", "wind:7", "nuke:7", "psy:7"],
             cost: 50000,
             skills: ["Megido"],
             unlocks: ["almighty:1"]
@@ -130,6 +131,86 @@ type: {
             identifier: "almighty:6",
             cost: 3200000, // 3,200,000 G, 3,200 AP | 1,600,000 G, 1,600 AP if specializes
             skills: ["Morning Star"]
+        }
+    ],
+    bless: [
+        {
+            identifier: "bless:0",
+            skills: ["Kouha", "Bless Shield"],
+            cost: 5000,
+            unlocks: ["bless:1", "light:0"]
+        },
+        {
+            identifier: "bless:1",
+            skills: ["Makouha"],
+            cost: 10000,
+            unlocks: ["bless:2"]
+        },
+        {
+            identifier: "bless:2",
+            skills: ["Kouga"],
+            cost: 15000,
+            unlocks: ["bless:3"]
+        },
+        {
+            identifier: "bless:3",
+            skills: ["Makouga", "Null Bless"],
+            cost: 20000,
+            unlocks: ["bless:4"]
+        },
+        {
+            identifier: "bless:4",
+            skills: ["Kougaon", "Bless Boost"],
+            cost: 25000,
+            unlocks: ["bless:5"]
+        },
+        {
+            identifier: "bless:5",
+            skills: ["Makougaon", "Repel Bless"],
+            cost: 35000,
+            unlocks: ["bless:6"]
+        },
+        {
+            identifier: "bless:6",
+            skills: ["Heaven's Blessing", "Bless Amp"],
+            cost: 50000,
+            unlocks: ["bless:7"]
+        },
+        {
+            identifier: "bless:7",
+            skills: ["Divine Judgement", "Absorb Bless"],
+            cost: 75000
+        }
+    ],
+    light: [
+        {
+            identifier: "light:0",
+            skills: ["Hama"],
+            cost: 20000,
+            unlocks: ["light:1"]
+        },
+        {
+            identifier: "light:1",
+            skills: ["Mahama", "Resist Light"],
+            cost: 30000,
+            unlocks: ["light:2"]
+        },
+        {
+            identifier: "light:2",
+            skills: ["Hamaon", "Null Light"],
+            cost: 40000,
+            unlocks: ["light:3"]
+        },
+        {
+            identifier: "light:3",
+            skills: ["Mahamaon", "Hama Boost"],
+            cost: 50000,
+            unlocks: ["light:4"]
+        },
+        {
+            identifier: "light:4",
+            skills: ["Samsara", "Repel Light"],
+            cost: 75000
         }
     ]
 }

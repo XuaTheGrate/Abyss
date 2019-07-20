@@ -6,7 +6,7 @@ from operator import itemgetter
 import discord
 from discord.ext import commands
 
-from .utils import lookups
+from .utils import lookups, scripts, i18n
 from .utils.objects import Player, Skill
 
 import collections
@@ -112,11 +112,7 @@ class Players(commands.Cog):
             await ctx.send(msg)
             await asyncio.sleep(5)
 
-        for msg in reversed(await self.bot.redis.smembers("messages:0")):
-            n = await ctx.send(msg.decode())
-            await n.add_reaction('\u25b6')
-            if not await self.bot.continue_script(n, ctx.author):
-                return
+        task = self.bot.loop.create_task(scripts.do_script(ctx, "creation", i18n.current_locale.get()))
 
         if not await self.bot.is_owner(ctx.author):
             demon = random.choice(list(self._base_demon_cache.keys()))
@@ -129,7 +125,13 @@ class Players(commands.Cog):
             data['testing'] = True
         data['owner'] = ctx.author.id
         data['exp'] = 0
-        self.players[ctx.author.id] = player = Player(**data)
+        player = Player(**data)
+
+        await task
+        if not task.result():
+            return
+
+        self.players[ctx.author.id] = player
         player._populate_skills(self.bot)
         await player.save(self.bot)
 
@@ -149,11 +151,11 @@ class Players(commands.Cog):
             res.setdefault(key.name.lower(), []).extend([v[0].name.lower() for v in value_iter])
         res.pop("normal", None)
         spec = f"{lookups.TYPE_TO_EMOJI[ctx.player.specialty.name.lower()]} {ctx.player.specialty.name.title()}"
-        res_fmt = "\n".join([f"{FMT[k]}: {' '.join(map(lambda x: str(lookups.TYPE_TO_EMOJI[x.lower()]), v))}"
-                             for k, v in res.items()])
+        res_fmt = "\n".join([f"{FMT[k]}: {' '.join(map(lambda x: str(lookups.TYPE_TO_EMOJI[x.lower()]), v))}" for k, v in res.items()])
         arcana = lookups.ROMAN_NUMERAL[ctx.player.arcana.value]
-        desc = _("""{ctx.player.description}
-{arcana} {ctx.player.arcana.name}
+        desc = _("""**{arcana}** {ctx.player.arcana.name}
+
+{ctx.player.description}
 
 Specializes in {spec} type skills.
 

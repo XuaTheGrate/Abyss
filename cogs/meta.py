@@ -12,7 +12,7 @@ class Meta(commands.Cog):
         """Information about the bot."""
         await ctx.send(f"""Hi! I'm {ctx.me.name}, a W.I.P. RPG bot for Discord.
 I am in very beta, be careful when using my commands as they are not ready for public use yet.
-Currently gazing over {len(ctx.bot.guilds)} servers, enjoying {len(ctx.bot.users)} users' company.
+Currently gazing over {len(ctx.bot.guilds)} servers, enjoying {len(ctx.bot.users):,} users' company.
 I don't have my own support server, so you can join my owners general server here: <https://discord.gg/hkweDCD>""")
 
 
