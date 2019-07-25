@@ -54,7 +54,7 @@ def __create_profile(player, demon_stuff):
     im = BASE.copy()
     text = __get_rotated_text(str(player.owner))
     im.paste(text, (50, 10), text)
-    pos = ((im.size[1] - demon_stuff.size[1]), (im.size[1]//2 - demon_stuff.size[1]//2))
+    pos = ((im.size[1] - 50), (im.size[1]//2 - demon_stuff.size[1]//2))
     print(f"HI IM DEBUG {pos}")
     im.paste(demon_stuff, pos, demon_stuff)
     buffer = io.BytesIO()
