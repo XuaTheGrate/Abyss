@@ -84,9 +84,12 @@ async def profile_executor(bot, player):
     shell = await asyncio.create_subprocess_exec(sys.executable,
                                                  '/home/xua/adventure2/cogs/utils/imaging.py',
                                                  json.dumps(player.to_json()),
+                                                 stdout=asyncio.subprocess.PIPE,
                                                  stderr=asyncio.subprocess.PIPE)
 
-    _, err = await asyncio.wait_for(shell.communicate(), timeout=10)
+    out, err = await asyncio.wait_for(shell.communicate(), timeout=10)
+    if out:
+        bot.send_error(out.decode())
     if err:
         raise RuntimeError(err.decode())
     try:
@@ -102,8 +105,10 @@ async def profile_executor(bot, player):
 
 
 if __name__ == '__main__':
-    _, player = sys.argv
-    player = Player(**json.loads(player))
+    _, rawr = sys.argv
+    player = Player(**json.loads(rawr))
+    print(rawr)
+    print(repr(player))
     with open(f"input/{player._owner_id}.png", "rb") as f:
         image = io.BytesIO(f.read())
     im = Image.open(__ws(image)).convert('RGBA')
