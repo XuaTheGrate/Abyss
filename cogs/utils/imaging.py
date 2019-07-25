@@ -44,9 +44,9 @@ def __get_rotated_text(text, rotation=9.46):
 def __create_profile(player, demon_stuff):
     im = BASE.copy()
     text = __get_rotated_text(str(player.owner))
-    im.paste(text, (50, 10), text)
+    im.paste(text, (50, 20), text)
     demon_name = __get_rotated_text(player.name)
-    im.paste(demon_name, (100, 50), demon_name)
+    im.paste(demon_name, (100, 70), demon_name)
     pos = ((im.size[0] - demon_stuff.size[0]), (im.size[1]//2 - demon_stuff.size[1]//2))
     # print(f"HI IM DEBUG {pos}")
     im.paste(demon_stuff, pos, demon_stuff)
