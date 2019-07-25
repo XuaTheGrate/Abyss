@@ -32,7 +32,7 @@ def __ws(img):
     for x in range(lx):
         for y in range(ly):
             r, g, b, a = im.getpixel((x, y))
-            if 16777215 - ((r + 1) * (g + 1) * (b + 1)) < 1000000:
+            if 16777215 - ((r + 1) * (g + 1) * (b + 1)) < 1500000:
                 im.putpixel((x, y), (0, 0, 0, 0))
     buf = io.BytesIO()
     im.save(buf, 'png')
@@ -46,12 +46,12 @@ def get_rotated_text(text, rotation=17.5):
     d = ImageDraw.Draw(im)
     d.text((1, 1), text, font=font)
     im.rotate(rotation)
-    buf = io.BytesIO()
-    im.save(buf, 'png')
-    buf.seek(0)
-    im.close()
-    pasteable = Image.open(__ws(buf)).convert('RGBA')
-    return pasteable
+    # buf = io.BytesIO()
+    # im.save(buf, 'png')
+    # buf.seek(0)
+    # im.close()
+    # pasteable = Image.open(__ws(buf)).convert('RGBA')
+    return im
 
 
 @async_executor()
