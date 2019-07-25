@@ -513,7 +513,7 @@ class Player(JSONable):
         self.owner = None
         self.name = kwargs.pop("name")
         skills = kwargs.pop("skills")
-        if all(isinstance(x, Skill) for x in skills):
+        if skills and all(isinstance(x, Skill) for x in skills):
             self.skills = skills
         else:
             self.skills = []
