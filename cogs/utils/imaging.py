@@ -89,5 +89,6 @@ async def profile_executor(bot, player):
     try:
         return await bot.loop.run_in_executor(None, meth)
     finally:
-        if process.is_alive():
-            process.terminate()
+        # if process.is_alive():
+            # process.terminate()
+        pass
