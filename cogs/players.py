@@ -56,9 +56,20 @@ def prepare_skill_tree_page(player):
     embed = discord.Embed(colour=lookups.TYPE_TO_COLOUR[player.specialty.name.lower()])
     embed.title = "Skill tree status"
     embed.set_author(name=player.name, icon_url=player.owner.avatar_url_as(format="png", size=32))
-    embed.description = f"""Current leaf: {player._active_leaf}
-AP Points: {player.ap_points} | {player.leaf['cost']//1000 if player.leaf else 'N/A'} to finish."""
-    embed.set_footer(text="todo: make this better")
+    leaf = player.leaf['cost']//1000 if player.leaf else 'N/A'
+    embed.description = _("""Current leaf: {player._active_leaf}
+AP Points: {player.ap_points} | {leaf} to finish.""").format(player=player, leaf=leaf)
+    embed.set_footer(text="<~ Home | Skills ~>")
+    return embed
+
+
+def skills_page(player):
+    embed = discord.Embed(colour=lookups.TYPE_TO_COLOUR[player.specialty.name.lower()])
+    embed.title = "Skills"
+    embed.set_author(name=player.name, icon_url=player.owner.avatar_url_as(format='png', size=32))
+    skills = [f'{lookups.TYPE_TO_EMOJI[skill.type.name.lower()]} {skill.name}' for skill in player.skills]
+    embed.description = '\n'.join(skills) or 'No skills? wtf'
+    embed.set_footer(text='<~ Skill Tree Status')
     return embed
 
 
@@ -84,7 +95,8 @@ Specializes in {spec} type skills.
 __Resistances__
 {res_fmt}""").format(**locals())
         embed.description = desc
-        self.pages = [embed, prepare_skill_tree_page(player)]
+        embed.set_footer(text='Skill Tree Status ~>')
+        self.pages = [embed, prepare_skill_tree_page(player), skills_page(player)]
         self.current_page = 0
 
     async def send_initial_message(self):
