@@ -75,7 +75,9 @@ async def profile_executor(bot, player):
         with open(f"input/{player.owner.id}.png", "wb") as f:
             f.write(await get.read())
 
-    shell = await asyncio.create_subprocess_exec(sys.executable, './imaging.py', json.dumps(player.to_json()),
+    shell = await asyncio.create_subprocess_exec(sys.executable,
+                                                 '/home/xua/adventure2/cogs/utils/imaging.py',
+                                                 json.dumps(player.to_json()),
                                                  stderr=asyncio.subprocess.PIPE)
 
     _, err = await asyncio.wait_for(shell.communicate(), timeout=10)
