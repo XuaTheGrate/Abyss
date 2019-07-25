@@ -27,7 +27,7 @@ def remove_whitespace(img: io.BytesIO) -> io.BytesIO:
 
 def __ws(img):
     im = Image.open(img).convert('RGBA')
-    im = im.resize((im.size[0] // 6, im.size[1] // 6))
+    im = im.resize((im.size[0] // 5, im.size[1] // 5))
     lx, ly = im.size
     for x in range(lx):
         for y in range(ly):
@@ -42,7 +42,7 @@ def __ws(img):
 
 
 def get_rotated_text(text, rotation=17.5):
-    im = Image.new('RGBA', font.getsize(text), 0)
+    im = Image.new('RGBA', font.getsize(text), 16777215)
     d = ImageDraw.Draw(im)
     d.text((1, 1), text, font=font)
     im.rotate(rotation)
