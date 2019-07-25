@@ -54,7 +54,8 @@ def get_rotated_text(text, rotation=17.5):
     im.save(buf, 'png')
     buf.seek(0)
     im.close()
-    return __ws(buf)
+    pasteable = Image.open(__ws(buf)).convert('RGBA')
+    return pasteable
 
 
 @async_executor()
