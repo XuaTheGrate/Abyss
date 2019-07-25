@@ -21,7 +21,7 @@ def async_executor():
 @async_executor()
 def remove_whitespace(img: io.BytesIO) -> io.BytesIO:
     im = Image.open(img).convert('RGBA')
-    im = im.resize((im.size[0]//4, im.size[1]//4))
+    im = im.resize((im.size[0]//8, im.size[1]//8))
     lx, ly = im.size
     for x in range(lx):
         for y in range(ly):
@@ -40,7 +40,7 @@ def create_profile(player, demon_stuff):
     im = BASE.copy()
     draw = ImageDraw.Draw(im)
     draw.text((100, 50), str(player.owner))
-    im.paste(demon_stuff, (250, 250), demon_stuff)
+    im.paste(demon_stuff, (250, 125), demon_stuff)
     buffer = io.BytesIO()
     im.save(buffer, 'png')
     im.close()
