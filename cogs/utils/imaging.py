@@ -1,11 +1,17 @@
 import asyncio
 import io
+import sys
 from functools import wraps
 
 from PIL import Image, ImageDraw, ImageFont
 
 
 BASE = Image.open('assets/statscreen.png').convert('RGBA')
+if sys.platform == 'linux':
+    font = 'DejaVuSans'
+else:
+    font = 'arial.ttf'
+FONT = ImageFont.truetype(font, size=20)
 
 
 def async_executor():
@@ -21,7 +27,7 @@ def async_executor():
 @async_executor()
 def remove_whitespace(img: io.BytesIO) -> io.BytesIO:
     im = Image.open(img).convert('RGBA')
-    im = im.resize((im.size[0]//8, im.size[1]//8))
+    im = im.resize((im.size[0]//4, im.size[1]//4))
     lx, ly = im.size
     for x in range(lx):
         for y in range(ly):
@@ -39,8 +45,8 @@ def remove_whitespace(img: io.BytesIO) -> io.BytesIO:
 def create_profile(player, demon_stuff):
     im = BASE.copy()
     draw = ImageDraw.Draw(im)
-    draw.text((100, 50), str(player.owner))
-    im.paste(demon_stuff, (250, 125), demon_stuff)
+    draw.text((100, 50), str(player.owner), font=FONT)
+    im.paste(demon_stuff, (300, 125), demon_stuff)
     buffer = io.BytesIO()
     im.save(buffer, 'png')
     im.close()
