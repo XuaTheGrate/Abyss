@@ -59,8 +59,7 @@ def __create_profile(player, demon_stuff):
 
 
 def _multiproc_handler(player, demon):
-    dimg = Image.open(demon).convert('RGBA')
-    dimg = __ws(dimg)
+    dimg = __ws(demon)
     dimg = Image.open(dimg).convert('RGBA')
     __create_profile(player, dimg)
 
