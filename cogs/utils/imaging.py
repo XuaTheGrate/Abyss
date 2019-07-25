@@ -2,7 +2,10 @@ import asyncio
 import io
 from functools import wraps
 
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
+
+
+BASE = Image.open('assets/statscreen.png').convert('RGBA')
 
 
 def async_executor():
@@ -17,7 +20,7 @@ def async_executor():
 
 @async_executor()
 def remove_whitespace(img: io.BytesIO) -> io.BytesIO:
-    im = Image.open(img).convert('RGBA')
+    im = Image.open(img).convert('RGBA').resize((128, 256))
     lx, ly = im.size
     for x in range(lx):
         for y in range(ly):
@@ -29,3 +32,16 @@ def remove_whitespace(img: io.BytesIO) -> io.BytesIO:
     buf.seek(0)
     im.close()
     return buf
+
+
+@async_executor()
+def create_profile(player, demon_stuff):
+    im = BASE.copy()
+    draw = ImageDraw.Draw(im)
+    draw.text((100, 100), str(player.owner))
+    im.paste(demon_stuff, (250, 250))
+    buffer = io.BytesIO()
+    im.save(buffer, 'png')
+    im.close()
+    buffer.seek(0)
+    return buffer
