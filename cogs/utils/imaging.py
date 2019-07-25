@@ -83,7 +83,7 @@ async def profile_executor(bot, player):
 
     shell = await asyncio.create_subprocess_exec(sys.executable,
                                                  '/home/xua/adventure2/cogs/utils/imaging.py',
-                                                 json.dumps(player.to_json()),
+                                                 json.dumps(ply),
                                                  stdout=asyncio.subprocess.PIPE,
                                                  stderr=asyncio.subprocess.PIPE)
 
