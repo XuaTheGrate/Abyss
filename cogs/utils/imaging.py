@@ -52,7 +52,7 @@ def __create_profile(player, demon_stuff):
     # print(f"HI IM DEBUG {pos}")
     im.paste(demon_stuff, pos, demon_stuff)
     st = __get_rotated_text(str(player.strength), 0.0, (0, 0, 0, 255), SMOL)
-    st = st.resize((st.size[0]+5, st.size[1]), resample=Image.BILINEAR)
+    st = st.resize((st.size[0], st.size[1]+5), resample=Image.BILINEAR)
     im.paste(st, (725, 470), st)
     buffer = io.BytesIO()
     im.save(buffer, 'png')
