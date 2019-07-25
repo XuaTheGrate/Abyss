@@ -78,9 +78,7 @@ async def profile_executor(bot, player):
     shell = await asyncio.create_subprocess_exec(sys.executable, './imaging.py', json.dumps(player.to_json()),
                                                  stderr=asyncio.subprocess.PIPE)
 
-    wait = bot.loop.create_task(shell.communicate())
-    await asyncio.wait(wait, timeout=10)
-    _, err = wait.result()
+    _, err = await asyncio.wait_for(shell.communicate(), timeout=10)
     if err:
         raise RuntimeError(err.decode())
     try:
