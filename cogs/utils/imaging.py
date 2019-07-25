@@ -11,7 +11,7 @@ if sys.platform == 'linux':
     font = 'DejaVuSans'
 else:
     font = 'arial.ttf'
-FONT = ImageFont.truetype(font, size=20)
+FONT = ImageFont.truetype(font, size=200)
 
 
 def async_executor():
