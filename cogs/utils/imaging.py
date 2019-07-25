@@ -71,13 +71,12 @@ async def profile_executor(bot, player):
     uri = await bot.redis.get(f"demon:{player.name.replace(' ', '_').title()}")
     if uri:
         uri = uri.decode()
+        async with bot.session.get(uri) as get:
+            with open(f"input/{player.owner.id}.png", "wb") as f:
+                f.write(await get.read())
     else:
         bot.send_error(f"no url for {player.name}, defaultig to MISSINGNO.")
-        uri = "https://cdn.bulbagarden.net/upload/4/47/RBGlitchMissingno._b.png"
-
-    async with bot.session.get(uri) as get:
-        with open(f"input/{player.owner.id}.png", "wb") as f:
-            f.write(await get.read())
+        os.system(f"cp assets/MISSINGNO.png input/{player.owner.id}.png")
 
     shell = await asyncio.create_subprocess_exec(sys.executable,
                                                  '/home/xua/adventure2/cogs/utils/imaging.py',
