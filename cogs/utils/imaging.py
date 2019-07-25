@@ -78,6 +78,9 @@ async def profile_executor(bot, player):
         bot.send_error(f"no url for {player.name}, defaultig to MISSINGNO.")
         os.system(f"cp assets/MISSINGNO.png input/{player.owner.id}.png")
 
+    ply = player.to_json()
+    ply['__debug'] = str(player.owner)
+
     shell = await asyncio.create_subprocess_exec(sys.executable,
                                                  '/home/xua/adventure2/cogs/utils/imaging.py',
                                                  json.dumps(player.to_json()),
