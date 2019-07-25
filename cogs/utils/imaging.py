@@ -32,7 +32,7 @@ def __ws(img):
     for x in range(lx):
         for y in range(ly):
             r, g, b, a = im.getpixel((x, y))
-            if 16777215 - ((r + 1) * (g + 1) * (b + 1)) < 1500000:
+            if 16777215 - ((r + 1) * (g + 1) * (b + 1)) < 1000000:
                 im.putpixel((x, y), (0, 0, 0, 0))
     buf = io.BytesIO()
     im.save(buf, 'png')
@@ -58,8 +58,8 @@ def get_rotated_text(text, rotation=9.46):
 def create_profile(player, demon_stuff):
     im = BASE.copy()
     text = get_rotated_text(str(player.owner))
-    im.paste(text, (1, 1), text)
-    im.paste(demon_stuff, (325, 100), demon_stuff)
+    im.paste(text, (50, 1), text)
+    im.paste(demon_stuff, (700, 100), demon_stuff)
     buffer = io.BytesIO()
     im.save(buffer, 'png')
     im.close()
