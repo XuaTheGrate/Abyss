@@ -1,4 +1,4 @@
-import json5
+import json
 import math
 import operator
 import random
@@ -299,7 +299,7 @@ class JSONable:
         -------
         :class:`dict`
             The object converted for json storage."""
-        ret = json5.loads(json5.dumps(self, default=self._serialize))
+        ret = json.loads(json.dumps(self, default=self._serialize))
         return ret
 
 
