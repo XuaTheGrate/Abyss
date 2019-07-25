@@ -5,3 +5,4 @@ motor
 aioredis
 json5
 dpy-ui
+Pillow
