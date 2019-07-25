@@ -64,12 +64,20 @@ def __create_profile(player, demon_stuff):
 
     en = __get_rotated_text(str(player.endurance), 0.0, (0, 0, 0, 255), SMOL)
     en = en.resize((en.size[0], en.size[1]+15), resample=Image.BILINEAR)
-    im.paste(en, (725, 540), en)
+    im.paste(en, (725, 535), en)
+    
+    ag = __get_rotated_text(str(player.agility), 0.0, (0, 0, 0, 255), SMOL)
+    ag = ag.resize((ag.size[0], ag.size[1] + 15), resample=Image.BILINEAR)
+    im.paste(ag, (735, 570), ag)
+
+    lu = __get_rotated_text(str(player.luck), 0.0, (0, 0, 0, 255), SMOL)
+    lu = lu.resize((lu.size[0], lu.size[1] + 15), resample=Image.BILINEAR)
+    im.paste(lu, (725, 605), lu)
 
     buffer = io.BytesIO()
     im.save(buffer, 'png')
     buffer.seek(0)
-    for i in (im, text, st, demon_stuff, ma, en):
+    for i in (im, text, st, demon_stuff, ma, en, ag, lu):
         i.close()
     handles.put(buffer)
 
