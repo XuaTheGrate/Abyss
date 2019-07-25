@@ -258,6 +258,9 @@ class Players(commands.Cog):
     async def delete(self, ctx):
         """Deletes your player.
         ! THIS ACTION IS IRREVERSIBLE !"""
+        if not ctx.player:
+            return
+
         m1 = await ctx.send(_("Are you sure you want to delete your account? This action is irreversible."))
         if not await confirm(self.bot, m1, ctx.author):
             return
