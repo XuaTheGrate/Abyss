@@ -45,7 +45,7 @@ def get_rotated_text(text, rotation=17.5):
     im = Image.new('RGBA', font.getsize(text), 0)
     d = ImageDraw.Draw(im)
     d.text((1, 1), text, font=font)
-    im.rotate(rotation)
+    im = im.rotate(rotation)
     # buf = io.BytesIO()
     # im.save(buf, 'png')
     # buf.seek(0)
