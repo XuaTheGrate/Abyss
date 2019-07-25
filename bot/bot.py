@@ -2,6 +2,7 @@ import asyncio
 import io
 import logging
 import os
+import traceback
 from collections import defaultdict
 from contextlib import suppress
 from logging.handlers import TimedRotatingFileHandler
@@ -17,6 +18,8 @@ from cogs import utils
 from cogs.utils import i18n
 
 import logging
+
+NL = '\n'
 
 logger = logging.getLogger('discord')
 logger.setLevel(logging.DEBUG)
@@ -369,3 +372,12 @@ class AdventureTwo(commands.Bot):
                 {"$set": {"prefixes": list(PREFIXES[guild.id])}})
         self.db.close()
         await super().close()
+
+    async def on_error(self, event, *args, **kwargs):
+        to = f"""> Error occured in event `{event}`
+> Arguments: {NL.join(map(repr, args))}
+> KW Arguments: {kwargs}
+> ```py
+> {traceback.format_exc()}
+> ```"""
+        await self.send_error(to)

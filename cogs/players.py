@@ -1,4 +1,5 @@
 import asyncio
+import contextlib
 import itertools
 import random
 from operator import itemgetter
@@ -130,6 +131,24 @@ __Resistances__
         await self.message.edit(embed=self.pages[self.current_page])
 
 
+async def confirm(bot, msg, user):
+    rs = (str(bot.tick_yes), str(bot.tick_no))
+    for r in rs:
+        await msg.add_reaction(r)
+    try:
+        r, u = await bot.wait_for('reaction_add', check=lambda r, u: str(r.emoji) in rs and u.id == user.id and
+                                  r.message.id == msg.id, timeout=60)
+    except asyncio.TimeoutError:
+        return False
+    else:
+        if str(r.emoji) == rs[0]:
+            return True
+        return False
+    finally:
+        with contextlib.suppress(discord.Forbidden):
+            await msg.clear_reactions()
+
+
 class Players(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -234,6 +253,25 @@ class Players(commands.Cog):
         
         session = Status(ctx.player)
         await session.start(ctx)
+
+    @commands.command()
+    async def delete(self, ctx):
+        """Deletes your player.
+        ! THIS ACTION IS IRREVERSIBLE !"""
+        m1 = await ctx.send(_("Are you sure you want to delete your account? This action is irreversible."))
+        if not await confirm(self.bot, m1, ctx.author):
+            return
+
+        m2 = await ctx.send(_("...are you really sure?"))
+        if not await confirm(self.bot, m2, ctx.author):
+            return
+
+        await ctx.channel.delete_messages([m1, m2])
+
+        with contextlib.suppress(KeyError):
+            self.players.pop(ctx.author.id)
+        await self.bot.db.adventure2.accounts.delete_one({"owner": ctx.author.id})
+        await ctx.send(self.bot.tick_yes)
 
 
 def setup(bot):
