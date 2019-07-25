@@ -1,8 +1,6 @@
 import io
 import multiprocessing
-import sys
-import json
-import os
+from functools import partial
 
 from PIL import Image, ImageDraw, ImageFont
 
@@ -87,7 +85,10 @@ async def profile_executor(bot, player):
     process = multiprocessing.Process(target=_multiproc_handler, args=(player, file), daemon=True)
     process.start()
 
+    meth = partial(handles.get, timeout=10)
+
     try:
-        return await bot.loop.run_in_executor(None, handles.get)
+        return await bot.loop.run_in_executor(None, meth)
     finally:
-        process.terminate()
+        if process.is_alive():
+            process.terminate()
