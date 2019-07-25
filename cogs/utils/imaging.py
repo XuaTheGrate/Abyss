@@ -7,7 +7,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 
 BASE = Image.open('assets/statscreen.png').convert('RGBA')
-font = ImageFont.truetype('assets/tahoma.ttf', size=200)
+font = ImageFont.truetype('assets/tahoma.ttf', size=50)
 
 
 def async_executor():
@@ -42,7 +42,7 @@ def __ws(img):
 
 
 def get_rotated_text(text, rotation=17.5):
-    im = Image.new('RGBA', font.getsize(text), 16777215)
+    im = Image.new('RGBA', font.getsize(text), 0)
     d = ImageDraw.Draw(im)
     d.text((1, 1), text, font=font)
     im.rotate(rotation)
