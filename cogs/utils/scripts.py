@@ -5,20 +5,23 @@ from contextlib import suppress
 
 def check(msg, waiter):
     def inner(r, u):
-        return str(r.emoji) == '\u25b6' and \
+        return str(r.emoji) in ('\u25b6', '⏹') and \
             u == waiter and \
             r.message.id == msg.id
     return inner
 
 
 async def wait_next(bot, message, user):
+    await message.add_reaction('⏹')
     await message.add_reaction('\u25b6')
     try:
-        await bot.wait_for("reaction_add", check=check(message, user), timeout=180)
+        r, u = await bot.wait_for("reaction_add", check=check(message, user), timeout=180)
     except asyncio.TimeoutError:
         return False
     else:
-        return True
+        if str(r.emoji) == '\u25b6':
+            return True
+        return False
     finally:
         with suppress(Exception):
             await message.clear_reactions()
