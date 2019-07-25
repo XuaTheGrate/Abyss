@@ -41,8 +41,8 @@ def __ws(img):
     return buf
 
 
-def get_rotated_text(text, rotation=17.5):
-    im = Image.new('RGBA', font.getsize(text), 0)
+def get_rotated_text(text, rotation=9.46):
+    im = Image.new('RGBA', tuple(x*2 for x in font.getsize(text)), 0)
     d = ImageDraw.Draw(im)
     d.text((1, 1), text, font=font)
     im = im.rotate(rotation)
