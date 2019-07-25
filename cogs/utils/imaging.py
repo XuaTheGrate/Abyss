@@ -60,11 +60,11 @@ def __create_profile(player, demon_stuff):
 
     ma = __get_rotated_text(str(player.magic), 0.0, (0, 0, 0, 255), SMOL)
     ma = ma.resize((ma.size[0], ma.size[1]+15), resample=Image.BILINEAR)
-    im.paste(ma, (725, 500), ma)
+    im.paste(ma, (735, 500), ma)
 
     en = __get_rotated_text(str(player.endurance), 0.0, (0, 0, 0, 255), SMOL)
     en = en.resize((en.size[0], en.size[1]+15), resample=Image.BILINEAR)
-    im.paste(en, (725, 550), en)
+    im.paste(en, (725, 540), en)
 
     buffer = io.BytesIO()
     im.save(buffer, 'png')
