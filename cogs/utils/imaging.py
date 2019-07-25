@@ -1,17 +1,10 @@
-import asyncio
 import io
+import multiprocessing
 import sys
 import json
 import os
 
 from PIL import Image, ImageDraw, ImageFont
-
-if __name__ == '__main__':
-    from objects import Player, Skill
-    import lookups
-else:
-    from .objects import Player, Skill
-    from . import lookups
 
 BASE = Image.open('assets/statscreen.png').convert('RGBA')
 font = ImageFont.truetype('assets/tahoma.ttf', size=50)
@@ -64,7 +57,17 @@ def __create_profile(player, demon_stuff):
     im.close()
     text.close()
     demon_stuff.close()
-    return buffer
+    handles.put(buffer)
+
+
+def _multiproc_handler(player, demon):
+    dimg = Image.open(demon).convert('RGBA')
+    dimg = __ws(dimg)
+    dimg = Image.open(dimg).convert('RGBA')
+    __create_profile(player, dimg)
+
+
+handles = multiprocessing.Queue()
 
 
 async def profile_executor(bot, player):
@@ -72,48 +75,19 @@ async def profile_executor(bot, player):
     if uri:
         uri = uri.decode()
         async with bot.session.get(uri) as get:
-            with open(f"input/{player.owner.id}.png", "wb") as f:
-                f.write(await get.read())
+            file = io.BytesIO(await get.read())
     else:
-        bot.send_error(f"no url for {player.name}, defaultig to MISSINGNO.")
-        os.system(f"cp assets/MISSINGNO.png input/{player.owner.id}.png")
+        bot.send_error(f"no url for {player.name}, defaulting to MISSINGNO.")
+        with open("assets/MISSINGNO.png", 'rb') as f:
+            file = io.BytesIO(f.read())
 
     ply = player.to_json()
     ply['__debug'] = str(player.owner)
 
-    shell = await asyncio.create_subprocess_exec(sys.executable,
-                                                 '/home/xua/adventure2/cogs/utils/imaging.py',
-                                                 json.dumps(ply),
-                                                 stdout=asyncio.subprocess.PIPE,
-                                                 stderr=asyncio.subprocess.PIPE)
+    process = multiprocessing.Process(target=_multiproc_handler, args=(player, file), daemon=True)
+    process.start()
 
-    out, err = await asyncio.wait_for(shell.communicate(), timeout=10)
-    if out:
-        bot.send_error(out.decode())
-    if err:
-        raise RuntimeError(err.decode())
     try:
-        shell.terminate()
-        shell.kill()
-    except ProcessLookupError:
-        pass
-    with open(f"output/{player.owner.id}.png", 'rb') as f:
-        try:
-            return io.BytesIO(f.read())
-        finally:
-            os.remove(f"output/{player.owner.id}.png")
-
-
-if __name__ == '__main__':
-    _, rawr = sys.argv
-    player = Player(**json.loads(rawr))
-    print(rawr)
-    print(repr(player))
-    with open(f"input/{player._owner_id}.png", "rb") as f:
-        image = io.BytesIO(f.read())
-    im = Image.open(__ws(image)).convert('RGBA')
-    data = __create_profile(player, im)
-    with open(f"output/{player._owner_id}.png", "wb") as f:
-        f.write(data.getvalue())
-    os.remove(f"input/{player._owner_id}.png")
-
+        return await bot.loop.run_in_executor(None, handles.get)
+    finally:
+        process.terminate()
