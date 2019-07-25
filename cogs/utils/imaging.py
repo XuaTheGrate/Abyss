@@ -26,7 +26,7 @@ def remove_whitespace(img: io.BytesIO) -> io.BytesIO:
 
 def __ws(img):
     im = Image.open(img).convert('RGBA')
-    im = im.resize((im.size[0] // 2, im.size[1] // 2), Image.BILINEAR)
+    im = im.resize((im.size[0] // 3, im.size[1] // 3), Image.BILINEAR)
     lx, ly = im.size
     for x in range(lx):
         for y in range(ly):
