@@ -46,7 +46,7 @@ def create_profile(player, demon_stuff):
     im = BASE.copy()
     draw = ImageDraw.Draw(im)
     draw.text((100, 50), str(player.owner), font=FONT)
-    im.paste(demon_stuff, (300, 125), demon_stuff)
+    im.paste(demon_stuff, (325, 100), demon_stuff)
     buffer = io.BytesIO()
     im.save(buffer, 'png')
     im.close()
