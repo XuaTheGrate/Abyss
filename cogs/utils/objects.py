@@ -548,10 +548,6 @@ class Player(JSONable):
         self._until_clear = [0, 0, 0]  # turns until it gets cleared for each stat, max of 3 turns
         self._next_level = self.level+1
 
-        if kwargs:
-            import warnings
-            warnings.warn(f"{self.name}: kwargs not cleared, {kwargs}", UserWarning)
-
     def __repr__(self):
         return (f"Player(owner={self._owner_id}, "
                 f"name='{self.name}', "
@@ -608,7 +604,7 @@ Player
 
     @hp.setter
     def hp(self, value):
-        self._damage_taken = max(0, self._damage_taken + value)
+        self._damage_taken = min(0, self._damage_taken + value)
 
     @property
     def max_hp(self):
@@ -636,7 +632,7 @@ Player
 
     @sp.setter
     def sp(self, value):
-        self._sp_used = max(0, self._sp_used + value)
+        self._sp_used = min(0, self._sp_used + value)
 
     @property
     def max_sp(self):
@@ -674,7 +670,7 @@ Player
         -------
         :class:`bool`
             The player is ready to level up."""
-        return self._next_level >= self.level
+        return self._next_level <= self.level
 
     def exp_to_next_level(self):
         """Returns the total experience until the next level.
@@ -786,6 +782,7 @@ Player
         if not skill.uses_sp:
             if attacker.try_crit(self.luck, self.affected_by(StatModifier.SUKU)):
                 base *= 1.75
+                result.critical = True
 
         if res is ResistanceModifier.WEAK:
             base *= 1.5
