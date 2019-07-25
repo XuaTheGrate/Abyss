@@ -7,11 +7,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 
 BASE = Image.open('assets/statscreen.png').convert('RGBA')
-if sys.platform == 'linux':
-    font = 'DejaVuSans'
-else:
-    font = 'arial.ttf'
-FONT = ImageFont.truetype(font, size=200)
+font = ImageFont.truetype('assets/tahoma.ttf', size=200)
 
 
 def async_executor():
@@ -31,7 +27,7 @@ def remove_whitespace(img: io.BytesIO) -> io.BytesIO:
 
 def __ws(img):
     im = Image.open(img).convert('RGBA')
-    im = im.resize((im.size[0] // 4, im.size[1] // 4))
+    im = im.resize((im.size[0] // 6, im.size[1] // 6))
     lx, ly = im.size
     for x in range(lx):
         for y in range(ly):
@@ -46,9 +42,9 @@ def __ws(img):
 
 
 def get_rotated_text(text, rotation=17.5):
-    im = Image.new('RGBA', FONT.getsize(text), 0)
+    im = Image.new('RGBA', font.getsize(text), 0)
     d = ImageDraw.Draw(im)
-    d.text((1, 1), text, font=FONT)
+    d.text((1, 1), text, font=font)
     im.rotate(rotation)
     buf = io.BytesIO()
     im.save(buf, 'png')
