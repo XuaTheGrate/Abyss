@@ -46,21 +46,31 @@ def __create_profile(player, demon_stuff):
     im = BASE.copy()
     text = __get_rotated_text(str(player.owner))
     im.paste(text, (50, 20), text)
+
     demon_name = __get_rotated_text(player.name)
     im.paste(demon_name, (100, 80), demon_name)
+
     pos = ((im.size[0] - demon_stuff.size[0])-20, (im.size[1]//2 - demon_stuff.size[1]//2))
     # print(f"HI IM DEBUG {pos}")
     im.paste(demon_stuff, pos, demon_stuff)
+
     st = __get_rotated_text(str(player.strength), 0.0, (0, 0, 0, 255), SMOL)
     st = st.resize((st.size[0], st.size[1]+15), resample=Image.BILINEAR)
     im.paste(st, (725, 465), st)
+
+    ma = __get_rotated_text(str(player.magic), 0.0, (0, 0, 0, 255), SMOL)
+    ma = ma.resize((ma.size[0], ma.size[1]+15), resample=Image.BILINEAR)
+    im.paste(ma, (725, 500), ma)
+
+    en = __get_rotated_text(str(player.endurance), 0.0, (0, 0, 0, 255), SMOL)
+    en = en.resize((en.size[0], en.size[1]+15), resample=Image.BILINEAR)
+    im.paste(en, (725, 550), en)
+
     buffer = io.BytesIO()
     im.save(buffer, 'png')
-    im.close()
     buffer.seek(0)
-    im.close()
-    text.close()
-    demon_stuff.close()
+    for i in (im, text, st, demon_stuff, ma, en):
+        i.close()
     handles.put(buffer)
 
 
