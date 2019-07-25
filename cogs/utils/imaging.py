@@ -6,8 +6,12 @@ import os
 
 from PIL import Image, ImageDraw, ImageFont
 
-from .objects import Player, Skill
-from . import lookups
+if __name__ == '__main__':
+    from objects import Player, Skill
+    import lookups
+else:
+    from .objects import Player, Skill
+    from . import lookups
 
 BASE = Image.open('assets/statscreen.png').convert('RGBA')
 font = ImageFont.truetype('assets/tahoma.ttf', size=50)
