@@ -24,7 +24,7 @@ I don't have my own support server, so you can join my owners general server her
     @commands.is_owner()
     async def reload(self, ctx, *, module):
         try:
-            sys.modules[module] = importlib.reload(__import__(module))
+            sys.modules[module] = importlib.reload(sys.modules[module])
             await ctx.send(ctx.bot.tick_yes)
         except Exception as e:
             await ctx.send(ctx.bot.tick_no)
