@@ -1,6 +1,5 @@
 import asyncio
 import io
-import sys
 from functools import wraps
 
 from PIL import Image, ImageDraw, ImageFont
@@ -59,10 +58,13 @@ def create_profile(player, demon_stuff):
     im = BASE.copy()
     text = get_rotated_text(str(player.owner))
     im.paste(text, (50, 10), text)
-    pos = (im.size[0]-20, (im.size[1] - demon_stuff.size[1])//2)
+    pos = (im.size[0]-20, (im.size[1]//2 - demon_stuff.size[1]//2))
     im.paste(demon_stuff, pos, demon_stuff)
     buffer = io.BytesIO()
     im.save(buffer, 'png')
     im.close()
     buffer.seek(0)
+    im.close()
+    text.close()
+    demon_stuff.close()
     return buffer
