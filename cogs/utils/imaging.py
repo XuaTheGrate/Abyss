@@ -26,13 +26,17 @@ def async_executor():
 
 @async_executor()
 def remove_whitespace(img: io.BytesIO) -> io.BytesIO:
+    return __ws(img)
+
+
+def __ws(img):
     im = Image.open(img).convert('RGBA')
-    im = im.resize((im.size[0]//4, im.size[1]//4))
+    im = im.resize((im.size[0] // 4, im.size[1] // 4))
     lx, ly = im.size
     for x in range(lx):
         for y in range(ly):
             r, g, b, a = im.getpixel((x, y))
-            if 16777215 - ((r+1)*(g+1)*(b+1)) < 1000000:
+            if 16777215 - ((r + 1) * (g + 1) * (b + 1)) < 1000000:
                 im.putpixel((x, y), (0, 0, 0, 0))
     buf = io.BytesIO()
     im.save(buf, 'png')
@@ -41,11 +45,23 @@ def remove_whitespace(img: io.BytesIO) -> io.BytesIO:
     return buf
 
 
+def get_rotated_text(text, rotation=17.5):
+    im = Image.new('RGBA', FONT.getsize(text), 0)
+    d = ImageDraw.Draw(im)
+    d.text((1, 1), text, font=FONT)
+    im.rotate(rotation)
+    buf = io.BytesIO()
+    im.save(buf, 'png')
+    buf.seek(0)
+    im.close()
+    return __ws(buf)
+
+
 @async_executor()
 def create_profile(player, demon_stuff):
     im = BASE.copy()
-    draw = ImageDraw.Draw(im)
-    draw.text((100, 50), str(player.owner), font=FONT)
+    text = get_rotated_text(str(player.owner))
+    im.paste(text, (1, 1), text)
     im.paste(demon_stuff, (325, 100), demon_stuff)
     buffer = io.BytesIO()
     im.save(buffer, 'png')
