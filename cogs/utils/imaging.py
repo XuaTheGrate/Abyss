@@ -1,26 +1,19 @@
 import asyncio
 import io
-from functools import wraps
+import sys
+import json
+import os
 
 from PIL import Image, ImageDraw, ImageFont
 
+from .objects import Player, Skill
+from . import lookups
 
 BASE = Image.open('assets/statscreen.png').convert('RGBA')
 font = ImageFont.truetype('assets/tahoma.ttf', size=50)
 
 
-def async_executor():
-    def inner(func):
-        @wraps(func)
-        def inside(*args, **kwargs):
-            loop = asyncio.get_event_loop()
-            return loop.run_in_executor(None, func, *args, **kwargs)
-        return inside
-    return inner
-
-
-@async_executor()
-def remove_whitespace(img: io.BytesIO) -> io.BytesIO:
+def __remove_whitespace(img: io.BytesIO) -> io.BytesIO:
     return __ws(img)
 
 
@@ -40,7 +33,7 @@ def __ws(img):
     return buf
 
 
-def get_rotated_text(text, rotation=9.46):
+def __get_rotated_text(text, rotation=9.46):
     im = Image.new('RGBA', tuple(x*2 for x in font.getsize(text)), 0)
     d = ImageDraw.Draw(im)
     d.text((1, 1), text, font=font)
@@ -53,10 +46,9 @@ def get_rotated_text(text, rotation=9.46):
     return im
 
 
-@async_executor()
-def create_profile(player, demon_stuff):
+def __create_profile(player, demon_stuff):
     im = BASE.copy()
-    text = get_rotated_text(str(player.owner))
+    text = __get_rotated_text(str(player.owner))
     im.paste(text, (50, 10), text)
     pos = ((im.size[1] - demon_stuff.size[1]), (im.size[1]//2 - demon_stuff.size[1]//2))
     print(f"HI IM DEBUG {pos}")
@@ -69,3 +61,48 @@ def create_profile(player, demon_stuff):
     text.close()
     demon_stuff.close()
     return buffer
+
+
+async def profile_executor(bot, player):
+    uri = await bot.redis.get(f"demon:{player.name.replace(' ', '_').title()}")
+    if uri:
+        uri = uri.decode()
+    else:
+        bot.send_error(f"no url for {player.name}, defaultig to MISSINGNO.")
+        uri = "https://cdn.bulbagarden.net/upload/4/47/RBGlitchMissingno._b.png"
+
+    async with bot.session.get(uri) as get:
+        with open(f"input/{player.owner.id}.png", "wb") as f:
+            f.write(await get.read())
+
+    shell = await asyncio.create_subprocess_exec(sys.executable, './imaging.py', json.dumps(player.to_json()),
+                                                 stderr=asyncio.subprocess.PIPE)
+
+    wait = bot.loop.create_task(shell.communicate())
+    await asyncio.wait(wait, timeout=10)
+    _, err = wait.result()
+    if err:
+        raise RuntimeError(err.decode())
+    try:
+        shell.terminate()
+        shell.kill()
+    except ProcessLookupError:
+        pass
+    with open(f"output/{player.owner.id}.png", 'rb') as f:
+        try:
+            return io.BytesIO(f.read())
+        finally:
+            os.remove(f"output/{player.owner.id}.png")
+
+
+if __name__ == '__main__':
+    _, player = sys.argv
+    player = Player(**json.loads(player))
+    with open(f"input/{player._owner_id}.png", "rb") as f:
+        image = io.BytesIO(f.read())
+    im = Image.open(__ws(image)).convert('RGBA')
+    data = __create_profile(player, im)
+    with open(f"output/{player._owner_id}.png", "wb") as f:
+        f.write(data.getvalue())
+    os.remove(f"input/{player._owner_id}.png")
+
