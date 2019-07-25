@@ -6,7 +6,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 BASE = Image.open('assets/statscreen.png').convert('RGBA')
 FONT = ImageFont.truetype('assets/tahoma.ttf', size=50)
-SMOL = ImageFont.truetype('assets/tahoma.ttf', size=25)
+SMOL = ImageFont.truetype('assets/tahomabd.ttf', size=30)
 
 
 def __remove_whitespace(img: io.BytesIO) -> io.BytesIO:
@@ -52,7 +52,7 @@ def __create_profile(player, demon_stuff):
     # print(f"HI IM DEBUG {pos}")
     im.paste(demon_stuff, pos, demon_stuff)
     st = __get_rotated_text(str(player.strength), 0.0, (0, 0, 0, 255), SMOL)
-    im.paste(st, (745, 470), st)
+    im.paste(st, (725, 470), st)
     buffer = io.BytesIO()
     im.save(buffer, 'png')
     im.close()
