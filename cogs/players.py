@@ -8,7 +8,7 @@ import discord
 import json5
 from discord.ext import commands, ui
 
-from .utils import lookups, scripts, i18n
+from .utils import lookups, scripts, i18n, imaging
 from .utils.objects import Player, Skill
 
 import collections
@@ -218,7 +218,7 @@ class Players(commands.Cog):
         msg = _("This appears to be a public server. The messages sent can get spammy, or cause ratelimits.\n"
                 "It is advised to use a private server/channel.")
 
-        if sum(not m.bot for m in ctx.guild.members) > 100:
+        if sum(not m.bot for m in ctx.channel.members) > 100:
             await ctx.send(msg)
             await asyncio.sleep(5)
 
@@ -284,6 +284,14 @@ class Players(commands.Cog):
             self.players.pop(ctx.author.id)
         await self.bot.db.adventure2.accounts.delete_one({"owner": ctx.author.id})
         await ctx.send(self.bot.tick_yes)
+
+    @commands.command()
+    async def profile(self, ctx):
+        if not ctx.player:
+            return
+
+        data = await imaging.profile_executor(self.bot, ctx.player)
+        await ctx.send(file=discord.File(data, 'profile.png'))
 
 
 def setup(bot):
