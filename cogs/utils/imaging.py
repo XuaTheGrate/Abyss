@@ -5,7 +5,8 @@ from functools import partial
 from PIL import Image, ImageDraw, ImageFont
 
 BASE = Image.open('assets/statscreen.png').convert('RGBA')
-font = ImageFont.truetype('assets/tahoma.ttf', size=50)
+FONT = ImageFont.truetype('assets/tahoma.ttf', size=50)
+SMOL = ImageFont.truetype('assets/tahoma.ttf', size=25)
 
 
 def __remove_whitespace(img: io.BytesIO) -> io.BytesIO:
@@ -28,7 +29,7 @@ def __ws(img):
     return buf
 
 
-def __get_rotated_text(text, rotation=9.46, colour=(255, 255, 255, 255)):
+def __get_rotated_text(text, rotation=9.46, colour=(255, 255, 255, 255), font=FONT):
     im = Image.new('RGBA', tuple(x*2 for x in font.getsize(text)), 0)
     d = ImageDraw.Draw(im)
     d.text((1, 1), text, font=font, fill=colour)
@@ -50,8 +51,8 @@ def __create_profile(player, demon_stuff):
     pos = ((im.size[0] - demon_stuff.size[0])-20, (im.size[1]//2 - demon_stuff.size[1]//2))
     # print(f"HI IM DEBUG {pos}")
     im.paste(demon_stuff, pos, demon_stuff)
-    st = __get_rotated_text(str(player.strength), 0.0, (0, 0, 0, 255))
-    im.paste(st, (745, 470))
+    st = __get_rotated_text(str(player.strength), 0.0, (0, 0, 0, 255), SMOL)
+    im.paste(st, (745, 470), st)
     buffer = io.BytesIO()
     im.save(buffer, 'png')
     im.close()
