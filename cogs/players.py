@@ -277,8 +277,7 @@ class Players(commands.Cog):
         if not await confirm(self.bot, m2, ctx.author):
             return
 
-        with contextlib.suppress(discord.Forbidden):
-            await ctx.channel.delete_messages([m1, m2])
+        await asyncio.gather(m1.delete(), m2.delete())
 
         with contextlib.suppress(KeyError):
             self.players.pop(ctx.author.id)
