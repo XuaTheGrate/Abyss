@@ -16,6 +16,14 @@ import config
 from cogs import utils
 from cogs.utils import i18n
 
+import logging
+
+logger = logging.getLogger('discord')
+logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
+handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+logger.addHandler(handler)
+
 
 def do_next_script(msg, author=None):
     author = author or msg.author
