@@ -131,6 +131,82 @@ __Resistances__
         await self.message.edit(embed=self.pages[self.current_page])
 
 
+class Statistics(ui.Session):
+    def __init__(self, player):
+        super().__init__()
+        self.player = player
+        self.tots = [0, 0, 0, 0, 0]
+
+    async def send_initial_message(self):
+        self.message = await self.context.send(".")
+        await self.update()
+        return self.message
+
+    async def update(self):
+        embed = discord.Embed(title="Distribute your stat points!")
+        embed.description = f"""Points remaining: {self.player.stat_points}
+
+\u2694 Strength: {self.player.strength}{f'+{self.tots[0]}' if self.tots[0] else ''}
+\u2728 Magic: {self.player.magic}{f'+{self.tots[1]}' if self.tots[1] else ''}
+\U0001f6e1 Endurance: {self.player.endurance}{f'+{self.tots[2]}' if self.tots[2] else ''}
+\U0001f3c3 Agility: {self.player.agility}{f'+{self.tots[3]}' if self.tots[3] else ''}
+\U0001f340 Luck: {self.player.luck}{f'+{self.tots[4]}' if self.tots[4] else ''}
+
+\U0001f504 Reset distribution
+\u2705 Confirm"""
+        await self.message.edit(embed=embed)
+
+    @ui.button('\u2694')  # strength
+    async def add_strength(self, payload):
+        if self.player.stat_points == 0:
+            return
+        self.tots[0] += 1
+        await self.update()
+
+    @ui.button('\u2728')  # magic
+    async def add_magic(self, payload):
+        if self.player.stat_points == 0:
+            return
+        self.tots[1] += 1
+        await self.update()
+
+    @ui.button('\U0001f6e1')  # endurance
+    async def add_endurance(self, payload):
+        if self.player.stat_points == 0:
+            return
+        self.tots[2] += 1
+        await self.update()
+
+    @ui.button('\U0001f3c3')  # agility
+    async def add_agility(self, payload):
+        if self.player.stat_points == 0:
+            return
+        self.tots[3] += 1
+        await self.update()
+
+    @ui.button('\U0001f340')  # luck
+    async def add_luck(self, payload):
+        if self.player.stat_points == 0:
+            return
+        self.tots[4] += 1
+        await self.update()
+
+    @ui.button('\U0001f504')  # reset
+    async def reset(self, payload):
+        self.player.stat_points = sum(self.tots)
+        self.tots = [0, 0, 0, 0, 0]
+        await self.update()
+
+    @ui.button('\u2705')  # confirm
+    async def confirm(self, payload):
+        self.player.strength += self.tots[0]
+        self.player.magic += self.tots[1]
+        self.player.endurance += self.tots[2]
+        self.player.agility += self.tots[3]
+        self.player.luck += self.tots[4]
+        await self.stop()
+
+
 async def confirm(bot, msg, user):
     rs = (str(bot.tick_yes), str(bot.tick_no))
     for r in rs:

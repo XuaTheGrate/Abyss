@@ -657,7 +657,9 @@ Player
 
     def level_up(self):
         """Levels up the player."""
-        self._next_level += 1
+        while self._next_level <= self.level:
+            self._next_level += 1
+            self.stat_points += 3
 
     @property
     def can_level_up(self):
