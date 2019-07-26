@@ -32,7 +32,7 @@ def __ws(img):
 def __get_rotated_text(text, rotation=9.46, colour=(255, 255, 255, 255), font=FONT):
     im = Image.new('RGBA', tuple(x*2 for x in font.getsize(text)), 0)
     d = ImageDraw.Draw(im)
-    d.text((1, 1), text, font=font, fill=colour)
+    d.text((1, 1), text, font=font, fill=colour, align='center')
     im = im.rotate(rotation)
     # buf = io.BytesIO()
     # im.save(buf, 'png')

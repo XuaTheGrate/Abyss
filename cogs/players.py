@@ -172,40 +172,40 @@ class Statistics(ui.Session):
         if self.player.stat_points == 0:
             return
         self.tots[0] += 1
-        await self.update()
         self.player.stat_points -= 1
+        await self.update()
 
     @ui.button('\u2728')  # magic
     async def add_magic(self, payload):
         if self.player.stat_points == 0:
             return
         self.tots[1] += 1
-        await self.update()
         self.player.stat_points -= 1
+        await self.update()
 
     @ui.button('\U0001f6e1')  # endurance
     async def add_endurance(self, payload):
         if self.player.stat_points == 0:
             return
         self.tots[2] += 1
-        await self.update()
         self.player.stat_points -= 1
+        await self.update()
 
     @ui.button('\U0001f3c3')  # agility
     async def add_agility(self, payload):
         if self.player.stat_points == 0:
             return
         self.tots[3] += 1
-        await self.update()
         self.player.stat_points -= 1
+        await self.update()
 
     @ui.button('\U0001f340')  # luck
     async def add_luck(self, payload):
         if self.player.stat_points == 0:
             return
         self.tots[4] += 1
-        await self.update()
         self.player.stat_points -= 1
+        await self.update()
 
     @ui.button('\U0001f504')  # reset
     async def reset(self, payload):
