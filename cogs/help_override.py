@@ -9,6 +9,10 @@ class I18nHelpCommand(commands.MinimalHelpCommand):
         self.commands_heading = _("Commands")
         self.aliases_heading = _("Aliases:")
         self.no_category = _("No Category")
+        self.command_attrs = {
+            'description': "Provides help for various commands.",
+            'cooldown': commands.Cooldown(3, 5, commands.BucketType.channel)
+        }
 
     def command_not_found(self, string):
         return _("Command '{0}' is not found.").format(string)
@@ -56,12 +60,13 @@ class I18nHelpCommand(commands.MinimalHelpCommand):
             locale = 'en_US'
         else:
             locale = locale.decode()
-        if not os.path.isfile(f"cogs/help/{locale}/{command.qualified_name.replace(' ', '_')}"):
+        if not os.path.isfile(f"cogs/help/{locale}/{command.qualified_name.replace(' ', '_')}.scr"):
             cmdhelp = command.help
-            self.context.bot.logger.warning(
-                f"no such file: cogs/help/{locale}/{command.qualified_name.replace(' ', '_')}")
+            if locale != 'en_US':
+                self.context.bot.logger.warning(
+                    f"no such file: cogs/help/{locale}/{command.qualified_name.replace(' ', '_')}.scr")
         else:
-            with open(f"cogs/help/{locale}/{command.qualified_name.replace(' ', '_')}") as f:
+            with open(f"cogs/help/{locale}/{command.qualified_name.replace(' ', '_')}.scr") as f:
                 cmdhelp = f.read().strip()
         if not cmdhelp:
             cmdhelp = ""

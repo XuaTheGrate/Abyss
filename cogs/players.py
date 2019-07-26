@@ -381,7 +381,7 @@ class Players(commands.Cog):
         await self.bot.db.adventure2.accounts.delete_one({"owner": ctx.author.id})
         await ctx.send(self.bot.tick_yes)
 
-    @commands.command()
+    @commands.command(hidden=True)
     async def profile(self, ctx):
         if not ctx.player:
             return await ctx.send(_("You don't own a player."))
@@ -391,16 +391,19 @@ class Players(commands.Cog):
 
     @commands.command()
     async def levelup(self, ctx):
+        """Levels up your player, if possible.
+        Also lets you divide your spare stat points to increase your stats."""
         if not ctx.player:
             return await ctx.send(_("You don't own a player."))
-        if not ctx.player.can_level_up:
-            return await ctx.send(_("You aren't ready to level up yet."))
-        ctx.player.level_up()
-        new = Statistics(ctx.player)
-        await new.start(ctx)
+        if ctx.player.can_level_up:
+            ctx.player.level_up()
+        if ctx.player.stat_points > 0:
+            new = Statistics(ctx.player)
+            await new.start(ctx)
 
     @commands.command(name='set')
     async def _set(self, ctx, *, name):
+        """Puts an inactive skill into your repertoire."""
         if not ctx.player:
             return
         name = name.title()
@@ -419,6 +422,7 @@ class Players(commands.Cog):
 
     @commands.command()
     async def unset(self, ctx, *, name):
+        """Removes an active skill from your repertoire."""
         if not ctx.player:
             return
         name = name.title()
