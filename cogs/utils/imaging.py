@@ -83,7 +83,7 @@ def __create_profile(player, demon_stuff):
     lu.close()
 
     lvl = __get_rotated_text(str(player.level))
-    im.paste(lvl, (230, 160), lvl)
+    im.paste(lvl, (230, 130), lvl)
     lvl.close()
 
     buffer = io.BytesIO()
