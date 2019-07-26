@@ -117,8 +117,8 @@ __Resistances__
         await self.stop()
 
     async def stop(self):
-        await self.message.delete()
-        await super().stop()
+        with contextlib.suppress(discord.HTTPException):
+            await self.message.delete()
 
     @ui.button('\u25c0')
     async def back(self, payload):
@@ -220,7 +220,11 @@ class Statistics(ui.Session):
         self.player.endurance += self.tots[2]
         self.player.agility += self.tots[3]
         self.player.luck += self.tots[4]
-        await self.stop()
+        await self.message.delete()
+
+    async def stop(self):
+        with contextlib.suppress(discord.HTTPException):
+            await super().stop()
 
 
 async def confirm(bot, msg, user):
