@@ -375,7 +375,8 @@ class Players(commands.Cog):
         if not ctx.player.can_level_up:
             return await ctx.send("cannot level up rn")
         ctx.player.level_up()
-        await ctx.send("k")
+        new = Statistics(ctx.player)
+        await new.start(ctx)
 
 
 def setup(bot):
