@@ -328,6 +328,7 @@ class Players(commands.Cog):
         data['owner'] = ctx.author.id
         data['exp'] = 0
         data['skill_leaf'] = None
+        data['unsetskills'] = []
         player = Player(**data)
 
         await task
