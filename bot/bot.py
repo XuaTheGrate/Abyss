@@ -374,10 +374,10 @@ class AdventureTwo(commands.Bot):
         await super().close()
 
     async def on_error(self, event, *args, **kwargs):
-        to = f"""> Error occured in event `{event}`
-> Arguments: {NL.join(map(repr, args))}
-> KW Arguments: {kwargs}
-> ```py
-> {traceback.format_exc()}
-> ```"""
+        to = f""">>> Error occured in event `{event}`
+Arguments: {NL.join(map(repr, args))}
+KW Arguments: {kwargs}
+```py
+{traceback.format_exc()}
+```"""
         await self.send_error(to)
