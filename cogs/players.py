@@ -227,7 +227,7 @@ class Players(commands.Cog):
         if not await self.bot.is_owner(ctx.author):
             demon = random.choice(list(self._base_demon_cache.keys()))
             data = self._base_demon_cache[demon]
-            while data['testing']:
+            while data.get('testing', False):
                 demon = random.choice(list(self._base_demon_cache.keys()))
                 data = self._base_demon_cache[demon]
         else:
