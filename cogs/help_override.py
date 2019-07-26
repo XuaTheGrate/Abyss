@@ -11,7 +11,8 @@ class I18nHelpCommand(commands.MinimalHelpCommand):
         self.no_category = _("No Category")
         self.command_attrs = {
             'description': "Provides help for various commands.",
-            'cooldown': commands.Cooldown(3, 5, commands.BucketType.channel)
+            'cooldown': commands.Cooldown(3, 5, commands.BucketType.channel),
+            'name': 'help'
         }
 
     def command_not_found(self, string):
