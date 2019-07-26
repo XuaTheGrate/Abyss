@@ -70,7 +70,17 @@ def skills_page(player):
     embed.set_author(name=player.name, icon_url=player.owner.avatar_url_as(format='png', size=32))
     skills = [f'{lookups.TYPE_TO_EMOJI[skill.type.name.lower()]} {skill.name}' for skill in player.skills]
     embed.description = '\n'.join(skills) or 'No skills? wtf'
-    embed.set_footer(text='<~ Skill Tree Status')
+    embed.set_footer(text='<~ Skill Tree Status | Unset skills ~>')
+    return embed
+
+
+def unset_skills_page(player):
+    embed = discord.Embed(colour=lookups.TYPE_TO_COLOUR[player.specialty.name.lower()])
+    embed.title = "Unused skills"
+    embed.set_author(name=player.name, icon_url=player.owner.avatar_url_as(format='png', size=32))
+    skills = [f'{lookups.TYPE_TO_EMOJI[skill.type.name.lower()]} {skill.name}' for skill in player.unset_skills]
+    embed.description = '\n'.join(skills) or 'No skills? wtf'
+    embed.set_footer(text='<~ Skills')
     return embed
 
 
@@ -97,7 +107,7 @@ __Resistances__
 {res_fmt}""").format(**locals())
         embed.description = desc
         embed.set_footer(text='Skill Tree Status ~>')
-        self.pages = [embed, prepare_skill_tree_page(player), skills_page(player)]
+        self.pages = [embed, prepare_skill_tree_page(player), skills_page(player), unset_skills_page(player)]
         self.current_page = 0
 
     async def send_initial_message(self):
@@ -144,6 +154,7 @@ class Statistics(ui.Session):
 
     async def update(self):
         embed = discord.Embed(title="Distribute your stat points!")
+        embed.set_author(name=f'{self.player.name} levelled to L{self.player.level}')
         embed.description = f"""Points remaining: {self.player.stat_points}
 
 \u2694 Strength: {self.player.strength}{f'+{self.tots[0]}' if self.tots[0] else ''}
@@ -154,7 +165,7 @@ class Statistics(ui.Session):
 
 \U0001f504 Reset distribution
 \u2705 Confirm"""
-        await self.message.edit(embed=embed)
+        await self.message.edit(content="", embed=embed)
 
     @ui.button('\u2694')  # strength
     async def add_strength(self, payload):

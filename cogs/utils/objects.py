@@ -488,7 +488,7 @@ class Player(JSONable):
         your critical chance.
     """
     __json__ = ('owner', 'name', 'skills', 'exp', 'stats', 'resistances', 'arcana', 'specialty', 'stat_points',
-                'description', 'skill_leaf', 'ap')
+                'description', 'skill_leaf', 'ap', 'unsetskills')
 
     def keygetter(self, key):
         if key == 'owner':
@@ -505,6 +505,8 @@ class Player(JSONable):
             return self._active_leaf
         elif key == 'ap':
             return self.ap_points
+        elif key == 'unsetskills':
+            return self._unset_skills
         return getattr(self, key)
 
     def __init__(self, **kwargs):
@@ -538,6 +540,8 @@ class Player(JSONable):
         self._active_leaf = kwargs.pop("skill_leaf", None)
         self.leaf = None
         self.ap_points = kwargs.pop("ap", 0)
+        self._unset_skills = kwargs.pop("unsetskills")
+        self.unset_skills = []
         self._damage_taken = 0
         self._sp_used = 0
         self._stat_mod = [0, 0, 0]
@@ -557,7 +561,8 @@ class Player(JSONable):
                 f"arcana={self.arcana.value}, "
                 f"specialty='{self.specialty.name}', "
                 f"skill_leaf='{self._active_leaf}', "
-                f"ap={self.ap_points})")
+                f"ap={self.ap_points}, "
+                f"unsetskills={self._unset_skills})")
 
     def _debug_repr(self):
         return f"""```
@@ -684,6 +689,8 @@ Player
         self.owner = bot.get_user(self._owner_id)
         for skill in self._skills:
             self.skills.append(bot.players.skill_cache[skill])
+        for skill in self._unset_skills:
+            self.unset_skills.append(bot.players.skill_cache[skill])
 
     def affected_by(self, modifier):
         """Returns a calculation modifier for specified key.
