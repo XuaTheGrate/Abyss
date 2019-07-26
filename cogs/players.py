@@ -292,6 +292,15 @@ class Players(commands.Cog):
         data = await imaging.profile_executor(self.bot, ctx.player)
         await ctx.send(file=discord.File(data, 'profile.png'))
 
+    @commands.command()
+    async def levelup(self, ctx):
+        if not ctx.player:
+            return await ctx.send("no player")
+        if not ctx.player.can_level_up:
+            return await ctx.send("cannot level up rn")
+        ctx.player.level_up()
+        await ctx.send("k")
+
 
 def setup(bot):
     bot.add_cog(Players(bot))
