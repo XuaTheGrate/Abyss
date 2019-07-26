@@ -494,7 +494,7 @@ class Player(JSONable):
         if key == 'owner':
             return self._owner_id
         elif key == 'skills':
-            return list([z.name for z in self.skills])
+            return [z.name for z in self.skills]
         elif key == 'resistances':
             return self._resistances
         elif key == 'arcana':
@@ -506,7 +506,7 @@ class Player(JSONable):
         elif key == 'ap':
             return self.ap_points
         elif key == 'unsetskills':
-            return self._unset_skills
+            return [z.name for z in self.unset_skills]
         return getattr(self, key)
 
     def __init__(self, **kwargs):

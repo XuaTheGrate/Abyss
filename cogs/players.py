@@ -79,7 +79,7 @@ def unset_skills_page(player):
     embed.title = "Unused skills"
     embed.set_author(name=player.name, icon_url=player.owner.avatar_url_as(format='png', size=32))
     skills = [f'{lookups.TYPE_TO_EMOJI[skill.type.name.lower()]} {skill.name}' for skill in player.unset_skills]
-    embed.description = '\n'.join(skills) or 'No skills? wtf'
+    embed.description = '\n'.join(skills) or '<nothing found>'
     embed.set_footer(text='<~ Skills')
     return embed
 
@@ -394,6 +394,42 @@ class Players(commands.Cog):
         ctx.player.level_up()
         new = Statistics(ctx.player)
         await new.start(ctx)
+
+    @commands.command(name='set')
+    async def _set(self, ctx, *, name):
+        if not ctx.player:
+            return
+        name = name.title()
+        if name not in self.skill_cache:
+            return await ctx.send("unknown skill")
+        skill = self.skill_cache[name]
+        if skill not in ctx.player.unset_skills:
+            if skill in ctx.player.skills:
+                return await ctx.send("already set")
+            return await ctx.send("skill is not unlocked")
+        if len(ctx.player.skills) == 8:
+            return await ctx.send("max of 8 skills equipped at once")
+        ctx.player.skills.append(skill)
+        ctx.player.unset_skills.remove(skill)
+        await ctx.send(self.bot.tick_yes)
+
+    @commands.command()
+    async def unset(self, ctx, *, name):
+        if not ctx.player:
+            return
+        name = name.title()
+        if name not in self.skill_cache:
+            return await ctx.send("unknown skill")
+        skill = self.skill_cache[name]
+        if skill not in ctx.player.skills:
+            if skill in ctx.player.unset_skills:
+                return await ctx.send("skill is not set")
+            return await ctx.send("skill is not unlocked")
+        if len(ctx.player.skills) == 1:
+            return await ctx.send("must have at least 1 skill equipped")
+        ctx.player.unset_skills.append(skill)
+        ctx.player.skills.remove(skill)
+        await ctx.send(self.bot.tick_yes)
 
 
 def setup(bot):
