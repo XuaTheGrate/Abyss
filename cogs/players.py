@@ -55,32 +55,32 @@ class LRUDict(collections.OrderedDict):
 
 def prepare_skill_tree_page(player):
     embed = discord.Embed(colour=lookups.TYPE_TO_COLOUR[player.specialty.name.lower()])
-    embed.title = "Skill tree status"
+    embed.title = _("Skill tree status")
     embed.set_author(name=player.name, icon_url=player.owner.avatar_url_as(format="png", size=32))
     leaf = player.leaf['cost']//1000 if player.leaf else 'N/A'
     embed.description = _("""Current leaf: {player._active_leaf}
 AP Points: {player.ap_points} | {leaf} to finish.""").format(player=player, leaf=leaf)
-    embed.set_footer(text="<~ Home | Skills ~>")
+    embed.set_footer(text=_("<~ Home | Skills ~>"))
     return embed
 
 
 def skills_page(player):
     embed = discord.Embed(colour=lookups.TYPE_TO_COLOUR[player.specialty.name.lower()])
-    embed.title = "Skills"
+    embed.title = _("Skills")
     embed.set_author(name=player.name, icon_url=player.owner.avatar_url_as(format='png', size=32))
     skills = [f'{lookups.TYPE_TO_EMOJI[skill.type.name.lower()]} {skill.name}' for skill in player.skills]
-    embed.description = '\n'.join(skills) or 'No skills? wtf'
-    embed.set_footer(text='<~ Skill Tree Status | Unset skills ~>')
+    embed.description = '\n'.join(skills) or ':warning:'
+    embed.set_footer(text=_('<~ Skill Tree Status | Unset skills ~>'))
     return embed
 
 
 def unset_skills_page(player):
     embed = discord.Embed(colour=lookups.TYPE_TO_COLOUR[player.specialty.name.lower()])
-    embed.title = "Unused skills"
+    embed.title = _("Unused skills")
     embed.set_author(name=player.name, icon_url=player.owner.avatar_url_as(format='png', size=32))
     skills = [f'{lookups.TYPE_TO_EMOJI[skill.type.name.lower()]} {skill.name}' for skill in player.unset_skills]
-    embed.description = '\n'.join(skills) or '<nothing found>'
-    embed.set_footer(text='<~ Skills')
+    embed.description = '\n'.join(skills) or _('(All skills equipped)')
+    embed.set_footer(text=_('<~ Skills'))
     return embed
 
 
@@ -106,7 +106,7 @@ Specializes in {spec} type skills.
 __Resistances__
 {res_fmt}""").format(**locals())
         embed.description = desc
-        embed.set_footer(text='Skill Tree Status ~>')
+        embed.set_footer(text=_('Skill Tree Status ~>'))
         self.pages = [embed, prepare_skill_tree_page(player), skills_page(player), unset_skills_page(player)]
         self.current_page = 0
 
@@ -380,7 +380,7 @@ class Players(commands.Cog):
     @commands.command()
     async def profile(self, ctx):
         if not ctx.player:
-            return
+            return await ctx.send(_("You don't own a player."))
 
         data = await imaging.profile_executor(self.bot, ctx.player)
         await ctx.send(file=discord.File(data, 'profile.png'))
@@ -388,9 +388,9 @@ class Players(commands.Cog):
     @commands.command()
     async def levelup(self, ctx):
         if not ctx.player:
-            return await ctx.send("no player")
+            return await ctx.send(_("You don't own a player."))
         if not ctx.player.can_level_up:
-            return await ctx.send("cannot level up rn")
+            return await ctx.send(_("You aren't ready to level up yet."))
         ctx.player.level_up()
         new = Statistics(ctx.player)
         await new.start(ctx)
@@ -401,14 +401,14 @@ class Players(commands.Cog):
             return
         name = name.title()
         if name not in self.skill_cache:
-            return await ctx.send("unknown skill")
+            return await ctx.send(_("Couldn't find a skill by that name."))
         skill = self.skill_cache[name]
         if skill not in ctx.player.unset_skills:
             if skill in ctx.player.skills:
-                return await ctx.send("already set")
-            return await ctx.send("skill is not unlocked")
+                return await ctx.send(_("That skill is already in your repertoire."))
+            return await ctx.send(_("You haven't unlocked that skill yet."))
         if len(ctx.player.skills) == 8:
-            return await ctx.send("max of 8 skills equipped at once")
+            return await ctx.send(_("You can't equip more than 8 skills."))
         ctx.player.skills.append(skill)
         ctx.player.unset_skills.remove(skill)
         await ctx.send(self.bot.tick_yes)
@@ -419,14 +419,14 @@ class Players(commands.Cog):
             return
         name = name.title()
         if name not in self.skill_cache:
-            return await ctx.send("unknown skill")
+            return await ctx.send(_("Couldn't find a skill by that name."))
         skill = self.skill_cache[name]
         if skill not in ctx.player.skills:
             if skill in ctx.player.unset_skills:
-                return await ctx.send("skill is not set")
-            return await ctx.send("skill is not unlocked")
+                return await ctx.send(_("That skill is not in your repertoire."))
+            return await ctx.send(_("You haven't unlocked that skill yet."))
         if len(ctx.player.skills) == 1:
-            return await ctx.send("must have at least 1 skill equipped")
+            return await ctx.send(_("You must equip at least 1 skill."))
         ctx.player.unset_skills.append(skill)
         ctx.player.skills.remove(skill)
         await ctx.send(self.bot.tick_yes)

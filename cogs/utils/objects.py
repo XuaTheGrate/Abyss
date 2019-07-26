@@ -512,10 +512,7 @@ class Player(JSONable):
     def __init__(self, **kwargs):
         # kwargs.pop("_id")
         self._owner_id = kwargs.pop("owner")
-        if '__debug' in kwargs:
-            self.owner = kwargs.pop("__debug")
-        else:
-            self.owner = None
+        self.owner = None
         self.name = kwargs.pop("name")
         skills = kwargs.pop("skills")
         if skills and all(isinstance(x, Skill) for x in skills):
