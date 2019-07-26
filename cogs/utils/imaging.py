@@ -46,39 +46,50 @@ def __create_profile(player, demon_stuff):
     im = BASE.copy()
     text = __get_rotated_text(str(player.owner))
     im.paste(text, (50, 20), text)
+    text.close()
 
     demon_name = __get_rotated_text(player.name)
     im.paste(demon_name, (100, 80), demon_name)
+    demon_name.close()
 
     pos = ((im.size[0] - demon_stuff.size[0])-20, (im.size[1]//2 - demon_stuff.size[1]//2))
     # print(f"HI IM DEBUG {pos}")
     im.paste(demon_stuff, pos, demon_stuff)
+    demon_stuff.close()
 
     st = __get_rotated_text(str(player.strength), 0.0, (0, 0, 0, 255), SMOL)
     st = st.resize((st.size[0], st.size[1]+15), resample=Image.BILINEAR)
     im.paste(st, (725, 465), st)
+    st.close()
 
     ma = __get_rotated_text(str(player.magic), 0.0, (0, 0, 0, 255), SMOL)
     ma = ma.resize((ma.size[0], ma.size[1]+15), resample=Image.BILINEAR)
     im.paste(ma, (735, 500), ma)
+    ma.close()
 
     en = __get_rotated_text(str(player.endurance), 0.0, (0, 0, 0, 255), SMOL)
     en = en.resize((en.size[0], en.size[1]+15), resample=Image.BILINEAR)
     im.paste(en, (725, 535), en)
+    en.close()
     
     ag = __get_rotated_text(str(player.agility), 0.0, (0, 0, 0, 255), SMOL)
     ag = ag.resize((ag.size[0], ag.size[1] + 15), resample=Image.BILINEAR)
     im.paste(ag, (735, 570), ag)
+    ag.close()
 
     lu = __get_rotated_text(str(player.luck), 0.0, (0, 0, 0, 255), SMOL)
     lu = lu.resize((lu.size[0], lu.size[1] + 15), resample=Image.BILINEAR)
     im.paste(lu, (725, 605), lu)
+    lu.close()
+
+    lvl = __get_rotated_text(str(player.level))
+    im.paste(lvl, (230, 160), lvl)
+    lvl.close()
 
     buffer = io.BytesIO()
     im.save(buffer, 'png')
     buffer.seek(0)
-    for i in (im, text, st, demon_stuff, ma, en, ag, lu):
-        i.close()
+    im.close()
     handles.put(buffer)
 
 
