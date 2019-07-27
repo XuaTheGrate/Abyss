@@ -32,13 +32,14 @@ async def do_script(ctx, script, lang="en_US"):
     if not os.path.isfile(path):
         if lang == 'en_US':
             raise TypeError(f"no such file: {path}")
+        ctx.bot.logger.warning(f"no such file: {path}")
         return await do_script(ctx, script)
 
     with open(path) as f:
         data = f.read()
 
     for line in data.splitlines():
-        m = await ctx.send(line.strip())
+        m = await ctx.send(line.strip().format(ctx=ctx))
         if not await wait_next(ctx.bot, m, ctx.author):
             return False
 

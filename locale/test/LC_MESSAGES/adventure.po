@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: 2019-07-17 18:29+1200\n"
-"PO-Revision-Date: 2019-07-26 14:58+1200\n"
+"PO-Revision-Date: 2019-07-27 12:15+1200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: ja_JA\n"
@@ -50,8 +50,8 @@ msgstr ""
 "プライベート サーバー/チャネルを使用することをお勧めします。"
 
 #: cogs/players.py:122
-msgid "???: The deed is done. You have been given the demon `{player.name}`. Use its power wisely..."
-msgstr "???:行為が行われます。悪魔 '{player.name}' が与えられました。賢明にその力を使って..."
+msgid "<꽦䐯嬜継ḉ> The deed is done. You have been given the demon `{player.name}`. Use its power wisely..."
+msgstr "<꽦䐯嬜継ḉ>行為が行われます。悪魔 '{player.name}' が与えられました。賢明にその力を使って..."
 
 #: cogs/locale.py:23
 msgid "Your current locale is set to `{0}`."

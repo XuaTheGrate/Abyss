@@ -306,11 +306,6 @@ class Players(commands.Cog):
         if ctx.player:
             return await ctx.send(_("You already own a player."))
 
-        running = bool(await self.bot.redis.get(f'making:{ctx.author.id}'))
-        if running:
-            return
-        await self.bot.redis.set(f'making:{ctx.author.id}', 'gay')
-
         msg = _("This appears to be a public server. The messages sent can get spammy, or cause ratelimits.\n"
                 "It is advised to use a private server/channel.")
 
@@ -338,7 +333,6 @@ class Players(commands.Cog):
         await task
         if not task.result():
             ctx.command.reset_cooldown(ctx)
-            await self.bot.redis.delete(f'making:{ctx.author.id}')
             return
 
         self.players[ctx.author.id] = player
@@ -346,9 +340,8 @@ class Players(commands.Cog):
         await player.save(self.bot)
 
         await ctx.send(
-            _("???: The deed is done. You have been given the demon `{player.name}`. Use its power wisely...").format(
-                player=player))
-        await self.bot.redis.delete(f'making:{ctx.author.id}')
+            _("<꽦䐯嬜継ḉ> The deed is done. You have been given the demon `{player.name}`. Use its power wisely..."
+              ).format(player=player))
 
     @commands.command()
     async def status(self, ctx):
