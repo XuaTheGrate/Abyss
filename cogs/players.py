@@ -5,7 +5,6 @@ import random
 from operator import itemgetter
 
 import discord
-import json5
 from discord.ext import commands, ui
 
 from .utils import lookups, scripts, i18n, imaging
@@ -254,30 +253,12 @@ class Players(commands.Cog):
         self._skill_cache_task = self.bot.loop.create_task(self.cache_skills())
         self.bot.unload_tasks[self] = self._unloader_task = self.bot.loop.create_task(self.flush_cached_players())
 
-        with open("skilltree.json") as f:
-            self.skill_tree = json5.load(f)
-
     def __repr__(self):
         return f"<PlayerHandler {len(self.players)} loaded,\n\t{self._skill_cache_task!r}>"
 
     def cog_unload(self):
         task = self.bot.unload_tasks.pop(self)
         task.cancel()
-
-    async def cog_before_invoke(self, ctx):
-        try:
-            ctx.player = self.players[ctx.author.id]
-        except KeyError:
-            data = await self.bot.db.adventure2.accounts.find_one({"owner": ctx.author.id})
-            if not data:
-                ctx.player = None
-                return
-            ctx.player = self.players[ctx.author.id] = player = Player(**data)
-            player._populate_skills(self.bot)
-            if player._active_leaf is not None:
-                key, _ = player._active_leaf.split(':')
-                branch = self.skill_tree[key]
-                player.leaf = branch[player._active_leaf]
 
     async def flush_cached_players(self):
         await self.bot.wait_for("logout")

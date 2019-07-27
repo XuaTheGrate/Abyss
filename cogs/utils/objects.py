@@ -330,6 +330,49 @@ class DamageResult:
                 f"critical={self.critical} miss={self.miss}>")
 
 
+class Leaf:
+    def __init__(self, name, unlocks, cost, skills, bot, unlockRequires=None):
+        self.name = name
+        self.unlocks = unlocks
+        self.cost = cost
+        self.skills = [bot.players.skill_cache[s] for s in skills]
+        self.unlockRequires = unlockRequires or []
+
+    def __repr__(self):
+        return f"<SkillTree(leaf) {self.name}, ${self.cost}," \
+            f" {len(self.unlocks)} unlocks, {len(self.unlockRequires)} to unlock," \
+            f" {len(self.skills)} skills>"
+
+
+class Branch:
+    def __init__(self, name, leaves, bot):
+        self.name = name
+        self.leaves = {}
+        for leafn, data in leaves.items():
+            d = {"name": leafn, **data, 'bot': bot}
+            leaf = Leaf(**d)
+            for unlock in leaf.unlocks:
+                if unlock in self.leaves and leafn not in self.leaves[unlock].unlockRequires:
+                    self.leaves[unlock].unlockRequires.append(leafn)
+            for lock in leaf.unlockRequires:
+                if lock in self.leaves and leafn not in self.leaves[lock].unlocks:
+                    self.leaves[lock].unlocks.append(leafn)
+            self.leaves[leafn] = leaf
+
+    def __repr__(self):
+        return f"<SkillTree(branch) {self.name}, {len(self.leaves)} leaves>"
+
+
+class SkillTree:
+    def __init__(self, data, bot):
+        self.branches = {}
+        for branchname, branchdata in data.items():
+            self.branches[branchname] = Branch(branchname, branchdata, bot)
+
+    def __repr__(self):
+        return f"<SkillTree {len(self.branches)} branches>"
+
+
 class Skill(JSONable):
     """A skill used for battling stuff.
     These aren't created manually, rather cached for later use.
@@ -488,7 +531,7 @@ class Player(JSONable):
         your critical chance.
     """
     __json__ = ('owner', 'name', 'skills', 'exp', 'stats', 'resistances', 'arcana', 'specialty', 'stat_points',
-                'description', 'skill_leaf', 'ap', 'unsetskills')
+                'description', 'skill_leaf', 'ap', 'unsetskills', 'finished_leaves')
 
     def keygetter(self, key):
         if key == 'owner':
@@ -545,6 +588,7 @@ class Player(JSONable):
         # [attack][defense][agility]
         self._until_clear = [0, 0, 0]  # turns until it gets cleared for each stat, max of 3 turns
         self._next_level = self.level+1
+        self.finished_leaves = kwargs.pop("finished_leaves", [])
 
     def __repr__(self):
         return (f"Player(owner={self._owner_id}, "
@@ -559,7 +603,8 @@ class Player(JSONable):
                 f"specialty='{self.specialty.name}', "
                 f"skill_leaf='{self._active_leaf}', "
                 f"ap={self.ap_points}, "
-                f"unsetskills={self._unset_skills})")
+                f"unsetskills={self._unset_skills}, "
+                f"finished_leaves={self.finished_leaves})")
 
     def _debug_repr(self):
         return f"""```

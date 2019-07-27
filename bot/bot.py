@@ -15,7 +15,7 @@ import motor.motor_asyncio
 
 import config
 from cogs import utils
-from cogs.utils import i18n
+from cogs.utils import i18n, objects
 
 import logging
 
@@ -119,8 +119,32 @@ class AdventureTwo(commands.Bot):
         self.prepare_extensions()
 
     @property
+    def description(self):
+        return _("> Stuck? Try using `$story` to progress.")
+
+    @property
     def players(self):
         return self.get_cog("Players")
+
+    @property
+    def tree(self):
+        return self.get_cog("SkillTreeCog")
+
+    async def before_invoke_handler(self, ctx):
+        try:
+            ctx.player = self.players.players[ctx.author.id]
+        except KeyError:
+            data = await self.db.adventure2.accounts.find_one({"owner": ctx.author.id})
+            if not data:
+                ctx.player = None
+                return
+            ctx.player = self.players.players[ctx.author.id] = player = objects.Player(**data)
+            player._populate_skills(self)
+            if player._active_leaf is not None:
+                key, _ = player._active_leaf.split(':')
+                branch = self.tree.skill_tree[key].copy()
+                branch[player._active_leaf]['name'] = player._active_leaf
+                player.leaf = branch[player._active_leaf]
 
     async def wait_for_close(self):
         """Helper function that waits for all cogs to finish unloading."""
