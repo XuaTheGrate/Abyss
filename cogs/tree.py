@@ -10,9 +10,13 @@ from .utils.objects import SkillTree
 class SkillTreeCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.skill_tree = None
 
         with open("skilltree.json") as f:
-            self.skill_tree = SkillTree(json5.load(f), self.bot)
+            self._skill_tree = json5.load(f)
+
+    def do_cuz_ready(self):
+        self.skill_tree = SkillTree(self._skill_tree, self.bot)
 
     @commands.group(aliases=['skilltree', 'skill-tree'])
     async def tree(self, ctx):

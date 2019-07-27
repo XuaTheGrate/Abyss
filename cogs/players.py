@@ -273,6 +273,8 @@ class Players(commands.Cog):
             skill.pop("_id")
             self.skill_cache[skill['name']] = Skill(**skill)
 
+        self.bot.tree.do_cuz_ready()
+
         async for demon in self.bot.db.adventure2.basedemons.find():
             demon.pop("_id")
             self._base_demon_cache[demon['name']] = demon
