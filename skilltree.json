@@ -50,6 +50,7 @@ branch: {
             cost: 75000,
         },
     },
+    /*
     dark: {
         "dark:0": {
             skills: ["Mudo",],
@@ -229,5 +230,5 @@ branch: {
             cost: 5000,
             unlocks: ['elec:1',],
         }
-    }
+    } */
 }

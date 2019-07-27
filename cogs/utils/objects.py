@@ -331,9 +331,9 @@ class DamageResult:
 
 
 class Leaf:
-    def __init__(self, name, unlocks, cost, skills, bot, unlockRequires=None):
+    def __init__(self, name, cost, skills, bot, unlocks=None, unlockRequires=None):
         self.name = name
-        self.unlocks = unlocks
+        self.unlocks = unlocks or []
         self.cost = cost
         self.skills = [bot.players.skill_cache[s] for s in skills]
         self.unlockRequires = unlockRequires or []

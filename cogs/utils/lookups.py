@@ -12,7 +12,11 @@ TYPE_TO_COLOUR = {
     "psychokinetic": 0xe485e2,
     "bless": 0xf5f6b0,
     "curse": 0xf41134,
-    "almighty": 0xc9cac9
+    "almighty": 0xc9cac9,
+    'support': 0x326af5,
+    'passive': 0xf5d34b,
+    'healing': 0x04dc8c,
+    'ailment': 0x5f128a
 }
 
 TYPE_TO_EMOJI = {
@@ -26,7 +30,11 @@ TYPE_TO_EMOJI = {
     'psychokinetic': PartialEmoji(animated=False, name="psy", id=596539924828782603),
     'bless': PartialEmoji(animated=False, name="bless", id=596540126251712538),
     'curse': PartialEmoji(animated=False, name="curse", id=596540064096321548),
-    'almighty': PartialEmoji(animated=False, name="almighty", id=596540181088305153)
+    'almighty': PartialEmoji(animated=False, name="almighty", id=596540181088305153),
+    'support': PartialEmoji(animated=False, name='support', id=604534784437387265),
+    'passive': PartialEmoji(animated=False, name='passive', id=604535071537496064),
+    'ailment': PartialEmoji(animated=False, name='ailment', id=604534890641227776),
+    'healing': PartialEmoji(animated=False, name='healing', id=604534971012481055)
 }
 
 ROMAN_NUMERAL = [
