@@ -60,7 +60,7 @@ class SkillTreeCog(commands.Cog):
         embed = discord.Embed(colour=lookups.TYPE_TO_COLOUR[ctx.player.specialty.name.lower()])
         embed.title = _("Available leaves ready for completion")
         embed.description = '\n'.join(
-            f'{lookups.TYPE_TO_EMOJI[l.name]} {l.name}: {l.cost} AP' for l in leaves
+            f'{lookups.TYPE_TO_EMOJI[l.name.split(":")[0]]} {l.name}: {l.cost} AP' for l in leaves
         )
         embed.set_footer(text=_("You cannot activate a leaf if you already have one active."))
         await ctx.send(embed=embed)
