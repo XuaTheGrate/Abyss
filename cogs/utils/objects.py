@@ -961,4 +961,4 @@ Attacker: 1.05 | Me: 1.05 | 4.00 chance to crit
             The bot object to save
         """
         data = self.to_json()
-        await bot.db.adventure2.accounts.replace_one({"owner": self._owner_id}, data, upsert=True)
+        await bot.db.abyss.accounts.replace_one({"owner": self._owner_id}, data, upsert=True)

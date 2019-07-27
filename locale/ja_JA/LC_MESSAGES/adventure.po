@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: 2019-07-17 18:29+1200\n"
-"PO-Revision-Date: 2019-07-27 12:15+1200\n"
+"PO-Revision-Date: 2019-07-27 20:28+1200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: ja_JA\n"
@@ -187,14 +187,6 @@ msgstr "そのスキルはあなたのコレクションにはありません。
 msgid "You must equip at least 1 skill."
 msgstr "あなたは少なくとも1つのスキルを備えていなければなりません。"
 
-#: cogs/players.py:109
-msgid "Skill Tree Status ~>"
-msgstr "スキルツリーの状態~>"
-
-#: cogs/players.py:63
-msgid "<~ Home | Skills ~>"
-msgstr "<~家|才能~>"
-
 #: cogs/players.py:69
 msgid "Skills"
 msgstr "才能"
@@ -218,3 +210,23 @@ msgstr "<~才能"
 #: cogs/players.py:58
 msgid "Skill tree status"
 msgstr "スキルツリーの状態"
+
+#: cogs/players.py:127
+msgid "You can level up! Use `$levelup`!"
+msgstr "あなたはレベルアップすることができます！つかいます $levelup！"
+
+#: cogs/players.py:121
+msgid "Stats ~>"
+msgstr "統計~>"
+
+#: cogs/players.py:95
+msgid "<~ Home | Skill Tree Status ~>"
+msgstr "<~開始|スキルツリーの状態~>"
+
+#: cogs/players.py:62
+msgid "<~ Stats | Skills ~>"
+msgstr "<~統計|才能~>"
+
+#: cogs/players.py:88
+msgid "{}'s stats."
+msgstr "{}の統計."

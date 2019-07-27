@@ -44,13 +44,16 @@ class ErrorHandler(commands.Cog):
             return
         embed = discord.Embed()
         embed.description = ("\N{REGIONAL INDICATOR SYMBOL LETTER G}\N{REGIONAL INDICATOR SYMBOL LETTER B} "
-                             "Hello! I'm Adventure. Use `$locale set en_US` to change your personal locale.\n"
+                             "Hello! I'm Abyss. Use `$locale set en_US` to change your personal locale.\n"
                              "\N{REGIONAL INDICATOR SYMBOL LETTER J}\N{REGIONAL INDICATOR SYMBOL LETTER P} "
-                             "こんにちは！私はAdventureです。ロケールを変更するには`$言語 置く ja_JA`を使用してください。")
+                             "こんにちは！私はAbyssです。ロケールを変更するには`$言語 置く ja_JA`を使用してください。")
         await target.send(embed=embed)
 
     @commands.Cog.listener()
-    async def on_command_error(self, ctx, exc):
+    async def on_command_error(self, ctx, exc, *, force=False):
+        if commands.Cog._get_overridden_method(ctx.cog.cog_command_error) and not force:
+            return
+
         if isinstance(exc, commands.CommandInvokeError):
             ctx.command.reset_cooldown(ctx)
             exc = exc.original

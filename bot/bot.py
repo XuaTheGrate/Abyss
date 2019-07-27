@@ -72,7 +72,7 @@ CONFIG_NEW = {
 }
 
 
-class AdventureTwo(commands.Bot):
+class Abyss(commands.Bot):
     """Hi, this is my alternate adventure bot.
 
     Attributes
@@ -139,7 +139,7 @@ class AdventureTwo(commands.Bot):
         try:
             ctx.player = self.players.players[ctx.author.id]
         except KeyError:
-            data = await self.db.adventure2.accounts.find_one({"owner": ctx.author.id})
+            data = await self.db.abyss.accounts.find_one({"owner": ctx.author.id})
             if not data:
                 ctx.player = None
                 return
@@ -231,11 +231,11 @@ class AdventureTwo(commands.Bot):
         :class:`dict`
             The dict configuration.
         """
-        data = await self.db.adventure2.guildconfig.find_one({"guild": guild.id})
+        data = await self.db.abyss.guildconfig.find_one({"guild": guild.id})
         if not data:
             data = CONFIG_NEW.copy()
             data['guild'] = guild.id
-            await self.db.adventure2.guildconfig.insert_one(data)
+            await self.db.abyss.guildconfig.insert_one(data)
         return data
 
     async def prefix(self, bot, message):
@@ -356,7 +356,7 @@ class AdventureTwo(commands.Bot):
             return
 
         try:
-            await self.db.adventure2.accounts.find().to_list(None)
+            await self.db.abyss.accounts.find().to_list(None)
             # dummy query to ensure the db is connected
         except Exception as e:
             self.logger.error("COULD NOT CONNECT TO MONGODB DATABASE.")
@@ -396,7 +396,7 @@ class AdventureTwo(commands.Bot):
         for guild in self.guilds:
             if not PREFIXES[guild.id]:
                 continue
-            await self.db.adventure2.guildconfig.update_one(
+            await self.db.abyss.guildconfig.update_one(
                 {"guild": guild.id},
                 {"$set": {"prefixes": list(PREFIXES[guild.id])}})
         self.db.close()

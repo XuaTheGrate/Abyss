@@ -59,7 +59,7 @@ def prepare_skill_tree_page(player):
     leaf = player.leaf['cost']//1000 if player.leaf else 'N/A'
     embed.description = _("""Current leaf: {player._active_leaf}
 AP Points: {player.ap_points} | {leaf} to finish.""").format(player=player, leaf=leaf)
-    embed.set_footer(text=_("<~ Home | Skills ~>"))
+    embed.set_footer(text=_("<~ Stats | Skills ~>"))
     return embed
 
 
@@ -83,9 +83,22 @@ def unset_skills_page(player):
     return embed
 
 
+def stats_page(player):
+    embed = discord.Embed(colour=lookups.TYPE_TO_COLOUR[player.specialty.name.lower()])
+    embed.title = _("{}'s stats.").format(player.name)
+    embed.set_author(name=player.name, icon_url=player.owner.avatar_url_as(format='png', size=32))
+    embed.description = f"""\u2694 {_('Strength')}: {player.strength}
+\u2728 {_('Magic')}: {player.magic}
+\U0001f6e1 {_('Endurance')}: {player.endurance}
+\U0001f3c3 {_('Agility')}: {player.agility}
+\U0001f340 {_('Luck')}: {player.luck}"""
+    embed.set_footer(text=_('<~ Home | Skill Tree Status ~>'))
+
+
 class Status(ui.Session):
     def __init__(self, player):
         super().__init__(timeout=120)
+        self.player = player
         embed = discord.Embed(title=player.name, colour=lookups.TYPE_TO_COLOUR[player.specialty.name.lower()])
         embed.set_author(name=player.owner, icon_url=player.owner.avatar_url_as(format="png", size=32))
         res = {}
@@ -105,12 +118,14 @@ Specializes in {spec} type skills.
 __Resistances__
 {res_fmt}""").format(**locals())
         embed.description = desc
-        embed.set_footer(text=_('Skill Tree Status ~>'))
-        self.pages = [embed, prepare_skill_tree_page(player), skills_page(player), unset_skills_page(player)]
+        embed.set_footer(text=_('Stats ~>'))
+        self.pages = [embed, stats_page(player), prepare_skill_tree_page(player),
+                      skills_page(player), unset_skills_page(player)]
         self.current_page = 0
 
     async def send_initial_message(self):
-        return await self.context.send(embed=self.pages[0])
+        m = _('You can level up! Use `$levelup`!')
+        return await self.context.send(m if self.player.can_level_up else None, embed=self.pages[0])
 
     async def handle_timeout(self):
         await self.stop()
@@ -269,13 +284,13 @@ class Players(commands.Cog):
     async def cache_skills(self):
         await self.bot.prepared.wait()
 
-        async for skill in self.bot.db.adventure2.skills.find():
+        async for skill in self.bot.db.abyss.skills.find():
             skill.pop("_id")
             self.skill_cache[skill['name']] = Skill(**skill)
 
         self.bot.tree.do_cuz_ready()
 
-        async for demon in self.bot.db.adventure2.basedemons.find():
+        async for demon in self.bot.db.abyss.basedemons.find():
             demon.pop("_id")
             self._base_demon_cache[demon['name']] = demon
 
@@ -353,7 +368,7 @@ class Players(commands.Cog):
         await asyncio.gather(m1.delete(), m2.delete())
 
         self.players.pop(ctx.author.id)
-        await self.bot.db.adventure2.accounts.delete_one({"owner": ctx.author.id})
+        await self.bot.db.abyss.accounts.delete_one({"owner": ctx.author.id})
         await ctx.send(self.bot.tick_yes)
 
     @commands.command(hidden=True)
