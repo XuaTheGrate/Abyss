@@ -19,6 +19,7 @@ class Prefixes(commands.Cog):
         await ctx.send(embed=embed)
 
     @prefix.command()
+    @commands.has_permissions(manage_guild=True)
     async def add(self, ctx: commands.Context, *prefixes: str):
         """Adds prefixes to the available guild prefixes.
         Extraneous whitespace will be stripped.
@@ -34,6 +35,7 @@ class Prefixes(commands.Cog):
         await ctx.send(self.bot.tick_yes)
 
     @prefix.command()
+    @commands.has_permissions(manage_guild=True)
     async def remove(self, ctx: commands.Context, *prefixes: str):
         """Removes prefixes available to the server.
         Will silently ignore unknown prefixes.
