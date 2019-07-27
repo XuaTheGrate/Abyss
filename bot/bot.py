@@ -122,6 +122,10 @@ class AdventureTwo(commands.Bot):
     def description(self):
         return _("> Stuck? Try using `$story` to progress.")
 
+    @description.setter
+    def description(self, value):
+        pass
+
     @property
     def players(self):
         return self.get_cog("Players")
