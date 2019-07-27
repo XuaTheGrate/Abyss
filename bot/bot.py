@@ -395,6 +395,7 @@ class AdventureTwo(commands.Bot):
                 {"guild": guild.id},
                 {"$set": {"prefixes": list(PREFIXES[guild.id])}})
         self.db.close()
+        await self.session.close()
         await super().close()
 
     async def on_error(self, event, *args, **kwargs):
