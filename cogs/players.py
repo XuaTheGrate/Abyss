@@ -120,7 +120,7 @@ __Resistances__
             await self.message.delete()
 
     @ui.button('\u25c0')
-    async def back(self, payload):
+    async def back(self, _):
         if self.current_page + 1 > 0:
             self.current_page -= 1
         else:
@@ -128,11 +128,11 @@ __Resistances__
         await self.message.edit(embed=self.pages[self.current_page])
 
     @ui.button('\u23f9')
-    async def _stop(self, payload):
+    async def _stop(self, _):
         await self.stop()
 
     @ui.button('\u25b6')
-    async def next(self, payload):
+    async def next(self, _):
         if self.current_page + 1 < len(self.pages):
             self.current_page += 1
         else:
@@ -167,7 +167,7 @@ class Statistics(ui.Session):
         await self.message.edit(content="", embed=embed)
 
     @ui.button('\u2694')  # strength
-    async def add_strength(self, payload):
+    async def add_strength(self, _):
         if self.player.stat_points == 0:
             return
         self.tots[0] += 1
@@ -175,7 +175,7 @@ class Statistics(ui.Session):
         await self.update()
 
     @ui.button('\u2728')  # magic
-    async def add_magic(self, payload):
+    async def add_magic(self, _):
         if self.player.stat_points == 0:
             return
         self.tots[1] += 1
@@ -183,7 +183,7 @@ class Statistics(ui.Session):
         await self.update()
 
     @ui.button('\U0001f6e1')  # endurance
-    async def add_endurance(self, payload):
+    async def add_endurance(self, _):
         if self.player.stat_points == 0:
             return
         self.tots[2] += 1
@@ -191,7 +191,7 @@ class Statistics(ui.Session):
         await self.update()
 
     @ui.button('\U0001f3c3')  # agility
-    async def add_agility(self, payload):
+    async def add_agility(self, _):
         if self.player.stat_points == 0:
             return
         self.tots[3] += 1
@@ -199,7 +199,7 @@ class Statistics(ui.Session):
         await self.update()
 
     @ui.button('\U0001f340')  # luck
-    async def add_luck(self, payload):
+    async def add_luck(self, _):
         if self.player.stat_points == 0:
             return
         self.tots[4] += 1
@@ -207,13 +207,13 @@ class Statistics(ui.Session):
         await self.update()
 
     @ui.button('\U0001f504')  # reset
-    async def reset(self, payload):
+    async def reset(self, _):
         self.player.stat_points = sum(self.tots) + self.player.stat_points
         self.tots = [0, 0, 0, 0, 0]
         await self.update()
 
     @ui.button('\u2705')  # confirm
-    async def confirm(self, payload):
+    async def confirm(self, _):
         self.player.strength += self.tots[0]
         self.player.magic += self.tots[1]
         self.player.endurance += self.tots[2]
@@ -352,8 +352,7 @@ class Players(commands.Cog):
 
         await asyncio.gather(m1.delete(), m2.delete())
 
-        with contextlib.suppress(KeyError):
-            self.players.pop(ctx.author.id)
+        self.players.pop(ctx.author.id)
         await self.bot.db.adventure2.accounts.delete_one({"owner": ctx.author.id})
         await ctx.send(self.bot.tick_yes)
 

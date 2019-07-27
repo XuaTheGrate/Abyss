@@ -52,7 +52,7 @@ class SkillTreeCog(commands.Cog):
             for leaf in leaves.copy():
                 if leaf in ctx.player.finished_leaves:
                     leaves.remove(leaf)
-                    leaves.extend(self.skill_tree.branches[leaf.split(':')[0]][leaf])
+                    leaves.extend(self.skill_tree.branches[leaf.split(':')[0]].leaves[leaf])
                     break
             else:
                 break
