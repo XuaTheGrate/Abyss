@@ -13,7 +13,7 @@ class Prefixes(commands.Cog):
         Empty invocation will show a list of all prefixes."""
         prefixes = await self.bot.prefixes_for(ctx.guild)
         prefixes = prefixes.copy()
-        prefixes.remove(self.bot.user.mention)
+        prefixes.remove(self.bot.user.mention + ' ')
         embed = discord.Embed(colour=discord.Colour.blurple(), title=f"{ctx.guild} prefixes")
         embed.description = "\n".join([f'• {p}' for p in prefixes])
         await ctx.send(embed=embed)
