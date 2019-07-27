@@ -56,7 +56,7 @@ class SkillTreeCog(commands.Cog):
                     break
             else:
                 break
-        leaves = [self.skill_tree.branches[k[:-2]][k] for k in leaves]
+        leaves = [self.skill_tree.branches[k[:-2]].leaves[k] for k in leaves]
         embed = discord.Embed(colour=lookups.TYPE_TO_COLOUR[ctx.player.specialty.name.lower()])
         embed.title = _("Available leaves ready for completion")
         embed.description = '\n'.join(
