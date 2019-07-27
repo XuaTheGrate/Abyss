@@ -1,5 +1,6 @@
 import datetime
 
+import discord
 from discord.ext import commands
 
 from . import utils
@@ -31,6 +32,22 @@ class ErrorHandler(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
+
+    @commands.Cog.listener()
+    async def on_guild_join(self, guild):
+        target = None
+        for channel in guild.text_channels:
+            if channel.permissions_for(guild.me).send_messages and channel.permissions_for(guild.me).embed_links:
+                target = channel
+                break
+        if not target:
+            return
+        embed = discord.Embed()
+        embed.description = ("\N{REGIONAL INDICATOR SYMBOL LETTER G}\N{REGIONAL INDICATOR SYMBOL LETTER B} "
+                             "Hello! I'm Adventure. Use `$locale set en_US` to change your personal locale.\n"
+                             "\N{REGIONAL INDICATOR SYMBOL LETTER J}\N{REGIONAL INDICATOR SYMBOL LETTER P} "
+                             "こんにちは！私はAdventureです。ロケールを変更するには`$言語 置く ja_JA`を使用してください。")
+        await target.send(embed=embed)
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, exc):
