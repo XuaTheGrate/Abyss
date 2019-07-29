@@ -87,7 +87,7 @@ return fuckJS(this)"""}).to_list(None)
 
         enc = random.choice(encounters)
 
-        enemy = bt.Enemy(**enc)
+        enemy = bt.Enemy(**enc, bot=self.bot)
         await ctx.send(_("You searched around and found a **{0}**!").format(enemy.name))
         self.battles[ctx.author.id] = bt.WildBattle(ctx.player, enemy, ctx)
 
