@@ -72,29 +72,6 @@ CONFIG_NEW = {
 
 
 class Abyss(commands.Bot):
-    """Hi, this is my alternate adventure bot.
-
-    Attributes
-    ----------
-    prepared: :class:`asyncio.Event`
-        Set when the database and such is connected successfully.
-    logger: :class:`logging.Logger`
-        The logger used for logging stuff.
-    db: :class:`motor.motor_asyncio.AsyncIOMotorClient`
-        The MongoDB database for storing shit.
-    redis: :class:`aioredis.ConnectionsPool`
-        The Redis connection.
-    session: :class:`aiohttp.ClientSession`
-        Session for internet getting stuff.
-    tick_yes: :class:`str`
-        ✅
-    tick_no: :class:`str`
-        ❎
-    debug_hook: Optional[:class:`str`, :class:`discord.Webhook`, :class:`discord.DMChannel`]
-        If this is a :class:`str`, it is an unprepared webhook for sending messages to.
-        If this is either a :class:`discord.Webhook`, or :class:`discord.DMChannel`, it
-            is a prepared webhook for sending errors to.
-    """
     def __init__(self):
         super().__init__(self.prefix)
         self.prepared = asyncio.Event()
@@ -111,6 +88,7 @@ class Abyss(commands.Bot):
         self.tick_no = config.TICK_NO
         self.debug_hook = config.DEBUG_WEBHOOK
         self.unload_tasks = {}
+        self.config = config
 
         self.help_command = commands.MinimalHelpCommand(verify_checks=False)
 
