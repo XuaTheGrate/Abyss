@@ -77,7 +77,11 @@ Encounter: {error.battle.enemy}
 
         around = int(around)
         encounters = await self.bot.db.abyss.encounters.find(
-            {"$where": lambda d: abs((d['level']+around)-5) <= 3}).to_list(None)
+            {"$where": f"""
+var fuckJS = function(obj) {{
+    return Math.abs((obj['level']+{around})-5<=3);
+}}
+return fuckJS(this)"""}).to_list(None)
         if not encounters:
             raise RuntimeError("`{'$where': lambda d: abs((d['level']+around)-5) <= 3}` -> None")
 

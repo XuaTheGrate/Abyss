@@ -86,7 +86,7 @@ def unset_skills_page(player):
 
 def stats_page(player):
     embed = discord.Embed(colour=lookups.TYPE_TO_COLOUR[player.specialty.name.lower()])
-    embed.title = _("{}'s stats.").format(player.name)
+    embed.title = _("{}'s stats").format(player.name)
     embed.set_author(name=player.name, icon_url=player.owner.avatar_url_as(format='png', size=32))
     embed.description = f"""\u2694 {_('Strength')}: {player.strength}
 \u2728 {_('Magic')}: {player.magic}
