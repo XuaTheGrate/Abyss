@@ -1,0 +1,309 @@
+import math
+import operator
+import random
+
+from .enums import *
+from .objects import DamageResult, JSONable, Skill
+
+
+CRITICAL_BASE = 4
+
+
+class Player(JSONable):
+    __json__ = ('owner', 'name', 'skills', 'exp', 'stats', 'resistances', 'arcana', 'specialty', 'stat_points',
+                'description', 'skill_leaf', 'ap', 'unsetskills', 'finished_leaves')
+
+    def keygetter(self, key):
+        if key == 'owner':
+            return self._owner_id
+        elif key == 'skills':
+            return [z.name for z in self.skills]
+        elif key == 'resistances':
+            return self._resistances
+        elif key == 'arcana':
+            return self.arcana.value
+        elif key == 'specialty':
+            return self.specialty.name
+        elif key == 'skill_leaf':
+            return self._active_leaf
+        elif key == 'ap':
+            return self.ap_points
+        elif key == 'unsetskills':
+            return [z.name for z in self.unset_skills]
+        return getattr(self, key)
+
+    def __init__(self, **kwargs):
+        # kwargs.pop("_id")
+        self._owner_id = kwargs.pop("owner")
+        self.owner = None
+        self.name = kwargs.pop("name")
+        skills = kwargs.pop("skills")
+        if skills and all(isinstance(x, Skill) for x in skills):
+            self.skills = skills
+        else:
+            self.skills = []
+            self._skills = skills
+        self.exp = kwargs.pop("exp")
+        self.strength, self.magic, self.endurance, self.agility, self.luck = kwargs.pop("stats")
+        # self.resistances = dict(zip(SkillType, map(ResistanceModifier, kwargs.pop("resistances"))))
+        self._resistances = kwargs.pop("resistances")
+        self.resistances = dict(zip(SkillType, [
+                    ResistanceModifier.WEAK if x == 3
+                    else ResistanceModifier.RESIST if x == 1
+                    else ResistanceModifier.NORMAL
+                    for x in self._resistances]))
+        self.arcana = Arcana(kwargs.pop("arcana"))
+        self.specialty = SkillType[kwargs.pop("specialty").upper()]
+        self.description = kwargs.pop("description", "<no description found, report to Xua>")
+        self.stat_points = kwargs.pop("stat_points", 0)
+        self.debug = kwargs.pop("testing", False)
+        self._active_leaf = kwargs.pop("skill_leaf", None)
+        self.leaf = None
+        self.ap_points = kwargs.pop("ap", 0)
+        self._unset_skills = kwargs.pop("unsetskills")
+        self.unset_skills = []
+        self._damage_taken = 0
+        self._sp_used = 0
+        self._stat_mod = [0, 0, 0]
+        # [attack][defense][agility]
+        self._until_clear = [0, 0, 0]  # turns until it gets cleared for each stat, max of 3 turns
+        self._next_level = self.level+1
+        self.finished_leaves = kwargs.pop("finished_leaves", [])
+
+    def __repr__(self):
+        return (f"Player(owner={self._owner_id}, "
+                f"name='{self.name}', "
+                f"skills={self.skills}, "
+                f"exp={self.exp}, "
+                f"stats={self.stats}, "
+                f"resistances={self._resistances}, "
+                f"description='{self.description}', "
+                f"stat_points={self.stat_points}, "
+                f"arcana={self.arcana.value}, "
+                f"specialty='{self.specialty.name}', "
+                f"skill_leaf='{self._active_leaf}', "
+                f"ap={self.ap_points}, "
+                f"unsetskills={self._unset_skills}, "
+                f"finished_leaves={self.finished_leaves})")
+
+    def _debug_repr(self):
+        return f"""```
+Player
+    name: {self.name}
+    skills: {", ".join(map(operator.attrgetter('name'), self.skills))}
+    exp: {self.exp}
+    stats: {self.stats}
+    resistances: {self._resistances}
+    description: {self.description}
+    stat_points: {self.stat_points}
+    arcana: {self.arcana!r}
+    specialty: {self.specialty!r}
+    leaf: {self.leaf}
+    ap_points: {self.ap_points}
+    finished_leaves: {self.finished_leaves}
+    unset_skills: {self.unset_skills}
+
+    level: {self.level}
+    hp: {self.hp}
+    max_hp: {self.max_hp}
+    sp: {self.sp}
+    max_sp: {self.max_sp}
+    can_level_up: {self.can_level_up}
+    exp_tp_next_level: {self.exp_to_next_level()}
+    is_fainted: {self.is_fainted()}
+
+    debug: {self.debug}
+    _damage_taken: {self._damage_taken}    
+    _sp_used: {self._sp_used}
+    _stat_mod: {self._stat_mod}
+    _until_clear: {self._until_clear}
+    _next_level: {self._next_level}
+    _active_leaf: {self._active_leaf}
+```"""
+
+    @property
+    def stats(self):
+        return [self.strength, self.magic, self.endurance, self.agility, self.luck]
+
+    @property
+    def hp(self):
+        return self.max_hp - self._damage_taken
+
+    @hp.setter
+    def hp(self, value):
+        self._damage_taken = min(0, self._damage_taken + value)
+
+    @property
+    def max_hp(self):
+        return math.ceil(50 + (4.7 * self.level))
+
+    @property
+    def sp(self):
+        return self.max_sp - self._sp_used
+
+    @sp.setter
+    def sp(self, value):
+        self._sp_used = min(0, self._sp_used + value)
+
+    @property
+    def max_sp(self):
+        return math.ceil(30 + (3.6 * self.level))
+
+    @property
+    def level(self):
+        return min(99, max(math.ceil(self.exp**.334), 1))
+
+    def level_up(self):
+        while self._next_level <= self.level:
+            self._next_level += 1
+            self.stat_points += 3
+
+    @property
+    def can_level_up(self):
+        return self._next_level <= self.level
+
+    def exp_to_next_level(self):
+        return self._next_level**3 - self.exp
+
+    def _populate_skills(self, bot):
+        self.owner = bot.get_user(self._owner_id)
+        for skill in self._skills:
+            self.skills.append(bot.players.skill_cache[skill])
+        for skill in self._unset_skills:
+            self.unset_skills.append(bot.players.skill_cache[skill])
+
+    def affected_by(self, modifier):
+        modifier = getattr(modifier, 'value', modifier)
+
+        return 1.0 if self._stat_mod[modifier] == 0 \
+            else 1.05 if self._stat_mod[modifier] == 1 \
+            else 0.95
+
+    def resists(self, type):
+        try:
+            return self.resistances[type]
+        except KeyError:
+            if not isinstance(type, SkillType):
+                raise
+            return ResistanceModifier.NORMAL
+
+    def is_fainted(self):
+        if self.hp <= 0:
+            self._stat_mod = [0, 0, 0]
+            return True
+        return False
+
+    def take_damage(self, attacker, skill, *,  from_reflect=False):
+        res = self.resists(skill.type)
+        result = DamageResult()
+
+        if res is ResistanceModifier.REFLECT:
+            if not from_reflect:
+                return attacker.take_damage(self, skill, from_reflect=True)
+            res = ResistanceModifier.IMMUNE
+            result.was_reflected = True
+
+        result.resistance = res
+
+        if res is ResistanceModifier.IMMUNE:
+            return result
+
+        if self.try_evade(attacker.agility/10, skill, attacker.affected_by(StatModifier.SUKU)):
+            result.miss = True
+            return result
+
+        if skill.is_instant_kill:
+            self.hp = self.max_hp
+            result.damage_dealt = self.max_hp
+            return result
+
+        base = skill.damage_calc(attacker, self)
+
+        if not skill.uses_sp:
+            if attacker.try_crit(self.luck, self.affected_by(StatModifier.SUKU)):
+                base *= 1.75
+                result.critical = True
+
+        if res is ResistanceModifier.WEAK:
+            base *= 1.5
+        elif res is ResistanceModifier.RESIST:
+            base *= 0.5
+
+        base = math.ceil(base)
+
+        if res is not ResistanceModifier.ABSORB:
+            self.hp = base
+            result.damage_dealt = base
+            result.fainted = self.is_fainted()
+        else:
+            self.hp = -base
+            result.damage_dealt = -base
+
+        return result
+
+    def try_crit(self, luck_mod, suku_mod):
+        base = CRITICAL_BASE
+        base /= suku_mod
+        base += ((self.luck/10) - (luck_mod/10))
+        base *= self.affected_by(StatModifier.SUKU)
+        return random.uniform(1, 100) <= base
+
+    """ evasion / critical reference
+In [58]: for my_suku in (0.95, 1.0, 1.05):
+    ...:     for attacker_suku in (0.95, 1.0, 1.05):
+    ...:         base = 90  # todo: determine properly
+    ...:         base *= attacker_suku
+    ...:         base /= my_suku
+    ...:         print(f"Attacker: {attacker_suku:.2f}/{90*attacker_suku:.2f} | Me: {my_suku:.2f}/{90/my_suku:.2f} | {100-base:.2f} evasion chance")
+    ...:
+Attacker: mod \ base * mod | Me: mod \ base / mod | overall evasion chance
+Attacker: 0.95/85.50 | Me: 0.95/94.74 | 10.00 evasion chance
+Attacker: 1.00/90.00 | Me: 0.95/94.74 | 5.26 evasion chance
+Attacker: 1.05/94.50 | Me: 0.95/94.74 | 0.53 evasion chance
+Attacker: 0.95/85.50 | Me: 1.00/90.00 | 14.50 evasion chance
+Attacker: 1.00/90.00 | Me: 1.00/90.00 | 10.00 evasion chance
+Attacker: 1.05/94.50 | Me: 1.00/90.00 | 5.50 evasion chance
+Attacker: 0.95/85.50 | Me: 1.05/85.71 | 18.57 evasion chance
+Attacker: 1.00/90.00 | Me: 1.05/85.71 | 14.29 evasion chance
+Attacker: 1.05/94.50 | Me: 1.05/85.71 | 10.00 evasion chance
+
+In [59]: for my_suku in (0.95, 1.0, 1.05):
+    ...:     for attacker_suku in (0.95, 1.0, 1.05):
+    ...:         base = 4
+    ...:         base /= attacker_suku
+    ...:         base += ((my_luck/10) - (attacker_luck/10))
+    ...:         base *= my_suku
+    ...:         print(f"Attacker: {attacker_suku:.2f} | Me: {my_suku:.2f} | {base:.2f} chance to crit")
+    ...:
+    ...:
+Attacker: mod  | Me: mod  | overall chance to crit
+Attacker: 0.95 | Me: 0.95 | 4.00 chance to crit
+Attacker: 1.00 | Me: 0.95 | 3.80 chance to crit
+Attacker: 1.05 | Me: 0.95 | 3.62 chance to crit
+Attacker: 0.95 | Me: 1.00 | 4.21 chance to crit
+Attacker: 1.00 | Me: 1.00 | 4.00 chance to crit
+Attacker: 1.05 | Me: 1.00 | 3.81 chance to crit
+Attacker: 0.95 | Me: 1.05 | 4.42 chance to crit
+Attacker: 1.00 | Me: 1.05 | 4.20 chance to crit
+Attacker: 1.05 | Me: 1.05 | 4.00 chance to crit
+    """
+
+    def try_evade(self, modifier, skill, suku_mod):
+        ag = self.agility / 10
+        if not skill.is_instant_kill:
+            base = (skill.accuracy + modifier/2) - ag/2
+        else:
+            base = skill.accuracy - ag/2
+            if self.resists(skill.type) is ResistanceModifier.WEAK:
+                base *= 1.1
+            elif self.resists(skill.type) is ResistanceModifier.RESIST:
+                base *= 0.9
+
+        base *= self.affected_by(StatModifier.SUKU)
+        base /= suku_mod
+
+        return random.uniform(1, 100) < base
+
+    async def save(self, bot):
+        data = self.to_json()
+        await bot.db.abyss.accounts.replace_one({"owner": self._owner_id}, data, upsert=True)
