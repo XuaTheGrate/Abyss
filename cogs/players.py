@@ -8,7 +8,8 @@ import discord
 from discord.ext import commands, ui
 
 from .utils import lookups, scripts, i18n, imaging
-from .utils.objects import Player, Skill
+from .utils.objects import Skill
+from .utils.player import Player
 
 import collections
 
@@ -241,24 +242,6 @@ class Statistics(ui.Session):
             await super().stop()
 
 
-async def confirm(bot, msg, user):
-    rs = (str(bot.tick_yes), str(bot.tick_no))
-    for r in rs:
-        await msg.add_reaction(r)
-    try:
-        r, u = await bot.wait_for('reaction_add', check=lambda r, u: str(r.emoji) in rs and u.id == user.id and
-                                  r.message.id == msg.id, timeout=60)
-    except asyncio.TimeoutError:
-        return False
-    else:
-        if str(r.emoji) == rs[0]:
-            return True
-        return False
-    finally:
-        with contextlib.suppress(discord.Forbidden):
-            await msg.clear_reactions()
-
-
 class Players(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -333,6 +316,8 @@ class Players(commands.Cog):
             ctx.command.reset_cooldown(ctx)
             return
 
+        await self.bot.redis.set(f"story@{ctx.author.id}", 1)
+
         self.players[ctx.author.id] = player
         player._populate_skills(self.bot)
         await player.save(self.bot)
@@ -358,11 +343,11 @@ class Players(commands.Cog):
             return
 
         m1 = await ctx.send(_("Are you sure you want to delete your account? This action is irreversible."))
-        if not await confirm(self.bot, m1, ctx.author):
+        if not await self.bot.confirm(m1, ctx.author):
             return
 
         m2 = await ctx.send(_("...are you really sure?"))
-        if not await confirm(self.bot, m2, ctx.author):
+        if not await self.bot.confirm(m2, ctx.author):
             return
 
         await asyncio.gather(m1.delete(), m2.delete())
@@ -390,6 +375,8 @@ class Players(commands.Cog):
         if ctx.player.stat_points > 0:
             new = Statistics(ctx.player)
             await new.start(ctx)
+        else:
+            await ctx.send(_("You have no skill points remaining."))
 
     @commands.command(name='set')
     async def _set(self, ctx, *, name):

@@ -15,6 +15,11 @@ class SkillTreeCog(commands.Cog):
         with open("skilltree.json") as f:
             self._skill_tree = json5.load(f)
 
+        try:
+            self.do_cuz_ready()
+        except KeyError:
+            pass
+
     def do_cuz_ready(self):
         self.skill_tree = SkillTree(self._skill_tree, self.bot)
 

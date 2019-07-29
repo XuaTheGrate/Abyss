@@ -131,23 +131,44 @@ Player
 
     @hp.setter
     def hp(self, value):
-        self._damage_taken = min(0, self._damage_taken + value)
+        if self.hp - value <= 0:
+            self._damage_taken = self.max_hp
+        else:
+            self._damage_taken += value
 
     @property
     def max_hp(self):
-        return math.ceil(50 + (4.7 * self.level))
+        return math.ceil(20 + self.endurance + (4.7 * self.level))
 
     @property
     def sp(self):
         return self.max_sp - self._sp_used
 
+    """
+In [23]: end = 1
+...: for level in range(1, 100):
+...:     end = min(99, end)
+...:     print(f"Level: {level} | Magic: {end} | SP: {math.ceil(10+end+(3.6*level))}, HP: {math.ceil(20+end+(4.7*level))}")
+...:     for a in range(5):
+...:         if random.randint(1, 5) == 1:
+...:             end += 1
+Level: 1 | Magic: 1 | SP: 15, HP: 26
+Level: 2 | Magic: 2 | SP: 20, HP: 32
+...
+Level: 98 | Magic: 91 | SP: 454, HP: 572
+Level: 99 | Magic: 92 | SP: 459, HP: 578
+"""
+
     @sp.setter
     def sp(self, value):
-        self._sp_used = min(0, self._sp_used + value)
+        if self.sp - value <= 0:
+            self._sp_used = self.max_sp
+        else:
+            self._sp_used += value
 
     @property
     def max_sp(self):
-        return math.ceil(30 + (3.6 * self.level))
+        return math.ceil(10 + self.magic + (3.6 * self.level))
 
     @property
     def level(self):

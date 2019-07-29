@@ -1,10 +1,9 @@
 import asyncio
+import contextlib
 import io
-import logging
 import os
 import traceback
 from collections import defaultdict
-from contextlib import suppress
 from logging.handlers import TimedRotatingFileHandler
 
 import aiohttp
@@ -15,7 +14,8 @@ import motor.motor_asyncio
 
 import config
 from cogs import utils
-from cogs.utils import i18n, objects
+from cogs.utils import i18n
+from cogs.utils.player import Player
 
 import logging
 
@@ -143,7 +143,7 @@ class Abyss(commands.Bot):
             if not data:
                 ctx.player = None
                 return
-            ctx.player = self.players.players[ctx.author.id] = player = objects.Player(**data)
+            ctx.player = self.players.players[ctx.author.id] = player = Player(**data)
             player._populate_skills(self)
             if player._active_leaf is not None:
                 key, _ = player._active_leaf.split(':')
@@ -164,6 +164,23 @@ class Abyss(commands.Bot):
         if not ctx.guild:
             raise commands.NoPrivateMessage
         return True
+
+    async def confirm(self, msg, user):
+        rs = (str(self.tick_yes), str(self.tick_no))
+        for r in rs:
+            await msg.add_reaction(r)
+        try:
+            r, u = await self.wait_for('reaction_add', check=lambda r, u: str(r.emoji) in rs and u.id == user.id and
+                                       r.message.id == msg.id, timeout=60)
+        except asyncio.TimeoutError:
+            return False
+        else:
+            if str(r.emoji) == rs[0]:
+                return True
+            return False
+        finally:
+            with contextlib.suppress(discord.Forbidden):
+                await msg.clear_reactions()
 
     # noinspection PyTypeChecker
     async def _send_error(self, message):
