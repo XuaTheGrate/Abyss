@@ -51,7 +51,7 @@ class ErrorHandler(commands.Cog):
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, exc, *, force=False):
-        if commands.Cog._get_overridden_method(ctx.cog.cog_command_error) and not force:
+        if ctx.cog and commands.Cog._get_overridden_method(ctx.cog.cog_command_error) and not force:
             return
 
         if isinstance(exc, commands.CommandInvokeError):

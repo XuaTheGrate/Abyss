@@ -96,6 +96,9 @@ class Abyss(commands.Bot):
         self.before_invoke(self.before_invoke_handler)
         self.prepare_extensions()
 
+    async def on_command_error(self, *__, **_):
+        pass
+
     @property
     def description(self):
         return _("> Stuck? Try using `$story` to progress.")
