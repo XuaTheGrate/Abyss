@@ -94,6 +94,7 @@ def stats_page(player):
 \U0001f3c3 {_('Agility')}: {player.agility}
 \U0001f340 {_('Luck')}: {player.luck}"""
     embed.set_footer(text=_('<~ Home | Skill Tree Status ~>'))
+    return embed
 
 
 class Status(ui.Session):
