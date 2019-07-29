@@ -55,7 +55,6 @@ def get_logger():
     stream.setFormatter(logging.Formatter("[{asctime} {name}/{levelname}]: {message}", "%H:%M:%S", "{"))
 
     log.handlers = [
-        stream,
         TimedRotatingFileHandler("logs/log", "d", encoding="utf-8")
     ]
 

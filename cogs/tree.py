@@ -17,7 +17,7 @@ class SkillTreeCog(commands.Cog):
 
         try:
             self.do_cuz_ready()
-        except KeyError:
+        except AttributeError:
             pass
 
     def do_cuz_ready(self):
