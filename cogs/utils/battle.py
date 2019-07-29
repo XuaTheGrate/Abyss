@@ -1,6 +1,8 @@
 import math
 import random
 
+from .enums import SkillType, ResistanceModifier
+
 
 class Enemy:
     # wild encounters dont have a skill preference or an ai
@@ -12,8 +14,9 @@ class Enemy:
         bot = data.pop('bot')
         self.name = data.pop('name')
         self.level = data.pop('level')
-        self.skills = [bot.players.skill_cache[n] for n in data.pop('skills')]
+        self.skills = [bot.players.skill_cache[n] for n in data.pop('moves')]
         self.strength, self.magic, self.endurance, self.agility, self.luck = data.pop('stats')
+        self.resistances = dict(zip(SkillType, map(ResistanceModifier, data.pop("resistances"))))
         self._damage_taken = 0
         self._sp_used = 0
 
@@ -106,6 +109,7 @@ class WildBattle:
 {self.player.hp}/{self.player.max_hp} HP
 {self.player.sp}/{self.player.max_sp} SP
 """)
+        self.main.stop()
 
     @main.after_loop
     async def post_battle_complete(self):
