@@ -6,6 +6,7 @@ from contextlib import suppress
 from itertools import cycle
 
 from .player import Player
+from .enums import ResistanceModifier
 
 NL = '\n'
 
@@ -115,7 +116,7 @@ class InitialSession(ui.Session):
 
     async def select_target(self):
         log.debug("initialsession target selector")
-        menu = TargetSession(*filter(lambda d: not d.is_fainted(), self.enemies))
+        menu = TargetSession(*[e for e in self.enemies if not e.is_fainted()])
         await menu.start(self.context)
         if not menu.result:
             log.debug("no result")
@@ -215,6 +216,36 @@ For more information regarding battles, see `$faq battles`.""")
 \N{RUNNER} Escape""", embed=None)
 
 
+res_msgs = {
+    ResistanceModifier.NORMAL: "__{demon}__ used `{skill}`! __{tdemon}__ took {damage} damage!",
+    ResistanceModifier.WEAK: "__{demon}__ used `{skill}`, and __{tdemon}__"
+                             " is **weak** to {skill.type.name} attacks! __{tdemon}__ took {damage} damage!",
+    ResistanceModifier.ABSORB: "__{demon}__ used `{skill}`, but __{tdemon}__ "
+                               "**absorbs** {skill.type.name} attacks! __{tdemon}__ healed for {damage} damage!",
+    ResistanceModifier.RESIST: "__{demon}__ used `{skill}`, but __{tdemon}__ **resists**"
+                               " {skill.type.name} attacks. __{tdemon}__ took {damage} damage!",
+    ResistanceModifier.IMMUNE: "__{demon}__ used `{skill}`, but __{tdemon}__ is **immune**"
+                               " to {skill.type.name} attacks."
+}
+
+MSG_MISS = "__{demon}__ used `{skill}`, but it missed!"
+
+REFL_BASE = "__{demon}__ used `{skill}`, but __{tdemon}__ **reflects** {skill.type.name} attacks! "
+refl_msgs = {
+    ResistanceModifier.NORMAL: "__{demon}__ took {damage} damage!",
+    ResistanceModifier.WEAK: "__{demon}__ is **weak** to {skill.type.name} attacks and took {damage} damage!",
+    ResistanceModifier.ABSORB: "__{demon}__ **absorbs** {skill.type.name} attacks and healed for {damage} HP!",
+    ResistanceModifier.IMMUNE: "__{demon}__ is **immune** to {skill.type.name} attacks!",
+    ResistanceModifier.RESIST: "__{demon}__ **resists** {skill.type.name} attacks and took {damage} damage!"
+}
+
+
+def get_message(resistance, reflect=False):
+    if reflect:
+        return _(REFL_BASE) + _(refl_msgs[resistance])
+    return _(res_msgs[resistance])
+
+
 class WildBattle:
     def __init__(self, player, ctx, *enemies, ambush=False, ambushed=False):
         assert not all((ambush, ambushed))  # dont set ambush AND ambushed to True
@@ -224,6 +255,7 @@ class WildBattle:
         self.menu = None
         self.enemies = sorted(enemies, key=lambda e: e.agility, reverse=True)
         self.ambush = True if ambush else False if ambushed else None
+        self._stopping = False
         # True -> player got the initiative
         # False -> enemy got the jump
         # None -> proceed by agility
@@ -236,6 +268,7 @@ class WildBattle:
         self.main.start()
 
     async def stop(self):
+        self._stopping = True
         self.main.stop()
         with suppress(AttributeError):
             await self.menu.stop()
@@ -250,11 +283,29 @@ class WildBattle:
         log.debug("got player result")
         await self.menu.stop()
         log.debug("stopped menu")
-        if result is None:
+        if result is None and not self._stopping:
             log.debug("result was none")
             raise RuntimeError("thats not normal")
-        log.debug("sending result")
-        await self.ctx.send(result)
+
+        if result['type'] == 'run':
+            if result['data'].get('timeout', False) or result['data'].get('success', True):
+                await self.ctx.send(_("> You successfully ran away!"))
+            else:
+                await self.ctx.send(_("> You failed to run!"))
+            return
+
+        # type must be fight
+        skill = result['data']['skill']
+        target = result['data']['target']
+        if not skill.is_damaging_skill:
+            await self.ctx.send("unhandled atm")
+        else:
+            res = target.take_damage(self.player, skill)
+            msg = get_message(res.resistance, res.was_reflected)
+            if res.critical:
+                msg = _("CRITICAL! ") + msg
+            msg = msg.format(demon=self.player, tdemon=target, damage=res.damage, skill=skill)
+            await self.ctx.send(msg)
 
     async def handle_enemy_choices(self, enemy):
         log.debug("handle_enemy_choices todo")

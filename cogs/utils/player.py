@@ -240,7 +240,7 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
 
         base = skill.damage_calc(attacker, self)
 
-        if not skill.uses_sp:
+        if not skill.uses_sp and res is not ResistanceModifier.WEAK:  # weakness comes before criticals
             if attacker.try_crit(self.luck, self.affected_by(StatModifier.SUKU)):
                 base *= 1.75
                 result.critical = True

@@ -143,6 +143,10 @@ Skill
     def is_instant_kill(self):
         return any(x.lower() in self.name.lower() for x in ('Hama', 'Mudo', 'Die for Me!', 'Samsara'))
 
+    @property
+    def is_damaging_skill(self):
+        return self.type not in (SkillType.HEALING, SkillType.AILMENT, SkillType.SUPPORT, SkillType.PASSIVE)
+
     def damage_calc(self, attacker, target):
         if self.is_instant_kill:
             return target.hp
