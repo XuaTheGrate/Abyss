@@ -274,6 +274,12 @@ class ListCycle:
         else:
             self.current += 1
 
+    def remove(self, item):
+        self._iter.remove(item)
+        if self.current == self.max:
+            self.current -= 1
+        self.max = len(self._iter)-1
+
     def __next__(self):
         return self.active()
 
@@ -378,6 +384,8 @@ class WildBattle:
         if not nxt.is_fainted():
             log.debug("next enemy not fainted")
             await self.handle_enemy_choices(nxt)
+        else:
+            self.order.remove(nxt)
 
     @main.before_loop
     async def pre_battle_start(self):
