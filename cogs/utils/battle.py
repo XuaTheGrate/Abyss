@@ -349,8 +349,6 @@ class WildBattle:
                 return
             self.player.hp = cost
 
-        self.order.cycle()  # action was ensured, so cycle to the next user
-
         target = result['data']['target']
         if not skill.is_damaging_skill:
             await self.ctx.send("unhandled atm")
@@ -368,7 +366,6 @@ class WildBattle:
     async def handle_enemy_choices(self, enemy):
         log.debug("handle_enemy_choices todo")
         await self.ctx.send(f"{enemy} did a thing (it didnt but it will)")
-        self.order.cycle()
 
     @tasks.loop()
     async def main(self):
@@ -377,7 +374,7 @@ class WildBattle:
             log.debug("confirm not dead failed, stopping")
             await self.stop()
             return
-        nxt = next(self.order)
+        nxt = self.order.active()
         if not isinstance(nxt, Enemy):
             log.debug("next: player")
             return await self.handle_player_choices()
@@ -386,6 +383,7 @@ class WildBattle:
             await self.handle_enemy_choices(nxt)
         else:
             self.order.remove(nxt)
+        self.order.cycle()
 
     @main.before_loop
     async def pre_battle_start(self):
