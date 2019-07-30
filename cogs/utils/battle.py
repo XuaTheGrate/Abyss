@@ -226,7 +226,7 @@ class WildBattle:
 
     async def handle_player_choices(self):
         self.menu = InitialSession(self)
-        await self.menu.start()
+        await self.menu.start(self.ctx)
         result = self.menu.result
         await self.menu.stop()
         if result is None:
@@ -234,7 +234,7 @@ class WildBattle:
         await self.ctx.send(result)
 
     async def handle_enemy_choices(self, enemy):
-        await self.ctx.send(enemy)
+        await self.ctx.send(f"{enemy} did a thing (it didnt but it will)")
 
     @tasks.loop()
     async def main(self):
