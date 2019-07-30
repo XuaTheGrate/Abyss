@@ -89,8 +89,7 @@ from . import lookups
 
 
 def confirm_not_dead(battle):
-    return False
-    # return not battle.enemy.is_fainted() and not battle.player.is_fainted()
+    return not battle.enemy.is_fainted() and not battle.player.is_fainted()
 
 
 class InitialSession(ui.Session):
@@ -189,18 +188,19 @@ class WildBattle:
         self.cmd = self.ctx.bot.get_cog("BattleSystem").yayeet
         self.player = player
         self.enemy = enemy
+        self.menu = InitialSession(self)
         self.main.start(self)
 
     @tasks.loop()
     async def main(self, _):
-        if confirm_not_dead(self):
+        if not confirm_not_dead(self):
             self.main.stop()
             return
-        m = await self.ctx.send(f"""[{self.player.owner.name}] {self.player.name} VS {self.enemy.name} [Wild]
-{self.player.hp}/{self.player.max_hp} HP
-{self.player.sp}/{self.player.max_sp} SP
-""")
-        self.main.stop()
+        await self.menu.start(self.ctx)
+        result = self.menu.result
+        if result is None:
+            raise RuntimeError("thats not normal")
+        await self.ctx.send("need to handle messages but if you got this far ur the best programmer")
 
     @main.after_loop
     async def post_battle_complete(self):
