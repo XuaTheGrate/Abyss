@@ -27,8 +27,7 @@ class Enemy(Player):
     def __str__(self):
         return self.name
 
-    @property
-    def exp(self):
+    def get_exp(self):
         return math.ceil(self.level_ ** 3 / random.uniform(1, 3))
 
 
