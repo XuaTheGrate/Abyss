@@ -118,6 +118,9 @@ class Skill(JSONable):
                 f"desc='{self.description}', "
                 f"accuracy={self.accuracy})")
 
+    def __str__(self):
+        return self.name
+
     def _debug_repr(self):
         return f"""```
 Skill

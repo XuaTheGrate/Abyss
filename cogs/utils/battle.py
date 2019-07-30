@@ -1,5 +1,6 @@
 import math
 import random
+import re
 
 from .enums import SkillType, ResistanceModifier
 
@@ -63,7 +64,26 @@ class Enemy:
         return math.ceil(self.level ** 3 / random.uniform(1, 3))
 
 
+class BattleResult:
+    def __init__(self):
+        self.flee = False
+        self.fainted = False
+        self.exp_gained = 0  # always 0 if flee or fainted is True
+        self.cash_gained = 0  # negative if fainted is True, or 0 if flee is True
+        self.timeout = False
+
+    def __repr__(self):
+        return (f"<BattleResult {'+' if self.timeout else '-'}timeout, "
+                f"{'+' if self.flee else '-'}ran away, "
+                f"{'+' if self.fainted else '-'}fainted, "
+                f"{'-' if self.fainted else ''}{self.cash_gained}$ earned, "
+                f"{self.exp_gained} EXP earned>")
+
+
+import discord
 from discord.ext import ui, tasks
+
+from . import lookups
 
 # exp = ceil(level ** 3 / uniform(1, 3))
 
@@ -79,20 +99,88 @@ class InitialSession(ui.Session):
         self.battle = battle
         self.player = battle.player
         self.enemy = battle.enemy
+        self.bot = battle.ctx.bot
+        self.result = None  # dict, {"type": "fight/run", data: [whatever is necessary]}
+        self.add_command(self.select_skill, "("+"|".join(map(str, self.player.skills))+")")
 
-    async def send_initial_message(self):
-        return await self.context.send(
-f"""[{self.player.owner.name}] {self.player.name} VS {self.enemy.name} [Wild]
+    async def select_skill(self, message, skill):
+        obj = self.bot.players.skill_cache[skill]
+        self.result = {"type": "fight", "data": {"skill": obj}}
+        await self.stop()
+
+    async def handle_timeout(self):
+        self.result = {"type": "run", "data": {"timeout": True}}
+        await self.stop()
+
+    async def on_message(self, message):
+        if message.channel.id != self.message.channel.id:
+            return
+
+        if message.author.id not in self.allowed_users:
+            return
+
+        for pattern, command in self.__ui_commands__.items():
+            match = re.fullmatch(pattern, message.content, flags=re.IGNORECASE)
+            if not match:
+                continue
+
+            callback = command.__get__(self, self.__class__)
+            await self._queue.put((callback, message, *match.groups()))
+            break
+
+    @property
+    def header(self):
+        return f"""[{self.player.owner.name}] {self.player.name} VS {self.enemy.name} [Wild]
 {self.player.hp}/{self.player.max_hp} HP
-{self.player.sp}/{self.player.max_sp} SP
+{self.player.sp}/{self.player.max_sp} SP"""
+
+    def get_home_content(self):
+        return f"""{self.header}
 
 \N{CROSSED SWORDS} Fight
-""")
+\N{INFORMATION SOURCE} Help
+\N{RUNNER} Escape
+"""
+
+    async def send_initial_message(self):
+        return await self.context.send(self.get_home_content())
 
     @ui.button('\N{CROSSED SWORDS}')
     async def fight(self, _):
-        pass
+        skills = "\n".join(
+            [f"{lookups.TYPE_TO_EMOJI[s.type.name.lower()]} {s}" for s in self.player.skills]
+        )
+        await self.message.edit(content=f"{self.header}\n\n{skills}\n\n> Use \N{HOUSE BUILDING} to go back", embed=None)
 
+    @ui.button("\N{INFORMATION SOURCE}")
+    async def info(self, _):
+        embed = discord.Embed(title=_("How to: Interactive Battle"))
+        embed.description = _("""Partially ported from Adventure, the battle system has been revived!
+Various buttons have been reacted for use, but move selection requires you to send a message.
+\N{CROSSED SWORDS} Brings you to the Fight menu, where you select your moves.
+\N{INFORMATION SOURCE} Shows this page.
+\N{RUNNER} Runs from the battle. Useful if you don't think you can beat this enemy.
+\N{HOUSE BUILDING} Brings you back to the home screen.
+
+For more information regarding battles, see `$faq battles`.""")
+        await self.message.edit(content="", embed=embed)
+
+    @ui.button("\N{RUNNER}")
+    async def escape(self, _):
+        chance = 75 - (self.enemy.level - self.player.level)
+        if random.randint(1, 100) < chance:
+            self.result = {"type": "run", "data": {"success": True}}
+        else:
+            self.result = {"type": "run", "data": {"success": False}}
+        return await self.stop()
+
+    @ui.button("\N{HOUSE BUILDING}")
+    async def ret(self, _):
+        await self.message.edit(content=f"""{self.header}
+
+\N{CROSSED SWORDS} Fight
+\N{INFORMATION SOURCE} Help
+\N{RUNNER} Escape""", embed=None)
 
 
 class WildBattle:
@@ -108,7 +196,7 @@ class WildBattle:
         if confirm_not_dead(self):
             self.main.stop()
             return
-        m = await self.ctx.send(f"""[{self.player.owner.name}] {self.player.name}
+        m = await self.ctx.send(f"""[{self.player.owner.name}] {self.player.name} VS {self.enemy.name} [Wild]
 {self.player.hp}/{self.player.max_hp} HP
 {self.player.sp}/{self.player.max_sp} SP
 """)
