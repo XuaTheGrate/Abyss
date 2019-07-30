@@ -39,13 +39,6 @@ def do_next_script(msg, author=None):
 
 
 def get_logger():
-    """Prepares the logging system.
-
-    Returns
-    -------
-    :class:`logging.Logger`
-        The base logger.
-    """
     log = logging.getLogger(__name__)
     log.setLevel(logging.DEBUG)
     "uncomment the above line to enable debug logging"
@@ -133,7 +126,6 @@ class Abyss(commands.Bot):
                 player.leaf = branch[player._active_leaf]
 
     async def wait_for_close(self):
-        """Helper function that waits for all cogs to finish unloading."""
         for cog, task in self.unload_tasks.items():
             try:
                 await asyncio.wait_for(task, timeout=30)
@@ -199,36 +191,9 @@ class Abyss(commands.Bot):
             await self.debug_hook.send(message)
 
     def send_error(self, message):
-        """If a webhook is not specified, falls back to the first id in `config.OWNERS` and DMs the error.
-        If the message is > 2000 characters, will attempt to upload to mystb.in and send the URL.
-        If uploading to mystb.in failed somehow, falls back to sending an error.txt file.
-
-        Parameters
-        -----------
-        message: :class:`str`
-            The message to send.
-
-        Returns
-        -------
-        :class:`asyncio.Task`
-            The task for sending the message. Awaitable, so you can pause until its sent."""
         return self.loop.create_task(self._send_error(message))
 
     async def get_guild_config(self, guild):
-        """Returns a dict containing all the guild specific configuration.
-        If no guild data was found in the MongoDB database, a new one is
-        cloned from the base.
-
-        Parameters
-        ----------
-        guild: :class:`discord.Guild`
-            The guild to get data from.
-
-        Returns
-        -------
-        :class:`dict`
-            The dict configuration.
-        """
         data = await self.db.abyss.guildconfig.find_one({"guild": guild.id})
         if not data:
             data = CONFIG_NEW.copy()
@@ -237,20 +202,6 @@ class Abyss(commands.Bot):
         return data
 
     async def prefix(self, bot, message):
-        """Gets the prefix for the bot/guild/whatever.
-        If no guild is present, the returned prefix is an empty string.
-
-        Parameters
-        ----------
-        bot: :class:`AdventureTwo`
-            It's a me.
-        message: :class:`discord.Message`
-            The message to determine how to get the prefix.
-
-        Returns
-        -------
-        Union[:class:`str`, List[:class:`str`]]
-            The prefix(es) for the guild."""
         if not self.prepared.is_set():
             return commands.when_mentioned(bot, message)
 
@@ -261,21 +212,6 @@ class Abyss(commands.Bot):
         return await self.prefixes_for(message.guild)
 
     async def prefixes_for(self, guild):
-        """Returns a set of valid prefixes for the guild.
-
-        .. note::
-            If you are wondering why I'm using a set to begin with,
-            this is to prevent duplicate prefixes.
-
-        Parameters
-        ----------
-        guild: :class:`discord.Guild`
-            The guild to get the prefixes for.
-
-        Returns
-        -------
-        List[:class:`str`]
-            The prefixes for that guild."""
         if not self.prepared.is_set():
             return
 
@@ -286,49 +222,18 @@ class Abyss(commands.Bot):
         return list(PREFIXES[guild.id] | {f"<@{self.user.id}> ", f"<@!{self.user.id}> "})
 
     async def add_prefixes(self, guild, *prefix):
-        """Appends a prefix to the allowed prefixes.
-
-        Parameters
-        ----------
-        guild: :class:`discord.Guild`
-            The guild to add prefixes for.
-        *prefix: :class:`str`
-            Prefixes to add for that guild.
-
-        Raises
-        ------
-        RuntimeError
-            The bot has not finished loading.
-        """
         if not self.prepared.is_set():
             raise RuntimeError
 
         PREFIXES[guild.id].update([p.strip() for p in prefix])
 
     async def rem_prefixes(self, guild, *prefix):
-        """Removes a prefix from the list of prefixes.
-
-        .. note::
-            You cannot remove the @mentions.
-
-        Parameters
-        ----------
-        guild: :class:`discord.Guild`
-            The guild to remove prefixes from.
-        *prefix: :class:`str`
-            The list of prefixes to remove.
-
-        Raises
-        ------
-        RuntimeError
-            The bot has not finished loading."""
         if not self.prepared.is_set():
             raise RuntimeError
 
         PREFIXES[guild.id].difference_update(prefix)
 
     def prepare_extensions(self):
-        """Loads every cog possible in ./cogs"""
         try:
             self.load_extension("jishaku")
         except commands.ExtensionNotFound:
@@ -383,12 +288,10 @@ class Abyss(commands.Bot):
         await self.process_commands(message)
 
     def run(self):
-        """"""
         # stupid sphinx inheriting bug
         super().run(config.TOKEN)
 
     async def close(self):
-        """"""
         self.dispatch("logout")
         await self.wait_for_close()
         for guild in self.guilds:
@@ -402,6 +305,8 @@ class Abyss(commands.Bot):
         await super().close()
 
     async def on_error(self, event, *args, **kwargs):
+        if not self.prepared.is_set():
+            return
         to = f""">>> Error occured in event `{event}`
 Arguments: {NL.join(map(repr, args))}
 KW Arguments: {kwargs}

@@ -22,6 +22,7 @@ class Enemy(Player):
         kwargs['arcana'] = 0
         kwargs['exp'] = 0
         kwargs['owner'] = 0
+        kwargs['specialty'] = 'almighty'
         super().__init__(**kwargs)
 
     def __repr__(self):
