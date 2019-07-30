@@ -134,12 +134,12 @@ class InitialSession(ui.Session):
 {self.player.sp}/{self.player.max_sp} SP"""
 
     def get_home_content(self):
-        return f"""{self.header}
+        return _(f"""{self.header}
 
 \N{CROSSED SWORDS} Fight
 \N{INFORMATION SOURCE} Help
 \N{RUNNER} Escape
-"""
+""")
 
     async def send_initial_message(self):
         return await self.context.send(self.get_home_content())
@@ -150,7 +150,7 @@ class InitialSession(ui.Session):
             [f"{lookups.TYPE_TO_EMOJI[s.type.name.lower()]} {s}" for s in self.player.skills]
         )
         await self.message.edit(content=_(
-            f"{self.header}\n\n{skills}\n\n> Use \N{HOUSE BUILDING} to go back", embed=None))
+            f"{self.header}\n\n{skills}\n\n> Use \N{HOUSE BUILDING} to go back"), embed=None)
 
     @ui.button("\N{INFORMATION SOURCE}")
     async def info(self, __):
