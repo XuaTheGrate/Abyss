@@ -145,14 +145,15 @@ class InitialSession(ui.Session):
         return await self.context.send(self.get_home_content())
 
     @ui.button('\N{CROSSED SWORDS}')
-    async def fight(self, _):
+    async def fight(self, __):
         skills = "\n".join(
             [f"{lookups.TYPE_TO_EMOJI[s.type.name.lower()]} {s}" for s in self.player.skills]
         )
-        await self.message.edit(content=f"{self.header}\n\n{skills}\n\n> Use \N{HOUSE BUILDING} to go back", embed=None)
+        await self.message.edit(content=_(
+            f"{self.header}\n\n{skills}\n\n> Use \N{HOUSE BUILDING} to go back", embed=None))
 
     @ui.button("\N{INFORMATION SOURCE}")
-    async def info(self, _):
+    async def info(self, __):
         embed = discord.Embed(title=_("How to: Interactive Battle"))
         embed.description = _("""Partially ported from Adventure, the battle system has been revived!
 Various buttons have been reacted for use, but move selection requires you to send a message.
