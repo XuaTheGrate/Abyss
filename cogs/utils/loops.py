@@ -45,8 +45,9 @@ class PredicateLoop(tasks.Loop):
         except asyncio.CancelledError:
             self._is_being_cancelled = True
             raise
-        except Exception:
+        except Exception as e:
             self._has_failed = True
+            self._exception = e
             raise
         finally:
             await self._call_loop_function('after_loop')
