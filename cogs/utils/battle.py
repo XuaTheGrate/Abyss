@@ -103,7 +103,7 @@ class InitialSession(ui.Session):
         self.add_command(self.select_skill, "("+"|".join(map(str, self.player.skills))+")")
 
     async def select_skill(self, message, skill):
-        obj = self.bot.players.skill_cache[skill]
+        obj = self.bot.players.skill_cache[skill.title()]
         self.result = {"type": "fight", "data": {"skill": obj}}
         await self.stop()
 
