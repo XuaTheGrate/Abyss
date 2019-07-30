@@ -269,13 +269,18 @@ class ListCycle:
         return f"ListCycle({self._iter})"
 
     def active(self):
+        log.debug("cycle.active() -> %s", list(map(str, self._iter)))
         return self._iter[0]
 
     def cycle(self):
+        log.debug("cycle.cycle<pre>() -> %s", list(map(str, self._iter)))
         self._iter.append(self._iter.popleft())
+        log.debug("cycle.cycle<post>() -> %s", list(map(str, self._iter)))
 
     def remove(self, item):
+        log.debug("cycle.remove<pre>() -> %s", list(map(str, self._iter)))
         self._iter.remove(item)
+        log.debug("cycle.remove<post>() -> %s", list(map(str, self._iter)))
 
     def __next__(self):
         return self.active()
