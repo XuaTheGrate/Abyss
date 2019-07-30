@@ -28,6 +28,7 @@ class BattleSystem(commands.Cog):
         try:
             while True:
                 uid = await self._queue.get()
+                self.bot.logger.debug(f"got uid {uid}")
                 self.battles.pop(uid)
         except asyncio.CancelledError:
             pass
@@ -36,6 +37,7 @@ class BattleSystem(commands.Cog):
 ```py
 {formats.format_exc(e)}
 ```""")
+            self.bot.logger.warning(f"task died with {e}")
             self._task = self.bot.loop.create_task(self.task_kill())
 
     async def cog_command_error(self, ctx, error):

@@ -47,7 +47,7 @@ def get_logger():
         The base logger.
     """
     log = logging.getLogger(__name__)
-    # log.setLevel(logging.DEBUG)
+    log.setLevel(logging.DEBUG)
     "uncomment the above line to enable debug logging"
 
     stream = logging.StreamHandler()
@@ -55,6 +55,7 @@ def get_logger():
     stream.setFormatter(logging.Formatter("[{asctime} {name}/{levelname}]: {message}", "%H:%M:%S", "{"))
 
     log.handlers = [
+        stream,
         TimedRotatingFileHandler("logs/log", "d", encoding="utf-8")
     ]
 
