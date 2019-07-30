@@ -63,8 +63,7 @@ class Enemy:
         return math.ceil(self.level ** 3 / random.uniform(1, 3))
 
 
-from discord.ext import ui
-from .loops import loop
+from discord.ext import ui, tasks
 
 # exp = ceil(level ** 3 / uniform(1, 3))
 
@@ -104,8 +103,11 @@ class WildBattle:
         self.enemy = enemy
         self.main.start(self)
 
-    @loop(predicate=confirm_not_dead)
+    @tasks.loop()
     async def main(self, _):
+        if confirm_not_dead(self):
+            self.main.stop()
+            return
         m = await self.ctx.send(f"""[{self.player.owner.name}] {self.player.name}
 {self.player.hp}/{self.player.max_hp} HP
 {self.player.sp}/{self.player.max_sp} SP
