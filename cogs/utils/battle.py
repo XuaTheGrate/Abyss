@@ -277,6 +277,11 @@ class ListCycle:
         self._iter.append(self._iter.popleft())
         log.debug("cycle.cycle<post>() -> %s", list(map(str, self._iter)))
 
+    def decycle(self):
+        log.debug("cycle.decycle<pre>() -> %s", list(map(str, self._iter)))
+        self._iter.appendleft(self._iter.pop())
+        log.debug("cycle.decycle<pre>() -> %s", list(map(str, self._iter)))
+
     def remove(self, item):
         log.debug("cycle.remove<pre>() -> %s", list(map(str, self._iter)))
         self._iter.remove(item)
@@ -333,7 +338,7 @@ class WildBattle:
                 await self.ctx.send(_("> You successfully ran away!"))
                 await self.stop()
             else:
-                await self.ctx.send(_("> You failed to run!"))
+                await self.ctx.send(_("> You failed to escape!"))
             return
 
         # type must be fight
@@ -364,6 +369,9 @@ class WildBattle:
                 msg = _("CRITICAL! ") + msg
             msg = msg.format(demon=self.player, tdemon=target, damage=res.damage_dealt, skill=skill)
             await self.ctx.send(msg)
+            if res.did_weak:
+                self.order.decycle()
+                await self.ctx.send(_("> Nice hit! Move again!"))
 
     async def handle_enemy_choices(self, enemy):
         log.debug("handle_enemy_choices todo")

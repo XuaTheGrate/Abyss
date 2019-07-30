@@ -247,9 +247,11 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
             if attacker.try_crit(self.luck, self.affected_by(StatModifier.SUKU)):
                 base *= 1.75
                 result.critical = True
+                result.did_weak = True
 
         if res is ResistanceModifier.WEAK:
             base *= 1.5
+            result.did_weak = True
         elif res is ResistanceModifier.RESIST:
             base *= 0.5
 

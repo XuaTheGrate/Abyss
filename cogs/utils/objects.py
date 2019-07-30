@@ -25,7 +25,7 @@ class JSONable:
 
 
 class DamageResult:
-    __slots__ = ('resistance', 'damage_dealt', 'critical', 'miss', 'fainted', 'was_reflected')
+    __slots__ = ('resistance', 'damage_dealt', 'critical', 'miss', 'fainted', 'was_reflected', 'did_weak')
 
     def __init__(self):
         self.resistance = ResistanceModifier.NORMAL
@@ -34,10 +34,11 @@ class DamageResult:
         self.miss = False
         self.fainted = False
         self.was_reflected = False
+        self.did_weak = False
 
     def __repr__(self):
         return (f"<DamageResult resistance={self.resistance!r} damage_dealt={self.damage_dealt} "
-                f"critical={self.critical} miss={self.miss}>")
+                f"critical={self.critical} miss={self.miss} did_weak={self.did_weak}>")
 
 
 class Leaf:
