@@ -377,6 +377,7 @@ class WildBattle:
             await self.stop()
             return
         nxt = self.order.active()
+        rm = False
         if not isinstance(nxt, Enemy):
             log.debug("next: player")
             await self.handle_player_choices()
@@ -386,7 +387,9 @@ class WildBattle:
                 await self.handle_enemy_choices(nxt)
             else:
                 self.order.remove(nxt)
-        self.order.cycle()
+                rm = True
+        if not rm:
+            self.order.cycle()
 
     @main.before_loop
     async def pre_battle_start(self):
