@@ -70,6 +70,9 @@ class Player(JSONable):
         self._next_level = self.level+1
         self.finished_leaves = kwargs.pop("finished_leaves", [])
 
+    def __str__(self):
+        return self.name
+
     def __repr__(self):
         return (f"Player(owner={self._owner_id}, "
                 f"name='{self.name}', "

@@ -228,7 +228,7 @@ res_msgs = {
                                " to {skill.type.name} attacks."
 }
 
-MSG_MISS = "__{demon}__ used `{skill}`, but it missed!"
+MSG_MISS = "__{demon}__ used `{skill}`, but __{tdemon}__ evaded the attack!"
 
 REFL_BASE = "__{demon}__ used `{skill}`, but __{tdemon}__ **reflects** {skill.type.name} attacks! "
 refl_msgs = {
@@ -301,6 +301,9 @@ class WildBattle:
             await self.ctx.send("unhandled atm")
         else:
             res = target.take_damage(self.player, skill)
+            if res.miss:
+                await self.ctx.send(_(MSG_MISS).format(demon=self.player, tdemon=target, skill=skill))
+                return
             msg = get_message(res.resistance, res.was_reflected)
             if res.critical:
                 msg = _("CRITICAL! ") + msg
