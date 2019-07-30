@@ -32,7 +32,7 @@ async def do_script(ctx, script, lang="en_US"):
     if not os.path.isfile(path):
         if lang == 'en_US':
             raise TypeError(f"no such file: {path}")
-        ctx.bot.logger.warning(f"no such file: {path}")
+        log.warning(f"no such file: {path}")
         return await do_script(ctx, script)
 
     with open(path) as f:

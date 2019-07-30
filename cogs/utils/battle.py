@@ -212,7 +212,7 @@ class WildBattle:
             self.order = cycle([*self.enemies, self.player])
         else:
             self.order = cycle(sorted([self.player, *self.enemies], key=lambda i: i.agility, reverse=True))
-        self.main.start(self)
+        self.main.start()
 
     async def stop(self):
         self.main.stop()
@@ -229,7 +229,7 @@ class WildBattle:
         await self.ctx.send(enemy)
 
     @tasks.loop()
-    async def main(self, _):
+    async def main(self):
         if not confirm_not_dead(self):
             await self.stop()
             return
@@ -240,7 +240,7 @@ class WildBattle:
             await self.handle_enemy_choices(nxt)
 
     @main.before_loop
-    async def pre_battle_start(self, __):
+    async def pre_battle_start(self):
         if self.ambush is True:
             await self.ctx.send(_("{0} {1}! You surprised them!").format(
                 len(self.enemies), _('enemy') if len(self.enemies) == 1 else _('enemies')))

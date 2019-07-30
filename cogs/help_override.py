@@ -38,7 +38,7 @@ class I18nHelpCommand(commands.MinimalHelpCommand):
             locale = locale.decode()
         if not os.path.isfile(f"cogs/help/{locale}/{command.qualified_name.replace(' ', '_')}"):
             cmdhelp = command.help
-            self.context.bot.logger.warning(
+            log.warning(
                 f"no such file: cogs/help/{locale}/{command.qualified_name.replace(' ', '_')}")
         else:
             with open(f"cogs/help/{locale}/{command.qualified_name.replace(' ', '_')}") as f:
@@ -64,7 +64,7 @@ class I18nHelpCommand(commands.MinimalHelpCommand):
         if not os.path.isfile(f"cogs/help/{locale}/{command.qualified_name.replace(' ', '_')}.scr"):
             cmdhelp = command.help
             if locale != 'en_US':
-                self.context.bot.logger.warning(
+                log.warning(
                     f"no such file: cogs/help/{locale}/{command.qualified_name.replace(' ', '_')}.scr")
         else:
             with open(f"cogs/help/{locale}/{command.qualified_name.replace(' ', '_')}.scr") as f:

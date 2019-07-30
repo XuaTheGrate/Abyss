@@ -39,6 +39,7 @@ def do_next_script(msg, author=None):
 
 
 def get_logger():
+    import builtins
     log = logging.getLogger(__name__)
     log.setLevel(logging.DEBUG)
     "uncomment the above line to enable debug logging"
@@ -52,7 +53,7 @@ def get_logger():
         TimedRotatingFileHandler("logs/log", "d", encoding="utf-8")
     ]
 
-    return log
+    builtins.log = log
 
 
 PREFIXES = defaultdict(set)
@@ -70,8 +71,6 @@ class Abyss(commands.Bot):
         super().__init__(self.prefix)
         self.prepared = asyncio.Event()
         # `prepared` is to make sure the bot has loaded the database and such
-
-        self.logger = get_logger()
 
         self.db = motor.motor_asyncio.AsyncIOMotorClient(
             username=config.MONGODB_USER, password=config.MONGODB_PASS, authSource=config.MONGODB_DBSE)
@@ -130,7 +129,7 @@ class Abyss(commands.Bot):
             try:
                 await asyncio.wait_for(task, timeout=30)
             except asyncio.TimeoutError:
-                self.logger.warning(f"{cog!r} unload task did not finish in time.")
+                log.warning(f"{cog!r} unload task did not finish in time.")
                 task.cancel()
 
     async def global_check(self, ctx):
@@ -251,7 +250,7 @@ class Abyss(commands.Bot):
             try:
                 self.load_extension(filename)
             except Exception as e:
-                self.logger.warning(f"Could not load ext `{filename}`.")
+                log.warning(f"Could not load ext `{filename}`.")
                 self.send_error(f"Could not load ext `{filename}`\n```py\n{utils.format_exc(e)}\n````")
 
     async def on_ready(self):
@@ -262,19 +261,19 @@ class Abyss(commands.Bot):
             await self.db.abyss.accounts.find().to_list(None)
             # dummy query to ensure the db is connected
         except Exception as e:
-            self.logger.error("COULD NOT CONNECT TO MONGODB DATABASE.")
-            self.logger.error("This could lead to fatal errors. Falling back prefixes to mentions only.")
+            log.error("COULD NOT CONNECT TO MONGODB DATABASE.")
+            log.error("This could lead to fatal errors. Falling back prefixes to mentions only.")
             self.send_error(f"FAILED TO CONNECT TO MONGODB\n```py\n{utils.format_exc(e)}\n```")
             return
 
         try:
             self.redis = await aioredis.create_redis_pool(**config.REDIS)
         except Exception as e:
-            self.logger.error("couldnt connect to redis")
+            log.error("couldnt connect to redis")
             self.send_error(F"failed to connect to redis\n```py\n{utils.format_exc(e)}\n```")
 
         self.prepared.set()
-        self.logger.warning("Successfully loaded.")
+        log.warning("Successfully loaded.")
 
     async def on_message(self, message):
         if message.author.bot:

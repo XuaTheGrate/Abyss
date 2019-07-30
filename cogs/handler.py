@@ -87,7 +87,7 @@ Bot permissions: {ctx.channel.permissions_for(ctx.me).value}
         msg = _handles.get(type(exc), None)
 
         if not msg:
-            self.bot.logger.warning(f"No handle for {type(exc)}.")
+            log.warning(f"No handle for {type(exc)}.")
             return
 
         await ctx.send(_(msg))
