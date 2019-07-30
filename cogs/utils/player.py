@@ -34,7 +34,7 @@ class Player(JSONable):
 
     def __init__(self, **kwargs):
         # kwargs.pop("_id")
-        self._owner_id = kwargs.pop("owner", 0)
+        self._owner_id = kwargs.pop("owner")
         self.owner = None
         self.name = kwargs.pop("name")
         skills = kwargs.pop("skills")
@@ -43,7 +43,7 @@ class Player(JSONable):
         else:
             self.skills = []
             self._skills = skills
-        self.exp = kwargs.pop("exp", 0)
+        self.exp = kwargs.pop("exp")
         self.strength, self.magic, self.endurance, self.agility, self.luck = kwargs.pop("stats")
         # self.resistances = dict(zip(SkillType, map(ResistanceModifier, kwargs.pop("resistances"))))
         self._resistances = kwargs.pop("resistances")

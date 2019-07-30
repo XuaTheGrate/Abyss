@@ -19,6 +19,9 @@ class Enemy(Player):
     def __init__(self, **kwargs):
         kwargs['skills'] = kwargs.pop("moves")
         self.level_ = kwargs.pop("level")
+        kwargs['arcana'] = 0
+        kwargs['exp'] = 0
+        kwargs['owner'] = 0
         super().__init__(**kwargs)
 
     def __repr__(self):
