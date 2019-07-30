@@ -263,7 +263,7 @@ class ListCycle:
     def __init__(self, iterable):
         self._iter = iterable
         self.current = 0
-        self.max = len(iterable)
+        self.max = len(iterable)-1
 
     def active(self):
         return self._iter[self.current]
@@ -275,7 +275,7 @@ class ListCycle:
             self.current += 1
 
     def __next__(self):
-        return self.active
+        return self.active()
 
 
 class WildBattle:
