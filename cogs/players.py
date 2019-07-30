@@ -8,6 +8,7 @@ import discord
 from discord.ext import commands, ui
 
 from .utils import lookups, scripts, i18n, imaging
+from .utils.enums import SkillType
 from .utils.objects import Skill
 from .utils.player import Player
 
@@ -407,6 +408,10 @@ class Players(commands.Cog):
         if name not in self.skill_cache:
             return await ctx.send(_("Couldn't find a skill by that name."))
         skill = self.skill_cache[name]
+        cp = ctx.player.skills.copy()
+        cp.remove(skill)
+        if all(s.type is SkillType.PASSIVE for s in cp):
+            return await ctx.send(_("You must have at least 1 non-active skill equipped."))
         if skill not in ctx.player.skills:
             if skill in ctx.player.unset_skills:
                 return await ctx.send(_("That skill is not in your repertoire."))

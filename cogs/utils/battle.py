@@ -6,7 +6,7 @@ from contextlib import suppress
 from itertools import cycle
 
 from .player import Player
-from .enums import ResistanceModifier
+from .enums import ResistanceModifier, SkillType
 
 NL = '\n'
 
@@ -106,7 +106,8 @@ class InitialSession(ui.Session):
         self.enemies = battle.enemies
         self.bot = battle.ctx.bot
         self.result = None  # dict, {"type": "fight/run", data: [whatever is necessary]}
-        self.add_command(self.select_skill, "("+"|".join(map(str, self.player.skills))+")")
+        self.add_command(self.select_skill, "("+"|".join(map(str, filter(
+            lambda s: s.type is not SkillType.PASSIVE, self.player.skills)))+")")
 
     async def stop(self):
         log.debug("initialsession stop()")
@@ -178,6 +179,8 @@ VS
         log.debug("fight() called")
         skills = []
         for skill in self.player.skills:
+            if skill.type is SkillType.PASSIVE:
+                continue
             e = lookups.TYPE_TO_EMOJI[skill.type.name.lower()]
             if skill.uses_sp:
                 cost = skill.cost
@@ -264,6 +267,9 @@ class ListCycle:
         self._iter = iterable
         self.current = 0
         self.max = len(iterable)-1
+
+    def __repr__(self):
+        return f"ListCycle({self._iter})"
 
     def active(self):
         return self._iter[self.current]
