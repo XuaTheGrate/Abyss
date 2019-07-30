@@ -60,7 +60,7 @@ Encounter: {error.battle.enemy}
         await self._queue.put(battle.player.owner.id)
         if err:
             self.bot.logger.error(f"battle exception: {err}")
-            raise BattleException(battle, err)
+            await self.cog_command_error(battle.ctx, BattleException(battle, err))
 
     @commands.command(hidden=True)
     @commands.is_owner()
