@@ -75,6 +75,11 @@ class TargetSession(ui.Session):
         for e in self.enemies.keys():
             self.add_button(self.button, e)
 
+    async def send_initial_message(self):
+        c = [_("Pick a target!\n")]
+        c.extend([f"{a} {b.name}" for a, b in self.enemies.items()])
+        return await self.context.send(NL.join(c))
+
     async def stop(self):
         with suppress(discord.HTTPException, AttributeError):
             await self.message.delete()
@@ -242,18 +247,18 @@ class WildBattle:
     @main.before_loop
     async def pre_battle_start(self):
         if self.ambush is True:
-            await self.ctx.send(_("{0} {1}! You surprised {2}!").format(
+            await self.ctx.send(_("> {0} {1}! You surprised {2}!").format(
                 len(self.enemies),
                 _('enemy') if len(self.enemies) == 1 else _('enemies'),
                 _('it') if len(self.enemies) == 1 else _('them')
             ))
         elif self.ambush is False:
-            await self.ctx.send(_("It's an ambush! There {2} {0} {1}!").format(
+            await self.ctx.send(_("> It's an ambush! There {2} {0} {1}!").format(
                 len(self.enemies), _('enemy') if len(self.enemies) == 1 else _('enemies'),
                 _('is') if len(self.enemies) == 1 else _('are')
             ))
         else:
-            await self.ctx.send(_("There {2} {0} {1}! Attack!").format(
+            await self.ctx.send(_("> There {2} {0} {1}! Attack!").format(
                 len(self.enemies), _('enemy') if len(self.enemies) == 1 else _('enemies'),
                 _('is') if len(self.enemies) == 1 else _('are')))
 
