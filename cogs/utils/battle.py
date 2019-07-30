@@ -1,25 +1,24 @@
+import asyncio
 import math
 import random
 import re
+from contextlib import suppress
+from itertools import cycle
 
-from .enums import SkillType, ResistanceModifier
+from .player import Player
+
+NL = '\n'
 
 
-class Enemy:
+class Enemy(Player):
     # wild encounters dont have a skill preference or an ai
     # literally choose skills at random
 
     # true battles will avoid skills that you are immune to,
     # and aim for skills that you are weak to / support themself
-    def __init__(self, **data):
-        bot = data.pop('bot')
-        self.name = data.pop('name')
-        self.level = data.pop('level')
-        self.skills = [bot.players.skill_cache[n] for n in data.pop('moves')]
-        self.strength, self.magic, self.endurance, self.agility, self.luck = data.pop('stats')
-        self.resistances = dict(zip(SkillType, map(ResistanceModifier, data.pop("resistances"))))
-        self._damage_taken = 0
-        self._sp_used = 0
+    def __init__(self, **kwargs):
+        self.level_ = kwargs.pop("level")
+        super().__init__(**kwargs)
 
     def __repr__(self):
         return "<Enemy>"
@@ -28,40 +27,8 @@ class Enemy:
         return self.name
 
     @property
-    def hp(self):
-        return self.max_hp - self._damage_taken
-
-    @hp.setter
-    def hp(self, value):
-        if self.hp - value <= 0:
-            self._damage_taken = self.max_hp
-        else:
-            self._damage_taken += value
-
-    @property
-    def max_hp(self):
-        return math.ceil(20 + self.endurance + (4.7 * self.level))
-
-    @property
-    def sp(self):
-        return self.max_sp - self._sp_used
-
-    @sp.setter
-    def sp(self, value):
-        if self.sp - value <= 0:
-            self._sp_used = self.max_sp
-        else:
-            self._sp_used += value
-
-    @property
-    def max_sp(self):
-        return math.ceil(10 + self.magic + (3.6 * self.level))
-
-    def is_fainted(self):
-        return self.hp <= 0
-
     def exp(self):
-        return math.ceil(self.level ** 3 / random.uniform(1, 3))
+        return math.ceil(self.level_ ** 3 / random.uniform(1, 3))
 
 
 class BattleResult:
@@ -89,7 +56,31 @@ from . import lookups
 
 
 def confirm_not_dead(battle):
-    return not battle.enemy.is_fainted() and not battle.player.is_fainted()
+    if battle.player.is_fainted():
+        return False
+    return not all(e.is_fainted() for e in battle.enemies)
+
+
+class TargetSession(ui.Session):
+    def __init__(self, *enemies):
+        super().__init__(timeout=180)
+        self.enemies = {
+            f"{c+1}\u20e3": enemies[c] for c in range(len(enemies))
+        }
+        self.result = None
+        for e in self.enemies.keys():
+            self.add_button(self.button, e)
+
+    async def stop(self):
+        with suppress(discord.HTTPException, AttributeError):
+            await self.message.delete()
+        await super().stop()
+
+    async def button(self, payload):
+        try:
+            self.result = self.enemies[str(payload.emoji)]
+        finally:
+            await self.stop()
 
 
 class InitialSession(ui.Session):
@@ -97,14 +88,27 @@ class InitialSession(ui.Session):
         super().__init__(timeout=180)
         self.battle = battle
         self.player = battle.player
-        self.enemy = battle.enemy
+        self.enemies = battle.enemies
         self.bot = battle.ctx.bot
         self.result = None  # dict, {"type": "fight/run", data: [whatever is necessary]}
         self.add_command(self.select_skill, "("+"|".join(map(str, self.player.skills))+")")
 
+    async def stop(self):
+        with suppress(discord.HTTPException, AttributeError):
+            await self.message.delete()
+        await super().stop()
+
+    async def select_target(self):
+        menu = TargetSession(*filter(lambda d: not d.is_fainted(), self.enemies))
+        await menu.start()
+        if not menu.result:
+            raise RuntimeError
+        return menu.result
+
     async def select_skill(self, message, skill):
         obj = self.bot.players.skill_cache[skill.title()]
-        self.result = {"type": "fight", "data": {"skill": obj}}
+        target = await self.select_target()
+        self.result = {"type": "fight", "data": {"skill": obj, "target": target}}
         await self.stop()
 
     async def handle_timeout(self):
@@ -129,7 +133,10 @@ class InitialSession(ui.Session):
 
     @property
     def header(self):
-        return f"""[{self.player.owner.name}] {self.player.name} VS {self.enemy.name} [Wild]
+        return f"""[{self.player.owner.name}] {self.player.name}
+VS
+{NL.join(f"[Wild] {e}" for e in self.enemies)}
+
 {self.player.hp}/{self.player.max_hp} HP
 {self.player.sp}/{self.player.max_sp} SP"""
 
@@ -167,7 +174,7 @@ For more information regarding battles, see `$faq battles`.""")
 
     @ui.button("\N{RUNNER}")
     async def escape(self, _):
-        chance = 75 - (self.enemy.level - self.player.level)
+        chance = 75 - (max(self.enemies, key=lambda e: e.level).level - self.player.level)
         if random.randint(1, 100) < chance:
             self.result = {"type": "run", "data": {"success": True}}
         else:
@@ -184,30 +191,66 @@ For more information regarding battles, see `$faq battles`.""")
 
 
 class WildBattle:
-    def __init__(self, player, enemy, ctx):
+    def __init__(self, player, ctx, *enemies, ambush=False, ambushed=False):
+        assert not all((ambush, ambushed))  # dont set ambush AND ambushed to True
         self.ctx = ctx
-        self.cmd = self.ctx.bot.get_cog("BattleSystem").yayeet
+        self.cmd = self.ctx.bot.get_cog("BattleSystem").cog_command_error
         self.player = player
-        self.enemy = enemy
+        self.enemies = sorted(enemies, key=lambda e: e.agility, reverse=True)
         self.menu = InitialSession(self)
+        self.ambush = True if ambush else False if ambushed else None
+        # True -> player got the initiative
+        # False -> enemy got the jump
+        # None -> proceed by agility
+        if self.ambush is True:
+            self.order = cycle([self.player, *self.enemies])
+        elif self.ambush is False:
+            self.order = cycle([*self.enemies, self.player])
+        else:
+            self.order = cycle(sorted([self.player, *self.enemies], key=lambda i: i.agility, reverse=True))
         self.main.start(self)
 
-    @tasks.loop()
-    async def main(self, _):
-        if not confirm_not_dead(self):
-            self.main.stop()
-            return
+    async def stop(self):
+        self.main.stop()
+        await self.menu.stop()
+
+    async def handle_player_choices(self):
         await self.menu.start(self.ctx)
         result = self.menu.result
         if result is None:
             raise RuntimeError("thats not normal")
-        await self.ctx.send("need to handle messages but if you got this far ur the best programmer")
+        await self.ctx.send(result)
+
+    async def handle_enemy_choices(self, enemy):
+        await self.ctx.send(enemy)
+
+    @tasks.loop()
+    async def main(self, _):
+        if not confirm_not_dead(self):
+            await self.stop()
+            return
+        nxt = next(self.order)
+        if not isinstance(nxt, Enemy):
+            return await self.handle_player_choices()
+        if not nxt.is_fainted():
+            await self.handle_enemy_choices(nxt)
+
+    @main.before_loop
+    async def main(self, __):
+        if self.ambush is True:
+            await self.ctx.send(_("{0} {1}! You surprised them!").format(
+                len(self.enemies), _('enemy') if len(self.enemies) == 1 else _('enemies')))
+        elif self.ambush is False:
+            await self.ctx.send(_("It's an ambush! There are {0} {1}!").format(
+                len(self.enemies), _('enemy') if len(self.enemies) == 1 else _('enemies')))
+        else:
+            await self.ctx.send(_("There are {0} {1}! Attack!").format(
+                len(self.enemies), _('enemy') if len(self.enemies) == 1 else _('enemies')))
 
     @main.after_loop
     async def post_battle_complete(self):
         if self.main.failed():
             err = self.main.exception()
-            await self.ctx.invoke(self.cmd, battle=self, err=err)
-            return
-        # do exp stuff here
-        await self.ctx.invoke(self.cmd, battle=self)
+        else:
+            err = None
+        await self.cmd(self.ctx, err, battle=self)

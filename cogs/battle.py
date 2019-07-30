@@ -1,6 +1,5 @@
 import asyncio
 import random
-import uuid
 
 from discord.ext import commands
 
@@ -29,7 +28,8 @@ class BattleSystem(commands.Cog):
             while True:
                 uid = await self._queue.get()
                 self.bot.logger.debug(f"got uid {uid}")
-                self.battles.pop(uid)
+                b = self.battles.pop(uid)
+                await b.stop()
         except asyncio.CancelledError:
             pass
         except Exception as e:
@@ -45,7 +45,7 @@ class BattleSystem(commands.Cog):
             m = f""">>> Error occured during battle.
 User: {battle.player.owner} ({battle.player.owner.id})
 Guild: {battle.ctx.guild} ({battle.ctx.guild.id})
-Encounter: {battle.enemy}
+Encounter: {list(map(str, battle.enemies))}
 ```py
 {formats.format_exc(error)}
 ```"""
@@ -54,20 +54,14 @@ Encounter: {battle.enemy}
 
         self.bot.dispatch("command_error", ctx, error, force=True)
 
-    @commands.command(hidden=True, name=str(uuid.uuid4()))
-    async def yayeet(self, ctx, *, battle, err=None):
-        """If you are reading this, message Xua with the code `185621` for a surprise."""
-        await self._queue.put(battle.player.owner.id)
-        if err:
-            self.bot.logger.error(f"battle exception: {err}")
-            await self.cog_command_error(battle.ctx, err, battle=battle)
-
     @commands.command(hidden=True)
     @commands.is_owner()
-    async def _encounter(self, ctx, *, name):
-        encounter = await self.bot.db.abyss.encounters.find_one({"name": name})
-        enemy = bt.Enemy(**encounter, bot=self.bot)
-        self.battles[ctx.author.id] = bt.WildBattle(ctx.player, enemy, ctx)
+    async def _encounter(self, ctx, *names):
+        enemies = []
+        for name in names:
+            encounter = await self.bot.db.abyss.encounters.find_one({"name": name})
+            enemies.append(bt.Enemy(**encounter, bot=self.bot))
+        self.battles[ctx.author.id] = bt.WildBattle(ctx.player, ctx, *enemies)
 
     @commands.command()
     @commands.cooldown(5, 60, commands.BucketType.user)
@@ -103,7 +97,7 @@ return fuckJS(this)"""}).to_list(None)
 
         enemy = bt.Enemy(**enc, bot=self.bot)
         await ctx.send(_("You searched around and found a **{0}**!").format(enemy.name))
-        self.battles[ctx.author.id] = bt.WildBattle(ctx.player, enemy, ctx)
+        self.battles[ctx.author.id] = bt.WildBattle(ctx.player, ctx, enemy)
 
 
 def setup(bot):
