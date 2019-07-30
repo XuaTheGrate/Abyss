@@ -304,7 +304,7 @@ class WildBattle:
             msg = get_message(res.resistance, res.was_reflected)
             if res.critical:
                 msg = _("CRITICAL! ") + msg
-            msg = msg.format(demon=self.player, tdemon=target, damage=res.damage, skill=skill)
+            msg = msg.format(demon=self.player, tdemon=target, damage=res.damage_dealt, skill=skill)
             await self.ctx.send(msg)
 
     async def handle_enemy_choices(self, enemy):
@@ -357,4 +357,5 @@ class WildBattle:
         else:
             err = None
         await self.cmd(self.ctx, err, battle=self)
+        await self.ctx.send("game over")
         log.debug("finish")
