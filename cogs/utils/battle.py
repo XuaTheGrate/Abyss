@@ -156,7 +156,7 @@ class InitialSession(ui.Session):
     def header(self):
         return f"""[{self.player.owner.name}] {self.player.name}
 VS
-{NL.join(f"[Wild] {e}" for e in self.enemies)}
+{NL.join(f"[Wild] {e}" if not e.is_fainted() else f"[Wild] ~~{e}~~" for e in self.enemies)}
 
 {self.player.hp}/{self.player.max_hp} HP
 {self.player.sp}/{self.player.max_sp} SP"""
@@ -377,12 +377,13 @@ class WildBattle:
         nxt = self.order.active()
         if not isinstance(nxt, Enemy):
             log.debug("next: player")
-            return await self.handle_player_choices()
-        if not nxt.is_fainted():
-            log.debug("next enemy not fainted")
-            await self.handle_enemy_choices(nxt)
+            await self.handle_player_choices()
         else:
-            self.order.remove(nxt)
+            if not nxt.is_fainted():
+                log.debug("next enemy not fainted")
+                await self.handle_enemy_choices(nxt)
+            else:
+                self.order.remove(nxt)
         self.order.cycle()
 
     @main.before_loop
