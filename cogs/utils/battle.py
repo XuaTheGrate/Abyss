@@ -26,7 +26,7 @@ class Enemy(Player):
         super().__init__(**kwargs)
 
     def __repr__(self):
-        return "<Enemy>"
+        return f"<Lvl {self.level_} {self.name!r}>"
 
     def __str__(self):
         return self.name
