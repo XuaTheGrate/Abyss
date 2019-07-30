@@ -205,8 +205,8 @@ class WildBattle:
         self.ctx = ctx
         self.cmd = self.ctx.bot.get_cog("BattleSystem").cog_command_error
         self.player = player
+        self.menu = None
         self.enemies = sorted(enemies, key=lambda e: e.agility, reverse=True)
-        self.menu = InitialSession(self)
         self.ambush = True if ambush else False if ambushed else None
         # True -> player got the initiative
         # False -> enemy got the jump
@@ -221,11 +221,14 @@ class WildBattle:
 
     async def stop(self):
         self.main.stop()
-        await self.menu.stop()
+        with suppress(AttributeError):
+            await self.menu.stop()
 
     async def handle_player_choices(self):
-        await self.menu.start(self.ctx)
+        self.menu = InitialSession(self)
+        await self.menu.start()
         result = self.menu.result
+        await self.menu.stop()
         if result is None:
             raise RuntimeError("thats not normal")
         await self.ctx.send(result)
