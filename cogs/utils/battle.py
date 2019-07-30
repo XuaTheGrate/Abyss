@@ -290,6 +290,7 @@ class WildBattle:
         if result['type'] == 'run':
             if result['data'].get('timeout', False) or result['data'].get('success', True):
                 await self.ctx.send(_("> You successfully ran away!"))
+                await self.stop()
             else:
                 await self.ctx.send(_("> You failed to run!"))
             return
