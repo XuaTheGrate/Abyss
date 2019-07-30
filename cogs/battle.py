@@ -40,12 +40,12 @@ class BattleSystem(commands.Cog):
             self.bot.logger.warning(f"task died with {e}")
             self._task = self.bot.loop.create_task(self.task_kill())
 
-    async def cog_command_error(self, ctx, error):
-        if isinstance(error, BattleException):
+    async def cog_command_error(self, ctx, error, battle=None):
+        if battle:
             m = f""">>> Error occured during battle.
-User: {error.battle.player.owner} ({error.battle.player.owner.id})
-Guild: {error.battle.ctx.guild} ({error.battle.ctx.guild.id})
-Encounter: {error.battle.enemy}
+User: {battle.player.owner} ({battle.player.owner.id})
+Guild: {battle.ctx.guild} ({battle.ctx.guild.id})
+Encounter: {battle.enemy}
 ```py
 {formats.format_exc(error)}
 ```"""
@@ -60,7 +60,7 @@ Encounter: {error.battle.enemy}
         await self._queue.put(battle.player.owner.id)
         if err:
             self.bot.logger.error(f"battle exception: {err}")
-            await self.cog_command_error(battle.ctx, BattleException(battle, err))
+            await self.cog_command_error(battle.ctx, err, battle=battle)
 
     @commands.command(hidden=True)
     @commands.is_owner()
