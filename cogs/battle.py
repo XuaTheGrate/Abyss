@@ -59,6 +59,7 @@ Encounter: {error.battle.enemy}
         """If you are reading this, message Xua with the code `185621` for a surprise."""
         await self._queue.put(battle.player.owner.id)
         if err:
+            self.bot.logger.error(f"battle exception: {err}")
             raise BattleException(battle, err)
 
     @commands.command(hidden=True)
