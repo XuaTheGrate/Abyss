@@ -176,11 +176,24 @@ VS
     @ui.button('\N{CROSSED SWORDS}')
     async def fight(self, __):
         log.debug("fight() called")
-        skills = "\n".join(
-            [f"{lookups.TYPE_TO_EMOJI[s.type.name.lower()]} {s}" for s in self.player.skills]
-        )
+        skills = []
+        for skill in self.player.skills:
+            e = lookups.TYPE_TO_EMOJI[skill.type.name.lower()]
+            if skill.uses_sp:
+                cost = skill.cost
+                can_use = self.player.sp >= cost
+                t = 'SP'
+            else:
+                cost = self.player.max_hp // skill.cost
+                can_use = self.player.max_hp > cost
+                t = 'HP'
+            if can_use:
+                skills.append(f"{e} {skill} ({cost} {t})")
+            else:
+                skills.append(f"{e} ~~{skill} ({cost} {t})~~")
+
         await self.message.edit(content=_(
-            f"{self.header}\n\n{skills}\n\n> Use \N{HOUSE BUILDING} to go back"), embed=None)
+            f"{self.header}\n\n{NL.join(skills)}\n\n> Use \N{HOUSE BUILDING} to go back"), embed=None)
 
     @ui.button("\N{INFORMATION SOURCE}")
     async def info(self, __):
@@ -246,6 +259,25 @@ def get_message(resistance, reflect=False):
     return _(res_msgs[resistance])
 
 
+class ListCycle:
+    def __init__(self, iterable):
+        self._iter = iterable
+        self.current = 0
+        self.max = len(iterable)
+
+    def active(self):
+        return self._iter[self.current]
+
+    def cycle(self):
+        if self.current == self.max:
+            self.current = 0
+        else:
+            self.current += 1
+
+    def __next__(self):
+        return self.active
+
+
 class WildBattle:
     def __init__(self, player, ctx, *enemies, ambush=False, ambushed=False):
         assert not all((ambush, ambushed))  # dont set ambush AND ambushed to True
@@ -260,11 +292,12 @@ class WildBattle:
         # False -> enemy got the jump
         # None -> proceed by agility
         if self.ambush is True:
-            self.order = cycle([self.player, *self.enemies])
+            self.order = [self.player, *self.enemies]
         elif self.ambush is False:
-            self.order = cycle([*self.enemies, self.player])
+            self.order = [*self.enemies, self.player]
         else:
-            self.order = cycle(sorted([self.player, *self.enemies], key=lambda i: i.agility, reverse=True))
+            self.order = sorted([self.player, *self.enemies], key=lambda i: i.agility, reverse=True)
+        self.order = ListCycle(self.order)
         self.main.start()
 
     async def stop(self):
@@ -297,6 +330,21 @@ class WildBattle:
 
         # type must be fight
         skill = result['data']['skill']
+
+        if skill.uses_sp:
+            if self.player.sp < skill.cost:
+                await self.ctx.send(_("You don't have enough SP for this move!"))
+                return
+            self.player.sp = skill.cost
+        else:
+            cost = self.player.max_hp // skill.cost
+            if cost < self.player.hp:
+                await self.ctx.send(_("You don't have enough HP for this move!"))
+                return
+            self.player.hp = cost
+
+        self.order.cycle()  # action was ensured, so cycle to the next user
+
         target = result['data']['target']
         if not skill.is_damaging_skill:
             await self.ctx.send("unhandled atm")
@@ -314,6 +362,7 @@ class WildBattle:
     async def handle_enemy_choices(self, enemy):
         log.debug("handle_enemy_choices todo")
         await self.ctx.send(f"{enemy} did a thing (it didnt but it will)")
+        self.order.cycle()
 
     @tasks.loop()
     async def main(self):
