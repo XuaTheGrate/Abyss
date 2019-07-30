@@ -323,9 +323,11 @@ Attacker: 1.05 | Me: 1.05 | 4.00 chance to crit
             elif self.resists(skill.type) is ResistanceModifier.RESIST:
                 base *= 0.9
 
-        base *= self.affected_by(StatModifier.SUKU)
+        my_suku = self.affected_by(StatModifier.SUKU)
+        base *= my_suku
         base /= suku_mod
-
+        log.debug(f"Attacker: {suku_mod:.2f}/{90*suku_mod:.2f} |"
+                  f" Me: {my_suku:.2f}/{90/my_suku:.2f} | {100-base:.2f} evasion chance")
         return random.uniform(1, 100) < base
 
     async def save(self, bot):
