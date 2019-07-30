@@ -42,7 +42,7 @@ class BattleSystem(commands.Cog):
 
     async def cog_command_error(self, ctx, error, battle=None):
         if battle:
-            await self._queue.put(battle)
+            await self._queue.put(battle.player.owner.id)
             if not error:
                 return
             m = f""">>> Error occured during battle.
