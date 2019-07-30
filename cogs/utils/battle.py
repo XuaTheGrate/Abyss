@@ -17,6 +17,7 @@ class Enemy(Player):
     # true battles will avoid skills that you are immune to,
     # and aim for skills that you are weak to / support themself
     def __init__(self, **kwargs):
+        kwargs['skills'] = kwargs.pop("moves")
         self.level_ = kwargs.pop("level")
         super().__init__(**kwargs)
 
