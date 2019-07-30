@@ -1,9 +1,8 @@
-import asyncio
+import collections
 import math
 import random
 import re
 from contextlib import suppress
-from itertools import cycle
 
 from .player import Player
 from .enums import ResistanceModifier, SkillType
@@ -264,27 +263,19 @@ def get_message(resistance, reflect=False):
 
 class ListCycle:
     def __init__(self, iterable):
-        self._iter = iterable
-        self.current = 0
-        self.max = len(iterable)-1
+        self._iter = collections.deque(iterable)
 
     def __repr__(self):
         return f"ListCycle({self._iter})"
 
     def active(self):
-        return self._iter[self.current]
+        return self._iter[0]
 
     def cycle(self):
-        if self.current == self.max:
-            self.current = 0
-        else:
-            self.current += 1
+        self._iter.append(self._iter.popleft())
 
     def remove(self, item):
         self._iter.remove(item)
-        if self.current == self.max:
-            self.current -= 1
-        self.max = len(self._iter)-1
 
     def __next__(self):
         return self.active()
