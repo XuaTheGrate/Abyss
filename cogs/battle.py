@@ -59,6 +59,13 @@ Encounter: {error.battle.enemy}
         if err:
             raise BattleException(battle, err)
 
+    @commands.command(hidden=True)
+    @commands.is_owner()
+    async def _encounter(self, ctx, *, name):
+        encounter = await self.bot.db.abyss.encounters.find_one({"name": name})
+        enemy = bt.Enemy(**encounter, bot=self.bot)
+        self.battles[ctx.author.id] = bt.WildBattle(ctx.player, enemy, ctx)
+
     @commands.command()
     @commands.cooldown(5, 60, commands.BucketType.user)
     async def encounter(self, ctx):

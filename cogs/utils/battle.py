@@ -70,7 +70,8 @@ from .loops import loop
 
 
 def confirm_not_dead(battle):
-    return not battle.enemy.is_fainted() and not battle.player.is_fainted()
+    return False
+    # return not battle.enemy.is_fainted() and not battle.player.is_fainted()
 
 
 class InitialSession(ui.Session):
@@ -114,7 +115,7 @@ class WildBattle:
     @main.after_loop
     async def post_battle_complete(self):
         if self.main.failed():
-            err = self.main.get_task().exception()
+            err = self.main.exception()
             await self.ctx.invoke(self.cmd, battle=self, err=err)
             return
         # do exp stuff here
