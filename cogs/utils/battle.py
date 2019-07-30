@@ -104,7 +104,7 @@ class InitialSession(ui.Session):
 
     async def select_target(self):
         menu = TargetSession(*filter(lambda d: not d.is_fainted(), self.enemies))
-        await menu.start()
+        await menu.start(self.context)
         if not menu.result:
             raise RuntimeError
         return menu.result
