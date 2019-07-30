@@ -54,7 +54,8 @@ def get_logger():
     ]
 
     builtins.log = log
-
+    return log
+log = get_logger()
 
 PREFIXES = defaultdict(set)
 CONFIG_NEW = {
