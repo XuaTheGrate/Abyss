@@ -25,12 +25,6 @@ class Enemy(Player):
         kwargs['specialty'] = 'almighty'
         super().__init__(**kwargs)
 
-    def __repr__(self):
-        return f"<Lvl {self.level_} {self.name!r}>"
-
-    def __str__(self):
-        return self.name
-
     def get_exp(self):
         return math.ceil(self.level_ ** 3 / random.uniform(1, 3))
 
