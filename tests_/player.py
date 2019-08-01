@@ -21,6 +21,20 @@ pdata = {
 }
 
 skill_cache = {
+    "Attack": Skill(
+        name="Attack",
+        type="physical",
+        severity="light",
+        cost=0,
+        desc="An electric move."
+    ),
+    "Guard": Skill(
+        name="Guard",
+        type="support",
+        severity="light",
+        cost=0,
+        desc="An electric move."
+    ),
     "Ziodyne": Skill(
         name="Ziodyne",
         type="electric",
