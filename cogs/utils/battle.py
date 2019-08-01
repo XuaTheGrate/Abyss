@@ -393,7 +393,7 @@ class WildBattle:
             await self.ctx.send(f"{enemy} used a non damaging skill, skipping")
         else:
             res = self.player.take_damage(enemy, skill)
-            msg = get_message(res.resistance, res.was_reflect, res.miss, res.critical)
+            msg = get_message(res.resistance, res.was_reflected, res.miss, res.critical)
             msg = msg.format(demon=enemy, tdemon=self.player, damage=res.damage_dealt, skill=skill)
             await self.ctx.send(msg)
             if res.did_weak:
