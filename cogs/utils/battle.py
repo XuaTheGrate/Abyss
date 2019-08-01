@@ -24,6 +24,7 @@ class Enemy(Player):
         kwargs['owner'] = 0
         kwargs['specialty'] = 'almighty'
         super().__init__(**kwargs)
+        self.unusable_skills = []  # a list of names the ai has learned not to use since they dont work
 
     def get_exp(self):
         return math.ceil(self.level_ ** 3 / random.uniform(1, 3))
@@ -34,7 +35,7 @@ class Enemy(Player):
                 lambda s: s.type is not SkillType.PASSIVE and (
                     s.cost <= self.sp if s.uses_sp
                     else s.cost < self.hp
-                ),
+                ) and s.name not in self.unusable_skills,
                 self.skills
             )
         )
@@ -393,6 +394,14 @@ class WildBattle:
             await self.ctx.send(f"{enemy} used a non damaging skill, skipping")
         else:
             res = self.player.take_damage(enemy, skill)
+
+            if res.resistance in (
+                ResistanceModifier.IMMUNE,
+                ResistanceModifier.REFLECT,
+                ResistanceModifier.ABSORB
+            ):
+                enemy.unusable_skills.append(skill.name)
+
             msg = get_message(res.resistance, res.was_reflected, res.miss, res.critical)
             msg = msg.format(demon=enemy, tdemon=self.player, damage=res.damage_dealt, skill=skill)
             await self.ctx.send(msg)
