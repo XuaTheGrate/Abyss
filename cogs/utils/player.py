@@ -45,7 +45,6 @@ class Player(JSONable):
         else:
             self.skills = []
             self._skills = skills
-        self.skills.append(GenericAttack)
         self.exp = kwargs.pop("exp")
         self.strength, self.magic, self.endurance, self.agility, self.luck = kwargs.pop("stats")
         # self.resistances = dict(zip(SkillType, map(ResistanceModifier, kwargs.pop("resistances"))))
