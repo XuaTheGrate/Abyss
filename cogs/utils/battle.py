@@ -100,6 +100,10 @@ class TargetSession(ui.Session):
         # log.debug("le stop()")
         await super().stop()
 
+    async def back(self, _):
+        self.result = 'cancel'
+        await self.stop()
+
     async def button(self, payload):
         try:
             # log.debug("le button")
@@ -138,9 +142,13 @@ class InitialSession(ui.Session):
 
     async def select_skill(self, message, skill):
         obj = self.bot.players.skill_cache[skill.title()]
+        if skill.lower() == 'guard':
+            self.result = {"type": "fight", "data": {"skill": obj}}
+            return await self.stop()
         target = await self.select_target()
-        self.result = {"type": "fight", "data": {"skill": obj, "target": target}}
-        # log.debug(f"select skill: {self.result}")
+        if target != 'cancel':
+            self.result = {"type": "fight", "data": {"skill": obj, "target": target}}
+            # log.debug(f"select skill: {self.result}")
         await self.stop()
 
     async def handle_timeout(self):
@@ -347,7 +355,11 @@ class WildBattle:
         result = self.menu.result
         await self.menu.stop()
         if result is None and not self._stopping:
-            raise RuntimeError("thats not normal")
+            self.order.decycle()  # shitty way to do it but w.e
+            return await self.stop()
+
+        if self._stopping:
+            return
 
         if result['type'] == 'run':
             if result['data'].get('timeout', False) or result['data'].get('success', True):
