@@ -184,15 +184,6 @@ Skill
         return base
 
 
-GenericAttack = Skill(
-    name="Attack",
-    cost=0,
-    type="physical",
-    severity="miniscule",
-    desc="A regular attack."
-)
-
-
 class Counter(Skill):
     base = 10
 
@@ -244,3 +235,12 @@ passives = {
 for t in ("Curse", "Bless", "Fire", "Elec", "Nuke", "Wind", "Ice", "Psy"):
     for r in ("Absorb", "Null", "Repel", "Resist", "Dodge", "Evade"):
         passives[f"{r} {t}"] = PassiveImmunity
+
+
+GenericAttack = Skill(
+    name="Attack",
+    cost=0,
+    type="physical",
+    severity="miniscule",
+    desc="A regular attack."
+)
