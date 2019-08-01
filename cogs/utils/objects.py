@@ -5,9 +5,17 @@ import random
 from .enums import *
 
 # Damage calc
-# DMG = (5 * sqrt(Strength or Magic/Endurance*SkillPower) * random(0.95, 1.05)) / Raku
-
-SKILL_BASE = 65
+# DMG = ((5 * sqrt(STRMAG / END * BASE) * RNG * TRU * SEV) / RKU) + (ATK - TRG)
+# STRMAG -> Attackers Strength if physical, Magic otherwise
+# END -> Targets Endurance
+# RNG -> uniform(0.95, 1.05)
+# TRU -> Attackers Taru modifier
+# SEV -> Skill Severity
+# RKU -> Targets Raku modifier
+# ATK -> Attackers level
+# TRG -> Targets level
+# BASE -v
+SKILL_BASE = 65  # can be modified if need be
 
 
 class JSONable:
@@ -25,7 +33,8 @@ class JSONable:
 
 
 class DamageResult:
-    __slots__ = ('resistance', 'damage_dealt', 'critical', 'miss', 'fainted', 'was_reflected', 'did_weak')
+    __slots__ = ('resistance', 'damage_dealt', 'critical', 'miss', 'fainted', 'was_reflected', 'did_weak', 'skill',
+                 'countered')
 
     def __init__(self):
         self.resistance = ResistanceModifier.NORMAL
@@ -35,10 +44,13 @@ class DamageResult:
         self.fainted = False
         self.was_reflected = False
         self.did_weak = False
+        self.skill = None
+        self.countered = False
 
     def __repr__(self):
         return (f"<DamageResult resistance={self.resistance!r} damage_dealt={self.damage_dealt} "
-                f"critical={self.critical} miss={self.miss} did_weak={self.did_weak}>")
+                f"critical={self.critical} miss={self.miss} did_weak={self.did_weak} skill={self.skill}"
+                f" countered={self.countered}>")
 
 
 class Leaf:
@@ -85,8 +97,7 @@ class SkillTree:
 
 
 class Skill(JSONable):
-    __slots__ = ('name', 'type', 'severity', 'cost', 'accuracy', 'description')
-    __json__ = (*__slots__[:-1], 'desc')
+    __json__ = ('name', 'type', 'severity', 'cost', 'accuracy', 'desc')
 
     def keygetter(self, key):
         if key == 'type':
@@ -96,6 +107,15 @@ class Skill(JSONable):
         elif key == 'desc':
             return self.description
         return getattr(self, key)
+
+    def __new__(cls, **kwargs):
+        name = kwargs['name']
+        new_cls = passives.get(name, None)
+        if new_cls:
+            cls = new_cls
+        self = object.__new__(cls)
+        cls.__init__(self, **kwargs)
+        return self
 
     def __init__(self, **kwargs):
         self.name = kwargs.pop("name")
@@ -109,7 +129,11 @@ class Skill(JSONable):
         self.cost = kwargs.pop("cost")
         self.description = kwargs.pop("desc")
         self.accuracy = kwargs.pop("accuracy", 90)
-        # :attr:`.accuracy` usually only applies to Instant-Kill types
+
+        # for subclasses
+        self.is_counter_like = False
+        self.is_passive_immunity = False
+        self.is_evasion = False
 
     def __repr__(self):
         return (f"Skill(name='{self.name}', "
@@ -156,4 +180,58 @@ Skill
                 SKILL_BASE * self.severity.value)) * random.uniform(0.95, 1.05)
         base *= attacker.affected_by(StatModifier.TARU)
         base /= target.affected_by(StatModifier.RAKU)
+        base += (attacker.level - target.level)
         return base
+
+
+class Counter(Skill):
+    base = 10
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.is_counter_like = True
+
+    def try_counter(self, user, target, skill):
+        if skill.uses_sp:
+            return False
+        base = 10 + (user.luck-target.luck)
+        return random.randint(1, 100) < base
+
+
+class Counterstrike(Counter):
+    base = 15
+
+
+class HighCounter(Counter):
+    base = 20
+
+
+_passive_handles = {
+    "Absorb": ResistanceModifier.ABSORB,
+    "Repel": ResistanceModifier.REFLECT,
+    "Null": ResistanceModifier.IMMUNE,
+    "Resist": ResistanceModifier.RESIST
+}
+
+
+class PassiveImmunity(Skill):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.is_passive_immunity = True
+        self.is_evasion = self.name.startswith(("Dodge", "Evade"))
+
+    def immunity_handle(self):
+        if self.is_evasion:
+            return self.accuracy  # :^) we use 20 for Evade, or 10 for Dodge
+        return _passive_handles[self.name.split(" ")[0]]
+
+
+passives = {
+    "Counter": Counter,
+    "Counterstrike": Counterstrike,
+    "High Counter": HighCounter
+}
+
+for t in ("Curse", "Bless", "Fire", "Elec", "Nuke", "Wind", "Ice", "Psy"):
+    for r in ("Absorb", "Null", "Repel", "Resist", "Dodge", "Evade"):
+        passives[f"{r} {t}"] = PassiveImmunity

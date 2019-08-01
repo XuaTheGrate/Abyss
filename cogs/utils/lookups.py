@@ -19,6 +19,23 @@ TYPE_TO_COLOUR = {
     'ailment': 0x5f128a
 }
 
+TYPE_SHORTEN = {
+    "physical": "phys",
+    "gun": "gun",
+    "fire": "fire",
+    "ice": "ice",
+    "wind": "wind",
+    "electric": "elec",
+    "nuclear": "nuke",
+    "psychokinetic": "psy",
+    "bless": "bless",
+    "curse": "curse",
+    "passive": "passive",
+    "ailment": "ailment",
+    "support": "support",
+    "healing": "healing"
+}
+
 TYPE_TO_EMOJI = {
     'physical': PartialEmoji(animated=False, name="phys", id=596539297814020108),
     'gun': PartialEmoji(animated=False, name="gun", id=596539459151986688),

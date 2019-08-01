@@ -1,9 +1,11 @@
 import math
 import operator
 import random
+import re
 
 from .enums import *
 from .objects import DamageResult, JSONable, Skill
+from .lookups import TYPE_SHORTEN
 
 
 CRITICAL_BASE = 4
@@ -49,8 +51,8 @@ class Player(JSONable):
         self._resistances = kwargs.pop("resistances")
         self.resistances = dict(zip(SkillType, [
                     ResistanceModifier.WEAK if x == 3
-                    else ResistanceModifier.RESIST if x == 1
-                    else ResistanceModifier.NORMAL
+                    else ResistanceModifier.NORMAL if x == 2
+                    else ResistanceModifier.RESIST
                     for x in self._resistances]))
         self.arcana = Arcana(kwargs.pop("arcana"))
         self.specialty = SkillType[kwargs.pop("specialty").upper()]
@@ -175,7 +177,7 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
 
     @property
     def level(self):
-        return min(99, max(math.ceil(self.exp**.334), 1))
+        return min(99, max(math.floor(self.exp**.333), 1))
 
     def level_up(self):
         while self._next_level <= self.level:
@@ -204,6 +206,9 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
             else 0.95
 
     def resists(self, type):
+        passive = self.get_passive_immunity(type)
+        if passive and not passive.is_evasion:
+            return passive.immunity_handle()
         try:
             return self.resistances[type]
         except KeyError:
@@ -217,15 +222,43 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
             return True
         return False
 
-    def take_damage(self, attacker, skill, *,  from_reflect=False):
+    def get_counter(self):
+        h = None
+        for skill in self.skills:
+            if skill.is_counter_like:
+                if not h:
+                    h = skill
+                else:
+                    if skill.base > h.base:  # high counter has higher priority over counterstrike
+                        h = skill
+        return h
+
+    def get_passive_immunity(self, type):
+        fmt = re.compile(fr"(?:Null|Repel|Absorb|Resist|Dodge|Evade) {TYPE_SHORTEN[type.name.lower()].title()}")
+        for skill in self.skills:
+            if skill.is_passive_immunity and fmt.findall(skill.name):
+                return skill
+
+    def take_damage(self, attacker, skill, *,  from_reflect=False, counter=False):
         res = self.resists(skill.type)
         result = DamageResult()
+        result.skill = skill
+        if counter:
+            result.countered = True
 
         if res is ResistanceModifier.REFLECT:
-            if not from_reflect:
+            if not from_reflect and not counter:
+                # from_reflect -> dont loop reflecting skills
+                # counter -> dont reflect if the skill was countered
                 return attacker.take_damage(self, skill, from_reflect=True)
             res = ResistanceModifier.IMMUNE
             result.was_reflected = True
+
+        if not skill.uses_sp and not from_reflect and not counter:  # dont double proc counter :^)
+            # also only applies to physical skills
+            s_counter = self.get_counter()
+            if s_counter and s_counter.try_counter(attacker, self, skill):
+                return attacker.take_damage(self, skill, counter=True)
 
         result.resistance = res
 
@@ -243,11 +276,14 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
 
         base = skill.damage_calc(attacker, self)
 
-        if not skill.uses_sp and res is not ResistanceModifier.WEAK:  # weakness comes before criticals
-            if attacker.try_crit(self.luck, self.affected_by(StatModifier.SUKU)):
-                base *= 1.75
-                result.critical = True
-                result.did_weak = True
+        if from_reflect or counter:
+            base /= 1.35  # reflected damage is weakened
+        else:  # counters arent supposed to crit :^^)
+            if not skill.uses_sp and res is not ResistanceModifier.WEAK:  # weakness comes before criticals
+                if attacker.try_crit(self.luck, self.affected_by(StatModifier.SUKU)):
+                    base *= 1.75
+                    result.critical = True
+                    result.did_weak = True
 
         if res is ResistanceModifier.WEAK:
             base *= 1.5
@@ -324,6 +360,10 @@ Attacker: 1.05 | Me: 1.05 | 4.00 chance to crit
                 base *= 1.1
             elif self.resists(skill.type) is ResistanceModifier.RESIST:
                 base *= 0.9
+
+        passive = self.get_passive_immunity(skill.type)
+        if passive and passive.is_evasion:
+            base += passive.immunity_handle()
 
         my_suku = self.affected_by(StatModifier.SUKU)
         base *= my_suku
