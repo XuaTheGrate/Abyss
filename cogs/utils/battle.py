@@ -44,8 +44,6 @@ class Enemy(Player):
         select = random.choice(choices)
         if select.uses_sp:
             self.sp = select.cost
-        else:
-            self.hp = select.cost
         return select
 
 
