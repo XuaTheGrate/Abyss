@@ -4,7 +4,7 @@ import random
 import re
 
 from .enums import *
-from .objects import DamageResult, JSONable, Skill
+from .objects import DamageResult, JSONable, Skill, GenericAttack
 from .lookups import TYPE_SHORTEN
 
 
@@ -45,6 +45,7 @@ class Player(JSONable):
         else:
             self.skills = []
             self._skills = skills
+        self.skills.append(GenericAttack)
         self.exp = kwargs.pop("exp")
         self.strength, self.magic, self.endurance, self.agility, self.luck = kwargs.pop("stats")
         # self.resistances = dict(zip(SkillType, map(ResistanceModifier, kwargs.pop("resistances"))))

@@ -184,6 +184,15 @@ Skill
         return base
 
 
+GenericAttack = Skill(
+    name="Attack",
+    cost=0,
+    type="physical",
+    severity="miniscule",
+    desc="A regular attack."
+)
+
+
 class Counter(Skill):
     base = 10
 

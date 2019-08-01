@@ -34,6 +34,25 @@ class Enemy(Player):
     def get_exp(self):
         return math.ceil(self.level_ ** 3 / random.uniform(1, 3))
 
+    def random_move(self):
+        choices = list(
+            filter(
+                lambda s: s.type is not SkillType.PASSIVE and (
+                    s.cost <= self.sp if s.uses_sp
+                    else s.cost < self.hp
+                ),
+                self.skills
+            )
+        )
+        if not choices:
+            return self.skills[0]  # 0 is always GenericAttack
+        select = random.choice(choices)
+        if select.uses_sp:
+            self.sp = select.cost
+        else:
+            self.hp = select.cost
+        return select
+
 
 class BattleResult:
     def __init__(self):
@@ -73,24 +92,24 @@ class TargetSession(ui.Session):
         }
         self.result = None
         for e in self.enemies.keys():
-            log.debug(f"added button for {self.enemies[e]}")
+            # log.debug(f"added button for {self.enemies[e]}")
             self.add_button(self.button, e)
 
     async def send_initial_message(self):
         c = [_("Pick a target!\n")]
         c.extend([f"{a} {b.name}" for a, b in self.enemies.items()])
-        log.debug("target session initial message")
+        # log.debug("target session initial message")
         return await self.context.send(NL.join(c))
 
     async def stop(self):
         with suppress(discord.HTTPException, AttributeError):
             await self.message.delete()
-        log.debug("le stop()")
+        # log.debug("le stop()")
         await super().stop()
 
     async def button(self, payload):
         try:
-            log.debug("le button")
+            # log.debug("le button")
             self.result = self.enemies[str(payload.emoji)]
         finally:
             await self.stop()
@@ -99,7 +118,7 @@ class TargetSession(ui.Session):
 class InitialSession(ui.Session):
     def __init__(self, battle):
         super().__init__(timeout=180)
-        log.debug("initial session init")
+        # log.debug("initial session init")
         self.battle = battle
         self.player = battle.player
         self.enemies = battle.enemies
@@ -109,31 +128,31 @@ class InitialSession(ui.Session):
             lambda s: s.type is not SkillType.PASSIVE, self.player.skills)))+")")
 
     async def stop(self):
-        log.debug("initialsession stop()")
+        # log.debug("initialsession stop()")
         with suppress(discord.HTTPException, AttributeError):
             await self.message.delete()
         await super().stop()
 
     async def select_target(self):
-        log.debug("initialsession target selector")
+        # log.debug("initialsession target selector")
         menu = TargetSession(*[e for e in self.enemies if not e.is_fainted()])
         await menu.start(self.context)
         if not menu.result:
-            log.debug("no result")
+            # log.debug("no result")
             raise RuntimeError
-        log.debug(f"result: {menu.result!r}")
+        # log.debug(f"result: {menu.result!r}")
         return menu.result
 
     async def select_skill(self, message, skill):
         obj = self.bot.players.skill_cache[skill.title()]
         target = await self.select_target()
         self.result = {"type": "fight", "data": {"skill": obj, "target": target}}
-        log.debug(f"select skill: {self.result}")
+        # log.debug(f"select skill: {self.result}")
         await self.stop()
 
     async def handle_timeout(self):
         self.result = {"type": "run", "data": {"timeout": True}}
-        log.debug("timeout")
+        # log.debug("timeout")
         await self.stop()
 
     async def on_message(self, message):
@@ -147,7 +166,7 @@ class InitialSession(ui.Session):
             match = re.fullmatch(pattern, message.content, flags=re.IGNORECASE)
             if not match:
                 continue
-            log.debug("callback found for message")
+            # log.debug("callback found for message")
             callback = command.__get__(self, self.__class__)
             await self._queue.put((callback, message, *match.groups()))
             break
@@ -170,12 +189,12 @@ VS
 """)
 
     async def send_initial_message(self):
-        log.debug("sent initial message")
+        # log.debug("sent initial message")
         return await self.context.send(self.get_home_content())
 
     @ui.button('\N{CROSSED SWORDS}')
     async def fight(self, __):
-        log.debug("fight() called")
+        # log.debug("fight() called")
         skills = []
         for skill in self.player.skills:
             if skill.type is SkillType.PASSIVE:
@@ -199,7 +218,7 @@ VS
 
     @ui.button("\N{INFORMATION SOURCE}")
     async def info(self, __):
-        log.debug("info() called")
+        # log.debug("info() called")
         embed = discord.Embed(title=_("How to: Interactive Battle"))
         embed.description = _("""Partially ported from Adventure, the battle system has been revived!
 Various buttons have been reacted for use, but move selection requires you to send a message.
@@ -213,7 +232,7 @@ For more information regarding battles, see `$faq battles`.""")
 
     @ui.button("\N{RUNNER}")
     async def escape(self, _):
-        log.debug("escape() called")
+        # log.debug("escape() called")
         chance = 75 - (max(self.enemies, key=lambda e: e.level).level - self.player.level)
         if random.randint(1, 100) < chance:
             self.result = {"type": "run", "data": {"success": True}}
@@ -223,7 +242,7 @@ For more information regarding battles, see `$faq battles`.""")
 
     @ui.button("\N{HOUSE BUILDING}")
     async def ret(self, _):
-        log.debug("ret() called")
+        # log.debug("ret() called")
         await self.message.edit(content=f"""{self.header}
 
 \N{CROSSED SWORDS} Fight
@@ -255,10 +274,16 @@ refl_msgs = {
 }
 
 
-def get_message(resistance, reflect=False):
+def get_message(resistance, reflect=False, miss=False, critical=False):
     if reflect:
         return _(REFL_BASE) + _(refl_msgs[resistance])
-    return _(res_msgs[resistance])
+    if miss:
+        return MSG_MISS
+    msg = _(res_msgs[resistance])
+    if resistance not in (ResistanceModifier.IMMUNE, ResistanceModifier.WEAK,
+                          ResistanceModifier.ABSORB, ResistanceModifier.REFLECT) and critical:
+        msg = _("CRITICAL! ") + msg
+    return msg
 
 
 class ListCycle:
@@ -266,26 +291,26 @@ class ListCycle:
         self._iter = collections.deque(iterable)
 
     def __repr__(self):
-        return f"ListCycle({self._iter})"
+        return f"ListCycle(deque({list(map(str, self._iter))}))"
 
     def active(self):
-        log.debug("cycle.active() -> %s", list(map(str, self._iter)))
+        # log.debug("cycle.active() -> %s", list(map(str, self._iter)))
         return self._iter[0]
 
     def cycle(self):
-        log.debug("cycle.cycle<pre>() -> %s", list(map(str, self._iter)))
+        # log.debug("cycle.cycle<pre>() -> %s", list(map(str, self._iter)))
         self._iter.append(self._iter.popleft())
-        log.debug("cycle.cycle<post>() -> %s", list(map(str, self._iter)))
+        # log.debug("cycle.cycle<post>() -> %s", list(map(str, self._iter)))
 
     def decycle(self):
-        log.debug("cycle.decycle<pre>() -> %s", list(map(str, self._iter)))
+        # log.debug("cycle.decycle<pre>() -> %s", list(map(str, self._iter)))
         self._iter.appendleft(self._iter.pop())
-        log.debug("cycle.decycle<pre>() -> %s", list(map(str, self._iter)))
+        # log.debug("cycle.decycle<pre>() -> %s", list(map(str, self._iter)))
 
     def remove(self, item):
-        log.debug("cycle.remove<pre>() -> %s", list(map(str, self._iter)))
+        # log.debug("cycle.remove<pre>() -> %s", list(map(str, self._iter)))
         self._iter.remove(item)
-        log.debug("cycle.remove<post>() -> %s", list(map(str, self._iter)))
+        # log.debug("cycle.remove<post>() -> %s", list(map(str, self._iter)))
 
     def __next__(self):
         return self.active()
@@ -320,17 +345,11 @@ class WildBattle:
             await self.menu.stop()
 
     async def handle_player_choices(self):
-        log.debug("get menu")
         self.menu = InitialSession(self)
-        log.debug("got menu")
         await self.menu.start(self.ctx)
-        log.debug("started menu")
         result = self.menu.result
-        log.debug("got player result")
         await self.menu.stop()
-        log.debug("stopped menu")
         if result is None and not self._stopping:
-            log.debug("result was none")
             raise RuntimeError("thats not normal")
 
         if result['type'] == 'run':
@@ -361,12 +380,7 @@ class WildBattle:
             await self.ctx.send("unhandled atm")
         else:
             res = target.take_damage(self.player, skill)
-            if res.miss:
-                await self.ctx.send(_(MSG_MISS).format(demon=self.player, tdemon=target, skill=skill))
-                return
-            msg = get_message(res.resistance, res.was_reflected)
-            if res.critical:
-                msg = _("CRITICAL! ") + msg
+            msg = get_message(res.resistance, res.was_reflected, res.miss, res.critical)
             msg = msg.format(demon=self.player, tdemon=target, damage=res.damage_dealt, skill=skill)
             await self.ctx.send(msg)
             if res.did_weak:
@@ -374,24 +388,33 @@ class WildBattle:
                 await self.ctx.send(_("> Nice hit! Move again!"))
 
     async def handle_enemy_choices(self, enemy):
-        log.debug("handle_enemy_choices todo")
-        await self.ctx.send(f"{enemy} did a thing (it didnt but it will)")
+        skill = enemy.random_move()
+        if not skill.is_damaging_skill:
+            await self.ctx.send(f"{enemy} used a non damaging skill, skipping")
+        else:
+            res = self.player.take_damage(enemy, skill)
+            msg = get_message(res.resistance, res.was_reflect, res.miss, res.critical)
+            msg = msg.format(demon=enemy, tdemon=self.player, damage=res.damage_dealt, skill=skill)
+            await self.ctx.send(msg)
+            if res.did_weak:
+                self.order.decycle()
+                await self.ctx.send(_("> Watch out, {demon} is attacking again!").format(demon=enemy))
 
     @tasks.loop()
     async def main(self):
-        log.debug("starting loop")
+        # log.debug("starting loop")
         if not confirm_not_dead(self):
-            log.debug("confirm not dead failed, stopping")
+            # log.debug("confirm not dead failed, stopping")
             await self.stop()
             return
         nxt = self.order.active()
         rm = False
         if not isinstance(nxt, Enemy):
-            log.debug("next: player")
+            # log.debug("next: player")
             await self.handle_player_choices()
         else:
             if not nxt.is_fainted():
-                log.debug("next enemy not fainted")
+                # log.debug("next enemy not fainted")
                 await self.handle_enemy_choices(nxt)
             else:
                 self.order.remove(nxt)
@@ -401,34 +424,34 @@ class WildBattle:
 
     @main.before_loop
     async def pre_battle_start(self):
-        log.debug("pre battle, determining ambush")
+        # log.debug("pre battle, determining ambush")
         if self.ambush is True:
-            log.debug("player initiative")
+            # log.debug("player initiative")
             await self.ctx.send(_("> {0} {1}! You surprised {2}!").format(
                 len(self.enemies),
                 _('enemy') if len(self.enemies) == 1 else _('enemies'),
                 _('it') if len(self.enemies) == 1 else _('them')
             ))
         elif self.ambush is False:
-            log.debug("enemy initiative")
+            # log.debug("enemy initiative")
             await self.ctx.send(_("> It's an ambush! There {2} {0} {1}!").format(
                 len(self.enemies), _('enemy') if len(self.enemies) == 1 else _('enemies'),
                 _('is') if len(self.enemies) == 1 else _('are')
             ))
         else:
-            log.debug("regular initiative")
+            # log.debug("regular initiative")
             await self.ctx.send(_("> There {2} {0} {1}! Attack!").format(
                 len(self.enemies), _('enemy') if len(self.enemies) == 1 else _('enemies'),
                 _('is') if len(self.enemies) == 1 else _('are')))
 
     @main.after_loop
     async def post_battle_complete(self):
-        log.debug("complete")
+        # log.debug("complete")
         if self.main.failed():
             err = self.main.exception()
-            log.debug(f"error occured: {err!r}")
+            # log.debug(f"error occured: {err!r}")
         else:
             err = None
         await self.cmd(self.ctx, err, battle=self)
         await self.ctx.send("game over")
-        log.debug("finish")
+        # log.debug("finish")
