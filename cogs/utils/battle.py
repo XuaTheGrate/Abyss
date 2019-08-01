@@ -205,7 +205,10 @@ VS
                 can_use = self.player.sp >= cost
                 t = 'SP'
             else:
-                cost = self.player.max_hp // skill.cost
+                if skill.cost != 0:
+                    cost = self.player.max_hp // skill.cost
+                else:
+                    cost = 0
                 can_use = self.player.max_hp > cost
                 t = 'HP'
             if can_use:
@@ -369,7 +372,10 @@ class WildBattle:
                 return
             self.player.sp = skill.cost
         else:
-            cost = self.player.max_hp // skill.cost
+            if skill.cost != 0:
+                cost = self.player.max_hp // skill.cost
+            else:
+                cost = 0
             if cost > self.player.hp:
                 await self.ctx.send(_("You don't have enough HP for this move!"))
                 return
