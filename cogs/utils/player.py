@@ -136,10 +136,10 @@ Player
 
     @hp.setter
     def hp(self, value):
-        if self.hp - value <= 0:
+        if self.hp - round(value) <= 0:
             self._damage_taken = self.max_hp
         else:
-            self._damage_taken += value
+            self._damage_taken += round(value)
 
     @property
     def max_hp(self):
@@ -166,10 +166,10 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
 
     @sp.setter
     def sp(self, value):
-        if self.sp - value <= 0:
+        if self.sp - round(value) <= 0:
             self._sp_used = self.max_sp
         else:
-            self._sp_used += value
+            self._sp_used += round(value)
 
     @property
     def max_sp(self):
@@ -298,6 +298,7 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
             result.damage_dealt = base
             result.fainted = self.is_fainted()
         else:
+            base /= 2
             self.hp = -base
             result.damage_dealt = -base
 
