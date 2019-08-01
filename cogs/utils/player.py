@@ -138,6 +138,8 @@ Player
     def hp(self, value):
         if self.hp - round(value) <= 0:
             self._damage_taken = self.max_hp
+        elif (self.hp - round(value)) > self.max_hp:
+            self._damage_taken = 0
         else:
             self._damage_taken += round(value)
 
@@ -168,6 +170,8 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
     def sp(self, value):
         if self.sp - round(value) <= 0:
             self._sp_used = self.max_sp
+        elif (self.sp - round(value)) > self.max_sp:
+            self._sp_used = 0
         else:
             self._sp_used += round(value)
 
