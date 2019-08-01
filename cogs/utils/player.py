@@ -4,7 +4,7 @@ import random
 import re
 
 from .enums import *
-from .objects import DamageResult, JSONable, Skill, GenericAttack
+from .objects import DamageResult, JSONable, Skill
 from .lookups import TYPE_SHORTEN
 
 
@@ -45,6 +45,12 @@ class Player(JSONable):
         else:
             self.skills = []
             self._skills = skills
+
+            if 'Attack' not in self._skills:
+                self._skills.append('Attack')
+            if 'Guard' not in self._skills:
+                self._skills.append('Guard')
+
         self.exp = kwargs.pop("exp")
         self.strength, self.magic, self.endurance, self.agility, self.luck = kwargs.pop("stats")
         # self.resistances = dict(zip(SkillType, map(ResistanceModifier, kwargs.pop("resistances"))))
@@ -71,6 +77,7 @@ class Player(JSONable):
         self._until_clear = [0, 0, 0]  # turns until it gets cleared for each stat, max of 3 turns
         self._next_level = self.level+1
         self.finished_leaves = kwargs.pop("finished_leaves", [])
+        self.guarding = False
 
     def __str__(self):
         return self.name
@@ -107,6 +114,7 @@ Player
     ap_points: {self.ap_points}
     finished_leaves: {self.finished_leaves}
     unset_skills: {self.unset_skills}
+    guarding: {self.guarding}
 
     level: {self.level}
     hp: {self.hp}
@@ -243,12 +251,21 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
             if skill.is_passive_immunity and fmt.findall(skill.name):
                 return skill
 
+    def pre_turn(self):
+        for i in range(3):
+            if self._stat_mod[i] > 0:
+                self._stat_mod[i] -= 1
+        self.guarding = False
+
     def take_damage(self, attacker, skill, *,  from_reflect=False, counter=False):
         res = self.resists(skill.type)
         result = DamageResult()
         result.skill = skill
         if counter:
             result.countered = True
+
+        guarded = self.guarding
+        self.guarding = False
 
         if res is ResistanceModifier.REFLECT:
             if not from_reflect and not counter:
@@ -283,13 +300,20 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
         if from_reflect or counter:
             base /= 1.35  # reflected damage is weakened
         else:  # counters arent supposed to crit :^^)
-            if not skill.uses_sp and res is not ResistanceModifier.WEAK:  # weakness comes before criticals
+            if not skill.uses_sp and res is not ResistanceModifier.WEAK and not guarded:  # weakness comes before criticals
                 if attacker.try_crit(self.luck, self.affected_by(StatModifier.SUKU)):
                     base *= 1.75
                     result.critical = True
                     result.did_weak = True
 
-        if res is ResistanceModifier.WEAK:
+        if guarded and res not in (
+            ResistanceModifier.ABSORB,
+            ResistanceModifier.REFLECT,
+            ResistanceModifier.IMMUNE
+        ):
+            base *= 0.25
+
+        if res is ResistanceModifier.WEAK and not guarded:
             base *= 1.5
             result.did_weak = True
         elif res is ResistanceModifier.RESIST:

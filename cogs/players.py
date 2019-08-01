@@ -9,7 +9,7 @@ from discord.ext import commands, ui
 
 from .utils import lookups, scripts, i18n, imaging
 from .utils.enums import SkillType
-from .utils.objects import Skill, GenericAttack
+from .utils.objects import Skill, GenericAttack, Guard
 from .utils.player import Player
 
 import collections
@@ -248,7 +248,7 @@ class Players(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.players = LRUDict(20, bot)
-        self.skill_cache = {"Attack": GenericAttack}
+        self.skill_cache = {"Attack": GenericAttack, "Guard": Guard}
         self._base_demon_cache = {}
         self._skill_cache_task = self.bot.loop.create_task(self.cache_skills())
         self.bot.unload_tasks[self] = self._unloader_task = self.bot.loop.create_task(self.flush_cached_players())

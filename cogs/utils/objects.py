@@ -244,3 +244,11 @@ GenericAttack = Skill(
     severity="miniscule",
     desc="A regular attack."
 )
+
+Guard = Skill(
+    name="Guard",
+    cost=0,
+    type="support",
+    severity="light",
+    desc="Reduce damage taken for one hit."
+)

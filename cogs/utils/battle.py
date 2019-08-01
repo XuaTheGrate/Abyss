@@ -343,6 +343,7 @@ class WildBattle:
             await self.menu.stop()
 
     async def handle_player_choices(self):
+        self.player.pre_turn()
         self.menu = InitialSession(self)
         await self.menu.start(self.ctx)
         result = self.menu.result
@@ -360,6 +361,10 @@ class WildBattle:
 
         # type must be fight
         skill = result['data']['skill']
+
+        if skill.name == "Guard":
+            self.player.guarding = True
+            return
 
         if skill.uses_sp:
             if self.player.sp < skill.cost:
@@ -389,6 +394,7 @@ class WildBattle:
                 await self.ctx.send(_("> Nice hit! Move again!"))
 
     async def handle_enemy_choices(self, enemy):
+        enemy.pre_turn()
         skill = enemy.random_move()
         if not skill.is_damaging_skill:
             await self.ctx.send(f"{enemy} used a non damaging skill, skipping")
