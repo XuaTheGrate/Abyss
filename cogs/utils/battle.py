@@ -84,10 +84,10 @@ class TargetSession(ui.Session):
             f"{c+1}\u20e3": enemies[c] for c in range(len(enemies))
         }
         self.result = None
+        self.add_button(self.back, '\u25c0')
         for e in self.enemies.keys():
             # log.debug(f"added button for {self.enemies[e]}")
             self.add_button(self.button, e)
-        self.add_button(self.back, '\u25c0')
 
     async def send_initial_message(self):
         c = [_("Pick a target!\n")]
@@ -150,7 +150,7 @@ class InitialSession(ui.Session):
         if target != 'cancel':
             self.result = {"type": "fight", "data": {"skill": obj, "target": target}}
             # log.debug(f"select skill: {self.result}")
-        await self.stop()
+            await self.stop()
 
     async def handle_timeout(self):
         self.result = {"type": "run", "data": {"timeout": True}}
@@ -187,7 +187,7 @@ VS
         return _(f"""{self.header}
 
 \N{CROSSED SWORDS} Fight
-\N{INFORMATION SOURCE} Help
+\N{BLACK QUESTION MARK ORNAMENT} Help
 \N{RUNNER} Escape
 """)
 
@@ -222,19 +222,24 @@ VS
         await self.message.edit(content=_(
             f"{self.header}\n\n{NL.join(skills)}\n\n> Use \N{HOUSE BUILDING} to go back"), embed=None)
 
-    @ui.button("\N{INFORMATION SOURCE}")
+    @ui.button("\N{BLACK QUESTION MARK ORNAMENT}")
     async def info(self, __):
         # log.debug("info() called")
         embed = discord.Embed(title=_("How to: Interactive Battle"))
         embed.description = _("""Partially ported from Adventure, the battle system has been revived!
 Various buttons have been reacted for use, but move selection requires you to send a message.
 \N{CROSSED SWORDS} Brings you to the Fight menu, where you select your moves.
-\N{INFORMATION SOURCE} Shows this page.
+\N{BLACK QUESTION MARK ORNAMENT} Shows this page.
+\N{INFORMATION SOURCE} todo
 \N{RUNNER} Runs from the battle. Useful if you don't think you can beat this enemy.
 \N{HOUSE BUILDING} Brings you back to the home screen.
 
 For more information regarding battles, see `$faq battle`.""")
         await self.message.edit(content="", embed=embed)
+
+    @ui.button("\N{INFORMATION SOURCE}")
+    async def status(self, __):
+        pass
 
     @ui.button("\N{RUNNER}")
     async def escape(self, _):
