@@ -19,7 +19,7 @@ class CommandLogger(commands.Cog):
     @commands.Cog.listener()
     async def on_command(self, ctx):
         log.info(
-            f"[{datetime.utcnow().strftime('%Y-%m-%d@H:%M:%S')}]"
+            f"[{datetime.utcnow().strftime('%Y-%m-%d@%H:%M:%S')}]"
             f"[{ctx.guild.id} {ctx.guild}] {ctx.author.id} {ctx.author}: "
             f"{ctx.message.clean_content.replace(NL, NNL)}"
         )
