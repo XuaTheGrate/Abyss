@@ -12,6 +12,7 @@ from .utils.formats import format_exc
 class Developers(commands.Cog, command_attrs={"hidden": True}):
     def __init__(self, bot):
         self.bot = bot
+        self.valid = ('py', 'po', 'json', 'txt', 'scr')
 
     async def cog_check(self, ctx):
         return await self.bot.is_owner(ctx.author)
@@ -43,7 +44,9 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         for path, subdirs, files in os.walk("."):
             for name in files:
                 ext = name.split(".")[-1]
-                if any(x in './' + str(pathlib.PurePath(path, name)) for x in ('venv', '__pycache__', '.mo', '.ttf')):
+                if ext not in self.valid:
+                    continue
+                if any(x in './' + str(pathlib.PurePath(path, name)) for x in ('venv',)):
                     continue
                 with open('./' + str(pathlib.PurePath(path, name)), 'r', encoding='unicode-escape') as f:
                     for l in f:
