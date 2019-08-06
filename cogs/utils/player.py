@@ -218,33 +218,37 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
     def decrement_stat_modifier(self, modifier=None):
         if not modifier:  # all modifiers
             for i in range(3):
-                self._until_clear[i] -= 1
-                if self._until_clear[i] <= 0:
-                    self._stat_mod[i] = 0
+                if self._until_clear[i] >= 0:
+                    self._until_clear[i] -= 1
+                    if self._until_clear[i] == 0:
+                        self._stat_mod[i] = 0
             return
-        self._until_clear[modifier.value] -= 1
-        if self._until_clear[modifier.value] <= 0:
-            self._stat_mod[modifier.value] = 0
+        if self._until_clear[modifier.value] >= 0:
+            self._until_clear[modifier.value] -= 1
+            if self._until_clear[modifier.value] == 0:
+                self._stat_mod[modifier.value] = 0
 
     async def decrement_stat_modifier_async(self, battle, modifier=None):
         if not modifier:  # all modifiers
             for i in range(3):
-                self._until_clear[i] -= 1
-                if self._until_clear[i] <= 0:
-                    self._stat_mod[i] = 0
-                    await battle.ctx.send(f"> {STAT_MOD[i]} reverted.")
+                if self._until_clear[i] >= 0:
+                    self._until_clear[i] -= 1
+                    if self._until_clear[i] == 0:
+                        self._stat_mod[i] = 0
+                        await battle.ctx.send(f"> {STAT_MOD[i]} reverted.")
             return
-        self._until_clear[modifier.value] -= 1
-        if self._until_clear[modifier.value] <= 0:
-            self._stat_mod[modifier.value] = 0
-            await battle.ctx.send(f"> {STAT_MOD[modifier.value]} reverted.")
+        if self._until_clear[modifier.value] >= 0:
+            self._until_clear[modifier.value] -= 1
+            if self._until_clear[modifier.value] == 0:
+                self._stat_mod[modifier.value] = 0
+                await battle.ctx.send(f"> {STAT_MOD[modifier.value]} reverted.")
 
     def clear_stat_modifier(self, modifier=None):
         if not modifier:  # all modifiers
-            self._until_clear = [0, 0, 0]
+            self._until_clear = [-1, -1, -1]
             self._stat_mod = [0, 0, 0]
         else:
-            self._until_clear[modifier.value] = 0
+            self._until_clear[modifier.value] = -1
             self._stat_mod[modifier.value] = 0
 
     def resists(self, type):
@@ -321,19 +325,21 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
         self.decrement_stat_modifier()
 
         for k in self._shields.copy():
-            self._shields[k] -= 1
-            if self._shields[k] <= 0:
-                self._shields.pop(k)
+            if self._shields[k] >= 0:
+                self._shields[k] -= 1
+                if self._shields[k] == 0:
+                    self._shields.pop(k)
         self.guarding = False
 
     async def pre_turn_async(self, battle):
         await self.decrement_stat_modifier_async(battle)
 
         for k in self._shields.copy():
-            self._shields[k] -= 1
-            if self._shields[k] <= 0:
-                self._shields.pop(k)
-                await battle.ctx.send(f"> {k.title()} immunity reverted.")
+            if self._shields[k] >= 0:
+                self._shields[k] -= 1
+                if self._shields[k] == 0:
+                    self._shields.pop(k)
+                    await battle.ctx.send(f"> {k.title()} immunity reverted.")
         self.guarding = False
 
     def get_boost_amp_mod(self, type):

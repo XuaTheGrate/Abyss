@@ -23,6 +23,13 @@ class CommandLogger(commands.Cog):
             f"{ctx.message.clean_content.replace(NL, NNL)}"
         )
 
+    @commands.Cog.listener()
+    async def on_message(self, msg):
+        if msg.author.bot:
+            return
+        if msg.guild.me.mentioned_in(msg):
+            await msg.channel.send("https://cdn.discordapp.com/attachments/561390634863165450/607731350732144641/993ec8f-1.jpg")
+
 
 def setup(bot):
     bot.add_cog(CommandLogger())
