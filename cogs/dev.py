@@ -1,4 +1,7 @@
+import collections
 import importlib
+import os
+import pathlib
 import sys
 
 from discord.ext import commands
@@ -32,6 +35,27 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
             await ctx.channel.purge(check=lambda m: m.author == ctx.me or m.content.startswith("$"), before=ctx.message)
         else:
             await ctx.channel.purge(check=lambda m: m.author == ctx.me, bulk=False)
+
+    @dev.command()
+    @commands.is_owner()
+    async def linecount(self, ctx):
+        total = collections.Counter()
+        for path, subdirs, files in os.walk("."):
+            for name in files:
+                ext = name.split(".")[-1]
+                if any(x in './' + str(pathlib.PurePath(path, name)) for x in ('venv', '__pycache__', '.mo', '.ttf')):
+                    continue
+                with open('./' + str(pathlib.PurePath(path, name)), 'r', encoding='unicode-escape') as f:
+                    for l in f:
+                        if (l.strip().startswith("#") and ext == 'py') or len(l.strip()) == 0:
+                            continue
+                        total[ext] += 1
+        t = {a: b for a, b in sorted(total.items(), key=lambda x: x[1], reverse=True)}
+        sizea = max(len(str(x)) for x in t.values())
+        sizeb = max(len(str(x)) for x in t.keys())
+        fmt = "```\n" + "\n".join(sorted([f'{x:>{sizea}} lines of {y:>{sizeb}}' for y, x in t.items()],
+                                         key=lambda m: len(m))) + "```"
+        await ctx.send(fmt)
 
 
 def setup(bot):
