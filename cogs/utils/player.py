@@ -44,7 +44,7 @@ class Player(JSONable):
             self.skills = skills
         else:
             self.skills = []
-            self._skills = ['Attack', 'Guard', *skills]
+            self._skills = list({'Attack', 'Guard', *skills})
 
         self.exp = kwargs.pop("exp")
         self.strength, self.magic, self.endurance, self.agility, self.luck = kwargs.pop("stats")

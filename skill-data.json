@@ -771,7 +771,8 @@
     "severity": "severe",
     "desc": "Deal severe Almighty damage to all foes.",
     "min_hits": 1,
-    "max_hits": 1
+    "max_hits": 1,
+    "multi_target": true
   },
   {
     "name": "Myriad Slashes",
