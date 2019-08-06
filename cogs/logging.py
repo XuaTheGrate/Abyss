@@ -8,8 +8,9 @@ NL = '\n'
 NNL = '\\n'
 
 log = logging.getLogger("Abyss")
+log.setLevel(logging.DEBUG)
 log.handlers.clear()
-hdlr = TimedRotatingFileHandler("Abyss.log", "d", utc=True)
+hdlr = TimedRotatingFileHandler("logs/Abyss.log", "d", utc=True)
 hdlr.setFormatter(logging.Formatter(fmt=""))
 log.addHandler(hdlr)
 
