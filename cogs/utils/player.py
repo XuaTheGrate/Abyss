@@ -354,7 +354,7 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
     def post_battle(self):
         self._ex_crit_mod = 1.0
 
-    def take_damage(self, attacker, skill, *, from_reflect=False, counter=False):
+    def take_damage(self, attacker, skill, *, from_reflect=False, counter=False, enforce_crit=0):
         res = self.resists(skill.type)
         result = DamageResult()
         result.skill = skill
@@ -400,7 +400,9 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
         else:  # counters arent supposed to crit :^^)
             if not skill.uses_sp and res is not ResistanceModifier.WEAK and not guarded:  # weakness comes before criticals
                 # guarding also nullifies knock downs, so crits and weaknesses
-                if attacker.try_crit(self):
+                if enforce_crit == 0:
+                    enforce_crit = 1 if attacker.try_crit(self) else 2
+                if enforce_crit == 1:
                     base *= 1.75
                     result.critical = True
                     result.did_weak = True
