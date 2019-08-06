@@ -78,22 +78,30 @@ def confirm_not_dead(battle):
 
 
 class TargetSession(ui.Session):
-    def __init__(self, *enemies):
+    def __init__(self, *enemies, all_=False):
         super().__init__(timeout=180)
-        self.enemies = {
-            f"{c+1}\u20e3": enemies[c] for c in range(len(enemies))
-        }
+        if not all_:
+            self.add_button(self.back, '\u25c0')
+            self.enemies = {
+                f"{c+1}\u20e3": enemies[c] for c in range(len(enemies))
+            }
+            for e in self.enemies.keys():
+                # log.debug(f"added button for {self.enemies[e]}")
+                self.add_button(self.button, e)
+        else:
+            self.add_button(self.target_all, "<:tickYes:568613200728293435>")
+            self.add_button(self.back, "<:tickNo:568613146152009768>")
         self.result = None
-        self.add_button(self.back, '\u25c0')
-        for e in self.enemies.keys():
-            # log.debug(f"added button for {self.enemies[e]}")
-            self.add_button(self.button, e)
+        self.all = all_
 
     async def send_initial_message(self):
-        c = [_("Pick a target!\n")]
-        c.extend([f"{a} {b.name}" for a, b in self.enemies.items()])
-        # log.debug("target session initial message")
-        return await self.context.send(NL.join(c))
+        if not self.all:
+            c = [_("Pick a target!\n")]
+            c.extend([f"{a} {b.name}" for a, b in self.enemies.items()])
+            # log.debug("target session initial message")
+            return await self.context.send(NL.join(c))
+        else:
+            return await self.context.send("Attack all enemies?")
 
     async def stop(self):
         with suppress(discord.HTTPException, AttributeError):
@@ -106,11 +114,13 @@ class TargetSession(ui.Session):
         await self.stop()
 
     async def button(self, payload):
-        try:
-            # log.debug("le button")
-            self.result = self.enemies[str(payload.emoji)]
-        finally:
-            await self.stop()
+        # log.debug("le button")
+        self.result = self.enemies[str(payload.emoji)]
+        await self.stop()
+
+    async def target_all(self, _):
+        self.result = 'all'
+        await self.stop()
 
 
 class InitialSession(ui.Session):
@@ -131,9 +141,9 @@ class InitialSession(ui.Session):
             await self.message.delete()
         await super().stop()
 
-    async def select_target(self):
+    async def select_target(self, all_=False):
         # log.debug("initialsession target selector")
-        menu = TargetSession(*[e for e in self.enemies if not e.is_fainted()])
+        menu = TargetSession(*[e for e in self.enemies if not e.is_fainted()], all_=all_)
         await menu.start(self.context)
         if not menu.result:
             # log.debug("no result")
@@ -146,9 +156,12 @@ class InitialSession(ui.Session):
         if skill.lower() == 'guard':
             self.result = {"type": "fight", "data": {"skill": obj}}
             return await self.stop()
-        target = await self.select_target()
+        target = await self.select_target(skill.targets_everyone)
         if target != 'cancel':
-            self.result = {"type": "fight", "data": {"skill": obj, "target": target}}
+            if target == 'all':
+                self.result = {"type": "fight", "data": {"skill": obj, "targets": self.enemies}}
+            else:
+                self.result = {"type": "fight", "data": {"skill": obj, "targets": (target,)}}
             # log.debug(f"select skill: {self.result}")
             await self.stop()
 
@@ -383,29 +396,29 @@ class WildBattle:
                 return
             self.player.hp = cost
 
-        target = result['data']['target']
+        targets = result['data']['targets']
         if not skill.is_damaging_skill:
             await self.ctx.send("unhandled atm")
         else:
-            res = None  # unboundlocalerror might propagate without this
-            force_crit = 0
+            weaks = []
+            for target in targets:
+                force_crit = 0
 
-            for __ in range(random.randint(*skill.hits)):
-                res = target.take_damage(self.player, skill, enforce_crit=force_crit)
-                # this is to ensure crits only happen IF the first hit did land a crit
-                # we use a Troolean:
-                # 0: first hit, determine crit
-                # 1: first hit passed, it was a crit
-                # 2: first hit passed, was not a crit
-                force_crit = 1 if res.critical else 2
-                msg = get_message(res.resistance, reflect=res.was_reflected, miss=res.miss, critical=res.critical)
-                msg = msg.format(demon=self.player, tdemon=target, damage=res.damage_dealt, skill=skill)
-                await self.ctx.send(msg)
+                for __ in range(random.randint(*skill.hits)):
+                    res = target.take_damage(self.player, skill, enforce_crit=force_crit)
+                    # this is to ensure crits only happen IF the first hit did land a crit
+                    # we use a Troolean:
+                    # 0: first hit, determine crit
+                    # 1: first hit passed, it was a crit
+                    # 2: first hit passed, was not a crit
+                    force_crit = 1 if res.critical else 2
+                    msg = get_message(res.resistance, reflect=res.was_reflected, miss=res.miss, critical=res.critical)
+                    msg = msg.format(demon=self.player, tdemon=target, damage=res.damage_dealt, skill=skill)
+                    await self.ctx.send(msg)
 
-            if res is None:
-                raise RuntimeError(f"{skill}, {skill.hits}")
+                    weaks.append(res.did_weak)
 
-            if res.did_weak and confirm_not_dead(self):
+            if all(weaks) and confirm_not_dead(self):
                 self.order.decycle()
                 await self.ctx.send(_("> Nice hit! Move again!"))
 
