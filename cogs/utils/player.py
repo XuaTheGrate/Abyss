@@ -235,13 +235,13 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
                     self._until_clear[i] -= 1
                     if self._until_clear[i] == 0:
                         self._stat_mod[i] = 0
-                        await battle.ctx.send(f"> {STAT_MOD[i]} reverted.")
+                        await battle.ctx.send(f"> __{self.name}__'s {STAT_MOD[i]} reverted.")
             return
         if self._until_clear[modifier.value] >= 0:
             self._until_clear[modifier.value] -= 1
             if self._until_clear[modifier.value] == 0:
                 self._stat_mod[modifier.value] = 0
-                await battle.ctx.send(f"> {STAT_MOD[modifier.value]} reverted.")
+                await battle.ctx.send(f"> __{self.name}__'s {STAT_MOD[modifier.value]} reverted.")
 
     def clear_stat_modifier(self, modifier=None):
         if not modifier:  # all modifiers
@@ -339,7 +339,7 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
                 self._shields[k] -= 1
                 if self._shields[k] == 0:
                     self._shields.pop(k)
-                    await battle.ctx.send(f"> {k.title()} immunity reverted.")
+                    await battle.ctx.send(f"> __{self.name}__'s' {k.title()} immunity reverted.")
         self.guarding = False
 
     def get_boost_amp_mod(self, type):

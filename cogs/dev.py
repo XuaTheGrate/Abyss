@@ -26,7 +26,12 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
             await ctx.send(ctx.bot.tick_no)
             ctx.bot.send_error(f'```py\n{format_exc(e)}\n```')
 
-    # @dev.command()
+    @dev.command()
+    async def cleanup(self, ctx):
+        if ctx.channel.permissions_for(ctx.me).manage_messages:
+            await ctx.channel.purge(check=lambda m: m.author == ctx.me or m.content.startswith("$"), before=ctx.message)
+        else:
+            await ctx.channel.purge(check=lambda m: m.author == ctx.me, bulk=False)
 
 
 def setup(bot):

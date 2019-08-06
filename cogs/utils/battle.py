@@ -386,7 +386,7 @@ class WildBattle:
             msg = get_message(res.resistance, reflect=res.was_reflected, miss=res.miss, critical=res.critical)
             msg = msg.format(demon=self.player, tdemon=target, damage=res.damage_dealt, skill=skill)
             await self.ctx.send(msg)
-            if res.did_weak:
+            if res.did_weak and confirm_not_dead(self):
                 self.order.decycle()
                 await self.ctx.send(_("> Nice hit! Move again!"))
 
@@ -415,7 +415,6 @@ class WildBattle:
 
     @tasks.loop(seconds=1)
     async def main(self):
-        self.turn_cycle += 1
         # log.debug("starting loop")
         if not confirm_not_dead(self):
             # log.debug("confirm not dead failed, stopping")
@@ -424,6 +423,7 @@ class WildBattle:
         nxt = self.order.active()
         if not isinstance(nxt, Enemy):
             # log.debug("next: player")
+            self.turn_cycle += 1
             await self.handle_player_choices()
         else:
             if not nxt.is_fainted():
