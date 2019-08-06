@@ -1858,5 +1858,165 @@
         "min_hits": 1,
         "max_hits": 1,
         "multi_target": false
+    },
+    {
+        "name": "Curse Boost",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "Increases the damage of curse skills by 1.25x.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Curse Amp",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "Increases the damage of curse skills by 1.5x.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Bless Boost",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "Increases the damage of bless skills by 1.25x.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Bless Amp",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "Increases the damage of bless skills by 1.5x.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Fire Boost",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "Increases the damage of fire skills by 1.25x.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Fire Amp",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "Increases the damage of fire skills by 1.5x.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Elec Boost",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "Increases the damage of elec skills by 1.25x.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Elec Amp",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "Increases the damage of elec skills by 1.5x.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Nuke Boost",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "Increases the damage of nuke skills by 1.25x.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Nuke Amp",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "Increases the damage of nuke skills by 1.5x.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Wind Boost",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "Increases the damage of wind skills by 1.25x.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Wind Amp",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "Increases the damage of wind skills by 1.5x.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Ice Boost",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "Increases the damage of ice skills by 1.25x.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Ice Amp",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "Increases the damage of ice skills by 1.5x.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Psy Boost",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "Increases the damage of psy skills by 1.25x.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Psy Amp",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "Increases the damage of psy skills by 1.5x.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
     }
 ]
