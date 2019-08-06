@@ -1,1074 +1,1862 @@
 [
-  {
-    "name": "Abyssal Wings",
-    "type": "curse",
-    "cost": 30,
-    "severity": "severe",
-    "desc": "Deal severe Curse damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Agi",
-    "type": "fire",
-    "cost": 4,
-    "severity": "light",
-    "desc": "Deal weak Fire damage to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Agidyne",
-    "type": "fire",
-    "cost": 12,
-    "severity": "heavy",
-    "desc": "Deal heavy Fire damage to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Agilao",
-    "type": "fire",
-    "cost": 8,
-    "severity": "medium",
-    "desc": "Deal medium Fire damage to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Agneyastra",
-    "type": "physical",
-    "cost": 24,
-    "severity": "medium",
-    "desc": "Deal 1 to 3 times medium Phys damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 3
-  },
-  {
-    "name": "Assault Dive",
-    "type": "physical",
-    "cost": 13,
-    "severity": "heavy",
-    "desc": "Deal heavy Phys damage to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Atomic Flare",
-    "type": "nuclear",
-    "cost": 48,
-    "severity": "severe",
-    "desc": "Deal severe Nuclear damage to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Ayamur",
-    "type": "physical",
-    "cost": 25,
-    "severity": "medium",
-    "desc": "Deal 3 times medium Phys damage to 1 foe. High accuracy.",
-    "min_hits": 3,
-    "max_hits": 3
-  },
-  {
-    "name": "Bad Beat",
-    "type": "physical",
-    "cost": 21,
-    "severity": "medium",
-    "desc": "Deal medium Phys damage and inflict Despair (low odds) to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Beast Weaver",
-    "type": "physical",
-    "cost": 20,
-    "severity": "colossal",
-    "desc": "Deal grave Phys damage to 1 foe and user is debuffed with Tarunda.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Black Viper",
-    "type": "almighty",
-    "cost": 48,
-    "severity": "severe",
-    "desc": "Deal severe Almighty damage to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Blazing Hell",
-    "type": "fire",
-    "cost": 54,
-    "severity": "severe",
-    "desc": "Deal severe Fire damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Bloodbath",
-    "type": "physical",
-    "cost": 19,
-    "severity": "heavy",
-    "desc": "Deal heavy Phys damage and inflict Fear (low odds) to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Brain Buster",
-    "type": "physical",
-    "cost": 21,
-    "severity": "heavy",
-    "desc": "Deal heavy Phys damage and inflict Brainwash (low odds) to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Brain Shake",
-    "type": "physical",
-    "cost": 9,
-    "severity": "medium",
-    "desc": "Deal medium Phys damage and inflict Brainwash (medium odds) to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Brave Blade",
-    "type": "physical",
-    "cost": 24,
-    "severity": "colossal",
-    "desc": "Deal grave Phys damage to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Bufu",
-    "type": "ice",
-    "cost": 4,
-    "severity": "light",
-    "desc": "Deal weak Ice damage to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Bufudyne",
-    "type": "ice",
-    "cost": 12,
-    "severity": "heavy",
-    "desc": "Deal heavy Ice damage to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Bufula",
-    "type": "ice",
-    "cost": 8,
-    "severity": "medium",
-    "desc": "Deal medium Ice damage to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Cleave",
-    "type": "physical",
-    "cost": 6,
-    "severity": "miniscule",
-    "desc": "Deal weak Phys damage to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Cosmic Flare",
-    "type": "nuclear",
-    "cost": 54,
-    "severity": "severe",
-    "desc": "Deal severe Nuclear damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Cross Slash",
-    "type": "physical",
-    "cost": 20,
-    "severity": "heavy",
-    "desc": "Deal 2 times heavy Phys damage to 1 foe. High accuracy.",
-    "min_hits": 2,
-    "max_hits": 2
-  },
-  {
-    "name": "Deadly Fury",
-    "type": "physical",
-    "cost": 18,
-    "severity": "severe",
-    "desc": "Deal severe Phys damage to 1 foe. More powerful under Baton Pass .",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Deathbound",
-    "type": "physical",
-    "cost": 22,
-    "severity": "medium",
-    "desc": "Deal 1 to 2 times medium Phys damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 2
-  },
-  {
-    "name": "Diamond Dust",
-    "type": "ice",
-    "cost": 48,
-    "severity": "severe",
-    "desc": "Deal severe Ice damage to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Door of Hades",
-    "type": "almighty",
-    "cost": 32,
-    "severity": "medium",
-    "desc": "Deal heavy Almighty damage to all foes with medium chance of instant kill.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Dormin Rush",
-    "type": "physical",
-    "cost": 16,
-    "severity": "medium",
-    "desc": "Deal medium Phys damage and inflict Sleep (low odds) to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Double Fangs",
-    "type": "physical",
-    "cost": 10,
-    "severity": "medium",
-    "desc": "Deal 2 times medium Phys damage to 1 foe.",
-    "min_hits": 2,
-    "max_hits": 2
-  },
-  {
-    "name": "Dream Needle",
-    "type": "physical",
-    "cost": 8,
-    "severity": "medium",
-    "desc": "Deal medium Phys damage and inflict Sleep (medium odds) to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Eiga",
-    "type": "curse",
-    "cost": 8,
-    "severity": "medium",
-    "desc": "Deal medium Curse damage to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Eigaon",
-    "type": "curse",
-    "cost": 12,
-    "severity": "heavy",
-    "desc": "Deal heavy Curse damage to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Eiha",
-    "type": "curse",
-    "cost": 4,
-    "severity": "light",
-    "desc": "Deal weak Curse damage to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Flash Bomb",
-    "type": "physical",
-    "cost": 19,
-    "severity": "medium",
-    "desc": "Deal medium Phys damage and inflict Dizzy (low odds) to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Frei",
-    "type": "nuclear",
-    "cost": 4,
-    "severity": "light",
-    "desc": "Deal weak Nuclear damage to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Freidyne",
-    "type": "nuclear",
-    "cost": 12,
-    "severity": "heavy",
-    "desc": "Deal heavy Nuclear damage to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Freila",
-    "type": "nuclear",
-    "cost": 8,
-    "severity": "medium",
-    "desc": "Deal medium Nuclear damage to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Garu",
-    "type": "wind",
-    "cost": 3,
-    "severity": "light",
-    "desc": "Deal weak Wind damage to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Garudyne",
-    "type": "wind",
-    "cost": 10,
-    "severity": "heavy",
-    "desc": "Deal heavy Wind damage to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Garula",
-    "type": "wind",
-    "cost": 6,
-    "severity": "medium",
-    "desc": "Deal medium Wind damage to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Giant Slice",
-    "type": "physical",
-    "cost": 9,
-    "severity": "medium",
-    "desc": "Deal medium Phys damage to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Gigantomachia",
-    "type": "physical",
-    "cost": 25,
-    "severity": "colossal",
-    "desc": "Deal grave Phys damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "God's Hand",
-    "type": "physical",
-    "cost": 25,
-    "severity": "colossal",
-    "desc": "Deal grave Phys damage to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Hassou Tobi",
-    "type": "physical",
-    "cost": 25,
-    "severity": "light",
-    "desc": "Deal 8 times weak Phys damage to all foes.",
-    "min_hits": 8,
-    "max_hits": 8
-  },
-  {
-    "name": "Headbutt",
-    "type": "physical",
-    "cost": 9,
-    "severity": "medium",
-    "desc": "Deal medium Phys damage and inflict Forget (medium odds) to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Heat Wave",
-    "type": "physical",
-    "cost": 20,
-    "severity": "heavy",
-    "desc": "Deal heavy Phys damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Hysterical Slap",
-    "type": "physical",
-    "cost": 9,
-    "severity": "medium",
-    "desc": "Deal medium Phys damage and inflict Rage (medium odds) to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Ice Age",
-    "type": "ice",
-    "cost": 54,
-    "severity": "severe",
-    "desc": "Deal severe Ice damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Inferno",
-    "type": "fire",
-    "cost": 48,
-    "severity": "severe",
-    "desc": "Deal severe Fire damage to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Kouga",
-    "type": "bless",
-    "cost": 8,
-    "severity": "medium",
-    "desc": "Deal medium Bless damage to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Kougaon",
-    "type": "bless",
-    "cost": 12,
-    "severity": "heavy",
-    "desc": "Deal heavy Bless damage to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Kouha",
-    "type": "bless",
-    "cost": 4,
-    "severity": "light",
-    "desc": "Deal weak Bless damage to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Lucky Punch",
-    "type": "physical",
-    "cost": 6,
-    "severity": "miniscule",
-    "desc": "Deal minuscule Phys damage to 1 foe. High critical rate.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Lunge",
-    "type": "physical",
-    "cost": 5,
-    "severity": "light",
-    "desc": "Deal weak Phys damage to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Mabufu",
-    "type": "ice",
-    "cost": 10,
-    "severity": "light",
-    "desc": "Deal weak Ice damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Mabufudyne",
-    "type": "ice",
-    "cost": 22,
-    "severity": "heavy",
-    "desc": "Deal heavy Ice damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Mabufula",
-    "type": "ice",
-    "cost": 16,
-    "severity": "medium",
-    "desc": "Deal medium Ice damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Maeiga",
-    "type": "curse",
-    "cost": 16,
-    "severity": "medium",
-    "desc": "Deal medium Curse damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Maeigaon",
-    "type": "curse",
-    "cost": 22,
-    "severity": "heavy",
-    "desc": "Deal heavy Curse damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Maeiha",
-    "type": "curse",
-    "cost": 10,
-    "severity": "light",
-    "desc": "Deal weak Curse damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Mafrei",
-    "type": "nuclear",
-    "cost": 10,
-    "severity": "light",
-    "desc": "Deal weak Nuclear damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Mafreidyne",
-    "type": "nuclear",
-    "cost": 22,
-    "severity": "heavy",
-    "desc": "Deal heavy Nuclear damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Mafreila",
-    "type": "nuclear",
-    "cost": 16,
-    "severity": "medium",
-    "desc": "Deal medium Nuclear damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Magaru",
-    "type": "wind",
-    "cost": 8,
-    "severity": "light",
-    "desc": "Deal small Wind damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Magarudyne",
-    "type": "wind",
-    "cost": 20,
-    "severity": "heavy",
-    "desc": "Deal heavy Wind damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Magarula",
-    "type": "wind",
-    "cost": 14,
-    "severity": "medium",
-    "desc": "Deal medium Wind damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Magatsu Mandala",
-    "type": "curse",
-    "cost": 30,
-    "severity": "medium",
-    "desc": "Deal heavy Curse damage to all foes and inflict Confuse/Fear/Despair (medium odds).",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Makouga",
-    "type": "bless",
-    "cost": 16,
-    "severity": "medium",
-    "desc": "Deal medium Bless damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Makougaon",
-    "type": "bless",
-    "cost": 22,
-    "severity": "heavy",
-    "desc": "Deal heavy Bless damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Makouha",
-    "type": "bless",
-    "cost": 10,
-    "severity": "light",
-    "desc": "Deal weak Bless damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Mapsi",
-    "type": "psychokinetic",
-    "cost": 10,
-    "severity": "light",
-    "desc": "Deal weak Psy damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Mapsio",
-    "type": "psychokinetic",
-    "cost": 16,
-    "severity": "medium",
-    "desc": "Deal medium Psy damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Mapsiodyne",
-    "type": "psychokinetic",
-    "cost": 22,
-    "severity": "heavy",
-    "desc": "Deal heavy Psy damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Maragi",
-    "type": "fire",
-    "cost": 10,
-    "severity": "light",
-    "desc": "Deal weak Fire damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Maragidyne",
-    "type": "fire",
-    "cost": 22,
-    "severity": "heavy",
-    "desc": "Deal heavy Fire damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Maragion",
-    "type": "fire",
-    "cost": 16,
-    "severity": "medium",
-    "desc": "Deal medium Fire damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Mazio",
-    "type": "electric",
-    "cost": 10,
-    "severity": "light",
-    "desc": "Deal weak Electric damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Maziodyne",
-    "type": "electric",
-    "cost": 22,
-    "severity": "heavy",
-    "desc": "Deal heavy Electric damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Mazionga",
-    "type": "electric",
-    "cost": 16,
-    "severity": "medium",
-    "desc": "Deal medium Electric damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Megaton Raid",
-    "type": "physical",
-    "cost": 16,
-    "severity": "severe",
-    "desc": "Deal severe Phys damage to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Megido",
-    "type": "almighty",
-    "cost": 15,
-    "severity": "medium",
-    "desc": "Deal medium Almighty damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Megidola",
-    "type": "almighty",
-    "cost": 24,
-    "severity": "heavy",
-    "desc": "Deal heavy Almighty damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Megidolaon",
-    "type": "almighty",
-    "cost": 38,
-    "severity": "severe",
-    "desc": "Deal severe Almighty damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Memory Blow",
-    "type": "physical",
-    "cost": 15,
-    "severity": "light",
-    "desc": "Deal light Phys damage and inflict Forget (low odds) to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Mind Slice",
-    "type": "physical",
-    "cost": 19,
-    "severity": "medium",
-    "desc": "Deal medium Phys damage and inflict Confuse (low odds) to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Miracle Punch",
-    "type": "physical",
-    "cost": 8,
-    "severity": "medium",
-    "desc": "Deal medium Phys damage to 1 foe. High critical rate.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Morning Star",
-    "type": "almighty",
-    "cost": 54,
-    "severity": "severe",
-    "desc": "Deal severe Almighty damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1,
-    "multi_target": true
-  },
-  {
-    "name": "Myriad Slashes",
-    "type": "physical",
-    "cost": 20,
-    "severity": "medium",
-    "desc": "Deal 2 to 3 times medium Phys damage to 1 foe.",
-    "min_hits": 2,
-    "max_hits": 3
-  },
-  {
-    "name": "Negative Pile",
-    "type": "physical",
-    "cost": 12,
-    "severity": "medium",
-    "desc": "Deal heavy Phys damage and inflict Despair (medium odds) to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "One-shot Kill",
-    "type": "gun",
-    "cost": 17,
-    "severity": "severe",
-    "desc": "Deal severe Gun damage to 1 foe. High critical rate.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Oni Kagura",
-    "type": "physical",
-    "cost": 16,
-    "severity": "medium",
-    "desc": "Deal medium Phys damage and inflict Rage (low odds) to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Panta Rhei",
-    "type": "wind",
-    "cost": 42,
-    "severity": "severe",
-    "desc": "Deal severe Wind damage to 1 foe",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Psi",
-    "type": "psychokinetic",
-    "cost": 4,
-    "severity": "light",
-    "desc": "Deal weak Psy damage to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Psio",
-    "type": "psychokinetic",
-    "cost": 8,
-    "severity": "medium",
-    "desc": "Deal medium Psy damage to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Psiodyne",
-    "type": "psychokinetic",
-    "cost": 12,
-    "severity": "heavy",
-    "desc": "Deal heavy Psy damage to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Psycho Blast",
-    "type": "psychokinetic",
-    "cost": 54,
-    "severity": "severe",
-    "desc": "Deal severe Psy damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Psycho Force",
-    "type": "psychokinetic",
-    "cost": 48,
-    "severity": "severe",
-    "desc": "Deal severe Psy damage to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Rampage",
-    "type": "physical",
-    "cost": 13,
-    "severity": "light",
-    "desc": "Deal 1 to 3 times weak Phys damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 3
-  },
-  {
-    "name": "Rat Fang",
-    "type": "physical",
-    "cost": 10,
-    "severity": "medium",
-    "desc": "Deal medium Phys damage to 1 foe. More powerful when being ambushed.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Riot Gun",
-    "type": "gun",
-    "cost": 24,
-    "severity": "severe",
-    "desc": "Deal severe Gun damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Rising Slash",
-    "type": "physical",
-    "cost": 14,
-    "severity": "heavy",
-    "desc": "Deal heavy Phys damage to 1 foe. More powerful under Baton Pass .",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Shining Arrows",
-    "type": "bless",
-    "cost": 22,
-    "severity": "light",
-    "desc": "Deal 4 to 8 times weak Bless damage to all foes.",
-    "min_hits": 4,
-    "max_hits": 8
-  },
-  {
-    "name": "Skull Cracker",
-    "type": "physical",
-    "cost": 10,
-    "severity": "medium",
-    "desc": "Deal medium Phys damage and inflict Confuse (medium odds) to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Sledgehammer",
-    "type": "physical",
-    "cost": 10,
-    "severity": "medium",
-    "desc": "Deal medium Phys damage and inflict Dizzy (medium odds) to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Snap",
-    "type": "gun",
-    "cost": 9,
-    "severity": "medium",
-    "desc": "Deal medium Gun damage to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Swift Strike",
-    "type": "physical",
-    "cost": 17,
-    "severity": "light",
-    "desc": "Deal 3 to 4 times weak Phys damage to all foes.",
-    "min_hits": 3,
-    "max_hits": 4
-  },
-  {
-    "name": "Sword Dance",
-    "type": "physical",
-    "cost": 21,
-    "severity": "colossal",
-    "desc": "Deal grave Phys damage to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Tempest Slash",
-    "type": "physical",
-    "cost": 17,
-    "severity": "miniscule",
-    "desc": "Deal 3 to 5 times minuscule Phys damage to 1 foe.",
-    "min_hits": 3,
-    "max_hits": 5
-  },
-  {
-    "name": "Terror Claw",
-    "type": "physical",
-    "cost": 8,
-    "severity": "medium",
-    "desc": "Deal medium Phys damage and inflict Fear (medium odds) to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Thunder Reign",
-    "type": "electric",
-    "cost": 48,
-    "severity": "severe",
-    "desc": "Deal severe Electric damage to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Titanomachia",
-    "type": "fire",
-    "cost": 34,
-    "severity": "severe",
-    "desc": "Deal severe Fire damage to all foes and inflict Fear (high odds).",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Triple Down",
-    "type": "gun",
-    "cost": 16,
-    "severity": "light",
-    "desc": "Deal 3 times small Gun damage to all foes.",
-    "min_hits": 3,
-    "max_hits": 3
-  },
-  {
-    "name": "Vacuum Wave",
-    "type": "wind",
-    "cost": 48,
-    "severity": "severe",
-    "desc": "Deal severe Wind damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Vajra Blast",
-    "type": "physical",
-    "cost": 14,
-    "severity": "medium",
-    "desc": "Deal medium Phys damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Vicious Strike",
-    "type": "physical",
-    "cost": 18,
-    "severity": "medium",
-    "desc": "Deal medium Phys damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Vorpal Blade",
-    "type": "physical",
-    "cost": 23,
-    "severity": "severe",
-    "desc": "Deal severe Phys damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Wild Thunder",
-    "type": "electric",
-    "cost": 54,
-    "severity": "severe",
-    "desc": "Deal severe Electric damage to all foes.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Zio",
-    "type": "electric",
-    "cost": 4,
-    "severity": "light",
-    "desc": "Deal weak Electric damage to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Ziodyne",
-    "type": "electric",
-    "cost": 12,
-    "severity": "heavy",
-    "desc": "Deal heavy Electric damage to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  },
-  {
-    "name": "Zionga",
-    "type": "electric",
-    "cost": 8,
-    "severity": "medium",
-    "desc": "Deal medium Electric damage to 1 foe.",
-    "min_hits": 1,
-    "max_hits": 1
-  }
+    {
+        "name": "Abyssal Wings",
+        "type": "curse",
+        "cost": 30,
+        "severity": "severe",
+        "desc": "Deal severe Curse damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Agi",
+        "type": "fire",
+        "cost": 4,
+        "severity": "light",
+        "desc": "Deal weak Fire damage to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Agidyne",
+        "type": "fire",
+        "cost": 12,
+        "severity": "heavy",
+        "desc": "Deal heavy Fire damage to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Agilao",
+        "type": "fire",
+        "cost": 8,
+        "severity": "medium",
+        "desc": "Deal medium Fire damage to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Agneyastra",
+        "type": "physical",
+        "cost": 24,
+        "severity": "medium",
+        "desc": "Deal 1 to 3 times medium Phys damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 3,
+        "multi_target": true
+    },
+    {
+        "name": "Assault Dive",
+        "type": "physical",
+        "cost": 13,
+        "severity": "heavy",
+        "desc": "Deal heavy Phys damage to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Atomic Flare",
+        "type": "nuclear",
+        "cost": 48,
+        "severity": "severe",
+        "desc": "Deal severe Nuclear damage to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Ayamur",
+        "type": "physical",
+        "cost": 25,
+        "severity": "medium",
+        "desc": "Deal 3 times medium Phys damage to 1 foe. High accuracy.",
+        "min_hits": 3,
+        "max_hits": 3,
+        "multi_target": false
+    },
+    {
+        "name": "Bad Beat",
+        "type": "physical",
+        "cost": 21,
+        "severity": "medium",
+        "desc": "Deal medium Phys damage and inflict Despair (low odds) to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Beast Weaver",
+        "type": "physical",
+        "cost": 20,
+        "severity": "colossal",
+        "desc": "Deal grave Phys damage to 1 foe and user is debuffed with Tarunda.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Black Viper",
+        "type": "almighty",
+        "cost": 48,
+        "severity": "severe",
+        "desc": "Deal severe Almighty damage to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Blazing Hell",
+        "type": "fire",
+        "cost": 54,
+        "severity": "severe",
+        "desc": "Deal severe Fire damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Bloodbath",
+        "type": "physical",
+        "cost": 19,
+        "severity": "heavy",
+        "desc": "Deal heavy Phys damage and inflict Fear (low odds) to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Brain Buster",
+        "type": "physical",
+        "cost": 21,
+        "severity": "heavy",
+        "desc": "Deal heavy Phys damage and inflict Brainwash (low odds) to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Brain Shake",
+        "type": "physical",
+        "cost": 9,
+        "severity": "medium",
+        "desc": "Deal medium Phys damage and inflict Brainwash (medium odds) to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Brave Blade",
+        "type": "physical",
+        "cost": 24,
+        "severity": "colossal",
+        "desc": "Deal grave Phys damage to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Bufu",
+        "type": "ice",
+        "cost": 4,
+        "severity": "light",
+        "desc": "Deal weak Ice damage to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Bufudyne",
+        "type": "ice",
+        "cost": 12,
+        "severity": "heavy",
+        "desc": "Deal heavy Ice damage to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Bufula",
+        "type": "ice",
+        "cost": 8,
+        "severity": "medium",
+        "desc": "Deal medium Ice damage to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Cleave",
+        "type": "physical",
+        "cost": 6,
+        "severity": "miniscule",
+        "desc": "Deal weak Phys damage to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Cosmic Flare",
+        "type": "nuclear",
+        "cost": 54,
+        "severity": "severe",
+        "desc": "Deal severe Nuclear damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Cross Slash",
+        "type": "physical",
+        "cost": 20,
+        "severity": "heavy",
+        "desc": "Deal 2 times heavy Phys damage to 1 foe. High accuracy.",
+        "min_hits": 2,
+        "max_hits": 2,
+        "multi_target": false
+    },
+    {
+        "name": "Deadly Fury",
+        "type": "physical",
+        "cost": 18,
+        "severity": "severe",
+        "desc": "Deal severe Phys damage to 1 foe. More powerful under Baton Pass .",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Deathbound",
+        "type": "physical",
+        "cost": 22,
+        "severity": "medium",
+        "desc": "Deal 1 to 2 times medium Phys damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 2,
+        "multi_target": true
+    },
+    {
+        "name": "Diamond Dust",
+        "type": "ice",
+        "cost": 48,
+        "severity": "severe",
+        "desc": "Deal severe Ice damage to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Door of Hades",
+        "type": "almighty",
+        "cost": 32,
+        "severity": "medium",
+        "desc": "Deal heavy Almighty damage to all foes with medium chance of instant kill.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Dormin Rush",
+        "type": "physical",
+        "cost": 16,
+        "severity": "medium",
+        "desc": "Deal medium Phys damage and inflict Sleep (low odds) to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Double Fangs",
+        "type": "physical",
+        "cost": 10,
+        "severity": "medium",
+        "desc": "Deal 2 times medium Phys damage to 1 foe.",
+        "min_hits": 2,
+        "max_hits": 2,
+        "multi_target": false
+    },
+    {
+        "name": "Dream Needle",
+        "type": "physical",
+        "cost": 8,
+        "severity": "medium",
+        "desc": "Deal medium Phys damage and inflict Sleep (medium odds) to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Eiga",
+        "type": "curse",
+        "cost": 8,
+        "severity": "medium",
+        "desc": "Deal medium Curse damage to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Eigaon",
+        "type": "curse",
+        "cost": 12,
+        "severity": "heavy",
+        "desc": "Deal heavy Curse damage to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Eiha",
+        "type": "curse",
+        "cost": 4,
+        "severity": "light",
+        "desc": "Deal weak Curse damage to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Flash Bomb",
+        "type": "physical",
+        "cost": 19,
+        "severity": "medium",
+        "desc": "Deal medium Phys damage and inflict Dizzy (low odds) to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Frei",
+        "type": "nuclear",
+        "cost": 4,
+        "severity": "light",
+        "desc": "Deal weak Nuclear damage to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Freidyne",
+        "type": "nuclear",
+        "cost": 12,
+        "severity": "heavy",
+        "desc": "Deal heavy Nuclear damage to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Freila",
+        "type": "nuclear",
+        "cost": 8,
+        "severity": "medium",
+        "desc": "Deal medium Nuclear damage to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Garu",
+        "type": "wind",
+        "cost": 3,
+        "severity": "light",
+        "desc": "Deal weak Wind damage to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Garudyne",
+        "type": "wind",
+        "cost": 10,
+        "severity": "heavy",
+        "desc": "Deal heavy Wind damage to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Garula",
+        "type": "wind",
+        "cost": 6,
+        "severity": "medium",
+        "desc": "Deal medium Wind damage to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Giant Slice",
+        "type": "physical",
+        "cost": 9,
+        "severity": "medium",
+        "desc": "Deal medium Phys damage to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Gigantomachia",
+        "type": "physical",
+        "cost": 25,
+        "severity": "colossal",
+        "desc": "Deal grave Phys damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "God's Hand",
+        "type": "physical",
+        "cost": 25,
+        "severity": "colossal",
+        "desc": "Deal grave Phys damage to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Hassou Tobi",
+        "type": "physical",
+        "cost": 25,
+        "severity": "light",
+        "desc": "Deal 8 times weak Phys damage to all foes.",
+        "min_hits": 8,
+        "max_hits": 8,
+        "multi_target": true
+    },
+    {
+        "name": "Headbutt",
+        "type": "physical",
+        "cost": 9,
+        "severity": "medium",
+        "desc": "Deal medium Phys damage and inflict Forget (medium odds) to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Heat Wave",
+        "type": "physical",
+        "cost": 20,
+        "severity": "heavy",
+        "desc": "Deal heavy Phys damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Hysterical Slap",
+        "type": "physical",
+        "cost": 9,
+        "severity": "medium",
+        "desc": "Deal medium Phys damage and inflict Rage (medium odds) to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Ice Age",
+        "type": "ice",
+        "cost": 54,
+        "severity": "severe",
+        "desc": "Deal severe Ice damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Inferno",
+        "type": "fire",
+        "cost": 48,
+        "severity": "severe",
+        "desc": "Deal severe Fire damage to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Kouga",
+        "type": "bless",
+        "cost": 8,
+        "severity": "medium",
+        "desc": "Deal medium Bless damage to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Kougaon",
+        "type": "bless",
+        "cost": 12,
+        "severity": "heavy",
+        "desc": "Deal heavy Bless damage to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Kouha",
+        "type": "bless",
+        "cost": 4,
+        "severity": "light",
+        "desc": "Deal weak Bless damage to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Lucky Punch",
+        "type": "physical",
+        "cost": 6,
+        "severity": "miniscule",
+        "desc": "Deal minuscule Phys damage to 1 foe. High critical rate.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Lunge",
+        "type": "physical",
+        "cost": 5,
+        "severity": "light",
+        "desc": "Deal weak Phys damage to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Mabufu",
+        "type": "ice",
+        "cost": 10,
+        "severity": "light",
+        "desc": "Deal weak Ice damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Mabufudyne",
+        "type": "ice",
+        "cost": 22,
+        "severity": "heavy",
+        "desc": "Deal heavy Ice damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Mabufula",
+        "type": "ice",
+        "cost": 16,
+        "severity": "medium",
+        "desc": "Deal medium Ice damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Maeiga",
+        "type": "curse",
+        "cost": 16,
+        "severity": "medium",
+        "desc": "Deal medium Curse damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Maeigaon",
+        "type": "curse",
+        "cost": 22,
+        "severity": "heavy",
+        "desc": "Deal heavy Curse damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Maeiha",
+        "type": "curse",
+        "cost": 10,
+        "severity": "light",
+        "desc": "Deal weak Curse damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Mafrei",
+        "type": "nuclear",
+        "cost": 10,
+        "severity": "light",
+        "desc": "Deal weak Nuclear damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Mafreidyne",
+        "type": "nuclear",
+        "cost": 22,
+        "severity": "heavy",
+        "desc": "Deal heavy Nuclear damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Mafreila",
+        "type": "nuclear",
+        "cost": 16,
+        "severity": "medium",
+        "desc": "Deal medium Nuclear damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Magaru",
+        "type": "wind",
+        "cost": 8,
+        "severity": "light",
+        "desc": "Deal small Wind damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Magarudyne",
+        "type": "wind",
+        "cost": 20,
+        "severity": "heavy",
+        "desc": "Deal heavy Wind damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Magarula",
+        "type": "wind",
+        "cost": 14,
+        "severity": "medium",
+        "desc": "Deal medium Wind damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Magatsu Mandala",
+        "type": "curse",
+        "cost": 30,
+        "severity": "medium",
+        "desc": "Deal heavy Curse damage to all foes and inflict Confuse/Fear/Despair (medium odds).",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Makouga",
+        "type": "bless",
+        "cost": 16,
+        "severity": "medium",
+        "desc": "Deal medium Bless damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Makougaon",
+        "type": "bless",
+        "cost": 22,
+        "severity": "heavy",
+        "desc": "Deal heavy Bless damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Makouha",
+        "type": "bless",
+        "cost": 10,
+        "severity": "light",
+        "desc": "Deal weak Bless damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Mapsi",
+        "type": "psychokinetic",
+        "cost": 10,
+        "severity": "light",
+        "desc": "Deal weak Psy damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Mapsio",
+        "type": "psychokinetic",
+        "cost": 16,
+        "severity": "medium",
+        "desc": "Deal medium Psy damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Mapsiodyne",
+        "type": "psychokinetic",
+        "cost": 22,
+        "severity": "heavy",
+        "desc": "Deal heavy Psy damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Maragi",
+        "type": "fire",
+        "cost": 10,
+        "severity": "light",
+        "desc": "Deal weak Fire damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Maragidyne",
+        "type": "fire",
+        "cost": 22,
+        "severity": "heavy",
+        "desc": "Deal heavy Fire damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Maragion",
+        "type": "fire",
+        "cost": 16,
+        "severity": "medium",
+        "desc": "Deal medium Fire damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Mazio",
+        "type": "electric",
+        "cost": 10,
+        "severity": "light",
+        "desc": "Deal weak Electric damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Maziodyne",
+        "type": "electric",
+        "cost": 22,
+        "severity": "heavy",
+        "desc": "Deal heavy Electric damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Mazionga",
+        "type": "electric",
+        "cost": 16,
+        "severity": "medium",
+        "desc": "Deal medium Electric damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Megaton Raid",
+        "type": "physical",
+        "cost": 16,
+        "severity": "severe",
+        "desc": "Deal severe Phys damage to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Megido",
+        "type": "almighty",
+        "cost": 15,
+        "severity": "medium",
+        "desc": "Deal medium Almighty damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Megidola",
+        "type": "almighty",
+        "cost": 24,
+        "severity": "heavy",
+        "desc": "Deal heavy Almighty damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Megidolaon",
+        "type": "almighty",
+        "cost": 38,
+        "severity": "severe",
+        "desc": "Deal severe Almighty damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Memory Blow",
+        "type": "physical",
+        "cost": 15,
+        "severity": "light",
+        "desc": "Deal light Phys damage and inflict Forget (low odds) to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Mind Slice",
+        "type": "physical",
+        "cost": 19,
+        "severity": "medium",
+        "desc": "Deal medium Phys damage and inflict Confuse (low odds) to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Miracle Punch",
+        "type": "physical",
+        "cost": 8,
+        "severity": "medium",
+        "desc": "Deal medium Phys damage to 1 foe. High critical rate.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Morning Star",
+        "type": "almighty",
+        "cost": 54,
+        "severity": "severe",
+        "desc": "Deal severe Almighty damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Myriad Slashes",
+        "type": "physical",
+        "cost": 20,
+        "severity": "medium",
+        "desc": "Deal 2 to 3 times medium Phys damage to 1 foe.",
+        "min_hits": 2,
+        "max_hits": 3,
+        "multi_target": false
+    },
+    {
+        "name": "Negative Pile",
+        "type": "physical",
+        "cost": 12,
+        "severity": "medium",
+        "desc": "Deal heavy Phys damage and inflict Despair (medium odds) to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "One-shot Kill",
+        "type": "gun",
+        "cost": 17,
+        "severity": "severe",
+        "desc": "Deal severe Gun damage to 1 foe. High critical rate.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Oni Kagura",
+        "type": "physical",
+        "cost": 16,
+        "severity": "medium",
+        "desc": "Deal medium Phys damage and inflict Rage (low odds) to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Panta Rhei",
+        "type": "wind",
+        "cost": 42,
+        "severity": "severe",
+        "desc": "Deal severe Wind damage to 1 foe",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Psi",
+        "type": "psychokinetic",
+        "cost": 4,
+        "severity": "light",
+        "desc": "Deal weak Psy damage to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Psio",
+        "type": "psychokinetic",
+        "cost": 8,
+        "severity": "medium",
+        "desc": "Deal medium Psy damage to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Psiodyne",
+        "type": "psychokinetic",
+        "cost": 12,
+        "severity": "heavy",
+        "desc": "Deal heavy Psy damage to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Psycho Blast",
+        "type": "psychokinetic",
+        "cost": 54,
+        "severity": "severe",
+        "desc": "Deal severe Psy damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Psycho Force",
+        "type": "psychokinetic",
+        "cost": 48,
+        "severity": "severe",
+        "desc": "Deal severe Psy damage to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Rampage",
+        "type": "physical",
+        "cost": 13,
+        "severity": "light",
+        "desc": "Deal 1 to 3 times weak Phys damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 3,
+        "multi_target": true
+    },
+    {
+        "name": "Rat Fang",
+        "type": "physical",
+        "cost": 10,
+        "severity": "medium",
+        "desc": "Deal medium Phys damage to 1 foe. More powerful when being ambushed.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Riot Gun",
+        "type": "gun",
+        "cost": 24,
+        "severity": "severe",
+        "desc": "Deal severe Gun damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Rising Slash",
+        "type": "physical",
+        "cost": 14,
+        "severity": "heavy",
+        "desc": "Deal heavy Phys damage to 1 foe. More powerful under Baton Pass .",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Shining Arrows",
+        "type": "bless",
+        "cost": 22,
+        "severity": "light",
+        "desc": "Deal 4 to 8 times weak Bless damage to all foes.",
+        "min_hits": 4,
+        "max_hits": 8,
+        "multi_target": true
+    },
+    {
+        "name": "Skull Cracker",
+        "type": "physical",
+        "cost": 10,
+        "severity": "medium",
+        "desc": "Deal medium Phys damage and inflict Confuse (medium odds) to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Sledgehammer",
+        "type": "physical",
+        "cost": 10,
+        "severity": "medium",
+        "desc": "Deal medium Phys damage and inflict Dizzy (medium odds) to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Snap",
+        "type": "gun",
+        "cost": 9,
+        "severity": "medium",
+        "desc": "Deal medium Gun damage to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Swift Strike",
+        "type": "physical",
+        "cost": 17,
+        "severity": "light",
+        "desc": "Deal 3 to 4 times weak Phys damage to all foes.",
+        "min_hits": 3,
+        "max_hits": 4,
+        "multi_target": true
+    },
+    {
+        "name": "Sword Dance",
+        "type": "physical",
+        "cost": 21,
+        "severity": "colossal",
+        "desc": "Deal grave Phys damage to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Tempest Slash",
+        "type": "physical",
+        "cost": 17,
+        "severity": "miniscule",
+        "desc": "Deal 3 to 5 times minuscule Phys damage to 1 foe.",
+        "min_hits": 3,
+        "max_hits": 5,
+        "multi_target": false
+    },
+    {
+        "name": "Terror Claw",
+        "type": "physical",
+        "cost": 8,
+        "severity": "medium",
+        "desc": "Deal medium Phys damage and inflict Fear (medium odds) to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Thunder Reign",
+        "type": "electric",
+        "cost": 48,
+        "severity": "severe",
+        "desc": "Deal severe Electric damage to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Titanomachia",
+        "type": "fire",
+        "cost": 34,
+        "severity": "severe",
+        "desc": "Deal severe Fire damage to all foes and inflict Fear (high odds).",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Triple Down",
+        "type": "gun",
+        "cost": 16,
+        "severity": "light",
+        "desc": "Deal 3 times small Gun damage to all foes.",
+        "min_hits": 3,
+        "max_hits": 3,
+        "multi_target": true
+    },
+    {
+        "name": "Vacuum Wave",
+        "type": "wind",
+        "cost": 48,
+        "severity": "severe",
+        "desc": "Deal severe Wind damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Vajra Blast",
+        "type": "physical",
+        "cost": 14,
+        "severity": "medium",
+        "desc": "Deal medium Phys damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Vicious Strike",
+        "type": "physical",
+        "cost": 18,
+        "severity": "medium",
+        "desc": "Deal medium Phys damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Vorpal Blade",
+        "type": "physical",
+        "cost": 23,
+        "severity": "severe",
+        "desc": "Deal severe Phys damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Wild Thunder",
+        "type": "electric",
+        "cost": 54,
+        "severity": "severe",
+        "desc": "Deal severe Electric damage to all foes.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Zio",
+        "type": "electric",
+        "cost": 4,
+        "severity": "light",
+        "desc": "Deal weak Electric damage to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Ziodyne",
+        "type": "electric",
+        "cost": 12,
+        "severity": "heavy",
+        "desc": "Deal heavy Electric damage to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Zionga",
+        "type": "electric",
+        "cost": 8,
+        "severity": "medium",
+        "desc": "Deal medium Electric damage to 1 foe.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Attack Master",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "Boosts your attack at the start of battle.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Defense Master",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "Boosts your defense at the start of battle.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Speed Master",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "Boosts your accuracy/evasion at the start of battle.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Absorb Curse",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Null Curse",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Repel Curse",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Resist Curse",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Dodge Curse",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Evade Curse",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Absorb Bless",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Null Bless",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Repel Bless",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Resist Bless",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Dodge Bless",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Evade Bless",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Absorb Fire",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Null Fire",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Repel Fire",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Resist Fire",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Dodge Fire",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Evade Fire",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Absorb Elec",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Null Elec",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Repel Elec",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Resist Elec",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Dodge Elec",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Evade Elec",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Absorb Nuke",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Null Nuke",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Repel Nuke",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Resist Nuke",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Dodge Nuke",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Evade Nuke",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Absorb Wind",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Null Wind",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Repel Wind",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Resist Wind",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Dodge Wind",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Evade Wind",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Absorb Ice",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Null Ice",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Repel Ice",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Resist Ice",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Dodge Ice",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Evade Ice",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Absorb Psy",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Null Psy",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Repel Psy",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Resist Psy",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Dodge Psy",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Evade Psy",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Tarukaja",
+        "type": "support",
+        "cost": 12,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Tarunda",
+        "type": "support",
+        "cost": 12,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Rakukaja",
+        "type": "support",
+        "cost": 12,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Rakunda",
+        "type": "support",
+        "cost": 12,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Sukukaja",
+        "type": "support",
+        "cost": 12,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Sukunda",
+        "type": "support",
+        "cost": 12,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Dekaja",
+        "type": "support",
+        "cost": 12,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Dekunda",
+        "type": "support",
+        "cost": 12,
+        "severity": "light",
+        "desc": "this needs to be edited, report to xua",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": true
+    },
+    {
+        "name": "Curse Shield",
+        "type": "support",
+        "cost": 15,
+        "severity": "light",
+        "desc": "Provides immunity to curse attacks for 3 turns",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Bless Shield",
+        "type": "support",
+        "cost": 15,
+        "severity": "light",
+        "desc": "Provides immunity to bless attacks for 3 turns",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Fire Shield",
+        "type": "support",
+        "cost": 15,
+        "severity": "light",
+        "desc": "Provides immunity to fire attacks for 3 turns",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Elec Shield",
+        "type": "support",
+        "cost": 15,
+        "severity": "light",
+        "desc": "Provides immunity to elec attacks for 3 turns",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Nuke Shield",
+        "type": "support",
+        "cost": 15,
+        "severity": "light",
+        "desc": "Provides immunity to nuke attacks for 3 turns",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Wind Shield",
+        "type": "support",
+        "cost": 15,
+        "severity": "light",
+        "desc": "Provides immunity to wind attacks for 3 turns",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Ice Shield",
+        "type": "support",
+        "cost": 15,
+        "severity": "light",
+        "desc": "Provides immunity to ice attacks for 3 turns",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    },
+    {
+        "name": "Psy Shield",
+        "type": "support",
+        "cost": 15,
+        "severity": "light",
+        "desc": "Provides immunity to psy attacks for 3 turns",
+        "min_hits": 1,
+        "max_hits": 1,
+        "multi_target": false
+    }
 ]

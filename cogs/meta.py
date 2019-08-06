@@ -8,7 +8,7 @@ class Meta(commands.Cog):
         """Get my websocket latency to Discord."""
         await ctx.send(f":ping_pong: Pong! | {ctx.bot.latency*1000:.2f}ms websocket latency.")
 
-    @commands.command()
+    @commands.command(aliases=['about'])
     async def info(self, ctx):
         """Information about the bot."""
         await ctx.send(f"""Hi! I'm {ctx.me.name}, a W.I.P. RPG bot for Discord.
@@ -20,7 +20,7 @@ I don't have my own support server, so you can join my owners general server her
     async def faq(self, ctx):
         """Brings up the Frequently Asked Questions."""
         embed = discord.Embed(title="FAQ")
-        embed.description = "\n".join(f"$faq {c}" for c in self.faq.commands)
+        embed.description = "\n".join(f"${c}" for c in self.faq.commands)
         await ctx.send(embed=embed)
 
     @faq.group()

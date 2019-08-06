@@ -1,6 +1,7 @@
 import asyncio
 import contextlib
 import itertools
+import json
 import random
 from operator import itemgetter
 
@@ -266,8 +267,9 @@ class Players(commands.Cog):
     async def cache_skills(self):
         await self.bot.prepared.wait()
 
-        async for skill in self.bot.db.abyss.skills.find():
-            skill.pop("_id")
+        with open("skill-data.json") as f:
+            sd = json.load(f)
+        for skill in sd:
             self.skill_cache[skill['name']] = Skill(**skill)
 
         self.bot.tree.do_cuz_ready()

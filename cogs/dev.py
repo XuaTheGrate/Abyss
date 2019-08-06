@@ -12,7 +12,7 @@ from .utils.formats import format_exc
 class Developers(commands.Cog, command_attrs={"hidden": True}):
     def __init__(self, bot):
         self.bot = bot
-        self.valid = ('py', 'po', 'json', 'txt', 'scr')
+        self.valid = ('py', 'po', 'json', 'scr')
 
     async def cog_check(self, ctx):
         return await self.bot.is_owner(ctx.author)
@@ -55,8 +55,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
                         total[ext] += 1
         t = {a: b for a, b in sorted(total.items(), key=lambda x: x[1], reverse=True)}
         sizea = max(len(str(x)) for x in t.values())
-        sizeb = max(len(str(x)) for x in t.keys())
-        fmt = "```\n" + "\n".join(sorted([f'{x:>{sizea}} lines of {y:>{sizeb}}' for y, x in t.items()],
+        fmt = "```\n" + "\n".join(sorted([f'{x:>{sizea}} {y}' for y, x in t.items()],
                                          key=lambda m: len(m))) + "```"
         await ctx.send(fmt)
 
