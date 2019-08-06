@@ -11,8 +11,8 @@ def bresenham(coord1, coord2):
 
     The result will contain both the start and the end point.
     """
-    x0, y0 = coord1.x, coord1.y
-    x1, y1 = coord2.x, coord2.y
+    x0, y0 = coord1
+    x1, y1 = coord2
 
     dx = x1 - x0
     dy = y1 - y0
@@ -29,20 +29,19 @@ def bresenham(coord1, coord2):
         dx, dy = dy, dx
         xx, xy, yx, yy = 0, ysign, xsign, 0
 
-    D = 2*dy - dx
+    d = 2*dy - dx
     y = 0
 
     for x in range(dx + 1):
         yield x0 + x*xx + y*yx, y0 + x*xy + y*yy
-        if D >= 0:
+        if d >= 0:
             y += 1
-            D -= 2*dx
-        D += 2*dy
+            d -= 2*dx
+        d += 2*dy
 
 
 class Biome:
-
-    def __init__(self, map_manager, id: int, encounter_rate: float, name: str, coordinates, travel_cost_multiplier: float):
+    def __init__(self, map_manager, id, encounter_rate, name, coordinates, travel_cost_multiplier):
         self.id = id
         self.encounter_rate = encounter_rate
         self.name = name
@@ -51,38 +50,36 @@ class Biome:
 
         self.coordinates = []
         for coordinate in coordinates:
-            self.coordinates.append(Coordinate(map_manager, coordinate[0], coordinate[1]))
+            self.coordinates.append(map_manager.coordinates[tuple(coordinate)])
 
     def __repr__(self):
-        return f"<Biome id={self.id} name='{self.name}'>"
+        return f"<Biome id={self.id} name={self.name!r} coordinates>"
 
 
 class Location:
-
-    def __init__(self, map_manager, name: str, coordinates):
+    def __init__(self, map_manager, name, coordinates):
         self.name = name
         self.map_manager = map_manager
 
         self.coordinates = []
         for coordinate in coordinates:
-            self.coordinates.append(Coordinate(map_manager, coordinate[0], coordinate[1]))
+            self.coordinates.append(map_manager.coordinates[tuple(coordinate)])
 
     def __repr__(self):
-        return f"<Location name='{self.name}'>"
+        return f"<Location name={self.name!r}>"
 
 
 class MapManager:
-
-    def __init__(self, location_data: list, biome_data: list, max_x: int, max_y: int):
+    def __init__(self, location_data, biome_data, max_x, max_y):
         self.locations = []
         self.biomes = []
-        self.coordinates = []
+        self.coordinates = {}
 
         self.max_x, self.max_y = max_x, max_y
 
+        self.initiate_coordinates()
         self.initiate_locations(location_data)
         self.initiate_biomes(biome_data)
-        self.initiate_coordinates()
 
     @classmethod
     def from_dict(cls, config: dict):
@@ -117,7 +114,7 @@ class MapManager:
     def initiate_coordinates(self):
         for x in range(0, self.max_x):
             for y in range(0, self.max_y):
-                self.coordinates.append(Coordinate(self, x, y))
+                self.coordinates[x, y] = Coordinate(self, x, y)
 
     def get_coordinate(self, x, y):
         for coordinate in self.coordinates:
@@ -138,8 +135,7 @@ class MapManager:
 
 
 class Coordinate:
-
-    def __init__(self, map_manager: MapManager, x: int, y: int):
+    def __init__(self, map_manager, x, y):
         self.x, self.y = x, y
         self.map_manager = map_manager
 
@@ -147,7 +143,11 @@ class Coordinate:
         return other.x == self.x and other.y == self.y
 
     def __repr__(self):
-        return f"<Coordinate x={self.x} y={self.y}>"
+        return f"<Coordinate ({self.x}, {self.y})>"
+
+    def __iter__(self):
+        yield self.x
+        yield self.y
 
     @property
     def location(self):

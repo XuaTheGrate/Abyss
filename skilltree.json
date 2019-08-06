@@ -4,7 +4,7 @@ branch: {
         skills: [skill 1, skill 2, ...],
         cost: some int, ap cost is this / 1000,
         unlocks: [other leaves to unlock when this completes],
-        unlockRequires: [dont unlock this leaf without these]
+        unlock_requires: [dont unlock this leaf without these]
     }
 }
 */
@@ -79,7 +79,7 @@ branch: {
     },
     almighty: {
         "almighty:0": {
-            unlockRequires: ["curse:7", "bless:7", "fire:7", "ice:7", "elec:7",
+            unlock_requires: ["curse:7", "bless:7", "fire:7", "ice:7", "elec:7",
                              "wind:7", "nuke:7", "psy:7", "water:7", "earth:7"],
             cost: 50000,
             skills: ["Megido",],

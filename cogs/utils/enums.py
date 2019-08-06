@@ -57,6 +57,7 @@ class Severity(Enum):
     HEAVY = 1.5
     SEVERE = 3.0
     COLOSSAL = 5.0
+    EXTREME = 7.5
 
 
 class StatModifier(Enum):

@@ -2,8 +2,8 @@ import asyncio
 import contextlib
 import io
 import os
+import random
 import traceback
-from collections import defaultdict
 from logging.handlers import TimedRotatingFileHandler
 
 import aiohttp
@@ -55,9 +55,8 @@ def get_logger():
 
     builtins.log = log
     return log
-log = get_logger()
 
-PREFIXES = defaultdict(set)
+
 CONFIG_NEW = {
     "guild": None,              # guild id
     "prefixes": config.PREFIX,  # list of prefixes
@@ -69,7 +68,7 @@ CONFIG_NEW = {
 
 class Abyss(commands.Bot):
     def __init__(self):
-        super().__init__(self.prefix)
+        super().__init__(commands.when_mentioned_or("$"))
         self.prepared = asyncio.Event()
         # `prepared` is to make sure the bot has loaded the database and such
 
@@ -83,6 +82,7 @@ class Abyss(commands.Bot):
         self.debug_hook = config.DEBUG_WEBHOOK
         self.unload_tasks = {}
         self.config = config
+        self._ctx_locks = {}
 
         self.help_command = commands.MinimalHelpCommand(verify_checks=False)
 
@@ -95,7 +95,14 @@ class Abyss(commands.Bot):
 
     @property
     def description(self):
-        return _("> Stuck? Try using `$story` to progress.")
+        return random.choice([
+            _("> Stuck? Try using `$story` to progress."),
+            _("> Confused? Try `$faq` for more information."),
+            _("> Bored? Try your hand at an online battle."),
+            _("> If you have spare stat points, you can still use `$levelup` to use them."),
+            _("> Join the support server for updates and announcements: <https://discord.gg/hkweDCD>"),
+            "corn"
+        ])
 
     @description.setter
     def description(self, value):
@@ -133,11 +140,13 @@ class Abyss(commands.Bot):
                 log.warning(f"{cog!r} unload task did not finish in time.")
                 task.cancel()
 
+    # noinspection PyMethodMayBeStatic
     async def global_check(self, ctx):
         if not ctx.guild:
             raise commands.NoPrivateMessage
         return True
 
+    # noinspection PyShadowingNames
     async def confirm(self, msg, user):
         rs = (str(self.tick_yes), str(self.tick_no))
         for r in rs:
@@ -193,46 +202,6 @@ class Abyss(commands.Bot):
     def send_error(self, message):
         return self.loop.create_task(self._send_error(message))
 
-    async def get_guild_config(self, guild):
-        data = await self.db.abyss.guildconfig.find_one({"guild": guild.id})
-        if not data:
-            data = CONFIG_NEW.copy()
-            data['guild'] = guild.id
-            await self.db.abyss.guildconfig.insert_one(data)
-        return data
-
-    async def prefix(self, bot, message):
-        if not self.prepared.is_set():
-            return commands.when_mentioned(bot, message)
-
-        # prefix-less in DMs
-        if not message.guild:
-            return ""
-
-        return await self.prefixes_for(message.guild)
-
-    async def prefixes_for(self, guild):
-        if not self.prepared.is_set():
-            return
-
-        if not PREFIXES[guild.id]:
-            cfg = await self.get_guild_config(guild)
-            PREFIXES[guild.id] = set(cfg['prefixes'])
-
-        return list(PREFIXES[guild.id] | {f"<@{self.user.id}> ", f"<@!{self.user.id}> "})
-
-    async def add_prefixes(self, guild, *prefix):
-        if not self.prepared.is_set():
-            raise RuntimeError
-
-        PREFIXES[guild.id].update([p.strip() for p in prefix])
-
-    async def rem_prefixes(self, guild, *prefix):
-        if not self.prepared.is_set():
-            raise RuntimeError
-
-        PREFIXES[guild.id].difference_update(prefix)
-
     def prepare_extensions(self):
         try:
             self.load_extension("jishaku")
@@ -256,6 +225,7 @@ class Abyss(commands.Bot):
 
     async def on_ready(self):
         if self.prepared.is_set():
+            await self.change_presence(activity=discord.Game(name="$help"))
             return
 
         try:
@@ -275,6 +245,7 @@ class Abyss(commands.Bot):
 
         self.prepared.set()
         log.warning("Successfully loaded.")
+        await self.change_presence(activity=discord.Game(name="$help"))
 
     async def on_message(self, message):
         if message.author.bot:
@@ -294,12 +265,6 @@ class Abyss(commands.Bot):
     async def close(self):
         self.dispatch("logout")
         await self.wait_for_close()
-        for guild in self.guilds:
-            if not PREFIXES[guild.id]:
-                continue
-            await self.db.abyss.guildconfig.update_one(
-                {"guild": guild.id},
-                {"$set": {"prefixes": list(PREFIXES[guild.id])}})
         self.db.close()
         await self.session.close()
         await super().close()

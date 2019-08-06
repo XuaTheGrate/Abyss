@@ -1,11 +1,11 @@
-import collections
 import math
 import random
 import re
 from contextlib import suppress
 
+from .enums import *
+from .objects import ListCycle
 from .player import Player
-from .enums import ResistanceModifier, SkillType
 
 NL = '\n'
 
@@ -13,8 +13,9 @@ NL = '\n'
 class Enemy(Player):
     # wild encounters dont have a skill preference or an ai
     # literally choose skills at random
+    # however they will learn not to use a move if you are immune to it
 
-    # true battles will avoid skills that you are immune to,
+    # true battles will automatically avoid skills that you are immune to,
     # and aim for skills that you are weak to / support themself
     def __init__(self, **kwargs):
         kwargs['skills'] = kwargs.pop("moves")
@@ -33,8 +34,7 @@ class Enemy(Player):
         choices = list(
             filter(
                 lambda s: s.type is not SkillType.PASSIVE and (
-                    s.cost <= self.sp if s.uses_sp
-                    else s.cost < self.hp
+                    True if not s.uses_sp else s.cost <= self.sp
                 ) and s.name not in self.unusable_skills,
                 self.skills
             )
@@ -87,6 +87,7 @@ class TargetSession(ui.Session):
         for e in self.enemies.keys():
             # log.debug(f"added button for {self.enemies[e]}")
             self.add_button(self.button, e)
+        self.add_button(self.back, '\u25c0')
 
     async def send_initial_message(self):
         c = [_("Pick a target!\n")]
@@ -136,11 +137,11 @@ class InitialSession(ui.Session):
         await menu.start(self.context)
         if not menu.result:
             # log.debug("no result")
-            raise RuntimeError
+            return 'cancel'
         # log.debug(f"result: {menu.result!r}")
         return menu.result
 
-    async def select_skill(self, message, skill):
+    async def select_skill(self, _, skill):
         obj = self.bot.players.skill_cache[skill.title()]
         if skill.lower() == 'guard':
             self.result = {"type": "fight", "data": {"skill": obj}}
@@ -174,7 +175,8 @@ class InitialSession(ui.Session):
 
     @property
     def header(self):
-        return f"""[{self.player.owner.name}] {self.player.name}
+        return f"""(Turn {self.battle.turn_cycle})
+[{self.player.owner.name}] {self.player.name}
 VS
 {NL.join(f"[Wild] {e}" if not e.is_fainted() else f"[Wild] ~~{e}~~" for e in self.enemies)}
 
@@ -231,7 +233,7 @@ Various buttons have been reacted for use, but move selection requires you to se
 \N{RUNNER} Runs from the battle. Useful if you don't think you can beat this enemy.
 \N{HOUSE BUILDING} Brings you back to the home screen.
 
-For more information regarding battles, see `$faq battles`.""")
+For more information regarding battles, see `$faq battle`.""")
         await self.message.edit(content="", embed=embed)
 
     @ui.button("\N{RUNNER}")
@@ -277,47 +279,31 @@ refl_msgs = {
     ResistanceModifier.RESIST: "__{demon}__ **resists** {skill.type.name} attacks and took {damage} damage!"
 }
 
+supp_msgs = [
+    {  # False == 0, decrease
+        StatModifier.TARU: "__{tdemon}__'s **attack** was lowered!",
+        StatModifier.RAKU: "__{tdemon}__'s **defense** was lowered!",
+        StatModifier.SUKU: "__{tdemon}__'s **evasion/accuracy** was lowered!"
+    },
+    {  # True == 1, increase
+        StatModifier.TARU: "__{tdemon}__'s **attack** increased!",
+        StatModifier.RAKU: "__{tdemon}__'s **defense** increased!",
+        StatModifier.SUKU: "__{tdemon}__'s **evasion/accuracy** increased!"
+    },
+    "__{demon}__ used `{skill}`! "
+]
 
-def get_message(resistance, reflect=False, miss=False, critical=False):
+
+def get_message(resistance, *, reflect=False, miss=False, critical=False):
     if reflect:
         return _(REFL_BASE) + _(refl_msgs[resistance])
     if miss:
-        return MSG_MISS
+        return _(MSG_MISS)
     msg = _(res_msgs[resistance])
     if resistance not in (ResistanceModifier.IMMUNE, ResistanceModifier.WEAK,
                           ResistanceModifier.ABSORB, ResistanceModifier.REFLECT) and critical:
         msg = _("CRITICAL! ") + msg
     return msg
-
-
-class ListCycle:
-    def __init__(self, iterable):
-        self._iter = collections.deque(iterable)
-
-    def __repr__(self):
-        return f"ListCycle(deque({list(map(str, self._iter))}))"
-
-    def active(self):
-        # log.debug("cycle.active() -> %s", list(map(str, self._iter)))
-        return self._iter[0]
-
-    def cycle(self):
-        # log.debug("cycle.cycle<pre>() -> %s", list(map(str, self._iter)))
-        self._iter.append(self._iter.popleft())
-        # log.debug("cycle.cycle<post>() -> %s", list(map(str, self._iter)))
-
-    def decycle(self):
-        # log.debug("cycle.decycle<pre>() -> %s", list(map(str, self._iter)))
-        self._iter.appendleft(self._iter.pop())
-        # log.debug("cycle.decycle<pre>() -> %s", list(map(str, self._iter)))
-
-    def remove(self, item):
-        # log.debug("cycle.remove<pre>() -> %s", list(map(str, self._iter)))
-        self._iter.remove(item)
-        # log.debug("cycle.remove<post>() -> %s", list(map(str, self._iter)))
-
-    def __next__(self):
-        return self.active()
 
 
 class WildBattle:
@@ -327,6 +313,7 @@ class WildBattle:
         self.cmd = self.ctx.bot.get_cog("BattleSystem").cog_command_error
         self.player = player
         self.menu = None
+        self.turn_cycle = 0
         self.enemies = sorted(enemies, key=lambda e: e.agility, reverse=True)
         self.ambush = True if ambush else False if ambushed else None
         self._stopping = False
@@ -349,7 +336,7 @@ class WildBattle:
             await self.menu.stop()
 
     async def handle_player_choices(self):
-        self.player.pre_turn()
+        await self.player.pre_turn_async(self)
         self.menu = InitialSession(self)
         await self.menu.start(self.ctx)
         result = self.menu.result
@@ -396,7 +383,7 @@ class WildBattle:
             await self.ctx.send("unhandled atm")
         else:
             res = target.take_damage(self.player, skill)
-            msg = get_message(res.resistance, res.was_reflected, res.miss, res.critical)
+            msg = get_message(res.resistance, reflect=res.was_reflected, miss=res.miss, critical=res.critical)
             msg = msg.format(demon=self.player, tdemon=target, damage=res.damage_dealt, skill=skill)
             await self.ctx.send(msg)
             if res.did_weak:
@@ -404,7 +391,7 @@ class WildBattle:
                 await self.ctx.send(_("> Nice hit! Move again!"))
 
     async def handle_enemy_choices(self, enemy):
-        enemy.pre_turn()
+        await enemy.pre_turn_async(self)
         skill = enemy.random_move()
         if not skill.is_damaging_skill:
             await self.ctx.send(f"{enemy} used a non damaging skill, skipping")
@@ -417,23 +404,24 @@ class WildBattle:
                 ResistanceModifier.ABSORB
             ):
                 enemy.unusable_skills.append(skill.name)
+                # the ai learns not to use it in the future, but still use it this turn
 
-            msg = get_message(res.resistance, res.was_reflected, res.miss, res.critical)
+            msg = get_message(res.resistance, reflect=res.was_reflected, miss=res.miss, critical=res.critical)
             msg = msg.format(demon=enemy, tdemon=self.player, damage=res.damage_dealt, skill=skill)
             await self.ctx.send(msg)
             if res.did_weak:
                 self.order.decycle()
                 await self.ctx.send(_("> Watch out, {demon} is attacking again!").format(demon=enemy))
 
-    @tasks.loop()
+    @tasks.loop(seconds=1)
     async def main(self):
+        self.turn_cycle += 1
         # log.debug("starting loop")
         if not confirm_not_dead(self):
             # log.debug("confirm not dead failed, stopping")
             await self.stop()
             return
         nxt = self.order.active()
-        rm = False
         if not isinstance(nxt, Enemy):
             # log.debug("next: player")
             await self.handle_player_choices()
@@ -443,9 +431,7 @@ class WildBattle:
                 await self.handle_enemy_choices(nxt)
             else:
                 self.order.remove(nxt)
-                rm = True
-        if not rm:
-            self.order.cycle()
+        self.order.cycle()
 
     @main.before_loop
     async def pre_battle_start(self):
@@ -457,17 +443,25 @@ class WildBattle:
                 _('enemy') if len(self.enemies) == 1 else _('enemies'),
                 _('it') if len(self.enemies) == 1 else _('them')
             ))
+            for e in self.enemies:
+                if any(s.name == 'Adverse Resolve' for s in e.skills):
+                    e._ex_crit_mod += 5.0
         elif self.ambush is False:
             # log.debug("enemy initiative")
             await self.ctx.send(_("> It's an ambush! There {2} {0} {1}!").format(
                 len(self.enemies), _('enemy') if len(self.enemies) == 1 else _('enemies'),
                 _('is') if len(self.enemies) == 1 else _('are')
             ))
+            if any(s.name == 'Adverse Resolve' for s in self.player.skills):
+                self.player._ex_crit_mod += 5.0
         else:
             # log.debug("regular initiative")
             await self.ctx.send(_("> There {2} {0} {1}! Attack!").format(
                 len(self.enemies), _('enemy') if len(self.enemies) == 1 else _('enemies'),
                 _('is') if len(self.enemies) == 1 else _('are')))
+        self.player.pre_battle()
+        for e in self.enemies:
+            e.pre_battle()
 
     @main.after_loop
     async def post_battle_complete(self):
@@ -479,4 +473,5 @@ class WildBattle:
             err = None
         await self.cmd(self.ctx, err, battle=self)
         await self.ctx.send("game over")
+        self.player.post_battle()
         # log.debug("finish")

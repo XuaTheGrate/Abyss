@@ -30,7 +30,7 @@ def __ws(img):
 
 
 def __get_rotated_text(text, rotation=9.46, colour=(255, 255, 255, 255), font=FONT):
-    im = Image.new('RGBA', tuple(x*2 for x in font.getsize(text)), 0)
+    im = Image.new('RGBA', tuple(x * 2 for x in font.getsize(text)), 0)
     d = ImageDraw.Draw(im)
     d.text((1, 1), text, font=font, fill=colour, align='center')
     im = im.rotate(rotation)
@@ -52,26 +52,26 @@ def __create_profile(player, demon_stuff):
     im.paste(demon_name, (100, 75), demon_name)
     demon_name.close()
 
-    pos = ((im.size[0] - demon_stuff.size[0])-20, (im.size[1]//2 - demon_stuff.size[1]//2))
+    pos = ((im.size[0] - demon_stuff.size[0]) - 20, (im.size[1] // 2 - demon_stuff.size[1] // 2))
     # print(f"HI IM DEBUG {pos}")
     im.paste(demon_stuff, pos, demon_stuff)
     demon_stuff.close()
 
     st = __get_rotated_text(str(player.strength), 0.0, (0, 0, 0, 255), SMOL)
-    st = st.resize((st.size[0], st.size[1]+15), resample=Image.BILINEAR)
+    st = st.resize((st.size[0], st.size[1] + 15), resample=Image.BILINEAR)
     im.paste(st, (725, 465), st)
     st.close()
 
     ma = __get_rotated_text(str(player.magic), 0.0, (0, 0, 0, 255), SMOL)
-    ma = ma.resize((ma.size[0], ma.size[1]+15), resample=Image.BILINEAR)
+    ma = ma.resize((ma.size[0], ma.size[1] + 15), resample=Image.BILINEAR)
     im.paste(ma, (735, 500), ma)
     ma.close()
 
     en = __get_rotated_text(str(player.endurance), 0.0, (0, 0, 0, 255), SMOL)
-    en = en.resize((en.size[0], en.size[1]+15), resample=Image.BILINEAR)
+    en = en.resize((en.size[0], en.size[1] + 15), resample=Image.BILINEAR)
     im.paste(en, (725, 535), en)
     en.close()
-    
+
     ag = __get_rotated_text(str(player.agility), 0.0, (0, 0, 0, 255), SMOL)
     ag = ag.resize((ag.size[0], ag.size[1] + 15), resample=Image.BILINEAR)
     im.paste(ag, (735, 570), ag)
@@ -129,5 +129,5 @@ async def profile_executor(bot, player):
         return await bot.loop.run_in_executor(None, meth)
     finally:
         # if process.is_alive():
-            # process.terminate()
+        # process.terminate()
         pass

@@ -1,3 +1,4 @@
+import collections
 import json
 import math
 import random
@@ -10,18 +11,19 @@ from .enums import *
 # END -> Targets Endurance
 # RNG -> uniform(0.95, 1.05)
 # TRU -> Attackers Taru modifier
-# SEV -> Skill Severity
+# SEV -> Skill Severity, maybe be moved to the last
 # RKU -> Targets Raku modifier
 # ATK -> Attackers level
 # TRG -> Targets level
-# BASE -v
+# BASE ------v
 SKILL_BASE = 65  # can be modified if need be
 
 
 class JSONable:
     __json__ = ()
 
-    def _serialize(self, o):
+    @staticmethod
+    def _serialize(o):
         return {k: o.keygetter(k) for k in o.__json__ if not k.startswith('_')}
 
     def keygetter(self, key):
@@ -54,16 +56,16 @@ class DamageResult:
 
 
 class Leaf:
-    def __init__(self, name, cost, skills, bot, unlocks=None, unlockRequires=None):
+    def __init__(self, name, cost, skills, bot, unlocks=None, unlock_requires=None):
         self.name = name
         self.unlocks = unlocks or []
         self.cost = cost
         self.skills = [bot.players.skill_cache[s] for s in skills]
-        self.unlockRequires = unlockRequires or []
+        self.unlock_requires = unlock_requires or []
 
     def __repr__(self):
         return f"<SkillTree(leaf) {self.name}, ${self.cost}," \
-            f" {len(self.unlocks)} unlocks, {len(self.unlockRequires)} to unlock," \
+            f" {len(self.unlocks)} unlocks, {len(self.unlock_requires)} to unlock," \
             f" {len(self.skills)} skills>"
 
 
@@ -75,9 +77,9 @@ class Branch:
             d = {"name": leafn, **data, 'bot': bot}
             leaf = Leaf(**d)
             for unlock in leaf.unlocks:
-                if unlock in self.leaves and leafn not in self.leaves[unlock].unlockRequires:
-                    self.leaves[unlock].unlockRequires.append(leafn)
-            for lock in leaf.unlockRequires:
+                if unlock in self.leaves and leafn not in self.leaves[unlock].unlock_requires:
+                    self.leaves[unlock].unlock_requires.append(leafn)
+            for lock in leaf.unlock_requires:
                 if lock in self.leaves and leafn not in self.leaves[lock].unlocks:
                     self.leaves[lock].unlocks.append(leafn)
             self.leaves[leafn] = leaf
@@ -96,6 +98,37 @@ class SkillTree:
         return f"<SkillTree {len(self.branches)} branches>"
 
 
+class ListCycle:
+    def __init__(self, iterable):
+        self._iter = collections.deque(iterable)
+
+    def __repr__(self):
+        return f"ListCycle(deque({list(map(str, self._iter))}))"
+
+    def active(self):
+        # log.debug("cycle.active() -> %s", list(map(str, self._iter)))
+        return self._iter[0]
+
+    def cycle(self):
+        # log.debug("cycle.cycle<pre>() -> %s", list(map(str, self._iter)))
+        self._iter.append(self._iter.popleft())
+        # log.debug("cycle.cycle<post>() -> %s", list(map(str, self._iter)))
+
+    def decycle(self):
+        # log.debug("cycle.decycle<pre>() -> %s", list(map(str, self._iter)))
+        self._iter.appendleft(self._iter.pop())
+        # log.debug("cycle.decycle<pre>() -> %s", list(map(str, self._iter)))
+
+    def remove(self, item):
+        # log.debug("cycle.remove<pre>() -> %s", list(map(str, self._iter)))
+        self._iter.remove(item)
+        self.decycle()
+        # log.debug("cycle.remove<post>() -> %s", list(map(str, self._iter)))
+
+    def __next__(self):
+        return self.active()
+
+
 class Skill(JSONable):
     __json__ = ('name', 'type', 'severity', 'cost', 'accuracy', 'desc')
 
@@ -110,10 +143,11 @@ class Skill(JSONable):
 
     def __new__(cls, **kwargs):
         name = kwargs['name']
-        new_cls = passives.get(name, None)
+        new_cls = subclasses.get(name, None)
         if new_cls:
             cls = new_cls
         self = object.__new__(cls)
+        # noinspection PyArgumentList
         cls.__init__(self, **kwargs)
         return self
 
@@ -130,18 +164,22 @@ class Skill(JSONable):
         self.description = kwargs.pop("desc")
         self.accuracy = kwargs.pop("accuracy", 90)
 
-        # for subclasses
-        self.is_counter_like = False
-        self.is_passive_immunity = False
         self.is_evasion = False
 
+    @property
+    def is_counter_like(self):
+        return isinstance(self, Counter)
+
+    @property
+    def is_passive_immunity(self):
+        return isinstance(self, PassiveImmunity)
+
+    @property
+    def is_status_skill(self):
+        return isinstance(self, StatusMod)
+
     def __repr__(self):
-        return (f"Skill(name='{self.name}', "
-                f"type={self.type.value}, "
-                f"severity='{self.severity.name}', "
-                f"cost={self.cost}, "
-                f"desc='{self.description}', "
-                f"accuracy={self.accuracy})")
+        return f"<{type(self).__name__} {self.name!r}, {self.type.name.lower()}>"
 
     def __str__(self):
         return self.name
@@ -158,6 +196,7 @@ Skill
 
     uses_sp: {self.uses_sp}
     is_instant_skill: {self.is_instant_kill}
+    is_damaging_skill: {self.is_damaging_skill}
 ```"""
 
     @property
@@ -185,25 +224,10 @@ Skill
 
 
 class Counter(Skill):
-    base = 10
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.is_counter_like = True
-
-    def try_counter(self, user, target, skill):
-        if skill.uses_sp:
-            return False
-        base = 10 + (user.luck-target.luck)
+    def try_counter(self, user, target):
+        # we use accuracy here as a hack for how often Counter will proc
+        base = self.accuracy + (user.luck-target.luck)
         return random.randint(1, 100) < base
-
-
-class Counterstrike(Counter):
-    base = 15
-
-
-class HighCounter(Counter):
-    base = 20
 
 
 _passive_handles = {
@@ -217,31 +241,68 @@ _passive_handles = {
 class PassiveImmunity(Skill):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.is_passive_immunity = True
         self.is_evasion = self.name.startswith(("Dodge", "Evade"))
 
     def immunity_handle(self):
         if self.is_evasion:
-            return self.accuracy  # :^) we use 20 for Evade, or 10 for Dodge
+            return self.accuracy  # we use 20 for Evade, or 10 for Dodge
         return _passive_handles[self.name.split(" ")[0]]
 
 
-passives = {
-    "Counter": Counter,
-    "Counterstrike": Counterstrike,
-    "High Counter": HighCounter
-}
+class ShieldSkill(Skill):
+    def activate(self, player):
+        typ = self.name.split(" ")[0]
+        player._shields[typ] = 3  # little hacky, but its easiest this way
 
-for t in ("Curse", "Bless", "Fire", "Elec", "Nuke", "Wind", "Ice", "Psy"):
+
+class StatusMod(Skill):
+    def __init__(self, **kwargs):
+        name = kwargs['name']
+        super().__init__(**kwargs)
+        if name.startswith('Dek'):
+            self.target = None
+        else:  # None for Dekaja/Dekunda
+            self.target = StatModifier[name[:4].upper()]
+        self.boost = name.endswith("kaja")
+        # if the skill is Dekaja, the target is inversed
+
+    def filter_targets(self, battle, enemy=False):
+        # return the player if its Dekunda/*Kaja, else the enemies
+        if self.target is None:
+            if self.boost:  # Dekaja
+                return (battle.player,) if enemy else battle.enemies
+            # Dekunda
+            return battle.enemies if enemy else (battle.player,)
+        else:
+            if self.boost:  # *kaja
+                return battle.enemies if enemy else (battle.player,)
+            # *nda
+            return (battle.player,) if enemy else battle.enemies
+
+
+subclasses = {
+    "Counter": Counter,
+    "Counterstrike": Counter,
+    "High Counter": Counter
+}
+types = ("Curse", "Bless", "Fire", "Elec", "Nuke", "Wind", "Ice", "Psy")
+for t in types:
     for r in ("Absorb", "Null", "Repel", "Resist", "Dodge", "Evade"):
-        passives[f"{r} {t}"] = PassiveImmunity
+        subclasses[f"{r} {t}"] = PassiveImmunity
+    subclasses[f"{t} Shield"] = ShieldSkill
+
+for s in ('Taru', 'Raku', 'Suku', 'De'):
+    for a in ('kaja', 'nda'):
+        if s == 'De' and a == 'nda':
+            a = 'kunda'
+        subclasses[f"{s}{a}"] = StatusMod
 
 
 GenericAttack = Skill(
     name="Attack",
     cost=0,
     type="physical",
-    severity="miniscule",
+    severity="miniscule",  # TBD: light or miniscule
     desc="A regular attack."
 )
 

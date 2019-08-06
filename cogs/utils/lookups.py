@@ -30,6 +30,7 @@ TYPE_SHORTEN = {
     "psychokinetic": "psy",
     "bless": "bless",
     "curse": "curse",
+    "almighty": "almighty",
     "passive": "passive",
     "ailment": "ailment",
     "support": "support",
@@ -76,4 +77,11 @@ ROMAN_NUMERAL = [
     'XVIII',
     'XIX',
     'XX'
+]
+
+
+STAT_MOD = [
+    'Attack',
+    'Defense',
+    'Accuracy/Evasion'
 ]
