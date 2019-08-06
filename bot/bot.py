@@ -57,6 +57,9 @@ def get_logger():
     return log
 
 
+get_logger()
+
+
 CONFIG_NEW = {
     "guild": None,              # guild id
     "prefixes": config.PREFIX,  # list of prefixes
