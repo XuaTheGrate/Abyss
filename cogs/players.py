@@ -69,7 +69,8 @@ def skills_page(player):
     embed = discord.Embed(colour=lookups.TYPE_TO_COLOUR[player.specialty.name.lower()])
     embed.title = _("Skills")
     embed.set_author(name=player.name, icon_url=player.owner.avatar_url_as(format='png', size=32))
-    skills = [f'{lookups.TYPE_TO_EMOJI[skill.type.name.lower()]} {skill.name}' for skill in player.skills]
+    skills = [f'{lookups.TYPE_TO_EMOJI[skill.type.name.lower()]} {skill.name}' for skill in player.skills
+              if skill.name not in ('Attack', 'Guard')]
     embed.description = '\n'.join(skills) or ':warning:'
     embed.set_footer(text=_('<~ Skill Tree Status | Unset skills ~>'))
     return embed
@@ -382,6 +383,8 @@ class Players(commands.Cog):
         if not ctx.player:
             return
         name = name.title()
+        if name in ('Attack', 'Guard'):
+            return await ctx.send("um lol?")
         if name not in self.skill_cache:
             return await ctx.send(_("Couldn't find a skill by that name."))
         skill = self.skill_cache[name]
@@ -389,7 +392,7 @@ class Players(commands.Cog):
             if skill in ctx.player.skills:
                 return await ctx.send(_("That skill is already in your repertoire."))
             return await ctx.send(_("You haven't unlocked that skill yet."))
-        if len(ctx.player.skills) == 8:
+        if len(ctx.player.skills)-2 == 8:  # -2 for Guard and Attack
             return await ctx.send(_("You can't equip more than 8 skills."))
         ctx.player.skills.append(skill)
         ctx.player.unset_skills.remove(skill)
@@ -401,6 +404,8 @@ class Players(commands.Cog):
         if not ctx.player:
             return
         name = name.title()
+        if name in ('Attack', 'Guard'):
+            return await ctx.send(_("You can't remove that skill."))
         if name not in self.skill_cache:
             return await ctx.send(_("Couldn't find a skill by that name."))
         skill = self.skill_cache[name]
@@ -412,7 +417,7 @@ class Players(commands.Cog):
             if skill in ctx.player.unset_skills:
                 return await ctx.send(_("That skill is not in your repertoire."))
             return await ctx.send(_("You haven't unlocked that skill yet."))
-        if len(ctx.player.skills) == 1:
+        if len(ctx.player.skills)-2 == 1:
             return await ctx.send(_("You must equip at least 1 skill."))
         ctx.player.unset_skills.append(skill)
         ctx.player.skills.remove(skill)

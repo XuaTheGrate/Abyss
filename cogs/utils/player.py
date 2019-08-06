@@ -31,7 +31,7 @@ class Player(JSONable):
         elif key == 'ap':
             return self.ap_points
         elif key == 'unsetskills':
-            return [z.name for z in self.unset_skills]
+            return [z.name for z in self.unset_skills if z.name not in ('Attack', 'Guard')]
         return getattr(self, key)
 
     def __init__(self, **kwargs):
@@ -44,12 +44,7 @@ class Player(JSONable):
             self.skills = skills
         else:
             self.skills = []
-            self._skills = skills
-
-            if 'Attack' not in self._skills:
-                self._skills.append('Attack')
-            if 'Guard' not in self._skills:
-                self._skills.append('Guard')
+            self._skills = ['Attack', 'Guard', *skills]
 
         self.exp = kwargs.pop("exp")
         self.strength, self.magic, self.endurance, self.agility, self.luck = kwargs.pop("stats")
