@@ -51,7 +51,8 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
             if not ret:
                 return
             if isinstance(ret, dict):
-                ret = {k.decode(): int(v) if v.isdigit() else v.decode() for k, v in ret.items()}
+                ret = {int(k) if k.isdigit() else k.decode(): int(v) if v.isdigit() else v.decode()
+                       for k, v in ret.items()}
             elif isinstance(ret, list):
                 ret = [int(k) if k.isdigit() else k.decode() for k in ret]
             elif isinstance(ret, bytes):
