@@ -51,11 +51,11 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
             if not ret:
                 return
             if isinstance(ret, dict):
-                ret = {k.decode(): v.decode() for k, v in ret.items()}
+                ret = {k.decode(): int(v) if v.isdigit() else v.decode() for k, v in ret.items()}
             elif isinstance(ret, list):
-                ret = list(map(bytes.decode, ret))
+                ret = [int(k) if k.isdigit() else k.decode() for k in ret]
             elif isinstance(ret, bytes):
-                ret = ret.decode()
+                ret = int(ret) if ret.isdigit() else ret.decode()
             await ctx.send(f"```py\n{pformat(ret)}```")
 
     @dev.command()
