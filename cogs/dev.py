@@ -47,7 +47,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
                 ext = name.split(".")[-1]
                 if ext not in self.valid:
                     continue
-                if any(x in './' + str(pathlib.PurePath(path, name)) for x in ('venv',)):
+                if any(x in './' + str(pathlib.PurePath(path, name)) for x in ('venv', '.git')):
                     continue
                 count[ext] += 1
                 with open('./' + str(pathlib.PurePath(path, name)), 'r', encoding='unicode-escape') as f:

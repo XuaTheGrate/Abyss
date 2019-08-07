@@ -119,6 +119,10 @@ class Abyss(commands.Bot):
     def tree(self):
         return self.get_cog("SkillTreeCog")
 
+    @property
+    def maps(self):
+        return self.get_cog("Maps")
+
     async def before_invoke_handler(self, ctx):
         try:
             ctx.player = self.players.players[ctx.author.id]

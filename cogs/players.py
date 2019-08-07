@@ -104,7 +104,8 @@ class Status(ui.Session):
     def __init__(self, player):
         super().__init__(timeout=120)
         self.player = player
-        embed = discord.Embed(title=player.name, colour=lookups.TYPE_TO_COLOUR[player.specialty.name.lower()])
+        embed = discord.Embed(title=f"Lvl{player.level} {player.name}",
+                              colour=lookups.TYPE_TO_COLOUR[player.specialty.name.lower()])
         embed.set_author(name=player.owner, icon_url=player.owner.avatar_url_as(format="png", size=32))
         res = {}
         for key, value_iter in itertools.groupby(list(player.resistances.items()), key=itemgetter(1)):

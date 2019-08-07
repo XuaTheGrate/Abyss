@@ -13,7 +13,7 @@ IMMUNITY_ORDER = ['Repel', 'Absorb', 'Null', 'Resist']
 
 class Player(JSONable):
     __json__ = ('owner', 'name', 'skills', 'exp', 'stats', 'resistances', 'arcana', 'specialty', 'stat_points',
-                'description', 'skill_leaf', 'ap', 'unsetskills', 'finished_leaves')
+                'description', 'skill_leaf', 'ap', 'unsetskills', 'finished_leaves', 'coord')
 
     def keygetter(self, key):
         if key == 'owner':
@@ -32,6 +32,8 @@ class Player(JSONable):
             return self.ap_points
         elif key == 'unsetskills':
             return [z.name for z in self.unset_skills if z.name not in ('Attack', 'Guard')]
+        elif key == 'coord':
+            return tuple(self.coord)
         return getattr(self, key)
 
     def __init__(self, **kwargs):
@@ -39,6 +41,7 @@ class Player(JSONable):
         self._owner_id = kwargs.pop("owner")
         self.owner = None
         self.name = kwargs.pop("name")
+
         skills = kwargs.pop("skills")
         if skills and all(isinstance(x, Skill) for x in skills):
             self.skills = skills
@@ -48,6 +51,7 @@ class Player(JSONable):
 
         self.exp = kwargs.pop("exp")
         self.strength, self.magic, self.endurance, self.agility, self.luck = kwargs.pop("stats")
+
         # self.resistances = dict(zip(SkillType, map(ResistanceModifier, kwargs.pop("resistances"))))
         self._resistances = kwargs.pop("resistances")
         # noinspection PyTypeChecker
@@ -57,6 +61,7 @@ class Player(JSONable):
             else ResistanceModifier.RESIST
             for x in self._resistances]))
         # noinspection PyArgumentList
+
         self.arcana = Arcana(kwargs.pop("arcana"))
         self.specialty = SkillType[kwargs.pop("specialty").upper()]
         self.description = kwargs.pop("description", "<no description found, report to Xua>")
@@ -64,6 +69,7 @@ class Player(JSONable):
         self.debug = kwargs.pop("testing", False)
         self._active_leaf = kwargs.pop("skill_leaf", None)
         self.leaf = None
+        self.coord = kwargs.pop('coord', [0, 0])
         self.ap_points = kwargs.pop("ap", 0)
         self._unset_skills = kwargs.pop("unsetskills", [])
         self.unset_skills = []
@@ -85,7 +91,7 @@ class Player(JSONable):
         return f"<({self.arcana.name}) {self.owner.name!r}'s  Level {self.level} {self.name!r}>"
 
     def _debug_repr(self):
-        return f"""Player
+        return f"""Player {self.owner}, {self._owner_id}
 --- name: {self.name}
 --- skills: {", ".join(map(str, self.skills))}
 --- exp: {self.exp}
@@ -100,6 +106,7 @@ class Player(JSONable):
 --- finished_leaves: {self.finished_leaves}
 --- unset_skills: {", ".join(map(str, self.unset_skills))}
 --- guarding: {self.guarding}
+--- coord: {self.coord!r}
 
 --- level: {self.level}
 --- hp: {self.hp}
@@ -119,6 +126,7 @@ class Player(JSONable):
 --- _until_clear: {self._until_clear}
 --- _next_level: {self._next_level}
 --- _active_leaf: {self._active_leaf}
+--- _shields: {self._shields}
 --- _ex_crit_mod: {self._ex_crit_mod}"""
 
     @property
@@ -192,6 +200,7 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
 
     def _populate_skills(self, bot):
         self.owner = bot.get_user(self._owner_id)
+        self.coord = bot.maps.mapgr.coordinates[tuple(self.coord)]
         for skill in self._skills:
             self.skills.append(bot.players.skill_cache[skill])
         for skill in self._unset_skills:
