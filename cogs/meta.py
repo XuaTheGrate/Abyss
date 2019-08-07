@@ -66,7 +66,25 @@ Todo: dont obtain bonus turns for exploting the same enemy's weakness twice"""
     async def skills(self, ctx):
         embed = discord.Embed(title="FAQ: Skills")
         embed.description = """Each skill has their own type, power, accuracy and possible secret ability.
-"""
+There are 6 categories of skills:
+> __Physical__
+The physical damaging skills. These are the only skills that can land **Criticals**.
+Physical and Gun type skills fall under this category.
+> __Special__
+The special damaging skills. These skills cannot land **Criticals**, but have unique effects opposed to most Physical skills.
+Fire, Wind, Electric, Ice, Nuclear, Psychokinetic, Bless, Curse and Almighty type skills fall under this category.
+> __Support__
+Non-damaging skills focused on buffing your team, or debuffing the opposing team. `Guard` also falls under here.
+These include buffs/debuffs, manual type negation or skill charging.
+> __Healing__
+Anti-damaging skills focused on keeping you alive, or healing status effects.
+**Items** do the same thing, but are expensive. Healing skills only use your SP.
+> __Passive__
+Unusable skills that activate automatically when a certain requirement is met.
+Can be automatic buffs at the start of battle, increased criticals or even automatic skill negation.
+> __Ailment__
+Non-damaging skills to inflict various status ailments on the enemy.
+You can view `$faq ailments` to view information about every ailment."""
 
 
 def setup(bot):
