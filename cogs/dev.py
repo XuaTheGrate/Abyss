@@ -56,9 +56,8 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
                             continue
                         lines[ext] += 1
         t = lines
-        sizea = max(len(str(x)) for x in t.values())
-        fmt = "```\n" + "\n".join(sorted([f'{x:>{sizea}} {y} ({count[y]} files)' for y, x in t.items()],
-                                         key=lambda m: len(m))) + "```"
+        fmt = "```\n" + "\n".join(
+            sorted([f'{x} {y} ({count[y]} files)' for y, x in t.items()], key=lambda m: len(m))) + "```"
         await ctx.send(fmt)
 
 

@@ -87,6 +87,41 @@ Non-damaging skills to inflict various status ailments on the enemy.
 You can view `$faq ailments` to view information about every ailment."""
         await ctx.send(embed=embed)
 
+    @faq.command(aliases=['statuses'])
+    async def ailments(self, ctx):
+        embed = discord.Embed(title="FAQ: Ailments")
+        embed.set_footer(text="All ailments will heal themselves 2-7 turns after infliction.")
+        embed.description = """In total, there are **12** ailments.
+`Technical` is like a crit, but different. See `$faq technicals`
+> **Burn**   Technical: Wind/Nuclear
+After you take your turn, you will take 6% of your max HP in damage.
+> **Freeze**   Technical: Physical/Nuclear
+You are unable to move.
+> **Shock**   Technical: Physical/Nuclear
+High chance of being immobilized. If you hit someone with your Attack, or they hit you with their Attack,
+there is a medium chance of them being inflicted with Shock.
+> **Dizzy**   Technical: Any
+Accuracy is severely reduced.
+> **Forget**   Technical: Psychokinetic
+You will be unable to use your skills. You can still use Attack and Guard, and your passive skills will
+still work.
+> **Sleep**   Technical: Physical
+You are unable to move, however your HP and SP will recover by 8% every turn. You have a 90% chance of
+waking if the enemy hits you with a physical attack.
+> **Confuse**   Technical: Psychokinetic
+Chance to throw away an item/credits, do nothing or use a random skill.
+> **Fear**   Technical: Psychokinetic
+High chance of being immobilized. Low chance of running away from battle.
+> **Despair**   Technical: Psychokinetic
+Unable to move, and you will lose 6% SP per turn.
+> **Rage**   Technical: Psychokinetic
+Attack is doubled, but defense is halved. You will automatically use Attack instead of taking a turn.
+> **Brainwash**   Technical: Psychokinetic
+Chance to heal/buff the enemy.
+> **Hunger**   Technical: Gun
+Greatly lowers your attack power."""
+        await ctx.send(embed=embed)
+
 
 def setup(bot):
     bot.add_cog(Meta())
