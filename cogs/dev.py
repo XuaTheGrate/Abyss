@@ -13,8 +13,8 @@ from .utils.formats import format_exc
 def recursive_decode(i):
     if isinstance(i, dict):
         return {recursive_decode(k): recursive_decode(v) for k, v in i.items()}
-    elif isinstance(i, list):
-        return list(map(recursive_decode, i))
+    elif isinstance(i, (list, tuple)):
+        return type(i)(map(recursive_decode, i))
     elif isinstance(i, bytes):
         if i.isdigit():
             return int(i)
