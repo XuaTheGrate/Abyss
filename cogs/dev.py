@@ -3,6 +3,7 @@ import importlib
 import os
 import pathlib
 import sys
+from pprint import pformat
 
 from discord.ext import commands
 
@@ -38,7 +39,26 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
             await ctx.channel.purge(check=lambda m: m.author == ctx.me, bulk=False)
 
     @dev.command()
-    @commands.is_owner()
+    async def redis(self, ctx, cmd, *args):
+        func = getattr(self.bot.redis, cmd)
+        try:
+            ret = await func(*args)
+        except Exception as e:
+            await ctx.message.add_reaction(self.bot.tick_no)
+            await ctx.author.send(f"```py\n{format_exc(e)}```")
+        else:
+            await ctx.message.add_reaction(self.bot.tick_yes)
+            if not ret:
+                return
+            if isinstance(ret, dict):
+                ret = {k.decode(): v.decode() for k, v in ret.items()}
+            elif isinstance(ret, list):
+                ret = list(map(bytes.decode, ret))
+            elif isinstance(ret, bytes):
+                ret = ret.decode()
+            await ctx.send(f"```py\n{pformat(ret)}```")
+
+    @dev.command()
     async def linecount(self, ctx):
         lines = collections.Counter()
         count = collections.Counter()
