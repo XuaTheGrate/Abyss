@@ -85,6 +85,7 @@ Can be automatic buffs at the start of battle, increased criticals or even autom
 > __Ailment__
 Non-damaging skills to inflict various status ailments on the enemy.
 You can view `$faq ailments` to view information about every ailment."""
+        await ctx.send(embed=embed)
 
 
 def setup(bot):
