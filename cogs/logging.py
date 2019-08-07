@@ -23,7 +23,7 @@ class CommandLogger(commands.Cog):
             f"[{ctx.guild.id} {ctx.guild}] {ctx.author.id} {ctx.author}: "
             f"{ctx.message.clean_content.replace(NL, NNL)}"
         )
-        if ctx.command.qualified_name.startswith(('jishaku', 'dev')):
+        if ctx.command.qualified_name.startswith(('jishaku', 'dev', '_')):
             return
         await ctx.bot.redis.incr('commands_used_total')
         await ctx.bot.redis.incr(f'commands_used_{datetime.utcnow().strftime("%Y-%m-%d")}')
