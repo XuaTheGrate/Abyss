@@ -79,6 +79,7 @@ def fmt(r, g, b):
 
 
 im = Image.open("map.png").convert('RGB')
+lx, ly = im.size
 
 
 def closest(rgb):
@@ -92,8 +93,8 @@ def closest(rgb):
     return min_colours[min(min_colours.keys())]
 
 
-for x in range(100):
-    for y in range(100):
+for x in range(lx//10):
+    for y in range(ly//10):
         xx = x*10
         yy = y*10
         rgb = im.getpixel((xx, yy))
@@ -106,7 +107,7 @@ for x in range(100):
         BIOMES[name]['coordinates'].append([x, y])
 
 
-d = {"biomes": BIOMES, 'max_x': 100, 'max_y': 100}
+d = {"biomes": BIOMES, 'max_x': lx//10, 'max_y': ly//10}
 
 with open("output.json", "w") as f:
     json.dump(BIOMES, f)
@@ -114,7 +115,7 @@ im.close()
 
 input('run test?')
 
-new = Image.new('RGB', (100, 100))
+new = Image.new('RGB', (lx//10, ly//10))
 
 rev = {v: k for k, v in BIOME_COLOURS.items()}
 
