@@ -53,7 +53,7 @@ class Biome:
             self.coordinates.append(map_manager.coordinates[tuple(coordinate)])
 
     def __repr__(self):
-        return f"<Biome id={self.id} name={self.name!r} coordinates>"
+        return f"<Biome id={self.id} name={self.name!r}>"
 
 
 class Location:
@@ -78,7 +78,7 @@ class MapManager:
         self.max_x, self.max_y = max_x, max_y
 
         self.initiate_coordinates()
-        self.initiate_locations(location_data)
+        # self.initiate_locations(location_data)
         self.initiate_biomes(biome_data)
 
     @classmethod
@@ -101,7 +101,7 @@ class MapManager:
             )
 
     def initiate_biomes(self, biome_data):
-        for biome in biome_data:
+        for name, biome in biome_data.items():
             self.biomes.append(
                 Biome(
                     self,
