@@ -25,7 +25,7 @@ class CommandLogger(commands.Cog):
         )
         await ctx.bot.redis.incr('commands_used_total')
         await ctx.bot.redis.incr(f'commands_used_{datetime.utcnow().strftime("%Y-%m-%d")}')
-        await ctx.bot.redis.hincrby('command_totals', ctx.command.qualified_name, 1)
+        await ctx.bot.redis.hincrby('command_totals', ctx.command.root_parent.qualified_name, 1)
 
     @commands.Cog.listener()
     async def on_message(self, msg):

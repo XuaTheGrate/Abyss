@@ -25,7 +25,7 @@ I am in very beta, be careful when using my commands as they are not ready for p
 Currently gazing over {len(ctx.bot.guilds)} servers, enjoying {len(ctx.bot.users):,} users' company.
 I don't have my own support server, so you can join my owners general server here: <https://discord.gg/hkweDCD>
 
-Created by {', '.join(ctx.bot.get_user(u).name for u in ctx.bot.config.OWNERS)}""")
+Created by {', '.join(str(ctx.bot.get_user(u)) for u in ctx.bot.config.OWNERS)}""")
 
     @commands.command()
     async def botstats(self, ctx):
@@ -63,11 +63,12 @@ Created by {', '.join(ctx.bot.get_user(u).name for u in ctx.bot.config.OWNERS)}"
     async def faq(self, ctx):
         """Brings up the Frequently Asked Questions."""
         embed = discord.Embed(title="FAQ")
-        embed.description = "\n".join(f"${c}" for c in self.faq.commands)
+        embed.description = "\n".join(f"${c} - **{c.short_doc}**" for c in self.faq.commands)
         await ctx.send(embed=embed)
 
     @faq.group()
     async def battle(self, ctx):
+        """How do I fight?"""
         embed = discord.Embed(title="FAQ: Battle")
         embed.description = """Each battle will require you to fight against one or more opponents.
 > __Losing the battle will not be tolerated.__
@@ -80,6 +81,7 @@ Winning the battle will earn EXP, Credits and you may even obtain an item."""
 
     @faq.command(aliases=['resistance'])
     async def resistances(self, ctx):
+        """What are resistances and how do they affect battle?"""
         embed = discord.Embed(title="FAQ: Resistances")
         embed.description = """Each demon has their own unique resistances.
 Some may not have a weakness, and some may not have a resistance.
@@ -107,6 +109,7 @@ Todo: dont obtain bonus turns for exploting the same enemy's weakness twice"""
 
     @faq.command(aliases=['skill'])
     async def skills(self, ctx):
+        """What are all the skill categories?"""
         embed = discord.Embed(title="FAQ: Skills")
         embed.description = """Each skill has their own type, power, accuracy and possible secret ability.
 There are 6 categories of skills:
@@ -132,6 +135,7 @@ You can view `$faq ailments` to view information about every ailment."""
 
     @faq.command(aliases=['statuses', 'ailment'])
     async def ailments(self, ctx):
+        """What is an ailment and what do they do?"""
         embed = discord.Embed(title="FAQ: Ailments")
         embed.set_footer(text="All ailments will heal themselves 2-7 turns after infliction.")
         embed.description = """In total, there are **12** ailments.
