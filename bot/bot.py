@@ -261,6 +261,16 @@ class Abyss(commands.Bot):
 
         await self.process_commands(message)
 
+    async def on_message_edit(self, before, after):
+        if after.author.bot or before.content == after.content:
+            return
+
+        current = await self.redis.get(f"locale:{before.author.id}")
+        if not current:
+            current = i18n.LOCALE_DEFAULT.encode()
+        i18n.current_locale.set(current.decode())
+        await self.process_commands(after)
+
     def run(self):
         # stupid sphinx inheriting bug
         super().run(config.TOKEN)
