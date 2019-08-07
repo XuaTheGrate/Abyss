@@ -10,6 +10,18 @@ from discord.ext import commands
 from .utils.formats import format_exc
 
 
+def recursive_decode(i):
+    if isinstance(i, dict):
+        return {recursive_decode(k): recursive_decode(v) for k, v in i.items()}
+    elif isinstance(i, list):
+        return list(map(recursive_decode, i))
+    elif isinstance(i, bytes):
+        if i.isdigit():
+            return int(i)
+        return i.decode()
+    return i
+
+
 class Developers(commands.Cog, command_attrs={"hidden": True}):
     def __init__(self, bot):
         self.bot = bot
@@ -40,9 +52,9 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
 
     @dev.command()
     async def redis(self, ctx, cmd, *args):
-        func = getattr(self.bot.redis, cmd)
         args = [int(a) if a.isdigit() else a for a in args]
         try:
+            func = getattr(self.bot.redis, cmd)
             ret = await func(*args)
         except Exception as e:
             await ctx.message.add_reaction(self.bot.tick_no)
@@ -51,13 +63,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
             await ctx.message.add_reaction(self.bot.tick_yes)
             if not ret:
                 return
-            if isinstance(ret, dict):
-                ret = {int(k) if k.isdigit() else k.decode(): int(v) if v.isdigit() else v.decode()
-                       for k, v in ret.items()}
-            elif isinstance(ret, list):
-                ret = [int(k) if k.isdigit() else k.decode() for k in ret]
-            elif isinstance(ret, bytes):
-                ret = int(ret) if ret.isdigit() else ret.decode()
+            ret = recursive_decode(ret)
             await ctx.send(f"```py\n{pformat(ret)}```")
 
     @dev.command()
