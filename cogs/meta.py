@@ -35,7 +35,7 @@ If you are **ambushed** by the enemy, they will move in order of their agility b
 Winning the battle will earn EXP, Credits and you may even obtain an item."""
         await ctx.send(embed=embed)
 
-    @faq.command()
+    @faq.command(aliases=['resistance'])
     async def resistances(self, ctx):
         embed = discord.Embed(title="FAQ: Resistances")
         embed.description = """Each demon has their own unique resistances.
@@ -62,7 +62,7 @@ Todo: exploiting an enemy's weakness will knock them down, nullifying any evasio
 Todo: dont obtain bonus turns for exploting the same enemy's weakness twice"""
         await ctx.send(embed=embed)
 
-    @faq.command()
+    @faq.command(aliases=['skill'])
     async def skills(self, ctx):
         embed = discord.Embed(title="FAQ: Skills")
         embed.description = """Each skill has their own type, power, accuracy and possible secret ability.
@@ -87,7 +87,7 @@ Non-damaging skills to inflict various status ailments on the enemy.
 You can view `$faq ailments` to view information about every ailment."""
         await ctx.send(embed=embed)
 
-    @faq.command(aliases=['statuses'])
+    @faq.command(aliases=['statuses', 'ailment'])
     async def ailments(self, ctx):
         embed = discord.Embed(title="FAQ: Ailments")
         embed.set_footer(text="All ailments will heal themselves 2-7 turns after infliction.")
@@ -102,12 +102,12 @@ High chance of being immobilized. If you hit someone with your Attack, or they h
 there is a medium chance of them being inflicted with Shock.
 > **Dizzy**   Technical: Any
 Accuracy is severely reduced.
+> **Sleep**   Technical: Physical
+You are unable to move, however your HP and SP will recover by 8% every turn. You have a high chance of
+waking if the enemy hits you with a physical attack.
 > **Forget**   Technical: Psychokinetic
 You will be unable to use your skills. You can still use Attack and Guard, and your passive skills will
 still work.
-> **Sleep**   Technical: Physical
-You are unable to move, however your HP and SP will recover by 8% every turn. You have a 90% chance of
-waking if the enemy hits you with a physical attack.
 > **Confuse**   Technical: Psychokinetic
 Chance to throw away an item/credits, do nothing or use a random skill.
 > **Fear**   Technical: Psychokinetic
