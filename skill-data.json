@@ -2018,5 +2018,15 @@
         "min_hits": 1,
         "max_hits": 1,
         "multi_target": false
+    },
+    {
+        "name": "Adverse Resolve",
+        "type": "passive",
+        "cost": 0,
+        "severity": "light",
+        "desc": "Greatly increases critical rate when being ambushed.",
+        "min_hits": 1,
+        "max_hits": 1,
+        "mulit_target": false
     }
 ]
