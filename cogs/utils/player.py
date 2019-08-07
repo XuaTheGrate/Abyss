@@ -429,7 +429,7 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
         elif res is ResistanceModifier.RESIST:
             base *= 0.5
 
-        base = math.ceil(base)
+        base = math.ceil(base*skill.severity.value)
 
         if res is not ResistanceModifier.ABSORB:
             self.hp = base
