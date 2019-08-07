@@ -222,7 +222,7 @@ Skill
         base *= attacker.affected_by(StatModifier.TARU)
         base /= target.affected_by(StatModifier.RAKU)
         base += (attacker.level - target.level)
-        return base
+        return max(1, base)
 
 
 class Counter(Skill):
