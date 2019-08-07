@@ -200,7 +200,7 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
 
     def _populate_skills(self, bot):
         self.owner = bot.get_user(self._owner_id)
-        self.coord = bot.maps.mapgr.coordinates[tuple(self.coord)]
+        self.coord = bot.maps.mapmgr.coordinates[tuple(self.coord)]
         for skill in self._skills:
             self.skills.append(bot.players.skill_cache[skill])
         for skill in self._unset_skills:
