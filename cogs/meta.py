@@ -1,8 +1,17 @@
+import collections
+from datetime import datetime
+
 import discord
+import psutil
 from discord.ext import commands
 
 
+N = '\u20e3'
+NL = '\n'
+
+
 class Meta(commands.Cog):
+    proc = psutil.Process()
     @commands.command()
     async def ping(self, ctx):
         """Get my websocket latency to Discord."""
@@ -14,7 +23,37 @@ class Meta(commands.Cog):
         await ctx.send(f"""Hi! I'm {ctx.me.name}, a W.I.P. RPG bot for Discord.
 I am in very beta, be careful when using my commands as they are not ready for public use yet.
 Currently gazing over {len(ctx.bot.guilds)} servers, enjoying {len(ctx.bot.users):,} users' company.
-I don't have my own support server, so you can join my owners general server here: <https://discord.gg/hkweDCD>""")
+I don't have my own support server, so you can join my owners general server here: <https://discord.gg/hkweDCD>
+
+Created by {' '.join(ctx.bot.get_user(u).name for u in ctx.bot.config.OWNERS)}""")
+
+    @commands.command()
+    async def botstats(self, ctx):
+        embed = discord.Embed(title="Statistics")
+        embed.set_footer(text=f'Created by {" ".join(ctx.bot.get_user(u).name for u in ctx.bot.config.OWNERS)}')
+        get_total = await ctx.bot.redis.get("commands_used_total")
+        get_today = await ctx.bot.redis.get(f"commands_used_{datetime.utcnow().strftime('%Y-%m-%d')}")
+        cmds = collections.Counter(await ctx.bot.redis.hgetall("command_totals")).most_common(5)
+        mem_info = self.proc.memory_full_info()
+        player_count = await ctx.bot.db.abyss.accounts.count_documents({})
+        embed.description = f"""> **Discord**
+{len(ctx.bot.guilds)} Guilds
+{len(set(ctx.bot.get_all_members()))} Members
+{len(list(ctx.bot.get_all_channels()))} Channels
+> **Abyss**
+{len(ctx.bot.players.players)}/20 players loaded
+{player_count} total players
+{len(ctx.bot.players.skill_cache)} skills
+{len(ctx.bot.get_cog("BattleSystem").battles)} on-going battles
+> **Command Stats**
+{get_today} commands used today
+{get_total} commands used overall
+> **Top commands**
+{NL.join(f"{i+1}{N} {c} ({v} uses)" for i, (c, v) in enumerate(cmds))}
+> **Extra**
+{mem_info.uss/1024/1024:.1f} MB Memory Usage
+"""
+        await ctx.send(embed=embed)
 
     @commands.group(invoke_without_command=True)
     async def faq(self, ctx):

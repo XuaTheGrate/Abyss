@@ -23,6 +23,9 @@ class CommandLogger(commands.Cog):
             f"[{ctx.guild.id} {ctx.guild}] {ctx.author.id} {ctx.author}: "
             f"{ctx.message.clean_content.replace(NL, NNL)}"
         )
+        await ctx.bot.redis.incr('commands_used_total')
+        await ctx.bot.redis.incr(f'commands_used_{datetime.utcnow().strftime("%Y-%m-%d")}')
+        await ctx.bot.redis.hincrby('command_totals', ctx.command.qualified_name, 1)
 
     @commands.Cog.listener()
     async def on_message(self, msg):
