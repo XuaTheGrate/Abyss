@@ -40,7 +40,8 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
     @dev.command()
     @commands.is_owner()
     async def linecount(self, ctx):
-        total = collections.Counter()
+        lines = collections.Counter()
+        count = collections.Counter()
         for path, subdirs, files in os.walk("."):
             for name in files:
                 ext = name.split(".")[-1]
@@ -48,14 +49,15 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
                     continue
                 if any(x in './' + str(pathlib.PurePath(path, name)) for x in ('venv',)):
                     continue
+                count[ext] += 1
                 with open('./' + str(pathlib.PurePath(path, name)), 'r', encoding='unicode-escape') as f:
                     for l in f:
                         if (l.strip().startswith("#") and ext == 'py') or len(l.strip()) == 0:
                             continue
-                        total[ext] += 1
-        t = {a: b for a, b in sorted(total.items(), key=lambda x: x[1], reverse=True)}
+                        lines[ext] += 1
+        t = lines
         sizea = max(len(str(x)) for x in t.values())
-        fmt = "```\n" + "\n".join(sorted([f'{x:>{sizea}} {y}' for y, x in t.items()],
+        fmt = "```\n" + "\n".join(sorted([f'{x:>{sizea}} {y} ({count[y]} files)' for y, x in t.items()],
                                          key=lambda m: len(m))) + "```"
         await ctx.send(fmt)
 
