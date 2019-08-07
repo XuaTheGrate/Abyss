@@ -41,6 +41,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
     @dev.command()
     async def redis(self, ctx, cmd, *args):
         func = getattr(self.bot.redis, cmd)
+        args = [int(a) if a.isdigit() else a for a in args]
         try:
             ret = await func(*args)
         except Exception as e:
