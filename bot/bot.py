@@ -4,6 +4,7 @@ import io
 import os
 import random
 import traceback
+from datetime import datetime
 from logging.handlers import TimedRotatingFileHandler
 
 import aiohttp
@@ -23,7 +24,7 @@ NL = '\n'
 
 logger = logging.getLogger('discord')
 logger.setLevel(logging.DEBUG)
-handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
+handler = TimedRotatingFileHandler(filename='logs/discord.log', 'd', encoding='utf-8', utc=True)
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
