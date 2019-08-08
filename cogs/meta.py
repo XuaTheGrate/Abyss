@@ -172,7 +172,7 @@ Unable to move, and you will lose 6% SP per turn.
 Attack is doubled, but defense is halved. You will automatically use Attack instead of taking a turn.
 > \N{PLAYING CARD BLACK JOKER} **Brainwash**   Technical: Psychokinetic
 Chance to heal/buff the enemy.
-> \N{HAMBURGER } **Hunger**   Technical: Gun
+> \N{HAMBURGER} **Hunger**   Technical: Gun
 Greatly lowers your attack power."""
         await ctx.send(embed=embed)
 
