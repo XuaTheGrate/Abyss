@@ -50,7 +50,7 @@ Created by {', '.join(str(ctx.bot.get_user(u)) for u in ctx.bot.config.OWNERS)}"
 {len(ctx.bot.players.skill_cache)} skills
 {len(ctx.bot.get_cog("BattleSystem").battles)} on-going battles
 > **Command Stats**
-{get_today.decode()} commands used today
+{get_today.decode() if get_today else 0} commands used today
 {get_total.decode()} commands used overall
 > **Top commands**
 {NL.join(f"{i + 1}{N} {c} ({v} uses)" for i, (c, v) in enumerate(cmds))}
