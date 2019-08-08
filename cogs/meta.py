@@ -1,12 +1,17 @@
 import collections
+import re
+import os
+import sys
 from datetime import datetime
 
 import discord
+import humanize
 import psutil
 from discord.ext import commands
 
 N = '\u20e3'
 NL = '\n'
+R = re.compile(r"Description:\s+(.+)$")
 
 
 class Meta(commands.Cog):
@@ -56,6 +61,9 @@ Created by {', '.join(str(ctx.bot.get_user(u)) for u in ctx.bot.config.OWNERS)}"
 {NL.join(f"{i + 1}{N} {c} ({v} uses)" for i, (c, v) in enumerate(cmds))}
 > **Extra**
 {mem_info.uss / 1024 / 1024:.1f} MB Memory Usage
+{R.findall(os.popen("lsb_release -d").read())}
+Python {'.'.join(map(str, sys.version_info[:3]))}
+Online for {humanize.naturaldelta(ctx.bot.start_date - datetime.utcnow())}
 """
         await ctx.send(embed=embed)
 
