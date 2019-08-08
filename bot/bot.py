@@ -24,7 +24,7 @@ NL = '\n'
 
 logger = logging.getLogger('discord')
 logger.setLevel(logging.DEBUG)
-handler = TimedRotatingFileHandler(filename='logs/discord.log', 'd', encoding='utf-8', utc=True)
+handler = TimedRotatingFileHandler('logs/discord.log', 'd', encoding='utf-8', utc=True)
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
