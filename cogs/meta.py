@@ -61,7 +61,7 @@ Created by {', '.join(str(ctx.bot.get_user(u)) for u in ctx.bot.config.OWNERS)}"
 {NL.join(f"{i + 1}{N} {c} ({v} uses)" for i, (c, v) in enumerate(cmds))}
 > **Extra**
 {mem_info.uss / 1024 / 1024:.1f} MB Memory Usage
-{R.findall(os.popen("lsb_release -d").read())}
+{R.findall(os.popen("lsb_release -d").read())[0]}
 Python {'.'.join(map(str, sys.version_info[:3]))}
 Online for {humanize.naturaldelta(ctx.bot.start_date - datetime.utcnow())}
 """
