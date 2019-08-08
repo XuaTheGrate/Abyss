@@ -87,6 +87,7 @@ class Abyss(commands.Bot):
         self.unload_tasks = {}
         self.config = config
         self._ctx_locks = {}
+        self.start_date = None
 
         self.help_command = commands.MinimalHelpCommand(verify_checks=False)
 
@@ -252,6 +253,7 @@ class Abyss(commands.Bot):
             self.send_error(F"failed to connect to redis\n```py\n{utils.format_exc(e)}\n```")
 
         self.prepared.set()
+        self.start_date = datetime.utcnow()
         log.warning("Successfully loaded.")
         await self.change_presence(activity=discord.Game(name="$help"))
 
