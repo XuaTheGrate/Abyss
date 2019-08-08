@@ -6,12 +6,11 @@ import random
 from .enums import *
 
 # Damage calc
-# DMG = ((5 * sqrt(STRMAG / END * BASE) * RNG * TRU * SEV) / RKU) + (ATK - TRG)
+# DMG = ((5 * sqrt(STRMAG / END * BASE) * RNG * TRU) / RKU) + (ATK - TRG)
 # STRMAG -> Attackers Strength if physical, Magic otherwise
 # END -> Targets Endurance
 # RNG -> uniform(0.95, 1.05)
 # TRU -> Attackers Taru modifier
-# SEV -> Skill Severity, maybe be moved to the last
 # RKU -> Targets Raku modifier
 # ATK -> Attackers level
 # TRG -> Targets level
