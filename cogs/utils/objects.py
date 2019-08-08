@@ -158,12 +158,12 @@ class Skill(JSONable):
         except AttributeError:
             # noinspection PyArgumentList
             self.type = SkillType(type_)
-        self.severity = Severity[kwargs.pop("severity").upper()]
-        self.cost = kwargs.pop("cost")
+        self.severity = Severity[kwargs.pop("severity", "light").upper()]
+        self.cost = kwargs.pop("cost", 0)
         self.description = kwargs.pop("desc")
         self.accuracy = kwargs.pop("accuracy", 90)
         self.hits = (kwargs.pop("min_hits", 1), kwargs.pop("max_hits", 1))
-        self.targets_everyone = kwargs.pop("multi_target", False)
+        self.target = kwargs.pop("target", "enemy")
 
         self.is_evasion = False
 
@@ -221,6 +221,16 @@ Skill
         base *= attacker.affected_by(StatModifier.TARU)
         base /= target.affected_by(StatModifier.RAKU)
         base += (attacker.level - target.level)
+
+        if self.uses_sp:
+            if attacker._concentrating:
+                attacker._concentrating = False
+                base *= 2.5
+        else:
+            if attacker._charging:
+                attacker._charging = False
+                base *= 2.5
+
         return max(1, base)
 
 
@@ -286,7 +296,7 @@ subclasses = {
     "Counterstrike": Counter,
     "High Counter": Counter
 }
-types = ("Curse", "Bless", "Fire", "Elec", "Nuke", "Wind", "Ice", "Psy")
+types = ("Curse", "Bless", "Fire", "Elec", "Nuke", "Wind", "Ice", "Psy", "Phys")
 for t in types:
     for r in ("Absorb", "Null", "Repel", "Resist", "Dodge", "Evade"):
         subclasses[f"{r} {t}"] = PassiveImmunity

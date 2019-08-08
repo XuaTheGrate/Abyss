@@ -43,7 +43,10 @@ class Enemy(Player):
             return self.skills[0]  # 0 is always GenericAttack
         select = random.choice(choices)
         if select.uses_sp:
-            self.sp = select.cost
+            if any(s.name == 'Spell Master' for s in self.skills):
+                self.sp = select.cost / 2
+            else:
+                self.sp = select.cost
         return select
 
 
@@ -78,26 +81,21 @@ def confirm_not_dead(battle):
 
 
 class TargetSession(ui.Session):
-    def __init__(self, *enemies, all_=False):
+    def __init__(self, *targets, target):
         super().__init__(timeout=180)
-        if not all_:
-            self.add_button(self.back, '\u25c0')
-            self.enemies = {
-                f"{c+1}\u20e3": enemies[c] for c in range(len(enemies))
-            }
-            for e in self.enemies.keys():
-                # log.debug(f"added button for {self.enemies[e]}")
-                self.add_button(self.button, e)
-        else:
-            self.add_button(self.target_all, "<:tickYes:568613200728293435>")
-            self.add_button(self.back, "<:tickNo:568613146152009768>")
+        self.targets = {
+            f"{c+1}\u20e3": targets[c] for c in range(len(targets))
+        }
+        for e in self.targets.keys():
+            # log.debug(f"added button for {self.enemies[e]}")
+            self.add_button(self.button_enemy, e)
         self.result = None
-        self.all = all_
+        self.target = target
 
     async def send_initial_message(self):
-        if not self.all:
+        if self.target == 'enemy':
             c = [_("Pick a target!\n")]
-            c.extend([f"{a} {b.name}" for a, b in self.enemies.items()])
+            c.extend([f"{a} {b.name}" for a, b in self.targets.items()])
             # log.debug("target session initial message")
             return await self.context.send(NL.join(c))
         else:
@@ -109,18 +107,30 @@ class TargetSession(ui.Session):
         # log.debug("le stop()")
         await super().stop()
 
-    async def back(self, _):
+    @ui.button("<:tickNo:568613146152009768>")
+    async def cancel(self, _):
         self.result = 'cancel'
         await self.stop()
 
-    async def button(self, payload):
+    async def button_enemy(self, payload):
         # log.debug("le button")
-        self.result = self.enemies[str(payload.emoji)]
+        self.result = self.targets[str(payload.emoji)]
         await self.stop()
 
-    async def target_all(self, _):
-        self.result = 'all'
-        await self.stop()
+    async def target_enemies(self, _):
+        pass
+
+    async def target_ally(self, _):
+        pass
+
+    async def target_self(self, _):
+        pass
+
+    async def target_allies(self, _):
+        pass
+
+    async def target_everyone(self, _):
+        pass
 
 
 class InitialSession(ui.Session):
@@ -141,9 +151,9 @@ class InitialSession(ui.Session):
             await self.message.delete()
         await super().stop()
 
-    async def select_target(self, all_=False):
+    async def select_target(self, target):
         # log.debug("initialsession target selector")
-        menu = TargetSession(*[e for e in self.enemies if not e.is_fainted()], all_=all_)
+        menu = TargetSession(*[e for e in self.enemies if not e.is_fainted()])
         await menu.start(self.context)
         if not menu.result:
             # log.debug("no result")
@@ -156,7 +166,7 @@ class InitialSession(ui.Session):
         if skill.lower() == 'guard':
             self.result = {"type": "fight", "data": {"skill": obj}}
             return await self.stop()
-        target = await self.select_target(obj.targets_everyone)
+        target = await self.select_target(obj.target)
         if target != 'cancel':
             if target == 'all':
                 self.result = {"type": "fight", "data": {"skill": obj, "targets": self.enemies}}
@@ -218,19 +228,23 @@ VS
             e = lookups.TYPE_TO_EMOJI[skill.type.name.lower()]
             if skill.uses_sp:
                 cost = skill.cost
+                if any(s.name == 'Spell Master' for s in self.player.skills):
+                    cost /= 2
                 can_use = self.player.sp >= cost
                 t = 'SP'
             else:
                 if skill.cost != 0:
                     cost = self.player.max_hp // skill.cost
+                    if any(s.name == 'Arms Master' for s in self.players.skills):
+                        cost /= 2
                 else:
                     cost = 0
                 can_use = self.player.max_hp > cost
                 t = 'HP'
             if can_use:
-                skills.append(f"{e} {skill} ({cost} {t})")
+                skills.append(f"{e} {skill} ({cost:.0f} {t})")
             else:
-                skills.append(f"{e} ~~{skill} ({cost} {t})~~")
+                skills.append(f"{e} ~~{skill} ({cost:.0f} {t})~~")
 
         await self.message.edit(content=_(
             f"{self.header}\n\n{NL.join(skills)}\n\n> Use \N{HOUSE BUILDING} to go back"), embed=None)
@@ -382,13 +396,18 @@ class WildBattle:
             return
 
         if skill.uses_sp:
-            if self.player.sp < skill.cost:
+            cost = skill.cost
+            if any(s.name == 'Spell Master' for s in self.player.skills):
+                cost /= 2
+            if self.player.sp < cost:
                 await self.ctx.send(_("You don't have enough SP for this move!"))
                 return
-            self.player.sp = skill.cost
+            self.player.sp = cost
         else:
             if skill.cost != 0:
                 cost = self.player.max_hp // skill.cost
+                if any(s.name == 'Arms Master' for s in self.player.skills):
+                    cost /= 2
             else:
                 cost = 0
             if cost > self.player.hp:
@@ -475,22 +494,33 @@ class WildBattle:
                 _('enemy') if len(self.enemies) == 1 else _('enemies'),
                 _('it') if len(self.enemies) == 1 else _('them')
             ))
+
             for e in self.enemies:
                 if any(s.name == 'Adverse Resolve' for s in e.skills):
                     e._ex_crit_mod += 5.0
+
+            if any(s.name == 'Fortified Moxy' for s in self.player.skills):
+                self.player._ex_crit_mod += 2.5
+
         elif self.ambush is False:
             # log.debug("enemy initiative")
             await self.ctx.send(_("> It's an ambush! There {2} {0} {1}!").format(
                 len(self.enemies), _('enemy') if len(self.enemies) == 1 else _('enemies'),
                 _('is') if len(self.enemies) == 1 else _('are')
             ))
+
             if any(s.name == 'Adverse Resolve' for s in self.player.skills):
                 self.player._ex_crit_mod += 5.0
+
+            for e in self.enemies:
+                if any(s.name == 'Fortified Moxy' for s in e.skills):
+                    e._ex_crit_mod += 2.5
         else:
             # log.debug("regular initiative")
             await self.ctx.send(_("> There {2} {0} {1}! Attack!").format(
                 len(self.enemies), _('enemy') if len(self.enemies) == 1 else _('enemies'),
                 _('is') if len(self.enemies) == 1 else _('are')))
+
         self.player.pre_battle()
         for e in self.enemies:
             e.pre_battle()

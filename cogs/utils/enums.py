@@ -88,3 +88,16 @@ class Ailment(Enum):
     BURN = 9
     FREEZE = 10
     SHOCK = 11
+
+
+class Weather(Enum):
+    SUNNY = 0
+    CLOUDY = 1
+    RAIN = 2
+    WINDY = 3
+    SNOW = 4
+    FOGGY = 5
+    SEVEREWIND = 6
+    THUNDERSTORM = 7
+    HEATWAVE = 8
+    SNOWSTORM = 9

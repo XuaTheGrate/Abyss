@@ -83,6 +83,11 @@ class Player(JSONable):
         self.guarding = False
         self._shields = {}
         self._ex_crit_mod = 1.0  # handled by the battle system in the pre-loop hook
+        self._ailment_buff = -1  # > 0: ailment susceptibility is increased
+        self._charging = False
+        self._concentrating = False
+        self._tetrakarn = False
+        self._makarakarn = False
 
     def __str__(self):
         return self.name
@@ -127,7 +132,10 @@ class Player(JSONable):
 --- _next_level: {self._next_level}
 --- _active_leaf: {self._active_leaf}
 --- _shields: {self._shields}
---- _ex_crit_mod: {self._ex_crit_mod}"""
+--- _ex_crit_mod: {self._ex_crit_mod}
+--- _ailment_buff: {self._ailment_buff}
+--- _charging: {self._charging}
+--- _concentrating: {self._concentrating}"""
 
     @property
     def stats(self):
@@ -256,6 +264,15 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
             self._stat_mod[modifier.value] = 0
 
     def resists(self, type):
+        if type in (SkillType.PHYSICAL, SkillType.GUN):
+            if self._tetrakarn:
+                self._tetrakarn = False
+                return ResistanceModifier.REFLECT
+        else:
+            if self._makarakarn:
+                self._makarakarn = False
+                return ResistanceModifier.REFLECT
+
         passive = self.get_passive_immunity(type)
         if passive and not passive.is_evasion:
             get = passive.immunity_handle()  # instead of resisting if you are weak, the weakness is nullified
@@ -333,6 +350,9 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
                 self._shields[k] -= 1
                 if self._shields[k] == 0:
                     self._shields.pop(k)
+
+        if self._ailment_buff >= 0:
+            self._ailment_buff -= 1
         self.guarding = False
 
     async def pre_turn_async(self, battle):
@@ -341,9 +361,14 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
         for k in self._shields.copy():
             if self._shields[k] >= 0:
                 self._shields[k] -= 1
-                if self._shields[k] == 0:
+                if self._shields[k] == -1:
                     self._shields.pop(k)
                     await battle.ctx.send(f"> __{self.name}__'s' {k.title()} immunity reverted.")
+
+        if self._ailment_buff >= 0:
+            self._ailment_buff -= 1
+            if self._ailment_buff == -1:
+                await battle.ctx.send(f"> __{self.name}__'s ailment susceptibility reverted.")
         self.guarding = False
 
     def get_boost_amp_mod(self, type):
@@ -352,7 +377,17 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
             if skill.name.lower() == f"{type.name.lower()} amp":
                 base += 0.5
             elif skill.name.lower() == f"{type.name.lower()} boost":
-                base += 0.25 if type.name.lower() not in ('dark', 'light') else 19  # insta-kill accuracy boosters
+                base += 0.25
+            elif type.name.lower() == 'gun':
+                if skill.name.lower() == 'snipe':
+                    base += 0.25
+                elif skill.name.lower() == 'cripple':
+                    base += 0.5
+            elif type.name.lower() in ('light', 'dark'):
+                if type.name.lower() == 'light' and skill.name.lower() == 'hama boost':
+                    base += 19
+                elif type.name.lower() == 'dark' and skill.name.lower() == 'mudo boost':
+                    base += 19
         return base
 
     def pre_battle(self):
@@ -362,6 +397,13 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
 
     def post_battle(self):
         self._ex_crit_mod = 1.0
+        self.clear_stat_modifier()
+        self._charging = False
+        self._concentrating = False
+        self._tetrakarn = False
+        self._makarakarn = False
+        self._shields.clear()
+        self._ailment_buff = -1
 
     def take_damage(self, attacker, skill, *, from_reflect=False, counter=False, enforce_crit=0):
         res = self.resists(skill.type)
@@ -431,6 +473,9 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
 
         base = math.ceil(base*skill.severity.value)
 
+        if any(s.name == 'Firm Stance' for s in self.skills):
+            base /= 2
+
         if res is not ResistanceModifier.ABSORB:
             self.hp = base
             result.damage_dealt = base
@@ -494,6 +539,9 @@ Attacker: 1.05 | Me: 1.05 | 4.00 chance to crit
     """
 
     def try_evade(self, attacker, skill):
+        if not skill.is_instant_kill and any(s.name == 'Firm Stance' for s in self.skills):
+            return False
+
         ag = self.agility / 10
         if not skill.is_instant_kill:
             base = (skill.accuracy + attacker.agility / 2) - ag / 2
@@ -514,6 +562,8 @@ Attacker: 1.05 | Me: 1.05 | 4.00 chance to crit
         base /= attacker.affected_by(StatModifier.SUKU)
         # log.debug(f"Attacker: {suku_mod:.2f}/{90 * suku_mod:.2f} |"
         #           f" Me: {my_suku:.2f}/{90 / my_suku:.2f} | {100 - base:.2f} evasion chance")
+        if any(s.name == 'Angelic Grace' for s in self.skills):
+            base *= 2
         return random.uniform(1, 100) > base
 
     async def save(self, bot):

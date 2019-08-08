@@ -37,8 +37,9 @@ class CommandLogger(commands.Cog):
     async def on_message(self, msg):
         if msg.author.bot:
             return
-        if msg.guild.me.mentioned_in(msg):
-            await msg.channel.send("https://cdn.discordapp.com/attachments/561390634863165450/607731350732144641/993ec8f-1.jpg")
+        if str(msg.guild.me) in msg.clean_content:
+            await msg.channel.send(
+                "https://cdn.discordapp.com/attachments/561390634863165450/607731350732144641/993ec8f-1.jpg")
 
 
 def setup(bot):
