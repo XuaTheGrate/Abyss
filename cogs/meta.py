@@ -9,7 +9,6 @@ import humanize
 import psutil
 from discord.ext import commands
 
-N = '\u20e3'
 NL = '\n'
 R = re.compile(r"Description:\s+(.+)$")
 
@@ -58,7 +57,7 @@ Created by {', '.join(str(ctx.bot.get_user(u)) for u in ctx.bot.config.OWNERS)}"
 {get_today.decode() if get_today else 0} commands used today
 {get_total.decode()} commands used overall
 > **Top commands**
-{NL.join(f"{i + 1}{N} {c} ({v} uses)" for i, (c, v) in enumerate(cmds))}
+{NL.join(f"{i + 1}. {c} ({v} uses)" for i, (c, v) in enumerate(cmds))}
 > **Extra**
 {mem_info.uss / 1024 / 1024:.1f} MB Memory Usage
 {R.findall(os.popen("lsb_release -d").read())[0]}
@@ -148,32 +147,32 @@ You can view `$faq ailments` to view information about every ailment."""
         embed.set_footer(text="All ailments will heal themselves 2-7 turns after infliction.")
         embed.description = """In total, there are **12** ailments.
 `Technical` is like a crit, but different. See `$faq technicals`
-> **Burn**   Technical: Wind/Nuclear
+> \N{FIRE} **Burn**   Technical: Wind/Nuclear
 After you take your turn, you will take 6% of your max HP in damage.
-> **Freeze**   Technical: Physical/Nuclear
+> \N{SNOWFLAKE} **Freeze**   Technical: Physical/Nuclear
 You are unable to move.
-> **Shock**   Technical: Physical/Nuclear
+> \N{HIGH VOLTAGE SIGN} **Shock**   Technical: Physical/Nuclear
 High chance of being immobilized. If you hit someone with your Attack, or they hit you with their Attack,
 there is a medium chance of them being inflicted with Shock.
-> **Dizzy**   Technical: Any
+> \N{DIZZY SYMBOL} **Dizzy**   Technical: Any
 Accuracy is severely reduced.
-> **Sleep**   Technical: Physical
+> \N{SLEEPING SYMBOL} **Sleep**   Technical: Physical
 You are unable to move, however your HP and SP will recover by 8% every turn. You have a high chance of
 waking if the enemy hits you with a physical attack.
-> **Forget**   Technical: Psychokinetic
+> \N{SPEAKER WITH CANCELLATION STROKE} **Forget**   Technical: Psychokinetic
 You will be unable to use your skills. You can still use Attack and Guard, and your passive skills will
 still work.
-> **Confuse**   Technical: Psychokinetic
+> \N{WHITE QUESTION MARK ORNAMENT} **Confuse**   Technical: Psychokinetic
 Chance to throw away an item/credits, do nothing or use a random skill.
-> **Fear**   Technical: Psychokinetic
+> \N{FACE SCREAMING IN FEAR} **Fear**   Technical: Psychokinetic
 High chance of being immobilized. Low chance of running away from battle.
-> **Despair**   Technical: Psychokinetic
+> \N{FEARFUL FACE} **Despair**   Technical: Psychokinetic
 Unable to move, and you will lose 6% SP per turn.
-> **Rage**   Technical: Psychokinetic
+> \N{POUTING FACE} **Rage**   Technical: Psychokinetic
 Attack is doubled, but defense is halved. You will automatically use Attack instead of taking a turn.
-> **Brainwash**   Technical: Psychokinetic
+> \N{PLAYING CARD BLACK JOKER} **Brainwash**   Technical: Psychokinetic
 Chance to heal/buff the enemy.
-> **Hunger**   Technical: Gun
+> \N{HAMBURGER } **Hunger**   Technical: Gun
 Greatly lowers your attack power."""
         await ctx.send(embed=embed)
 
