@@ -1427,7 +1427,7 @@
     {
         "name": "Cripple",
         "type": "passive",
-        "desc": "Strengthens Gun attacks by 1.5x",
+        "desc": "Strengthens Gun attacks by 1.5x"
     },
     {
         "name": "Fast Heal",
@@ -1680,7 +1680,7 @@
         "type": "support",
         "cost": 30,
         "target": "allies",
-        "desc": "Increases Attack, Defense and Accuracy/Evasion of all allies.",
+        "desc": "Increases Attack, Defense and Accuracy/Evasion of all allies."
     },
     {
         "name": "Debilitate",
@@ -1714,7 +1714,7 @@
         "type": "ailment",
         "cost": 5,
         "ailment": "forget",
-        "desc": "High chance of inflicting Forget on 1 foe.",
+        "desc": "High chance of inflicting Forget on 1 foe."
     },
     {
         "name": "Tentarafoo",
@@ -1737,6 +1737,6 @@
         "type": "ailment",
         "cost": 5,
         "ailment": "dizzy",
-        "desc": "High chance of inflicting Dizzy on 1 foe.",
+        "desc": "High chance of inflicting Dizzy on 1 foe."
     }
 ]
