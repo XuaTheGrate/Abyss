@@ -237,7 +237,7 @@ class Abyss(commands.Bot):
             return
 
         try:
-            await self.db.abyss.accounts.find().to_list(None)
+            await self.db.abyss.accounts.find_one({})
             # dummy query to ensure the db is connected
         except Exception as e:
             log.error("COULD NOT CONNECT TO MONGODB DATABASE.")
