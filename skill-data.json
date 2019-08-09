@@ -1397,11 +1397,36 @@
         "target": "enemies"
     },
     {
+        "name": "Mahama",
+        "type": "light",
+        "cost": 18,
+        "accuracy": 30,
+        "desc": "Low chance of killing all enemies via Bless damage.",
+        "target": "enemies"
+    },
+    {
         "name": "Dia",
         "type": "healing",
         "cost": 3,
         "severity": "light",
-        "desc": "Slightly heals 1 ally."
+        "desc": "Slightly heals 1 ally.",
+        "target": "ally"
+    },
+    {
+        "name": "Diarama",
+        "type": "healing",
+        "cost": 6,
+        "severity": "medium",
+        "desc": "Moderately heals 1 ally.",
+        "target": "ally"
+    },
+    {
+        "name": "Diarahan",
+        "type": "healing",
+        "cost": 18,
+        "severity": "heavy",
+        "desc": "Fully heals 1 ally.",
+        "target": "ally"
     },
     {
         "name": "Media",
@@ -1412,11 +1437,27 @@
         "target": "allies"
     },
     {
+        "name": "Mediarama",
+        "type": "healing",
+        "cost": 12,
+        "severity": "medium",
+        "desc": "Moderately heals all allies.",
+        "target": "allies"
+    },
+    {
         "name": "Mediarahan",
         "type": "healing",
         "cost": 30,
         "severity": "heavy",
         "desc": "Fully heals all allies.",
+        "target": "allies"
+    },
+    {
+        "name": "Salvation",
+        "type": "healing",
+        "cost": 40,
+        "severity": "severe",
+        "desc": "Fully heals all allies and their ailments.",
         "target": "allies"
     },
     {
@@ -1439,13 +1480,27 @@
         "type": "ailment",
         "cost": 5,
         "accuracy": 75,
-        "desc": "High chance of inflicting Fear (1 foe).",
-        "ailment": "Fear"
+        "desc": "High chance of inflicting Fear on 1 foe.",
+        "ailment": "fear"
+    },
+    {
+        "name": "Evil Smile",
+        "type": "ailment",
+        "cost": 12,
+        "desc": "Medium chance of inflicting Fear on all foes.",
+        "accuracy": 50,
+        "ailment": "fear"
     },
     {
         "name": "Firm Stance",
         "type": "passive",
         "desc": "Halves all incoming damage, but you can no longer evade attacks."
+    },
+    {
+        "name": "Counter",
+        "type": "passive",
+        "accuracy": 10,
+        "desc": "Low chance to counter Physical/Gun attacks."
     },
     {
         "name": "Counterstrike",
@@ -1495,8 +1550,17 @@
         "type": "ailment",
         "ailment": "despair",
         "accuracy": 50,
-        "desc": "Medium chance of inflicting Despaion all foes.",
-        "target": "enemies"
+        "desc": "Medium chance of inflicting Despair on all foes.",
+        "target": "enemies",
+        "cost": 12
+    },
+    {
+        "name": "Ominous Words",
+        "type": "ailment",
+        "ailment": "despair",
+        "accuracy": 75,
+        "desc": "High chance of inflicting Despair on 1 foe.",
+        "cost": 5
     },
     {
         "name": "Sharp Student",
@@ -1597,7 +1661,16 @@
         "type": "healing",
         "cost": 24,
         "severity": "medium",
-        "desc": "Moderately restore HP and buff all users with Sukukaja. Unique to Orpheus."
+        "desc": "Moderately restore HP and buff all users with Sukukaja. Unique to Orpheus.",
+        "target": "allies"
+    },
+    {
+        "name": "Oratorio",
+        "type": "healing",
+        "cost": 38,
+        "severity": "heavy",
+        "desc": "Fully restore HP and clear all allies *nda effects. Unique to Messiah.",
+        "target": "allies"
     },
     {
         "name": "Foul Breath",
@@ -1605,6 +1678,14 @@
         "cost": 8,
         "accuracy": 999,
         "desc": "Increases 1 foes susceptibility to ailments."
+    },
+    {
+        "name": "Stagnant Air",
+        "type": "almighty",
+        "cost": 5,
+        "accuracy": 999,
+        "target": "all",
+        "desc": "Increases everyones susceptibility to ailments."
     },
     {
         "name": "Pulinpa",
@@ -1623,9 +1704,24 @@
         "accuracy": 65
     },
     {
+        "name": "Die for Me!",
+        "type": "dark",
+        "cost": 44,
+        "desc": "High chance of killing all enemies via Curse damage.",
+        "target": "enemies",
+        "accuracy": 65
+    },
+    {
         "name": "Charge",
         "type": "support",
-        "desc": "Will increase your next Physical/Gun attack by 2.5x.",
+        "desc": "Will increase your next Physical/Gun attack power by 2.5x.",
+        "cost": 15,
+        "target": "self"
+    },
+    {
+        "name": "Concentrate",
+        "type": "support",
+        "desc": "Will increase your next Special attack power by 2.5x.",
         "cost": 15,
         "target": "self"
     },
@@ -1637,9 +1733,23 @@
         "target": "allies"
     },
     {
+        "name": "Amrita Drop",
+        "type": "healing",
+        "desc": "Heals all ailments of 1 ally.",
+        "cost": 6,
+        "target": "ally"
+    },
+    {
         "name": "Tetrakarn",
         "type": "support",
         "desc": "Creates a shield around 1 ally that reflects 1 Physical/Gun attack.",
+        "cost": 36,
+        "target": "ally"
+    },
+    {
+        "name": "Makarakarn",
+        "type": "support",
+        "desc": "Creates a shield around 1 ally that reflects 1 Special attack.",
         "cost": 36,
         "target": "ally"
     },
@@ -1649,7 +1759,8 @@
         "desc": "Medium chance to inflict Brainwash on all foes.",
         "cost": 12,
         "ailment": "brainwash",
-        "target": "enemies"
+        "target": "enemies",
+        "accuracy": 50
     },
     {
         "name": "Almighty Boost",
@@ -1676,6 +1787,20 @@
         "accuracy": 60
     },
     {
+        "name": "Mudo",
+        "type": "dark",
+        "cost": 8,
+        "desc": "Medium chance of instantly killing 1 foe by Curse damage.",
+        "accuracy": 40
+    },
+    {
+        "name": "Hama",
+        "type": "light",
+        "cost": 8,
+        "desc": "Medium chance of instantly killing 1 foe by Bless damage.",
+        "accuracy": 40
+    },
+    {
         "name": "Heat Riser",
         "type": "support",
         "cost": 30,
@@ -1693,6 +1818,11 @@
         "name": "Enduring Soul",
         "type": "passive",
         "desc": "Survive 1 fatal attack with HP fully recovered."
+    },
+    {
+        "name": "Endure",
+        "type": "passive",
+        "desc": "Survive 1 fatal attack with 1 HP remaining."
     },
     {
         "name": "Angelic Grace",
@@ -1714,7 +1844,17 @@
         "type": "ailment",
         "cost": 5,
         "ailment": "forget",
-        "desc": "High chance of inflicting Forget on 1 foe."
+        "desc": "High chance of inflicting Forget on 1 foe.",
+        "accuracy": 75
+    },
+    {
+        "name": "Makajamaon",
+        "type": "ailment",
+        "cost": 12,
+        "ailment": "forget",
+        "desc": "Medium chance of inflicting Forget on all foes.",
+        "accuracy": 50,
+        "target": "enemies"
     },
     {
         "name": "Tentarafoo",
@@ -1722,7 +1862,8 @@
         "cost": 12,
         "ailment": "confuse",
         "desc": "Medium chance of inflicting Confuse on all foes.",
-        "target": "enemies"
+        "target": "enemies",
+        "accuracy": 50
     },
     {
         "name": "Wage War",
@@ -1730,13 +1871,138 @@
         "cost": 12,
         "ailment": "rage",
         "desc": "Medium chance of inflicting Rage on all foes.",
-        "target": "enemies"
+        "target": "enemies",
+        "accuracy": 50
     },
     {
         "name": "Dazzler",
         "type": "ailment",
         "cost": 5,
         "ailment": "dizzy",
-        "desc": "High chance of inflicting Dizzy on 1 foe."
+        "desc": "High chance of inflicting Dizzy on 1 foe.",
+        "accuracy": 75
+    },
+    {
+        "name": "Nocturnal Flash",
+        "type": "ailment",
+        "cost": 12,
+        "ailment": "dizzy",
+        "desc": "Medium chance of inflicting Dizzy on 1 foe.",
+        "accuracy": 50,
+        "target": "enemies"
+    },
+    {
+        "name": "Dormina",
+        "type": "ailment",
+        "cost": 5,
+        "ailment": "sleep",
+        "desc": "High chance of inflicting Sleep on 1 foe.",
+        "accuracy": 75
+    },
+    {
+        "name": "Lullaby",
+        "type": "ailment",
+        "cost": 12,
+        "ailment": "sleep",
+        "desc": "Medium chance of inflicting Sleep on 1 foe.",
+        "accuracy": 50,
+        "target": "enemies"
+    },
+    {
+        "name": "Ambient Aid",
+        "type": "passive",
+        "desc": "Greatly increases accuracy of ailment skills during rainy days or special weather."
+    },
+    {
+        "name": "Life Aid",
+        "type": "passive",
+        "desc": "Recover 8% HP and SP after a successful battle."
+    },
+    {
+        "name": "Life Drain",
+        "type": "ailmighty",
+        "cost": 3,
+        "desc": "Drain 10% HP from one enemy.",
+        "accuracy": 999
+    },
+    {
+        "name": "Spirit Drain",
+        "type": "almighty",
+        "cost": 3,
+        "desc": "Drain 30 SP from one enemy.",
+        "accuracy": 999
+    },
+    {
+        "name": "Recarm",
+        "type": "healing",
+        "cost": 8,
+        "desc": "Revives 1 ally with 50% HP restored.",
+        "target": "ally"
+    },
+    {
+        "name": "Samarecarm",
+        "type": "healing",
+        "cost": 8,
+        "desc": "Revives 1 ally with full HP restored.",
+        "target": "ally"
+    },
+    {
+        "name": "Ailment Boost",
+        "type": "passive",
+        "desc": "Boosts accuracy of all ailment attacks."
+    },
+    {
+        "name": "Divine Grace",
+        "type": "passive",
+        "desc": "Effects of healing magic are increased by 50%."
+    },
+    {
+        "name": "Rebellion",
+        "type": "support",
+        "cost": 8,
+        "target": "ally",
+        "desc": "Increases 1 ally's Critical hit rate."
+    },
+    {
+        "name": "Revolution",
+        "type": "support",
+        "cost": 5,
+        "target": "all",
+        "desc": "Increases all foes and allies Critical hit rate."
+    },
+    {
+        "name": "Victory Cry",
+        "type": "passive",
+        "desc": "Fully heals HP and SP after successful battle."
+    },
+    {
+        "name": "Mudo Boost",
+        "type": "passive",
+        "desc": "Boosts accuracy of Dark skills by 20."
+    },
+    {
+        "name": "Hama Boost",
+        "type": "passive",
+        "desc": "Boosts accuracy of Light skills by 20."
+    },
+    {
+        "name": "Insta-Heal",
+        "type": "passive",
+        "desc": "Heals ailments in 1 turn."
+    },
+    {
+        "name": "Trigger Happy",
+        "desc": "Increase critical rate of all Gun attacks.",
+        "type": "passive"
+    },
+    {
+        "name": "Ali Dance",
+        "desc": "Half accuracy of incoming attacks.",
+        "type": "passive"
+    },
+    {
+        "name": "Heat Up",
+        "desc": "Recover 5% HP and 10 SP at the start of every turn during a successful ambush.",
+        "type": "passive"
     }
 ]

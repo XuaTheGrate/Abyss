@@ -83,6 +83,7 @@ class Player(JSONable):
         self.guarding = False
         self._shields = {}
         self._ex_crit_mod = 1.0  # handled by the battle system in the pre-loop hook
+        self._rebellion = [False, -1]  # Rebellion or Revolution, [(is enabled), (time until clear)]
         self._ailment_buff = -1  # > 0: ailment susceptibility is increased
         self._charging = False
         self._concentrating = False
@@ -353,6 +354,12 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
 
         if self._ailment_buff >= 0:
             self._ailment_buff -= 1
+
+        if self._rebellion[1] >= 0:
+            self._rebellion[1] -= 1
+            if self._rebellion[1] == 0:
+                self._rebellion[0] = False
+
         self.guarding = False
 
     async def pre_turn_async(self, battle):
@@ -369,6 +376,13 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
             self._ailment_buff -= 1
             if self._ailment_buff == -1:
                 await battle.ctx.send(f"> __{self.name}__'s ailment susceptibility reverted.")
+
+        if self._rebellion[1] >= 0:
+            self._rebellion[1] -= 1
+            if self._rebellion[1] == 0:
+                self._rebellion[0] = False
+                await battle.ctx.send(f"> __{self.name}__'s critical rate reverted.")
+
         self.guarding = False
 
     def get_boost_amp_mod(self, type):
@@ -395,7 +409,7 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
             if mod:
                 self.refresh_stat_modifier(mod)
 
-    def post_battle(self):
+    def post_battle(self, ran=False):
         self._ex_crit_mod = 1.0
         self.clear_stat_modifier()
         self._charging = False
@@ -404,6 +418,10 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
         self._makarakarn = False
         self._shields.clear()
         self._ailment_buff = -1
+        if not ran:
+            if any(s.name == 'Life Aid' for s in self.skills):
+                self.sp = -(self.max_sp * 0.08)
+                self.hp = -(self.max_hp * 0.08)
 
     def take_damage(self, attacker, skill, *, from_reflect=False, counter=False, enforce_crit=0):
         res = self.resists(skill.type)

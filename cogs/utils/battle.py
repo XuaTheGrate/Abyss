@@ -153,7 +153,7 @@ class InitialSession(ui.Session):
 
     async def select_target(self, target):
         # log.debug("initialsession target selector")
-        menu = TargetSession(*[e for e in self.enemies if not e.is_fainted()])
+        menu = TargetSession(*[e for e in self.enemies if not e.is_fainted()], target=target)
         await menu.start(self.context)
         if not menu.result:
             # log.debug("no result")
@@ -235,7 +235,7 @@ VS
             else:
                 if skill.cost != 0:
                     cost = self.player.max_hp // skill.cost
-                    if any(s.name == 'Arms Master' for s in self.players.skills):
+                    if any(s.name == 'Arms Master' for s in self.player.skills):
                         cost /= 2
                 else:
                     cost = 0
@@ -349,6 +349,7 @@ class WildBattle:
         self.enemies = sorted(enemies, key=lambda e: e.agility, reverse=True)
         self.ambush = True if ambush else False if ambushed else None
         self._stopping = False
+        self._ran = False
         # True -> player got the initiative
         # False -> enemy got the jump
         # None -> proceed by agility
@@ -384,6 +385,7 @@ class WildBattle:
             if result['data'].get('timeout', False) or result['data'].get('success', True):
                 await self.ctx.send(_("> You successfully ran away!"))
                 await self.stop()
+                self._ran = True
             else:
                 await self.ctx.send(_("> You failed to escape!"))
             return
@@ -535,5 +537,5 @@ class WildBattle:
             err = None
         await self.cmd(self.ctx, err, battle=self)
         await self.ctx.send("game over")
-        self.player.post_battle()
+        self.player.post_battle(self._ran)
         # log.debug("finish")
