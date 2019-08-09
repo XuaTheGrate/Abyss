@@ -40,6 +40,7 @@ def get_current_season():
     raise RuntimeError
 
 
+# noinspection PyArgumentList
 def get_current_weather(date=None):
     season = get_current_season()
     chances = VARIATE.copy()
@@ -65,8 +66,8 @@ def get_current_weather(date=None):
 
     now = date or _now()
     np.seed(int(now.timestamp()))
-    weather = np.choice(list(Weather), p=chances)
+    weather = np.choice([w.value for w in Weather], p=chances)
+    weather = Weather(weather)
     if np.random() < 0.1:
-        # noinspection PyArgumentList
         return SevereWeather(weather.value)
     return weather
