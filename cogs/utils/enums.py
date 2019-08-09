@@ -94,9 +94,8 @@ class Weather(Enum):
     SUNNY = 0
     CLOUDY = 1
     RAIN = 2
-    WINDY = 3
-    SNOW = 4
-    FOGGY = 5
+    SNOW = 3
+    FOGGY = 4
 
 
 class SevereWeather(Enum):

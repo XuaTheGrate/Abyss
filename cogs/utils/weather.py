@@ -68,6 +68,6 @@ def get_current_weather(date=None):
     np.seed(int(now.timestamp()))
     weather = np.choice([w.value for w in Weather], p=chances)
     weather = Weather(weather)
-    if np.random() < 0.1:
+    if weather is not Weather.FOGGY and np.random() < 0.1:
         return SevereWeather(weather.value)
     return weather
