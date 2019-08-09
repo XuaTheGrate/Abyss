@@ -90,14 +90,17 @@ def get_current_weather(date=None):
 
 def get_wind_speed(date=None):  # KM/H
     now = _now(date)
+    min_speed = 1
     max_speed = 20
 
     season = get_current_season(now)
+    min_speed += WIND_SPEED_SEASON[season]
     max_speed += WIND_SPEED_SEASON[season]
 
     weather = get_current_weather(now)
+    min_speed += WIND_SPEED_WEATHER[weather]
     max_speed += WIND_SPEED_WEATHER[weather]
 
     np.seed(int(now.timestamp()))
-    speed = np.randint(1, max(max_speed+1, 2))
+    speed = np.randint(max(min_speed+1, 1), max(max_speed+1, 2))
     return speed-1
