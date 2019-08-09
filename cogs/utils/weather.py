@@ -64,7 +64,7 @@ def get_current_weather(date=None):
         chances[3] += 0.29  # more snow
 
     now = date or _now()
-    np.seed(now.timestamp())
+    np.seed(int(now.timestamp()))
     weather = np.choice(Weather, p=chances)
     if np.random() < 0.1:
         # noinspection PyArgumentList
