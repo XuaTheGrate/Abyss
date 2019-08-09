@@ -38,18 +38,17 @@ Created by {', '.join(str(ctx.bot.get_user(u)) for u in ctx.bot.config.OWNERS)}"
     async def forecast(self, ctx):
         """Gets the weather forecast for the week."""
         _now = datetime.utcnow()
-        days = iter(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
         start = _now - timedelta(days=calendar.weekday(_now.year, _now.month, _now.day))
         season = weather.get_current_season()
-        embed = discord.Embed(title=f"Weekly Forecast: {season.name.title()}")
+        embed = discord.Embed(title=f"Weekly Forecast: {_now.strftime('%b')} ({season.name.title()})")
         embed.description = ""
         for d in range(0, 7):
             dt = start + timedelta(days=d)
-            day = next(days)
+            day = dt.strftime("%a")
             wt = weather.get_current_weather(dt)
             ws = weather.get_wind_speed(dt)
             fmt = f"{wt.name.replace('_', ' ').title()}"
-            embed.description += f"{day} {dt.strftime('%d %m')}: {fmt} ({ws}km/h wind speed)\n"
+            embed.description += f"{day} {dt.strftime('%d')}: {fmt} ({ws}km/h wind speed)\n"
         await ctx.send(embed=embed)
 
     @commands.command()

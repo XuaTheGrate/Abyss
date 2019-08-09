@@ -1,13 +1,3 @@
-/*
-branch: {
-    "leaf:#": {
-        skills: [skill 1, skill 2, ...],
-        cost: some int, ap cost is this / 1000,
-        unlocks: [other leaves to unlock when this completes],
-        unlock_requires: [dont unlock this leaf without these]
-    }
-}
-*/
 {
     curse: {
         "curse:0": {
