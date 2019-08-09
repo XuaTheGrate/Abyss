@@ -23,13 +23,13 @@ AUTUMN_END = WINTER_START = datetime(_CURRENT_YEAR, 12, 22)
 WINTER_END = SPRING_START + timedelta(days=365)
 
 
-def _now():
-    now = datetime.utcnow()
+def _now(d=None):
+    now = d or datetime.utcnow()
     return datetime(now.year, now.month, now.day)
 
 
 def get_current_season(date=None):
-    now = date or _now()
+    now = _now(date)
     if SPRING_START < now < SPRING_END:
         return Season.SPRING
     if SUMMER_START < now < SUMMER_END:
@@ -75,7 +75,7 @@ def get_current_weather(date=None):
         chances[2] = 0.01  # rare rain
         chances[3] += 0.29  # more snow
 
-    now = date or _now()
+    now = _now(date)
     np.seed(int(now.timestamp()))
     weather = np.choice([w.value for w in Weather], p=chances)
     weather = Weather(weather)
@@ -89,15 +89,15 @@ def get_current_weather(date=None):
 
 
 def get_wind_speed(date=None):  # KM/H
-    now = date or _now()
-    np.seed(int(now.timestamp()))
+    now = _now(date)
     max_speed = 20
 
-    season = get_current_season()
+    season = get_current_season(now)
     max_speed += WIND_SPEED_SEASON[season]
 
-    weather = get_current_weather(date)
+    weather = get_current_weather(now)
     max_speed += WIND_SPEED_WEATHER[weather]
 
+    np.seed(int(now.timestamp()))
     speed = np.randint(1, max(max_speed+1, 2))
     return speed-1
