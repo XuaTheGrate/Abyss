@@ -419,6 +419,11 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
         self._shields.clear()
         self._ailment_buff = -1
         if not ran:
+            if any(s.name == 'Victory Cry' for s in self.skills):
+                self._sp_used = 0
+                self._damage_taken = 0
+                return
+
             if any(s.name == 'Life Aid' for s in self.skills):
                 self.sp = -(self.max_sp * 0.08)
                 self.hp = -(self.max_hp * 0.08)

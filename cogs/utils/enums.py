@@ -97,7 +97,17 @@ class Weather(Enum):
     WINDY = 3
     SNOW = 4
     FOGGY = 5
-    SEVEREWIND = 6
-    THUNDERSTORM = 7
-    HEATWAVE = 8
-    SNOWSTORM = 9
+
+
+class SevereWeather(Enum):
+    SEVEREWIND = 0
+    THUNDERSTORM = 1
+    HEATWAVE = 2
+    SNOWSTORM = 3
+
+
+class Season(Enum):
+    SPRING = 0
+    SUMMER = 1
+    AUTUMN = 2
+    WINTER = 3

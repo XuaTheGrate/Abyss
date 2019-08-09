@@ -9,6 +9,22 @@ from .player import Player
 
 NL = '\n'
 
+UNSUPPORTED_SKILLS = ['Tarukaja', 'Tarunda', 'Rakukaja', 'Rakunda', 'Sukukaja',
+                      'Sukunda', 'Dekaja', 'Dekunda', 'Curse Shield', 'Bless Shield', 'Fire Shield', 'Elec Shield',
+                      'Nuke Shield', 'Wind Shield', 'Ice Shield', 'Psy Shield',
+                      'Dia', 'Diarama', 'Diarahan', 'Media', 'Mediarama', 'Mediarahan', 'Salvation',
+                      'Fast Heal', 'Evil Touch', 'Evil Smile', 'Firm Stance', 'Taunt', 'Pressing Stance', 'Fortified Moxy',
+                      'Abysmal Surge', 'Ominous Words', 'Growth 1', 'Growth 2', 'Growth 3',
+                      'Thermopylae', 'Invigorate 1', 'Regenerate 1', 'Invigorate 2', 'Regenerate 2', 'Invigorate 3',
+                      'Regenerate 3', 'Invigorate 4', 'Regenerate 4', 'Invigorate 5', 'Regenerate 5',
+                      'Rainy Play', 'Cadenza', 'Oratorio', 'Pulinpa', 'Charge', 'Concentrate', 'Amrita Shower',
+                      'Amrita Drop', 'Tetrakarn', 'Makarakarn', 'Brain Jack', 'Marin Karin',
+                      'Fortify Spirit', 'Heat Riser', 'Debilitate', 'Enduring Soul', 'Endure', 'Angelic Grace',
+                      'Makajam', 'Makajamaon', 'Tentarafoo', 'Wage War', 'Dazzler',
+                      'Nocturnal Flash', 'Dormina', 'Lullaby', 'Ambient Aid', 'Recarm', 'Samarecarm',
+                      'Ailment Boost', 'Divine Grace', 'Rebellion', 'Revolution', 'Insta-Heal', 'Trigger Happy',
+                      'Ali Dance', 'Heat Up']
+
 
 class Enemy(Player):
     # wild encounters dont have a skill preference or an ai
@@ -397,6 +413,12 @@ class WildBattle:
             self.player.guarding = True
             return
 
+        if skill.name in UNSUPPORTED_SKILLS:
+            await self.ctx.send("this skill doesnt have a handler, this incident has been reported")
+            self.ctx.bot.send_error(f"no skill handler for {skill}")
+            self.order.decycle()
+            return
+
         if skill.uses_sp:
             cost = skill.cost
             if any(s.name == 'Spell Master' for s in self.player.skills):
@@ -446,8 +468,8 @@ class WildBattle:
     async def handle_enemy_choices(self, enemy):
         await enemy.pre_turn_async(self)
         skill = enemy.random_move()
-        if not skill.is_damaging_skill:
-            await self.ctx.send(f"{enemy} used a non damaging skill, skipping")
+        if skill.name in UNSUPPORTED_SKILLS:
+            await self.ctx.send(f"{enemy} used an unhandled skill ({skill.name}), skipping")
         else:
             res = self.player.take_damage(enemy, skill)
 
