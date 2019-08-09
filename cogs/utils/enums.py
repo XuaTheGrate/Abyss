@@ -99,10 +99,10 @@ class Weather(Enum):
 
 
 class SevereWeather(Enum):
-    SEVEREWIND = 0
-    THUNDERSTORM = 1
-    HEATWAVE = 2
-    SNOWSTORM = 3
+    SEVERE_WIND = 0
+    THUNDER_STORM = 1
+    HEAT_WAVE = 2
+    SNOW_STORM = 3
 
 
 class Season(Enum):

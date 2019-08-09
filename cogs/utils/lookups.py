@@ -107,8 +107,8 @@ WIND_SPEED_WEATHER = {
     Weather.SNOW: 6,
     Weather.RAIN: 6,
 
-    SevereWeather.HEATWAVE: -17,
-    SevereWeather.SEVEREWIND: 150,
-    SevereWeather.SNOWSTORM: 93,
-    SevereWeather.THUNDERSTORM: 55
+    SevereWeather.HEAT_WAVE: -17,
+    SevereWeather.SEVERE_WIND: 150,
+    SevereWeather.SNOW_STORM: 93,
+    SevereWeather.THUNDER_STORM: 55
 }

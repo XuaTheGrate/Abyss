@@ -1,6 +1,6 @@
 
 import discord
-import json5
+import json
 from discord.ext import commands
 
 from .utils import i18n, lookups
@@ -13,7 +13,7 @@ class SkillTreeCog(commands.Cog):
         self.skill_tree = None
 
         with open("skilltree.json") as f:
-            self._skill_tree = json5.load(f)
+            self._skill_tree = json.load(f)
 
         try:
             self.do_cuz_ready()

@@ -3,7 +3,6 @@ jishaku
 psutil
 motor
 aioredis
-json5
 dpy-ui
 Pillow
 contextvars ; python_version < '3.7'

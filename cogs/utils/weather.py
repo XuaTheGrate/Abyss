@@ -28,8 +28,8 @@ def _now():
     return datetime(now.year, now.month, now.day)
 
 
-def get_current_season():
-    now = _now()
+def get_current_season(date=None):
+    now = date or _now()
     if SPRING_START < now < SPRING_END:
         return Season.SPRING
     if SUMMER_START < now < SUMMER_END:
