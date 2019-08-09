@@ -65,7 +65,7 @@ def get_current_weather(date=None):
 
     now = date or _now()
     np.seed(int(now.timestamp()))
-    weather = np.choice(Weather, p=chances)
+    weather = np.choice(list(Weather), p=chances)
     if np.random() < 0.1:
         # noinspection PyArgumentList
         return SevereWeather(weather.value)
