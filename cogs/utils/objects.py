@@ -4,6 +4,8 @@ import math
 import random
 
 from .enums import *
+from .lookups import WEATHER_TO_TYPE
+from . import weather
 
 # Damage calc
 # DMG = ((5 * sqrt(STRMAG / END * BASE) * RNG * TRU) / RKU) + (ATK - TRG)
@@ -221,6 +223,13 @@ Skill
         base *= attacker.affected_by(StatModifier.TARU)
         base /= target.affected_by(StatModifier.RAKU)
         base += (attacker.level - target.level)
+
+        weather_mod = WEATHER_TO_TYPE.get(weather.get_current_weather().name)
+        if weather_mod == self.type.name:
+            base *= 2
+
+        if self.type is SkillType.WIND:
+            base += weather.get_wind_speed()
 
         if self.uses_sp:
             if attacker._concentrating:

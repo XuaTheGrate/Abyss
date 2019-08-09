@@ -79,9 +79,36 @@ ROMAN_NUMERAL = [
     'XX'
 ]
 
-
 STAT_MOD = [
     'Attack',
     'Defense',
     'Accuracy/Evasion'
 ]
+
+WEATHER_TO_TYPE = {
+    'SUNNY': 'FIRE',
+    'RAIN': 'ELECTRIC',
+    'SNOW': 'ICE'
+}
+
+from .enums import Season, SevereWeather, Weather
+
+WIND_SPEED_SEASON = {
+    Season.SPRING: 3,
+    Season.SUMMER: -3,
+    Season.AUTUMN: 6,
+    Season.WINTER: -6
+}
+
+WIND_SPEED_WEATHER = {
+    Weather.CLOUDY: 4,
+    Weather.SUNNY: -4,
+    Weather.FOGGY: -7,
+    Weather.SNOW: 6,
+    Weather.RAIN: 6,
+
+    SevereWeather.HEATWAVE: -17,
+    SevereWeather.SEVEREWIND: 150,
+    SevereWeather.SNOWSTORM: 93,
+    SevereWeather.THUNDERSTORM: 55
+}

@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 import numpy.random as np
 
 from .enums import Weather, SevereWeather, Season
+from .lookups import WIND_SPEED_SEASON, WIND_SPEED_WEATHER
 
 
 _CURRENT_YEAR = datetime.utcnow().year
@@ -23,8 +24,7 @@ WINTER_END = SPRING_START + timedelta(days=365)
 
 
 def _now():
-    _now = datetime.utcnow()
-    return datetime(_now.year, _now.month, _now.day)
+    return datetime.utcnow().date()
 
 
 def get_current_season():
@@ -38,6 +38,16 @@ def get_current_season():
     if WINTER_START < now < WINTER_END:
         return Season.WINTER
     raise RuntimeError
+
+
+def try_severe_weather(season, weather):
+    if season is Season.SUMMER and weather is Weather.SUNNY:
+        return np.random() < 0.5
+    elif season is Season.WINTER and weather is Weather.SNOW:
+        return np.random() < 0.45
+    elif season is Season.SUMMER and weather is Weather.RAIN:
+        return np.random() < 0.37
+    return np.random() < 0.1
 
 
 # noinspection PyArgumentList
@@ -68,6 +78,25 @@ def get_current_weather(date=None):
     np.seed(int(now.timestamp()))
     weather = np.choice([w.value for w in Weather], p=chances)
     weather = Weather(weather)
-    if weather is not Weather.FOGGY and np.random() < 0.1:
-        return SevereWeather(weather.value)
+
+    if weather is not Weather.FOGGY:
+        do = try_severe_weather(season, weather)
+        if do:
+            return SevereWeather(weather.value)
+
     return weather
+
+
+def get_wind_speed(date=None):  # KM/H
+    now = date or _now()
+    np.seed(int(now.timestamp()))
+    max_speed = 20
+
+    season = get_current_season()
+    max_speed += WIND_SPEED_SEASON[season]
+
+    weather = get_current_weather(date)
+    max_speed += WIND_SPEED_WEATHER[weather]
+
+    speed = np.randint(1, max(max_speed+1, 2))
+    return speed-1
