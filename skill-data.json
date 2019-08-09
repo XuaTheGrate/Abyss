@@ -1920,7 +1920,7 @@
     },
     {
         "name": "Life Drain",
-        "type": "ailmighty",
+        "type": "almighty",
         "cost": 3,
         "desc": "Drain 10% HP from one enemy.",
         "accuracy": 999
