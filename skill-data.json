@@ -1176,6 +1176,16 @@
         "desc": "this needs to be edited, report to xua"
     },
     {
+        "name": "Dodge Phys",
+        "type": "passive",
+        "desc": "this needs to be edited, report to xua"
+    },
+    {
+        "name": "Evade Phys",
+        "type": "passive",
+        "desc": "this needs to be edited, report to xua"
+    },
+    {
         "name": "Tarukaja",
         "type": "support",
         "cost": 12,
@@ -1761,6 +1771,14 @@
         "ailment": "brainwash",
         "target": "enemies",
         "accuracy": 50
+    },
+    {
+        "name": "Marin Karin",
+        "type": "ailment",
+        "desc": "High chance to inflict Brainwash on 1 foe.",
+        "cost": 5,
+        "ailment": "brainwash",
+        "accuracy": 75
     },
     {
         "name": "Almighty Boost",
