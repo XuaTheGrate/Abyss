@@ -1,4 +1,3 @@
-import calendar
 import collections
 import re
 import os
@@ -38,7 +37,7 @@ Created by {', '.join(str(ctx.bot.get_user(u)) for u in ctx.bot.config.OWNERS)}"
     async def forecast(self, ctx):
         """Gets the weather forecast for the week."""
         _now = datetime.utcnow()
-        start = _now - timedelta(days=calendar.weekday(_now.year, _now.month, _now.day))
+        start = _now - timedelta(days=3)
         season = weather.get_current_season()
         embed = discord.Embed(title=f"Weekly Forecast: {_now.strftime('%B')} ({season.name.title()})")
         embed.description = ""
