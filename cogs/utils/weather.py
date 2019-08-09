@@ -24,7 +24,8 @@ WINTER_END = SPRING_START + timedelta(days=365)
 
 
 def _now():
-    return datetime.utcnow().date()
+    now = datetime.utcnow()
+    return datetime(now.year, now.month, now.day)
 
 
 def get_current_season():
