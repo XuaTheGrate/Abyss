@@ -125,7 +125,7 @@ class Status(ui.Session):
 Specializes in {spec} type skills.
 
 {etnl} EXP to level {player._next_level}
-{prog}% `{lvlbar}`
+{prog}% `{lvlbar}\u200b`
 
 __Resistances__
 {res_fmt}""").format(**locals())

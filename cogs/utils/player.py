@@ -193,7 +193,7 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
 
     @property
     def level(self):
-        return min(99, max(math.floor(self.exp ** .333), 1))
+        return min(99, max(math.ceil(self.exp ** .333), 1))
 
     def level_up(self):
         while self._next_level <= self.level:
