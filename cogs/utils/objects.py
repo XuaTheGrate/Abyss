@@ -224,9 +224,16 @@ Skill
         base /= target.affected_by(StatModifier.RAKU)
         base += (attacker.level - target.level)
 
-        weather_mod = WEATHER_TO_TYPE.get(weather.get_current_weather().name)
+        we = weather.get_current_weather()
+
+        if isinstance(we, SevereWeather):
+            wmod = 3
+        else:
+            wmod = 2
+
+        weather_mod = WEATHER_TO_TYPE.get(we.name)
         if weather_mod == self.type.name:
-            base *= 2
+            base *= wmod
 
         if self.type is SkillType.WIND:
             base += weather.get_wind_speed()

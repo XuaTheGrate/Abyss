@@ -88,7 +88,12 @@ STAT_MOD = [
 WEATHER_TO_TYPE = {
     'SUNNY': 'FIRE',
     'RAIN': 'ELECTRIC',
-    'SNOW': 'ICE'
+    'SNOW': 'ICE',
+
+    'HEAT_WAVE': 'FIRE',
+    'SNOW_STORM': 'ICE',
+    'SEVERE_WIND': 'WIND',
+    'THUNDER_STORM': 'ELEC'
 }
 
 from .enums import Season, SevereWeather, Weather
