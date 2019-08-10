@@ -62,7 +62,7 @@
             "unlocks": ["dark:4"]
         },
         "dark:4": {
-            "skills": ["Die for Me!", "Repel Dark"],
+            "skills": ["Die For Me!", "Repel Dark"],
             "cost": 75000
         }
     },
