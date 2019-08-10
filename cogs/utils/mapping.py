@@ -7,7 +7,7 @@ from PIL import Image
 
 
 def fmt(r, g, b):
-    return f"0x{f'{r:x}':0>2}{f'{g:x}':0>2}{f'{b:x}':0>2}"
+    return '0x'+f"{f'{r:x}':0>2}{f'{g:x}':0>2}{f'{b:x}':0>2}".title()
 
 
 class Attr(dict):
