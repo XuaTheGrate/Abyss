@@ -235,5 +235,6 @@ class Coordinate:
 class MapManager:
     def __init__(self):
         self.maps = {}
-        for file in metadata['maps']:
-            self.maps[file[:-4]] = Map.from_image(f'maps/{file}')
+        for file in metadata:
+            if not file.startswith("__"):
+                self.maps[file[:-4]] = Map.from_image(f'maps/{file}')
