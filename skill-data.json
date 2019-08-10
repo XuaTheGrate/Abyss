@@ -2,7 +2,7 @@
     {
         "name": "Ungodly Prudence",
         "type": "curse",
-        "cost": 30,
+        "cost": 54,
         "severity": "severe",
         "desc": "Deal severe Curse damage to all foes.",
         "target": "enemies"
@@ -10,10 +10,17 @@
     {
         "name": "Divine Judgement",
         "type": "bless",
-        "cost": 30,
+        "cost": 54,
         "severity": "severe",
         "desc": "Deal severe Bless damage to all foes.",
         "target": "enemies"
+    },
+    {
+        "name": "Heaven's Blessing",
+        "type": "bless",
+        "cost": 48,
+        "severity": "severe",
+        "desc": "Deals severe Bless damage to 1 foe."
     },
     {
         "name": "Agi",
@@ -234,6 +241,13 @@
         "cost": 8,
         "severity": "medium",
         "desc": "Deal medium Curse damage to 1 foe."
+    },
+    {
+        "name": "Hell's Curse",
+        "type": "curse",
+        "cost": 48,
+        "severity": "severe",
+        "desc": "Deals severe Curse damage to 1 foe."
     },
     {
         "name": "Eigaon",
