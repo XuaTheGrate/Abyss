@@ -60,7 +60,7 @@ Created by {', '.join(str(ctx.bot.get_user(u)) for u in ctx.bot.config.OWNERS)}"
         get_total = await ctx.bot.redis.get("commands_used_total")
         get_today = await ctx.bot.redis.get(f"commands_used_{datetime.utcnow().strftime('%Y-%m-%d')}")
         cmds = collections.Counter(
-            {d.decode(): v.decode()
+            {d.decode(): int(v)
              for d, v in (await ctx.bot.redis.hgetall("command_totals")).items()
              if not d.startswith((b'jishaku', b'dev'))
              }).most_common(5)
