@@ -47,7 +47,7 @@
             "unlocks": ["dark:1"]
         },
         "dark:1": {
-            "skills": ["Mamudo", "Resist Dark"],
+            "skills": ["Mamudo"],
             "cost": 30000,
             "unlocks": ["dark:2"]
         },
@@ -152,7 +152,7 @@
             "unlocks": ["light:1"]
         },
         "light:1": {
-            "skills": ["Mahama", "Resist Light"],
+            "skills": ["Mahama"],
             "cost": 30000,
             "unlocks": ["light:2"]
         },
