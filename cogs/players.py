@@ -186,7 +186,7 @@ class Statistics(ui.Session):
 
     @ui.button('\u2694')  # strength
     async def add_strength(self, _):
-        if self.player.stat_points == 0 or self.players.strength + self.tots[0] == 99:
+        if self.player.stat_points == 0 or self.player.strength + self.tots[0] == 99:
             return
         self.tots[0] += 1
         self.player.stat_points -= 1
@@ -194,7 +194,7 @@ class Statistics(ui.Session):
 
     @ui.button('\u2728')  # magic
     async def add_magic(self, _):
-        if self.player.stat_points == 0 or self.players.magic + self.tots[1] == 99:
+        if self.player.stat_points == 0 or self.player.magic + self.tots[1] == 99:
             return
         self.tots[1] += 1
         self.player.stat_points -= 1
@@ -202,7 +202,7 @@ class Statistics(ui.Session):
 
     @ui.button('\U0001f6e1')  # endurance
     async def add_endurance(self, _):
-        if self.player.stat_points == 0 or self.players.endurance + self.tots[2] == 99:
+        if self.player.stat_points == 0 or self.player.endurance + self.tots[2] == 99:
             return
         self.tots[2] += 1
         self.player.stat_points -= 1
@@ -210,7 +210,7 @@ class Statistics(ui.Session):
 
     @ui.button('\U0001f3c3')  # agility
     async def add_agility(self, _):
-        if self.player.stat_points == 0 or self.players.agility + self.tots[3] == 99:
+        if self.player.stat_points == 0 or self.player.agility + self.tots[3] == 99:
             return
         self.tots[3] += 1
         self.player.stat_points -= 1
@@ -218,7 +218,7 @@ class Statistics(ui.Session):
 
     @ui.button('\U0001f340')  # luck
     async def add_luck(self, _):
-        if self.player.stat_points == 0 or self.players.luck + self.tots[4] == 99:
+        if self.player.stat_points == 0 or self.player.luck + self.tots[4] == 99:
             return
         self.tots[4] += 1
         self.player.stat_points -= 1
