@@ -5,7 +5,7 @@ from .utils.mapping import MapManager
 class Maps(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.mapmgr = MapManager.from_file("map.json")
+        self.mapmgr = MapManager.from_raw()
 
 
 def setup(bot):

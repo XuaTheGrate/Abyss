@@ -1,224 +1,222 @@
 {
-    curse: {
+    "curse": {
         "curse:0": {
-            skills: ["Eiha", "Curse Shield",],
-            cost: 5000,
-            unlocks: ["curse:1", "dark:0",],
+            "skills": ["Eiha", "Curse Shield"],
+            "cost": 5000,
+            "unlocks": ["curse:1", "dark:0"]
         },
         "curse:1": {
-            skills: ["Maeiha",],
-            cost: 10000,
-            unlocks: ["curse:2",],
+            "skills": ["Maeiha"],
+            "cost": 10000,
+            "unlocks": ["curse:2"]
         },
         "curse:2": {
-            skills: ["Eiga",],
-            cost: 15000,
-            unlocks: ["curse:3",],
+            "skills": ["Eiga"],
+            "cost": 15000,
+            "unlocks": ["curse:3"]
         },
         "curse:3": {
-            skills: ["Maeiga", "Null Curse",],
-            cost: 20000,
-            unlocks: ["curse:4",],
+            "skills": ["Maeiga", "Null Curse"],
+            "cost": 20000,
+            "unlocks": ["curse:4"]
         },
         "curse:4": {
-            skills: ["Eigaon", "Curse Boost",],
-            cost: 25000,
-            unlocks: ["curse:5",],
+            "skills": ["Eigaon", "Curse Boost"],
+            "cost": 25000,
+            "unlocks": ["curse:5"]
         },
         "curse:5": {
-            skills: ["Maeigaon", "Repel Curse",],
-            cost: 35000,
-            unlocks: ["curse:6",],
+            "skills": ["Maeigaon", "Repel Curse"],
+            "cost": 35000,
+            "unlocks": ["curse:6"]
         },
         "curse:6": {
-            skills: ["Hell's Curse", "Curse Amp",],
-            cost: 50000,
-            unlocks: ["curse:7",],
+            "skills": ["Hell's Curse", "Curse Amp"],
+            "cost": 50000,
+            "unlocks": ["curse:7"]
         },
         "curse:7": {
-            skills: ["Ungodly Prudence", "Absorb Curse",],
-            cost: 75000,
-        },
+            "skills": ["Ungodly Prudence", "Absorb Curse"],
+            "cost": 75000
+        }
     },
-    /*
-    dark: {
+    "dark": {
         "dark:0": {
-            skills: ["Mudo",],
-            cost: 20000,
-            unlocks: ["dark:1",],
+            "skills": ["Mudo"],
+            "cost": 20000,
+            "unlocks": ["dark:1"]
         },
         "dark:1": {
-            skills: ["Mamudo", "Resist Dark",],
-            cost: 30000,
-            unlocks: ["dark:2",],
+            "skills": ["Mamudo", "Resist Dark"],
+            "cost": 30000,
+            "unlocks": ["dark:2"]
         },
         "dark:2": {
-            skills: ["Mudoon", "Null Dark",],
-            cost: 4000,
-            unlocks: ["dark:3",],
+            "skills": ["Mudoon", "Null Dark"],
+            "cost": 4000,
+            "unlocks": ["dark:3"]
         },
         "dark:3": {
-            skills: ["Mamudoon", "Mudo Boost",],
-            cost: 50000,
-            unlocks: ["dark:4",],
+            "skills": ["Mamudoon", "Mudo Boost"],
+            "cost": 50000,
+            "unlocks": ["dark:4"]
         },
         "dark:4": {
-            skills: ["Die for Me!", "Repel Dark",],
-            cost: 75000,
-        },
+            "skills": ["Die for Me!", "Repel Dark"],
+            "cost": 75000
+        }
     },
-    almighty: {
+    "almighty": {
         "almighty:0": {
-            unlock_requires: ["curse:7", "bless:7", "fire:7", "ice:7", "elec:7",
-                             "wind:7", "nuke:7", "psy:7", "water:7", "earth:7"],
-            cost: 50000,
-            skills: ["Megido",],
-            unlocks: ["almighty:1",],
+            "unlock_requires": ["curse:7", "bless:7", "fire:7", "ice:7", "elec:7",
+                                "wind:7", "nuke:7", "psy:7", "water:7", "earth:7"],
+            "cost": 50000,
+            "skills": ["Megido"],
+            "unlocks": ["almighty:1"]
         },
         "almighty:1": {
-            cost: 100000,
-            skills: ["Megidola",],
-            unlocks: ["almighty:2",],
+            "cost": 100000,
+            "skills": ["Megidola"],
+            "unlocks": ["almighty:2"]
         },
         "almighty:2": {
-            cost: 200000,
-            skills: ["Almighty Boost",],
-            unlocks: ["almighty:3",],
+            "cost": 200000,
+            "skills": ["Almighty Boost"],
+            "unlocks": ["almighty:3"]
         },
         "almighty:3": {
-            cost: 400000,
-            skills: ["Megidolaon",],
-            unlocks: ["almighty:4",],
+            "cost": 400000,
+            "skills": ["Megidolaon"],
+            "unlocks": ["almighty:4"]
         },
         "almighty:4": {
-            cost: 800000,
-            skills: ["Black Viper",],
-            unlocks: ["almighty:5",],
+            "cost": 800000,
+            "skills": ["Black Viper"],
+            "unlocks": ["almighty:5"]
         },
         "almigty:5": {
-            cost: 1600000,
-            skills: ["Almighty Amp",],
-            unlocks: ["almighty:6",],
+            "cost": 1600000,
+            "skills": ["Almighty Amp"],
+            "unlocks": ["almighty:6"]
         },
         "almighty:6": {
-            cost: 3200000,
-            skills: ["Morning Star",],
-        },
+            "cost": 3200000,
+            "skills": ["Morning Star"]
+        }
     },
-    bless: {
+    "bless": {
         "bless:0": {
-            skills: ["Kouha", "Bless Shield",],
-            cost: 5000,
-            unlocks: ["bless:1", "light:0",],
+            "skills": ["Kouha", "Bless Shield"],
+            "cost": 5000,
+            "unlocks": ["bless:1", "light:0"]
         },
         "bless:1": {
-            skills: ["Makouha",],
-            cost: 10000,
-            unlocks: ["bless:2",],
+            "skills": ["Makouha"],
+            "cost": 10000,
+            "unlocks": ["bless:2"]
         },
         "bless:2": {
-            skills: ["Kouga",],
-            cost: 15000,
-            unlocks: ["bless:3",],
+            "skills": ["Kouga"],
+            "cost": 15000,
+            "unlocks": ["bless:3"]
         },
         "bless:3": {
-            skills: ["Makouga", "Null Bless",],
-            cost: 20000,
-            unlocks: ["bless:4",],
+            "skills": ["Makouga", "Null Bless"],
+            "cost": 20000,
+            "unlocks": ["bless:4"]
         },
         "bless:4": {
-            skills: ["Kougaon", "Bless Boost",],
-            cost: 25000,
-            unlocks: ["bless:5",],
+            "skills": ["Kougaon", "Bless Boost"],
+            "cost": 25000,
+            "unlocks": ["bless:5"]
         },
         "bless:5": {
-            skills: ["Makougaon", "Repel Bless",],
-            cost: 35000,
-            unlocks: ["bless:6",],
+            "skills": ["Makougaon", "Repel Bless"],
+            "cost": 35000,
+            "unlocks": ["bless:6"]
         },
         "bless:6": {
-            skills: ["Heaven's Blessing", "Bless Amp",],
-            cost: 50000,
-            unlocks: ["bless:7",],
+            "skills": ["Heaven's Blessing", "Bless Amp"],
+            "cost": 50000,
+            "unlocks": ["bless:7"]
         },
         "bless:7": {
-            skills: ["Divine Judgement", "Absorb Bless",],
-            cost: 75000,
-        },
+            "skills": ["Divine Judgement", "Absorb Bless"],
+            "cost": 75000
+        }
     },
-    light: {
+    "light": {
         "light:0": {
-            skills: ["Hama",],
-            cost: 20000,
-            unlocks: ["light:1",],
+            "skills": ["Hama"],
+            "cost": 20000,
+            "unlocks": ["light:1"]
         },
         "light:1": {
-            skills: ["Mahama", "Resist Light",],
-            cost: 30000,
-            unlocks: ["light:2",],
+            "skills": ["Mahama", "Resist Light"],
+            "cost": 30000,
+            "unlocks": ["light:2"]
         },
         "light:2": {
-            skills: ["Hamaon", "Null Light",],
-            cost: 40000,
-            unlocks: ["light:3",],
+            "skills": ["Hamaon", "Null Light"],
+            "cost": 40000,
+            "unlocks": ["light:3"]
         },
         "light:3": {
-            skills: ["Mahamaon", "Hama Boost",],
-            cost: 50000,
-            unlocks: ["light:4",],
+            "skills": ["Mahamaon", "Hama Boost"],
+            "cost": 50000,
+            "unlocks": ["light:4"]
         },
         "light:4": {
-            skills: ["Samsara", "Repel Light",],
-            cost: 75000,
-        },
+            "skills": ["Samsara", "Repel Light"],
+            "cost": 75000
+        }
     },
-    // regular skills
-    fire: {
+    "fire": {
         "fire:0": {
-            skills: ['Agi', 'Fire Shield',],
-            cost: 5000,
-            unlocks: ['fire:1',],
+            "skills": ["Agi", "Fire Shield"],
+            "cost": 5000,
+            "unlocks": ["fire:1"]
         },
         "fire:1": {
-            skills: ['Maragi',],
-            cost: 10000,
-            unlocks: ['fire:2',],
+            "skills": ["Maragi"],
+            "cost": 10000,
+            "unlocks": ["fire:2"]
         },
         "fire:2": {
-            skills: ['Agilao',],
-            cost: 15000,
-            unlocks: ['fire:3',],
+            "skills": ["Agilao"],
+            "cost": 15000,
+            "unlocks": ["fire:3"]
         },
         "fire:3": {
-            skills: ['Maragion', 'Null Fire',],
-            cost: 20000,
-            unlocks: ['fire:4',],
+            "skills": ["Maragion", "Null Fire"],
+            "cost": 20000,
+            "unlocks": ["fire:4"]
         },
         "fire:4": {
-            skills: ['Agidyne', 'Fire Boost'],
-            cost: 25000,
-            unlocks: ['fire:5',],
+            "skills": ["Agidyne", "Fire Boost"],
+            "cost": 25000,
+            "unlocks": ["fire:5"]
         },
         "fire:5": {
-            skills: ['Maragidyne', 'Repel Fire'],
-            cost: 35000,
-            unlocks: ['fire:6',],
+            "skills": ["Maragidyne", "Repel Fire"],
+            "cost": 35000,
+            "unlocks": ["fire:6"]
         },
         "fire:6": {
-            skills: ["Ragnarok", 'Fire Amp',],
-            cost: 50000,
-            unlocks: ['fire:7',],
+            "skills": ["Ragnarok", "Fire Amp"],
+            "cost": 50000,
+            "unlocks": ["fire:7"]
         },
         "fire:7": {
-            skills: ["Eruption",],
-            cost: 75000,
-        },
-    },
-    elec: {
-        "elec:0": {
-            skills: ['Zio', 'Elec Shield',],
-            cost: 5000,
-            unlocks: ['elec:1',],
+            "skills": ["Eruption"],
+            "cost": 75000
         }
-    } */
+    },
+    "elec": {
+        "elec:0": {
+            "skills": ["Zio", "Elec Shield"],
+            "cost": 5000,
+            "unlocks": ["elec:1"]
+        }
+    }
 }
