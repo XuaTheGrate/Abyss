@@ -59,7 +59,7 @@ def generate(file="map.png"):
                 locations[bs] = {'colour': rgb, 'coordinates': [], 'name': metadata.__locations[bs].name}
             locations[bs]['coordinates'].append([x, y])
     raw_map_data = {"biomes": biomes, 'locations': locations,
-                    'max_x': lx//10, 'max_y': ly//10, 'name': metadata[file].name}
+                    'max_x': lx//10, 'max_y': ly//10, 'name': metadata[file].name, 'id': metadata[file].id}
     log.info("location data loaded for {}, {:.1f}ms", file, (time.perf_counter()-start)*1000)
     im.close()
     return raw_map_data
@@ -132,11 +132,12 @@ class Location:
 
 
 class Map:
-    def __init__(self, location_data, biome_data, max_x, max_y):
+    def __init__(self, location_data, biome_data, max_x, max_y, name, id):
         self.locations = []
         self.biomes = []
         self.coordinates = {}
-        self.name = metadata
+        self.name = name
+        self.id = id
 
         self.max_x, self.max_y = max_x, max_y
 
@@ -149,7 +150,8 @@ class Map:
 
     @classmethod
     def from_dict(cls, config: dict):
-        return cls(config.get("locations"), config.get("biomes"), config.get("max_x"), config.get("max_y"))
+        return cls(config.get("locations"), config.get("biomes"), config.get("max_x"), config.get("max_y"), config.get('name'),
+                   config.get('id'))
 
     @classmethod
     def from_image(cls, name='map.png'):
@@ -236,4 +238,5 @@ class MapManager:
         self.maps = {}
         for file in metadata:
             if not file.startswith("__"):
-                self.maps[file[:-4]] = Map.from_image(file)
+                map = Map.from_image(file)
+                self.maps[map.id] = map

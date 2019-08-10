@@ -13,7 +13,7 @@ IMMUNITY_ORDER = ['Repel', 'Absorb', 'Null', 'Resist']
 
 class Player(JSONable):
     __json__ = ('owner', 'name', 'skills', 'exp', 'stats', 'resistances', 'arcana', 'specialty', 'stat_points',
-                'description', 'skill_leaf', 'ap', 'unsetskills', 'finished_leaves', 'coord')
+                'description', 'skill_leaf', 'ap', 'unsetskills', 'finished_leaves', 'coord', 'map')
 
     def keygetter(self, key):
         if key == 'owner':
@@ -34,6 +34,8 @@ class Player(JSONable):
             return [z.name for z in self.unset_skills if z.name not in ('Attack', 'Guard')]
         elif key == 'coord':
             return tuple(self.coord)
+        elif key == 'map':
+            return self.map.id
         return getattr(self, key)
 
     def __init__(self, **kwargs):
@@ -80,6 +82,7 @@ class Player(JSONable):
         self._until_clear = [0, 0, 0]  # turns until it gets cleared for each stat, max of 3 turns
         self._next_level = self.level + 1
         self.finished_leaves = kwargs.pop("finished_leaves", [])
+        self.map = kwargs.pop("map", 0)
         self.guarding = False
         self._shields = {}
         self._ex_crit_mod = 1.0  # handled by the battle system in the pre-loop hook
@@ -113,6 +116,7 @@ class Player(JSONable):
 --- unset_skills: {", ".join(map(str, self.unset_skills))}
 --- guarding: {self.guarding}
 --- coord: {self.coord!r}
+--- map: {self.map!r}
 
 --- level: {self.level}
 --- hp: {self.hp}
@@ -216,7 +220,8 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
 
     def _populate_skills(self, bot):
         self.owner = bot.get_user(self._owner_id)
-        self.coord = bot.maps.mapmgr.coordinates[tuple(self.coord)]
+        self.map = bot.maps.mapmgr.maps[self.map]
+        self.coord = self.map.coordinates[tuple(self.coord)]
         for skill in self._skills:
             self.skills.append(bot.players.skill_cache[skill])
         for skill in self._unset_skills:
