@@ -1,113 +1,67 @@
 import json
 import math
+import os
+import time
 
 from PIL import Image
 
 
-BIOME_COLOURS = {
-    (254, 216, 0): 'Desert',
-    (0, 255, 0): 'Plains',
-    (0, 127, 14): 'Forest',
-    (127, 106, 0): 'Beach',
-    (0, 148, 255): 'Ocean',
-    (0, 255, 255): 'River',
-    (254, 255, 255): 'Snow',
-    (119, 119, 119): 'Mountain'
-}
-
-BIOMES = {
-    'Plains': {
-        'coordinates': [],
-        'id': 0,
-        'name': 'Plains',
-        'encounter_rate': 1.0,
-        'travel_cost_multiplier': 1.0
-    },
-    'Desert': {
-        'coordinates': [],
-        'id': 1,
-        'name': 'Desert',
-        'encounter_rate': 0.77,
-        'travel_cost_multiplier': 0.94
-    },
-    'Forest': {
-        'coordinates': [],
-        'id': 2,
-        'name': 'Forest',
-        'encounter_rate': 1.25,
-        'travel_cost_multiplier': 1.13
-    },
-    'Ocean': {
-        'coordinates': [],
-        'id': 3,
-        'name': 'Ocean',
-        'encounter_rate': 1.5,
-        'travel_cost_multiplier': 2.65
-    },
-    'Beach': {
-        'coordinates': [],
-        'id': 4,
-        'name': 'Beach',
-        'encounter_rate': 1.05,
-        'travel_cost_multiplier': 1.0
-    },
-    'River': {
-        'coordinates': [],
-        'id': 5,
-        'name': 'River',
-        'encounter_rate': 1.1,
-        'travel_cost_multiplier': 1.7
-    },
-    'Snow': {
-        'coordinates': [],
-        'id': 6,
-        'name': 'Snow',
-        'encounter_rate': 1.34,
-        'travel_cost_multiplier': 1.49
-    },
-    'Mountain': {
-        'coordinates': [],
-        'id': 7,
-        'name': 'Mountain',
-        'encounter_rate': 1.95,
-        'travel_cost_multiplier': 3.0
-    }
-}
-
-
 def fmt(r, g, b):
-    return int(f"0x{f'{r:x}':0>2}{f'{g:x}':0>2}{f'{b:x}':0>2}", 16)
+    return f"0x{f'{r:x}':0>2}{f'{g:x}':0>2}{f'{b:x}':0>2}"
 
 
-def closest(rgb):
-    min_colours = {}
-    for key, name in BIOME_COLOURS.items():
-        r_c, g_c, b_c = key
-        rd = (r_c - rgb[0]) ** 2
-        gd = (g_c - rgb[1]) ** 2
-        bd = (b_c - rgb[2]) ** 2
-        min_colours[(rd + gd + bd)] = name
-    return min_colours[min(min_colours.keys())]
+class Attr(dict):
+    def __getattr__(self, item):
+        return self.__getitem__(item)
+
+    def __setattr__(self, key, value):
+        return self.__setitem__(key, value)
+
+    def __delattr__(self, key):
+        return self.__delitem__(key)
+
+
+with open("maps/metadata.json") as f:
+    metadata = json.load(f, object_hook=Attr)
 
 
 def generate(file="map.png"):
-    im = Image.open(file).convert('RGB')
+    start = time.perf_counter()
+    fname, fext = file.split(".", 1)
+    biome_file = f"{fname}_BIOMES.{fext}"
+    location_file = f"{fname}_LOCATIONS.{fext}"
+
+    im = Image.open(biome_file).convert('RGB')
     lx, ly = im.size
-    biomes = BIOMES.copy()
+    biomes = {}
+    locations = {}
     for x in range(lx//10):
         for y in range(ly//10):
             xx = x*10
             yy = y*10
             rgb = im.getpixel((xx, yy))
+            bs = fmt(*rgb)
             # print(r, g, b)
-            try:
-                name = BIOME_COLOURS[rgb]
-            except KeyError:
-                # nearest = sorted(BIOME_COLOURS.keys(), key=lambda i: abs(num-i))
-                name = closest(rgb)
-            biomes[name]['coordinates'].append([x, y])
+            if bs not in biomes:
+                biomes[bs] = {'colour': rgb, 'coordinates': [], 'name': metadata.__biomes[bs].name}
+            biomes[bs]['coordinates'].append([x, y])
+    log.info("biome data loaded for {}, {:.1f}ms", file, (time.perf_counter()-start)*1000)
 
-    raw_map_data = {"biomes": BIOMES, 'max_x': lx//10, 'max_y': ly//10}
+    im.close()
+    im = Image.open(location_file).convert('RGB')
+    assert im.size == (lx, ly)
+    for x in range(lx):
+        for y in range(ly):
+            xx, yy = x*10, y*10
+            rgb = im.getpixel((xx, yy))
+            i = 0
+            while i in locations:
+                i += 1
+            locations[i] = {'colour': rgb, 'coordinates': []}
+            locations[i]['coordinates'].append([x, y])
+    raw_map_data = {"biomes": biomes, 'locations': locations,
+                    'max_x': lx//10, 'max_y': ly//10, 'name': metadata[file].name}
+    log.info("location data loaded for {}, {:.1f}ms", file, (time.perf_counter()-start)*1000)
     im.close()
     return raw_map_data
 
@@ -178,11 +132,12 @@ class Location:
         return f"<Location name={self.name!r}>"
 
 
-class MapManager:
+class Map:
     def __init__(self, location_data, biome_data, max_x, max_y):
         self.locations = []
         self.biomes = []
         self.coordinates = {}
+        self.name = metadata
 
         self.max_x, self.max_y = max_x, max_y
 
@@ -190,19 +145,16 @@ class MapManager:
         # self.initiate_locations(location_data)
         self.initiate_biomes(biome_data)
 
+    def __repr__(self):
+        return f"<Map"
+
     @classmethod
     def from_dict(cls, config: dict):
         return cls(config.get("locations"), config.get("biomes"), config.get("max_x"), config.get("max_y"))
 
     @classmethod
-    def from_file(cls, filename: str):
-        with open(filename, "r") as f:
-            config = json.load(f)
-        return cls.from_dict(config)
-
-    @classmethod
-    def from_raw(cls):
-        return cls.from_dict(generate())
+    def from_image(cls, name='map.png'):
+        return cls.from_dict(generate(name))
 
     def initiate_locations(self, location_data):
         for location in location_data:
@@ -278,3 +230,10 @@ class Coordinate:
 
     def biomes_between(self, other):
         return [c.biome for c in self.coordinates_between(other)]
+
+
+class MapManager:
+    def __init__(self):
+        self.maps = {}
+        for file in metadata['maps']:
+            self.maps[file[:-4]] = Map.from_image(f'maps/{file}')

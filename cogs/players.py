@@ -15,6 +15,8 @@ from .utils.player import Player
 
 import collections
 
+NL = '\n'
+
 
 FMT = {
     'weak': 'Weak to:',
@@ -115,20 +117,15 @@ class Status(ui.Session):
         res_fmt = "\n".join(
             [f"{FMT[k]}: {' '.join(map(lambda x: str(lookups.TYPE_TO_EMOJI[x.lower()]), v))}" for k, v in res.items()])
         prog = int(player.exp_progress())
-        etnl = player.exp_to_next_level()
-        lvlbar = '█'*(prog//3)+' '*((100-prog)//3)
         arcana = lookups.ROMAN_NUMERAL[player.arcana.value]
-        desc = _("""**{arcana}** {player.arcana.name}
+        desc = f"""**{arcana}** {player.arcana.name}
 
 {player.description}
 
 Specializes in {spec} type skills.
-
-{etnl} EXP to level {player._next_level}
-{prog}% `{lvlbar}\u200b`
-
+{NL+f'{player.exp_to_next_level()} to level {player._next_level}'+NL+f'{prog}%'+NL if player.level != 99 else ''}
 __Resistances__
-{res_fmt}""").format(**locals())
+{res_fmt}"""
         embed.description = desc
         embed.set_footer(text=_('Stats ~>'))
         self.pages = [embed, stats_page(player), prepare_skill_tree_page(player),
