@@ -50,8 +50,8 @@ def generate(file="map.png"):
     im.close()
     im = Image.open(location_file).convert('RGB')
     assert im.size == (lx, ly)
-    for x in range(lx):
-        for y in range(ly):
+    for x in range(lx//10):
+        for y in range(ly//10):
             xx, yy = x*10, y*10
             rgb = im.getpixel((xx, yy))
             bs = fmt(*rgb)
