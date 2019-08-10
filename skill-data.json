@@ -1847,6 +1847,11 @@
         "desc": "Boosts Almighty type skills' power by 1.25x."
     },
     {
+        "name": "Almighty Amp",
+        "type": "passive",
+        "desc": "Boosts Almighty type skills' power by 1.5x."
+    },
+    {
         "name": "Fortify Spirit",
         "type": "passive",
         "desc": "Reduces ailment susceptibility."
