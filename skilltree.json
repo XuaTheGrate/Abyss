@@ -203,12 +203,12 @@
             "unlocks": ["fire:6"]
         },
         "fire:6": {
-            "skills": ["Ragnarok", "Fire Amp"],
+            "skills": ["Inferno", "Fire Amp"],
             "cost": 50000,
             "unlocks": ["fire:7"]
         },
         "fire:7": {
-            "skills": ["Eruption"],
+            "skills": ["Blazing Hell", "Absorb Fire"],
             "cost": 75000
         }
     },
