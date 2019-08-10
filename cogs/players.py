@@ -114,12 +114,18 @@ class Status(ui.Session):
         spec = f"{lookups.TYPE_TO_EMOJI[player.specialty.name.lower()]} {player.specialty.name.title()}"
         res_fmt = "\n".join(
             [f"{FMT[k]}: {' '.join(map(lambda x: str(lookups.TYPE_TO_EMOJI[x.lower()]), v))}" for k, v in res.items()])
+        prog = player.exp_progress()
+        etnl = player.exp_to_next_level()
+        lvlbar = '█'*prog//3+' '*(100-prog//3)
         arcana = lookups.ROMAN_NUMERAL[player.arcana.value]
         desc = _("""**{arcana}** {player.arcana.name}
 
 {player.description}
 
 Specializes in {spec} type skills.
+
+{etnl} EXP to level {player._next_level}
+{prog:.1f}% `{lvlbar}`
 
 __Resistances__
 {res_fmt}""").format(**locals())

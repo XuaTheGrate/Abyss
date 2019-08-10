@@ -207,6 +207,13 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
     def exp_to_next_level(self):
         return self._next_level ** 3 - self.exp
 
+    def exp_progress(self):
+        me = self.exp
+        next = self._next_level ** 3
+        diff = next - (self.level ** 3)
+        mdiff = next - me
+        return ((diff - mdiff) / diff) * 100
+
     def _populate_skills(self, bot):
         self.owner = bot.get_user(self._owner_id)
         self.coord = bot.maps.mapmgr.coordinates[tuple(self.coord)]
