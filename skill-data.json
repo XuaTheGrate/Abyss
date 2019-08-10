@@ -802,6 +802,23 @@
         "desc": "Deal medium Gun damage to 1 foe."
     },
     {
+        "name": "Spread Shot",
+        "type": "gun",
+        "cost": 8,
+        "severity": "miniscule",
+        "desc": "Deals miniscule Gun damage to all foes 2-3x.",
+        "targets": "enemies",
+        "min_hits": 2,
+        "max_hits": 3
+    },
+    {
+        "name": "Single Shot",
+        "type": "gun",
+        "cost": 6,
+        "severity": "light",
+        "desc": "Deals light Gun damage to 1 foe."
+    },
+    {
         "name": "Swift Strike",
         "type": "physical",
         "cost": 17,

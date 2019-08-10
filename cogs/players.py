@@ -250,11 +250,11 @@ class Players(commands.Cog):
         self.players = LRUDict(20, bot)
         self.skill_cache = {"Attack": GenericAttack, "Guard": Guard}
         self._base_demon_cache = {}
-        self._skill_cache_task = self.bot.loop.create_task(self.cache_skills())
         self.bot.unload_tasks[self] = self._unloader_task = self.bot.loop.create_task(self.flush_cached_players())
+        self.cache_skills()
 
     def __repr__(self):
-        return f"<PlayerHandler {len(self.players)} loaded,\n\t{self._skill_cache_task!r}>"
+        return f"<PlayerHandler {len(self.players)} loaded, {len(self.skill_cache)} skills>"
 
     def cog_unload(self):
         task = self.bot.unload_tasks.pop(self)
@@ -266,19 +266,18 @@ class Players(commands.Cog):
             _, player = self.players.popitem()
             await player.save(self.bot)
 
-    async def cache_skills(self):
-        await self.bot.prepared.wait()
-
+    def cache_skills(self):
         with open("skill-data.json") as f:
             sd = json.load(f)
         for skill in sd:
             self.skill_cache[skill['name']] = Skill(**skill)
 
-        self.bot.tree.do_cuz_ready()
-
-        async for demon in self.bot.db.abyss.basedemons.find():
-            demon.pop("_id")
+        with open("base-demons.json") as f:
+            demon_data = json.load(f)
+        for demon in demon_data:
             self._base_demon_cache[demon['name']] = demon
+
+        self.bot.tree.do_cuz_ready()
 
     # -- finally, some fucking commands -- #
 
