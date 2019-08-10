@@ -277,7 +277,10 @@ class Players(commands.Cog):
         for demon in demon_data:
             self._base_demon_cache[demon['name']] = demon
 
-        self.bot.tree.do_cuz_ready()
+        try:
+            self.bot.tree.do_cuz_ready()
+        except (KeyError, AttributeError):
+            pass
 
     # -- finally, some fucking commands -- #
 
