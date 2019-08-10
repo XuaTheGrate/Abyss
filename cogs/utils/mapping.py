@@ -79,10 +79,6 @@ def fmt(r, g, b):
     return int(f"0x{f'{r:x}':0>2}{f'{g:x}':0>2}{f'{b:x}':0>2}", 16)
 
 
-im = Image.open("map.png").convert('RGB')
-lx, ly = im.size
-
-
 def closest(rgb):
     min_colours = {}
     for key, name in BIOME_COLOURS.items():
@@ -94,21 +90,26 @@ def closest(rgb):
     return min_colours[min(min_colours.keys())]
 
 
-for x in range(lx//10):
-    for y in range(ly//10):
-        xx = x*10
-        yy = y*10
-        rgb = im.getpixel((xx, yy))
-        # print(r, g, b)
-        try:
-            name = BIOME_COLOURS[rgb]
-        except KeyError:
-            # nearest = sorted(BIOME_COLOURS.keys(), key=lambda i: abs(num-i))
-            name = closest(rgb)
-        BIOMES[name]['coordinates'].append([x, y])
+def generate(file="map.png"):
+    im = Image.open(file).convert('RGB')
+    lx, ly = im.size
+    biomes = BIOMES.copy()
+    for x in range(lx//10):
+        for y in range(ly//10):
+            xx = x*10
+            yy = y*10
+            rgb = im.getpixel((xx, yy))
+            # print(r, g, b)
+            try:
+                name = BIOME_COLOURS[rgb]
+            except KeyError:
+                # nearest = sorted(BIOME_COLOURS.keys(), key=lambda i: abs(num-i))
+                name = closest(rgb)
+            biomes[name]['coordinates'].append([x, y])
 
-
-raw_map_data = {"biomes": BIOMES, 'max_x': lx//10, 'max_y': ly//10}
+    raw_map_data = {"biomes": BIOMES, 'max_x': lx//10, 'max_y': ly//10}
+    im.close()
+    return raw_map_data
 
 
 # THIS IS FROM THE bresenham LIBRARY ON PIP
@@ -201,10 +202,7 @@ class MapManager:
 
     @classmethod
     def from_raw(cls):
-        # one time use only
-        self = cls.from_dict(raw_map_data)
-        globals().pop("raw_map_data")
-        return self
+        return cls.from_dict(generate())
 
     def initiate_locations(self, location_data):
         for location in location_data:
