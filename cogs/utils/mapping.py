@@ -54,11 +54,10 @@ def generate(file="map.png"):
         for y in range(ly):
             xx, yy = x*10, y*10
             rgb = im.getpixel((xx, yy))
-            i = 0
-            while i in locations:
-                i += 1
-            locations[i] = {'colour': rgb, 'coordinates': []}
-            locations[i]['coordinates'].append([x, y])
+            bs = fmt(*rgb)
+            if bs not in locations:
+                locations[bs] = {'colour': rgb, 'coordinates': [], 'name': metadata.__locations[bs].name}
+            locations[bs]['coordinates'].append([x, y])
     raw_map_data = {"biomes": biomes, 'locations': locations,
                     'max_x': lx//10, 'max_y': ly//10, 'name': metadata[file].name}
     log.info("location data loaded for {}, {:.1f}ms", file, (time.perf_counter()-start)*1000)

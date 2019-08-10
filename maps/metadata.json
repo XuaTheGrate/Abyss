@@ -84,5 +84,33 @@
                 0.07
             ]
         }
+    },
+    "__locations": {
+        "0xB200FF": {
+            "name": "Bridge",
+            "travel_mod": 1.0,
+            "weather_mod": null
+        },
+        "0xFFD800": {
+            "name": "Shrine",
+            "travel_mod": 1.0,
+            "weather_mod": null
+        },
+        "0x9E9E9E": {
+            "name": "Kingdom",
+            "travel_mod": 1.2,
+            "weather_mod": [
+                0.2,
+                0.5,
+                0.13,
+                0.1,
+                0.07
+            ]
+        },
+        "0xAD6200": {
+            "name": "Village",
+            "travel_mod": 1.02,
+            "weather_mod": null
+        }
     }
 }
