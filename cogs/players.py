@@ -116,7 +116,7 @@ class Status(ui.Session):
             [f"{FMT[k]}: {' '.join(map(lambda x: str(lookups.TYPE_TO_EMOJI[x.lower()]), v))}" for k, v in res.items()])
         prog = player.exp_progress()
         etnl = player.exp_to_next_level()
-        lvlbar = '█'*prog//3+' '*(100-prog//3)
+        lvlbar = '█'*(int(prog)//3)+' '*(100-int(prog)//3)
         arcana = lookups.ROMAN_NUMERAL[player.arcana.value]
         desc = _("""**{arcana}** {player.arcana.name}
 
