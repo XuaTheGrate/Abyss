@@ -1002,6 +1002,16 @@
         "desc": "this needs to be edited, report to xua"
     },
     {
+        "name": "Repel Dark",
+        "type": "passive",
+        "desc": "this needs to be edited, report to xua"
+    },
+    {
+        "name": "Repel Light",
+        "type": "passive",
+        "desc": "this needs to be edited, report to xua"
+    },
+    {
         "name": "Resist Curse",
         "type": "passive",
         "desc": "this needs to be edited, report to xua"
