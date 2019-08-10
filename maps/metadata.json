@@ -3,7 +3,7 @@
         "id": 0,
         "name": "Overworld",
         "biomes": [
-            "0xFED800",
+            "0xFAD800",
             "0x00FE00",
             "0x007F0E",
             "0x00FFFF",
@@ -14,7 +14,7 @@
         ]
     },
     "__biomes": {
-        "0xFED800": {
+        "0xFAD800": {
             "name": "Desert",
             "travel_mod": 0.78,
             "weather_mod": [
