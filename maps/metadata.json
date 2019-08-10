@@ -1,5 +1,5 @@
 {
-    "overworld.png": {
+    "maps/overworld.png": {
         "id": 0,
         "name": "Overworld",
         "biomes": [
