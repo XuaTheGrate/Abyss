@@ -236,4 +236,4 @@ class MapManager:
         self.maps = {}
         for file in metadata:
             if not file.startswith("__"):
-                self.maps[file[:-4]] = Map.from_image(f'maps/{file}')
+                self.maps[file[:-4]] = Map.from_image(file)
