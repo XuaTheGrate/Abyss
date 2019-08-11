@@ -14,10 +14,10 @@ UNSUPPORTED_SKILLS = ['Dia', 'Diarama', 'Diarahan', 'Media', 'Mediarama', 'Media
                       'Regenerate 3', 'Invigorate 4', 'Regenerate 4', 'Invigorate 5', 'Regenerate 5',
                       'Cadenza', 'Oratorio', 'Pulinpa', 'Charge', 'Concentrate', 'Amrita Shower',
                       'Amrita Drop', 'Tetrakarn', 'Makarakarn', 'Brain Jack', 'Marin Karin',
-                      'Fortify Spirit', 'Enduring Soul', 'Endure',
+                      'Fortify Spirit',
                       'Makajam', 'Makajamaon', 'Tentarafoo', 'Wage War', 'Dazzler',
                       'Nocturnal Flash', 'Dormina', 'Lullaby', 'Ambient Aid', 'Recarm', 'Samarecarm',
-                      'Ailment Boost', 'Divine Grace', 'Rebellion', 'Revolution', 'Insta-Heal', 'Trigger Happy',
+                      'Ailment Boost', 'Divine Grace', 'Rebellion', 'Revolution', 'Insta-Heal',
                       'Ali Dance', 'Heat Up']
 
 

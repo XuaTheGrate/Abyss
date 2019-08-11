@@ -487,6 +487,7 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
 
         base = skill.damage_calc(attacker, self)
         base *= attacker.get_boost_amp_mod(skill.type)
+        tmp = False
 
         if from_reflect or counter:
             base /= 1.35  # reflected damage is weakened
@@ -494,7 +495,12 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
             if not skill.uses_sp and res is not ResistanceModifier.WEAK and not guarded:  # weakness comes before criticals
                 # guarding also nullifies knock downs, so crits and weaknesses
                 if enforce_crit == 0:
+                    if skill.type is SkillType.GUN and any(s.name == 'Trigger Happy' for s in self.skills):
+                        self._ex_crit_mod += 1.33
+                        tmp = True
                     enforce_crit = 1 if attacker.try_crit(self) else 2
+                    if tmp:
+                        self._ex_crit_mod -= 1.33
                 if enforce_crit == 1:
                     base *= 1.75
                     result.critical = True
