@@ -499,7 +499,7 @@ class WildBattle:
             await self.ctx.send(f"{enemy} used an unhandled skill ({skill.name}), skipping")
         else:
             targets = self.filter_targets(skill, enemy)
-            if isinstance(skill, StatusMod):
+            if isinstance(skill, (StatusMod, ShieldSkill)):
                 await self.ctx.send(f"__{enemy}__ used `{skill}`!")
                 await skill.effect(self, targets)
                 return
