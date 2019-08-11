@@ -10,7 +10,7 @@ NL = '\n'
 UNSUPPORTED_SKILLS = ['Fast Heal', 'Evil Touch', 'Evil Smile', 'Taunt',
                       'Abysmal Surge', 'Ominous Words', 'Growth 1', 'Growth 2', 'Growth 3',
                       'Pulinpa', 'Charge', 'Concentrate', 'Amrita Shower',
-                      'Amrita Drop', 'Tetrakarn', 'Makarakarn', 'Brain Jack', 'Marin Karin',
+                      'Amrita Drop', 'Brain Jack', 'Marin Karin',
                       'Fortify Spirit',
                       'Makajam', 'Makajamaon', 'Tentarafoo', 'Wage War', 'Dazzler',
                       'Nocturnal Flash', 'Dormina', 'Lullaby', 'Ambient Aid', 'Recarm', 'Samarecarm',
@@ -446,7 +446,7 @@ class WildBattle:
                 return self.order.decycle()
             self.player.hp = cost
 
-        if isinstance(skill, (StatusMod, ShieldSkill, HealingSkill, Karn)):
+        if isinstance(skill, (StatusMod, ShieldSkill, HealingSkill, Karn, Charge)):
             await self.ctx.send(f"__{self.player}__ used `{skill}`!")
             await skill.effect(self, targets)
             return
@@ -496,7 +496,7 @@ class WildBattle:
             await self.ctx.send(f"{enemy} used an unhandled skill ({skill.name}), skipping")
         else:
             targets = self.filter_targets(skill, enemy)
-            if isinstance(skill, (StatusMod, ShieldSkill, HealingSkill)):
+            if isinstance(skill, (StatusMod, ShieldSkill, HealingSkill, Karn, Charge)):
                 await self.ctx.send(f"__{enemy}__ used `{skill}`!")
                 await skill.effect(self, targets)
                 return

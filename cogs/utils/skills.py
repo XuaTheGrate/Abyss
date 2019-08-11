@@ -282,6 +282,16 @@ class Oratorio(HealingSkill):
         await super().effect(battle, targets)
 
 
+class Charge(Skill):
+    async def effect(self, battle, targets):
+        target = targets[0]  # only targets the user
+        if self.name == 'Charge':
+            target._charging = True
+        else:
+            target._concentrating = True
+        await battle.ctx.send(f"> __{target}__ is focused!")
+
+
 subclasses = {
     "Counter": Counter,
     "Counterstrike": Counter,
