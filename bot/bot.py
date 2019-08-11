@@ -92,13 +92,13 @@ CONFIG_NEW = {
 
 class ContextSoWeDontGetBannedBy403(commands.Context):
     async def send(self, content=None, *, embed=None, file=None, files=None, tts=False, **kwargs):
-        if not self.guild.me.permissions_for(self.channel).send_messages:
+        if not self.guild.me.permissions_in(self.channel).send_messages:
             return
-        if embed and not self.guild.me.permissions_for(self.channel).embed_links:
+        if embed and not self.guild.me.permissions_in(self.channel).embed_links:
             return
-        elif (file or files) and not self.guild.me.permissions_for(self.channel).attach_files:
+        elif (file or files) and not self.guild.me.permissions_in(self.channel).attach_files:
             return
-        elif tts and not self.guild.me.permissions_for(self.channel).send_tts_messages:
+        elif tts and not self.guild.me.permissions_in(self.channel).send_tts_messages:
             return
         return await super().send(content, embed=embed, file=file, files=files, tts=tts, **kwargs)
 
