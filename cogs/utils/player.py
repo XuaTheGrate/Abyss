@@ -96,6 +96,8 @@ class Player(JSONable):
         self._concentrating = False
         self._tetrakarn = False
         self._makarakarn = False
+        self._ailment = None
+        self._turns_in_ailment = 0
 
     def __str__(self):
         return self.name
@@ -144,9 +146,13 @@ class Player(JSONable):
 --- _ex_crit_mod: {self._ex_crit_mod}
 --- _ailment_buff: {self._ailment_buff}
 --- _ex_evasion_mod: {self._ex_evasion_mod}
+--- _tetrakarn: {self._tetrakarn}
+--- _makarakarn: {self._makarakarn}
 --- _endured: {self._endured}
 --- _charging: {self._charging}
---- _concentrating: {self._concentrating}"""
+--- _concentrating: {self._concentrating}
+--- _ailment: {self._ailment!r}
+--- _turns_in_ailment: {self._turns_in_ailment}"""
 
     @property
     def stats(self):

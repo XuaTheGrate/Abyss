@@ -446,7 +446,7 @@ class WildBattle:
                 return self.order.decycle()
             self.player.hp = cost
 
-        if isinstance(skill, (StatusMod, ShieldSkill, HealingSkill)):
+        if isinstance(skill, (StatusMod, ShieldSkill, HealingSkill, Karn)):
             await self.ctx.send(f"__{self.player}__ used `{skill}`!")
             await skill.effect(self, targets)
             return

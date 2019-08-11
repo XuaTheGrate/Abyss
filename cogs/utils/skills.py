@@ -176,6 +176,12 @@ class ShieldSkill(Skill):
         await battle.ctx.send(f"> Party become protected by an anti-{typ.lower()} shield!")
 
 
+class Karn(Skill):
+    async def effect(self, battle, targets):
+        target = targets[0]  # single target
+        setattr(target, '_'+self.name.lower(), True)
+
+
 class StatusMod(Skill):
     async def effect(self, battle, targets):
         if self.name == 'Dekunda':
@@ -300,6 +306,7 @@ for s in ('', 'rama', 'rahan'):
 subclasses['Cadenza'] = Cadenza
 subclasses['Oratorio'] = Oratorio
 subclasses['Salvation'] = Salvation
+subclasses['Tetrakarn'] = subclasses['Makarakarn'] = Karn
 subclasses['Debilitate'] = subclasses['Heat Riser'] = StatusMod
 
 
