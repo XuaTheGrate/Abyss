@@ -1,16 +1,30 @@
 import logging
 from datetime import datetime
-from logging.handlers import TimedRotatingFileHandler
 
 from discord.ext import commands
 
 NL = '\n'
 NNL = '\\n'
 
+
+class BetterRotatingFileHandler(logging.FileHandler):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.init = datetime.utcnow().strftime("%d-%m-%Y")
+        self.old_fn = self.baseFilename
+        self.baseFilename = self.baseFilename + self.init
+
+    def emit(self, record):
+        strf = datetime.utcnow().strftime("%d-%m-%Y")
+        if strf != self.init:
+            self.baseFilename = self.old_fn + strf
+        return super().emit(record)
+
+
 log = logging.getLogger("Abyss")
 log.setLevel(logging.DEBUG)
 log.handlers.clear()
-hdlr = TimedRotatingFileHandler("logs/Abyss.log", "d", utc=True)
+hdlr = BetterRotatingFileHandler("logs/Abyss.log")
 hdlr.setFormatter(logging.Formatter(fmt=""))
 log.addHandler(hdlr)
 

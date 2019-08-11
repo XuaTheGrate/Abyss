@@ -22,9 +22,24 @@ import logging
 
 NL = '\n'
 
+
+class BetterRotatingFileHandler(logging.FileHandler):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.init = datetime.utcnow().strftime("%d-%m-%Y")
+        self.old_fn = self.baseFilename
+        self.baseFilename = self.baseFilename+self.init
+
+    def emit(self, record):
+        strf = datetime.utcnow().strftime("%d-%m-%Y")
+        if strf != self.init:
+            self.baseFilename = self.old_fn+strf
+        return super().emit(record)
+
+
 logger = logging.getLogger('discord')
 logger.setLevel(logging.DEBUG)
-handler = TimedRotatingFileHandler('logs/discord.log', 'd', encoding='utf-8', utc=True)
+handler = BetterRotatingFileHandler('logs/discord.log', encoding='utf-8')
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
@@ -51,7 +66,7 @@ def get_logger():
 
     log.handlers = [
         stream,
-        TimedRotatingFileHandler("logs/log", "d", encoding="utf-8")
+        BetterRotatingFileHandler("logs/log", encoding="utf-8")
     ]
 
     builtins.log = log
