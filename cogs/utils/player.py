@@ -362,10 +362,12 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
             yield self.get_auto_mod(mod)
 
     def get_regenerate(self):
-        return max(filter(lambda s: s.name.startswith('Regenerate'), self.skills), key=lambda s: int(s.name[-1]))
+        if any(s.name.startswith('Regenerate') for s in self.skills):
+            return max(filter(lambda s: s.name.startswith('Regenerate'), self.skills), key=lambda s: int(s.name[-1]))
 
     def get_invigorate(self):
-        return max(filter(lambda s: s.name.startswith('Invigorate'), self.skills), key=lambda s: int(s.name[-1]))
+        if any(s.name.startswith('Invigorate') for s in self.skills):
+            return max(filter(lambda s: s.name.startswith('Invigorate'), self.skills), key=lambda s: int(s.name[-1]))
 
     def pre_turn(self):
         self.decrement_stat_modifier()
