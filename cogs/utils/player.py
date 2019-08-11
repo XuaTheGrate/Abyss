@@ -392,7 +392,7 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
             self.hp = -(self.max_hp * (mod/100))
         inv = self.get_invigorate()
         if inv:
-            mod = int(reg.name[-1]) * 2 + 1
+            mod = int(inv.name[-1]) * 2 + 1
             self.sp = -(self.max_sp * (mod/100))
 
         self.guarding = False
@@ -424,7 +424,7 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
             self.hp = -(self.max_hp * (mod / 100))
         inv = self.get_invigorate()
         if inv:
-            mod = int(reg.name[-1]) * 2 + 1
+            mod = int(inv.name[-1]) * 2 + 1
             self.sp = -(self.max_sp * (mod / 100))
 
         self.guarding = False
