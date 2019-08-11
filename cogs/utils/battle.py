@@ -106,6 +106,8 @@ class TargetSession(ui.Session):
         elif target == 'enemies':
             self.targets = targets
             self.add_button(self.target_enemies, '<:tickYes:568613200728293435>')
+        else:
+            raise RuntimeError("unhandled target")
         self.result = None
         self.target = target
 

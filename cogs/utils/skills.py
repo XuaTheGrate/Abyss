@@ -199,14 +199,14 @@ class StatusMod(Skill):
             mod = StatModifier[self.name[:4].upper()].value
             for target in targets:
                 if target._stat_mod[mod] == up:
-                    target._until_clear[mod] = 3
+                    target._until_clear[mod] = 4
                     await battle.ctx.send(f"> __{target}__'s {STAT_MOD[mod]} boost extended.")
                 else:
                     target._stat_mod[mod] += up
                     if target._stat_mod[mod] == 0:
                         target._until_clear[mod] = -1
                     else:
-                        target._until_clear[mod] = 3
+                        target._until_clear[mod] = 4
                     await battle.ctx.send(f"> __{target}__'s {STAT_MOD[mod]} {'increased' if up==1 else 'decreased'}.")
         else:
             await battle.ctx.send("sec")

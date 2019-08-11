@@ -235,11 +235,11 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
         if not modifier:  # all modifiers
             for i in range(3):
                 self._stat_mod[i] += 1 + ((to - 1) * 2)
-                self._until_clear[i] = 3
+                self._until_clear[i] = 4
             return
         v = modifier.value
         self._stat_mod[v] += 1 + ((to - 1) * 2)  # 1 for *kaja (True), -1 for *nda (False)
-        self._until_clear[v] = 3
+        self._until_clear[v] = 4
 
     def decrement_stat_modifier(self, modifier=None):
         if not modifier:  # all modifiers
