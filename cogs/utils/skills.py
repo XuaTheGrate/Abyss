@@ -167,10 +167,13 @@ class PassiveImmunity(Skill):
 
 
 class ShieldSkill(Skill):
-    def effect(self, targets):
+    def effect(self, battle, targets):
         typ = self.name.split(" ")[0]
         for t in targets:
+            if t._shields.get(typ):
+                continue
             t._shields[typ] = 3  # little hacky, but its easiest this way
+        await battle.ctx.send(f"> Party become protected by an anti-{typ.lower()} shield!")
 
 
 class StatusMod(Skill):
