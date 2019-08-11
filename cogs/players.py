@@ -10,8 +10,8 @@ from discord.ext import commands, ui
 
 from .utils import lookups, scripts, i18n, imaging
 from .utils.enums import SkillType
-from .utils.objects import Skill, GenericAttack, Guard
 from .utils.player import Player
+from .utils.skills import Skill, GenericAttack, Guard
 
 import collections
 

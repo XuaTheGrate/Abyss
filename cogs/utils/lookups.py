@@ -1,5 +1,7 @@
 from discord import PartialEmoji
 
+from .enums import *
+
 
 TYPE_TO_COLOUR = {
     "physical": 0xe79e2d,
@@ -95,8 +97,6 @@ WEATHER_TO_TYPE = {
     'SEVERE_WIND': 'WIND',
     'THUNDER_STORM': 'ELEC'
 }
-
-from .enums import Season, SevereWeather, Weather
 
 WIND_SPEED_SEASON = {
     Season.SPRING: 3,

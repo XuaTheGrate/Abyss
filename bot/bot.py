@@ -5,7 +5,6 @@ import os
 import random
 import traceback
 from datetime import datetime
-from logging.handlers import TimedRotatingFileHandler
 
 import aiohttp
 import aioredis

@@ -3,8 +3,9 @@ import random
 import re
 
 from .enums import *
-from .objects import DamageResult, JSONable, Skill
 from .lookups import TYPE_SHORTEN, STAT_MOD
+from .objects import DamageResult, JSONable
+from .skills import Skill
 
 CRITICAL_BASE = 4
 
