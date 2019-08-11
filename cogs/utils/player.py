@@ -393,7 +393,7 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
         inv = self.get_invigorate()
         if inv:
             mod = int(inv.name[-1]) * 2 + 1
-            self.sp = -(self.max_sp * (mod/100))
+            self.sp = -mod
 
         self.guarding = False
 

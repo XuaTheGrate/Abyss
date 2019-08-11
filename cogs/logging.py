@@ -38,6 +38,8 @@ log.addHandler(hdlr)
 class CommandLogger(commands.Cog):
     @commands.Cog.listener()
     async def on_command(self, ctx):
+        if not ctx.guild:
+            return
         log.info(
             f"[{datetime.utcnow().strftime('%Y-%m-%d@%H:%M:%S')}]"
             f"[{ctx.guild.id} {ctx.guild}] {ctx.author.id} {ctx.author}: "
@@ -55,7 +57,7 @@ class CommandLogger(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, msg):
-        if msg.author.bot:
+        if msg.author.bot or not msg.guild:
             return
         if (
             msg.guild.me.permissions_in(msg.channel).send_messages and
