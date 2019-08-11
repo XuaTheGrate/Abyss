@@ -9,7 +9,7 @@ NL = '\n'
 
 UNSUPPORTED_SKILLS = ['Fast Heal', 'Evil Touch', 'Evil Smile', 'Taunt',
                       'Abysmal Surge', 'Ominous Words', 'Growth 1', 'Growth 2', 'Growth 3',
-                      'Pulinpa', 'Charge', 'Concentrate', 'Amrita Shower',
+                      'Pulinpa', 'Amrita Shower',
                       'Amrita Drop', 'Brain Jack', 'Marin Karin',
                       'Fortify Spirit',
                       'Makajam', 'Makajamaon', 'Tentarafoo', 'Wage War', 'Dazzler',
