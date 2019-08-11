@@ -1527,7 +1527,7 @@
         "name": "Salvation",
         "type": "healing",
         "cost": 40,
-        "severity": "severe",
+        "severity": "heavy",
         "desc": "Fully heals all allies and their ailments.",
         "target": "allies"
     },

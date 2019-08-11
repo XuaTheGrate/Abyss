@@ -228,6 +228,54 @@ class StatusMod(Skill):
                                       f"{'increased' if up==1 else 'decreased'}.")
 
 
+class HealingSkill(Skill):
+    async def effect(self, battle, targets):
+        user = battle.order.active()
+        if self.severity is Severity.LIGHT:
+            min, max = 40, 60
+        elif self.severity is Severity.MEDIUM:
+            min, max = 170, 190
+        else:
+            for t in targets:
+                t._damage_taken = 0
+                await battle.ctx.send(f"> __{t}__ was healed for {t.max_hp} HP!")
+            return
+        if any(s.name == 'Divine Grace' for s in user.skills):
+            min *= 1.5  # light -> 60, 90
+            max *= 1.5  # medium -> 255, 285
+        for t in targets:
+            heal = random.uniform(min, max)
+            t.hp = -heal  # it gets rounded anyways
+            await battle.ctx.send(f"> __{t}__ was healed for {heal} HP!")
+
+
+class Salvation(HealingSkill):
+    async def effect(self, battle, targets):
+        # todo: when ailments are done, this heals them
+        await super().effect(battle, targets)
+
+
+class Cadenza(HealingSkill):
+    async def effect(self, battle, targets):
+        for t in targets:
+            t._stat_mod[2] += 1
+            if t._stat_mod[2] == 0:
+                t._until_clear[2] = -1
+            else:
+                t._until_clear[2] = 4
+        await super().effect(battle, targets)
+
+
+class Oratorio(HealingSkill):
+    async def effect(self, battle, targets):
+        for t in targets:
+            for mod in range(3):
+                if t._stat_mod[mod] == -1:
+                    t._stat_mod[mod] = 0
+                    t._until_clear[mod] = -1
+        await super().effect(battle, targets)
+
+
 subclasses = {
     "Counter": Counter,
     "Counterstrike": Counter,
@@ -245,6 +293,13 @@ for s in ('Taru', 'Raku', 'Suku', 'De'):
             a = 'kunda'
         subclasses[f"{s}{a}"] = StatusMod
 
+for s in ('', 'rama', 'rahan'):
+    subclasses['Dia'+s] = HealingSkill
+    subclasses['Media'+s] = HealingSkill
+
+subclasses['Cadenza'] = Cadenza
+subclasses['Oratorio'] = Oratorio
+subclasses['Salvation'] = Salvation
 subclasses['Debilitate'] = subclasses['Heat Riser'] = StatusMod
 
 

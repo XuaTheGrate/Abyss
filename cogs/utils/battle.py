@@ -7,15 +7,14 @@ from .skills import *
 
 NL = '\n'
 
-UNSUPPORTED_SKILLS = ['Dia', 'Diarama', 'Diarahan', 'Media', 'Mediarama', 'Mediarahan', 'Salvation',
-                      'Fast Heal', 'Evil Touch', 'Evil Smile', 'Taunt',
+UNSUPPORTED_SKILLS = ['Fast Heal', 'Evil Touch', 'Evil Smile', 'Taunt',
                       'Abysmal Surge', 'Ominous Words', 'Growth 1', 'Growth 2', 'Growth 3',
-                      'Cadenza', 'Oratorio', 'Pulinpa', 'Charge', 'Concentrate', 'Amrita Shower',
+                      'Pulinpa', 'Charge', 'Concentrate', 'Amrita Shower',
                       'Amrita Drop', 'Tetrakarn', 'Makarakarn', 'Brain Jack', 'Marin Karin',
                       'Fortify Spirit',
                       'Makajam', 'Makajamaon', 'Tentarafoo', 'Wage War', 'Dazzler',
                       'Nocturnal Flash', 'Dormina', 'Lullaby', 'Ambient Aid', 'Recarm', 'Samarecarm',
-                      'Ailment Boost', 'Divine Grace', 'Rebellion', 'Revolution', 'Insta-Heal',
+                      'Ailment Boost', 'Rebellion', 'Revolution', 'Insta-Heal',
                       'Ali Dance']
 
 
@@ -23,6 +22,7 @@ class Enemy(Player):
     # wild encounters dont have a skill preference or an ai
     # literally choose skills at random
     # however they will learn not to use a move if you are immune to it
+    # also will not choose skills it can afford to use (sp)
 
     # true battles will automatically avoid skills that you are immune to,
     # and aim for skills that you are weak to / support themself
@@ -40,16 +40,11 @@ class Enemy(Player):
         return math.ceil(self.level_ ** 3 / random.uniform(1, 3))
 
     def random_move(self):
-        choices = list(
-            filter(
+        choices = list(filter(
                 lambda s: s.type is not SkillType.PASSIVE and (
                     True if not s.uses_sp else s.cost <= self.sp
                 ) and s.name not in self.unusable_skills,
-                self.skills
-            )
-        )
-        if not choices:
-            return self.skills[0]  # 0 is always GenericAttack
+                self.skills))
         select = random.choice(choices)
         if select.uses_sp:
             if any(s.name == 'Spell Master' for s in self.skills):
@@ -93,9 +88,7 @@ class TargetSession(ui.Session):
     def __init__(self, *targets, target):
         super().__init__(timeout=180)
         if target in ('enemy', 'ally'):
-            self.targets = {
-                f"{c+1}\u20e3": targets[c] for c in range(len(targets))
-            }
+            self.targets = {f"{c+1}\u20e3": targets[c] for c in range(len(targets))}
             for e in self.targets.keys():
                 # log.debug(f"added button for {self.enemies[e]}")
                 self.add_button(self.button_enemy, e)
@@ -449,7 +442,7 @@ class WildBattle:
                 return self.order.decycle()
             self.player.hp = cost
 
-        if isinstance(skill, (StatusMod, ShieldSkill)):
+        if isinstance(skill, (StatusMod, ShieldSkill, HealingSkill)):
             await self.ctx.send(f"__{self.player}__ used `{skill}`!")
             await skill.effect(self, targets)
             return
@@ -499,7 +492,7 @@ class WildBattle:
             await self.ctx.send(f"{enemy} used an unhandled skill ({skill.name}), skipping")
         else:
             targets = self.filter_targets(skill, enemy)
-            if isinstance(skill, (StatusMod, ShieldSkill)):
+            if isinstance(skill, (StatusMod, ShieldSkill, HealingSkill)):
                 await self.ctx.send(f"__{enemy}__ used `{skill}`!")
                 await skill.effect(self, targets)
                 return
