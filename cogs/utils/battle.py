@@ -96,14 +96,14 @@ def confirm_not_dead(battle):
 class TargetSession(ui.Session):
     def __init__(self, *targets, target):
         super().__init__(timeout=180)
-        if target == 'enemy':
+        if target in ('enemy', 'ally'):
             self.targets = {
                 f"{c+1}\u20e3": targets[c] for c in range(len(targets))
             }
             for e in self.targets.keys():
                 # log.debug(f"added button for {self.enemies[e]}")
                 self.add_button(self.button_enemy, e)
-        elif target == 'enemies':
+        elif target in ('enemies', 'self', 'allies'):
             self.targets = targets
             self.add_button(self.target_enemies, '<:tickYes:568613200728293435>')
         else:
@@ -113,13 +113,23 @@ class TargetSession(ui.Session):
 
     async def send_initial_message(self):
         if self.target == 'enemy':
-            c = [_("Pick a target!\n")]
+            c = ["**Pick a target!**\n"]
             # noinspection PyUnresolvedReferences
             c.extend([f"{a} {b.name}" for a, b in self.targets.items()])
             # log.debug("target session initial message")
             return await self.context.send(NL.join(c))
         elif self.target == 'enemies':
-            c = [f"**Targets all enemies**\n"]
+            c = ["**Targets all enemies**\n"]
+            c.extend([str(e) for e in self.targets])
+            return await self.context.send(NL.join(c))
+        elif self.target == 'self':
+            return await self.context.send("**You can only use this skill on yourself**")
+        elif self.target == 'allies':
+            c = ["**Targets all allies**\n"]
+            c.extend([str(e) for e in self.targets])
+            return await self.context.send(NL.join(c))
+        elif self.target == 'ally':
+            c = ["**Choose an ally!**\n"]
             c.extend([str(e) for e in self.targets])
             return await self.context.send(NL.join(c))
 
@@ -144,18 +154,6 @@ class TargetSession(ui.Session):
         self.result = self.targets
         await self.stop()
 
-    async def target_ally(self, _):
-        pass
-
-    async def target_self(self, _):
-        pass
-
-    async def target_allies(self, _):
-        pass
-
-    async def target_everyone(self, _):
-        pass
-
 
 class InitialSession(ui.Session):
     def __init__(self, battle):
@@ -177,7 +175,16 @@ class InitialSession(ui.Session):
 
     async def select_target(self, target):
         # log.debug("initialsession target selector")
-        menu = TargetSession(*[e for e in self.enemies if not e.is_fainted()], target=target)
+        if target in ('enemy', 'enemies'):
+            menu = TargetSession(*[e for e in self.enemies if not e.is_fainted()], target=target)
+        elif target == 'self':
+            menu = TargetSession(self.player, target=target)
+        elif target in ('ally', 'allies'):
+            # this is a 1 player only battle, but for future reference this needs to return all allies
+            menu = TargetSession(self.player, target=target)
+        else:
+            raise RuntimeError
+
         await menu.start(self.context)
         if not menu.result:
             # log.debug("no result")
@@ -446,7 +453,6 @@ class WildBattle:
                 return
             self.player.hp = cost
 
-
         if isinstance(skill, StatusMod):
             await skill.effect(self, targets)
             return
@@ -473,12 +479,31 @@ class WildBattle:
             self.order.decycle()
             await self.ctx.send(_("> Nice hit! Move again!"))
 
+    def filter_targets(self, skill, user):
+        if skill.target in ('enemy', 'enemies'):
+            if user is self.player:
+                return [e for e in self.enemies if not e.is_fainted()]
+            return self.player,
+        elif skill.target == 'self':
+            return user
+        elif skill.target in ('allies', 'ally'):
+            if user is self.player:
+                return self.player,
+            return [e for e in self.enemies if not e.is_fainted()]
+        elif skill.target == 'all':
+            return [self.player] + [e for e in self.enemies if not e.is_fainted()]
+
     async def handle_enemy_choices(self, enemy):
         await enemy.pre_turn_async(self)
         skill = enemy.random_move()
         if skill.name in UNSUPPORTED_SKILLS:
             await self.ctx.send(f"{enemy} used an unhandled skill ({skill.name}), skipping")
         else:
+            targets = self.filter_targets(skill, enemy)
+            if isinstance(skill, StatusMod):
+                await skill.effect(self, targets)
+                return
+
             res = self.player.take_damage(enemy, skill)
 
             if res.resistance in (
