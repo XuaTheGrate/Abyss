@@ -9,8 +9,8 @@ NNL = '\\n'
 
 class BetterRotatingFileHandler(logging.FileHandler):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
         self.init = datetime.utcnow().strftime("%d-%m-%Y")
+        super().__init__(*args, **kwargs)
 
     def _open(self):
         return open(self.baseFilename + self.init, 'a', encoding='utf-8')
