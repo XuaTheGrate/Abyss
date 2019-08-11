@@ -1,16 +1,13 @@
-import math
-import random
 import re
 from contextlib import suppress
 
-from .enums import *
 from .objects import ListCycle
 from .player import Player
+from .skills import *
 
 NL = '\n'
 
-UNSUPPORTED_SKILLS = ['Tarukaja', 'Tarunda', 'Rakukaja', 'Rakunda', 'Sukukaja',
-                      'Sukunda', 'Dekaja', 'Dekunda', 'Curse Shield', 'Bless Shield', 'Fire Shield', 'Elec Shield',
+UNSUPPORTED_SKILLS = ['Curse Shield', 'Bless Shield', 'Fire Shield', 'Elec Shield',
                       'Nuke Shield', 'Wind Shield', 'Ice Shield', 'Psy Shield',
                       'Dia', 'Diarama', 'Diarahan', 'Media', 'Mediarama', 'Mediarahan', 'Salvation',
                       'Fast Heal', 'Evil Touch', 'Evil Smile', 'Firm Stance', 'Taunt', 'Pressing Stance', 'Fortified Moxy',
@@ -99,23 +96,30 @@ def confirm_not_dead(battle):
 class TargetSession(ui.Session):
     def __init__(self, *targets, target):
         super().__init__(timeout=180)
-        self.targets = {
-            f"{c+1}\u20e3": targets[c] for c in range(len(targets))
-        }
-        for e in self.targets.keys():
-            # log.debug(f"added button for {self.enemies[e]}")
-            self.add_button(self.button_enemy, e)
+        if target == 'enemy':
+            self.targets = {
+                f"{c+1}\u20e3": targets[c] for c in range(len(targets))
+            }
+            for e in self.targets.keys():
+                # log.debug(f"added button for {self.enemies[e]}")
+                self.add_button(self.button_enemy, e)
+        elif target == 'enemies':
+            self.targets = targets
+            self.add_button(self.target_enemies, '<:tickYes:568613200728293435>')
         self.result = None
         self.target = target
 
     async def send_initial_message(self):
         if self.target == 'enemy':
             c = [_("Pick a target!\n")]
+            # noinspection PyUnresolvedReferences
             c.extend([f"{a} {b.name}" for a, b in self.targets.items()])
             # log.debug("target session initial message")
             return await self.context.send(NL.join(c))
-        else:
-            return await self.context.send("Attack all enemies?")
+        elif self.target == 'enemies':
+            c = [f"**Targets all enemies**\n"]
+            c.extend([str(e) for e in self.targets])
+            return await self.context.send(NL.join(c))
 
     async def stop(self):
         with suppress(discord.HTTPException, AttributeError):
@@ -130,11 +134,13 @@ class TargetSession(ui.Session):
 
     async def button_enemy(self, payload):
         # log.debug("le button")
-        self.result = self.targets[str(payload.emoji)]
+        # noinspection PyTypeChecker
+        self.result = (self.targets[str(payload.emoji)],)
         await self.stop()
 
     async def target_enemies(self, _):
-        pass
+        self.result = self.targets
+        await self.stop()
 
     async def target_ally(self, _):
         pass
@@ -184,10 +190,7 @@ class InitialSession(ui.Session):
             return await self.stop()
         target = await self.select_target(obj.target)
         if target != 'cancel':
-            if target == 'all':
-                self.result = {"type": "fight", "data": {"skill": obj, "targets": self.enemies}}
-            else:
-                self.result = {"type": "fight", "data": {"skill": obj, "targets": (target,)}}
+            self.result = {"type": "fight", "data": {"skill": obj, "targets": target}}
             # log.debug(f"select skill: {self.result}")
             await self.stop()
 
@@ -413,6 +416,8 @@ class WildBattle:
             self.player.guarding = True
             return
 
+        targets = result['data']['targets']
+
         if skill.name in UNSUPPORTED_SKILLS:
             await self.ctx.send("this skill doesnt have a handler, this incident has been reported")
             self.ctx.bot.send_error(f"no skill handler for {skill}")
@@ -439,31 +444,32 @@ class WildBattle:
                 return
             self.player.hp = cost
 
-        targets = result['data']['targets']
-        if not skill.is_damaging_skill:
-            await self.ctx.send("unhandled atm")
-        else:
-            weaks = []
-            for target in targets:
-                force_crit = 0
 
-                for __ in range(random.randint(*skill.hits)):
-                    res = target.take_damage(self.player, skill, enforce_crit=force_crit)
-                    # this is to ensure crits only happen IF the first hit did land a crit
-                    # we use a Troolean:
-                    # 0: first hit, determine crit
-                    # 1: first hit passed, it was a crit
-                    # 2: first hit passed, was not a crit
-                    force_crit = 1 if res.critical else 2
-                    msg = get_message(res.resistance, reflect=res.was_reflected, miss=res.miss, critical=res.critical)
-                    msg = msg.format(demon=self.player, tdemon=target, damage=res.damage_dealt, skill=skill)
-                    await self.ctx.send(msg)
+        if isinstance(skill, StatusMod):
+            await skill.effect(self, targets)
+            return
 
-                    weaks.append(res.did_weak)
+        weaks = []
+        for target in targets:
+            force_crit = 0
 
-            if all(weaks) and confirm_not_dead(self):
-                self.order.decycle()
-                await self.ctx.send(_("> Nice hit! Move again!"))
+            for __ in range(random.randint(*skill.hits)):
+                res = target.take_damage(self.player, skill, enforce_crit=force_crit)
+                # this is to ensure crits only happen IF the first hit did land a crit
+                # we use a Troolean:
+                # 0: first hit, determine crit
+                # 1: first hit passed, it was a crit
+                # 2: first hit passed, was not a crit
+                force_crit = 1 if res.critical else 2
+                msg = get_message(res.resistance, reflect=res.was_reflected, miss=res.miss, critical=res.critical)
+                msg = msg.format(demon=self.player, tdemon=target, damage=res.damage_dealt, skill=skill)
+                await self.ctx.send(msg)
+
+                weaks.append(res.did_weak)
+
+        if all(weaks) and confirm_not_dead(self):
+            self.order.decycle()
+            await self.ctx.send(_("> Nice hit! Move again!"))
 
     async def handle_enemy_choices(self, enemy):
         await enemy.pre_turn_async(self)
