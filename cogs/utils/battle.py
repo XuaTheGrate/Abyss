@@ -7,9 +7,7 @@ from .skills import *
 
 NL = '\n'
 
-UNSUPPORTED_SKILLS = ['Curse Shield', 'Bless Shield', 'Fire Shield', 'Elec Shield',
-                      'Nuke Shield', 'Wind Shield', 'Ice Shield', 'Psy Shield',
-                      'Dia', 'Diarama', 'Diarahan', 'Media', 'Mediarama', 'Mediarahan', 'Salvation',
+UNSUPPORTED_SKILLS = ['Dia', 'Diarama', 'Diarahan', 'Media', 'Mediarama', 'Mediarahan', 'Salvation',
                       'Fast Heal', 'Evil Touch', 'Evil Smile', 'Firm Stance', 'Taunt', 'Pressing Stance', 'Fortified Moxy',
                       'Abysmal Surge', 'Ominous Words', 'Growth 1', 'Growth 2', 'Growth 3',
                       'Thermopylae', 'Invigorate 1', 'Regenerate 1', 'Invigorate 2', 'Regenerate 2', 'Invigorate 3',
@@ -439,7 +437,7 @@ class WildBattle:
                 cost /= 2
             if self.player.sp < cost:
                 await self.ctx.send(_("You don't have enough SP for this move!"))
-                return
+                return self.order.decycle()
             self.player.sp = cost
         else:
             if skill.cost != 0:
@@ -450,10 +448,10 @@ class WildBattle:
                 cost = 0
             if cost > self.player.hp:
                 await self.ctx.send(_("You don't have enough HP for this move!"))
-                return
+                return self.order.decycle()
             self.player.hp = cost
 
-        if isinstance(skill, StatusMod):
+        if isinstance(skill, (StatusMod, ShieldSkill)):
             await self.ctx.send(f"__{self.player}__ used `{skill}`!")
             await skill.effect(self, targets)
             return

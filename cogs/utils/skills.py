@@ -167,9 +167,10 @@ class PassiveImmunity(Skill):
 
 
 class ShieldSkill(Skill):
-    def activate(self, player):
+    def effect(self, targets):
         typ = self.name.split(" ")[0]
-        player._shields[typ] = 3  # little hacky, but its easiest this way
+        for t in targets:
+            t._shields[typ] = 3  # little hacky, but its easiest this way
 
 
 class StatusMod(Skill):
