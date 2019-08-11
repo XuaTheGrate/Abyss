@@ -18,7 +18,6 @@ _handles = {
                                  "Check the help command for required permissions.",
     commands.MissingRequiredArgument: "Not enough arguments were passed to this command. "
                                       "Check the help command for proper arguments.",
-    commands.NoPrivateMessage: "This command may not be used in DMs.",
     commands.NotOwner: "This command is for my developers only.",
     commands.UserInputError: "Failed to parse arguments for this command. "
                              "Check the help command for proper arguments.",
@@ -70,7 +69,7 @@ Bot permissions: {ctx.channel.permissions_for(ctx.me).value}
 ```""")
             return
 
-        if isinstance(exc, commands.CommandNotFound):
+        if isinstance(exc, (commands.CommandNotFound, commands.NoPrivateMessage)):
             return
 
         if isinstance(exc, commands.CommandOnCooldown):
