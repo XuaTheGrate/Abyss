@@ -380,6 +380,7 @@ class WildBattle:
             self.order = [*self.enemies, self.player]
         else:
             self.order = sorted([self.player, *self.enemies], key=lambda i: i.agility, reverse=True)
+        self.double_turn = False
         self.order = ListCycle(self.order)
         self.main.start()
 
@@ -390,7 +391,9 @@ class WildBattle:
             await self.menu.stop()
 
     async def handle_player_choices(self):
-        await self.player.pre_turn_async(self)
+        if not self.double_turn:
+            await self.player.pre_turn_async(self)
+        self.double_turn = False
         self.menu = InitialSession(self)
         await self.menu.start(self.ctx)
         result = self.menu.result
@@ -473,6 +476,7 @@ class WildBattle:
 
         if all(weaks) and confirm_not_dead(self):
             self.order.decycle()
+            self.double_turn = True
             await self.ctx.send("> Nice hit! Move again!")
 
     def filter_targets(self, skill, user):
@@ -490,7 +494,9 @@ class WildBattle:
             return [self.player] + [e for e in self.enemies if not e.is_fainted()]
 
     async def handle_enemy_choices(self, enemy):
-        await enemy.pre_turn_async(self)
+        if not self.double_turn:
+            await enemy.pre_turn_async(self)
+        self.double_turn = False
         skill = enemy.random_move()
         if skill.name in UNSUPPORTED_SKILLS:
             await self.ctx.send(f"{enemy} used an unhandled skill ({skill.name}), skipping")
@@ -521,6 +527,7 @@ class WildBattle:
             await self.ctx.send(msg)
             if res.did_weak:
                 self.order.decycle()
+                self.double_turn = True
                 await self.ctx.send("> Watch out, {demon} is attacking again!".format(demon=enemy))
 
     @tasks.loop(seconds=1)
@@ -533,17 +540,19 @@ class WildBattle:
         nxt = self.order.active()
         if not isinstance(nxt, Enemy):
             # log.debug("next: player")
-            if self.ambush and any(s.name == 'Heat Up' for s in self.player.skills):
-                self.player.hp = -(self.player.max_hp * 0.05)
-                self.player.sp = -10
-            self.turn_cycle += 1
+            if not self.double_turn:
+                if self.ambush and any(s.name == 'Heat Up' for s in self.player.skills):
+                    self.player.hp = -(self.player.max_hp * 0.05)
+                    self.player.sp = -10
+                self.turn_cycle += 1
             await self.handle_player_choices()
         else:
             if not nxt.is_fainted():
                 # log.debug("next enemy not fainted")
-                if self.ambush is False and any(s.name == 'Heat Up' for s in nxt.skills):
-                    nxt.hp = -(nxt.max_hp * 0.05)
-                    nxt.sp = -10
+                if not self.double_turn:
+                    if self.ambush is False and any(s.name == 'Heat Up' for s in nxt.skills):
+                        nxt.hp = -(nxt.max_hp * 0.05)
+                        nxt.sp = -10
                 await self.handle_enemy_choices(nxt)
             else:
                 self.order.remove(nxt)
