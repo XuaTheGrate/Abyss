@@ -39,6 +39,10 @@ class Enemy(Player):
     def get_exp(self):
         return math.ceil(self.level_ ** 3 / random.uniform(1, 3))
 
+    @property
+    def level(self):
+        return self.level_
+
     def random_move(self):
         choices = list(filter(
                 lambda s: s.type is not SkillType.PASSIVE and (
