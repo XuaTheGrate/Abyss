@@ -8,9 +8,9 @@ from .skills import *
 NL = '\n'
 
 UNSUPPORTED_SKILLS = ['Dia', 'Diarama', 'Diarahan', 'Media', 'Mediarama', 'Mediarahan', 'Salvation',
-                      'Fast Heal', 'Evil Touch', 'Evil Smile', 'Taunt', 'Pressing Stance',
+                      'Fast Heal', 'Evil Touch', 'Evil Smile', 'Taunt',
                       'Abysmal Surge', 'Ominous Words', 'Growth 1', 'Growth 2', 'Growth 3',
-                      'Thermopylae', 'Invigorate 1', 'Regenerate 1', 'Invigorate 2', 'Regenerate 2', 'Invigorate 3',
+                      'Invigorate 1', 'Regenerate 1', 'Invigorate 2', 'Regenerate 2', 'Invigorate 3',
                       'Regenerate 3', 'Invigorate 4', 'Regenerate 4', 'Invigorate 5', 'Regenerate 5',
                       'Cadenza', 'Oratorio', 'Pulinpa', 'Charge', 'Concentrate', 'Amrita Shower',
                       'Amrita Drop', 'Tetrakarn', 'Makarakarn', 'Brain Jack', 'Marin Karin',
@@ -560,6 +560,8 @@ class WildBattle:
             for e in self.enemies:
                 if any(s.name == 'Adverse Resolve' for s in e.skills):
                     e._ex_crit_mod += 5.0
+                if any(s.name == 'Pressing Stance' for s in e.skills):
+                    e._ex_evasion_mod += 3.0
 
             if any(s.name == 'Fortified Moxy' for s in self.player.skills):
                 self.player._ex_crit_mod += 2.5
@@ -573,6 +575,8 @@ class WildBattle:
 
             if any(s.name == 'Adverse Resolve' for s in self.player.skills):
                 self.player._ex_crit_mod += 5.0
+            if any(s.name == 'Pressing Stance' for s in self.player.skills):
+                self.player._ex_evasion_mod += 3.0
 
             for e in self.enemies:
                 if any(s.name == 'Fortified Moxy' for s in e.skills):

@@ -1661,13 +1661,6 @@
         "cost": 48
     },
     {
-        "name": "Thermopylae",
-        "type": "support",
-        "desc": "Boosts Attack, Defense and Accuracy for 3 turns to all allies. Only usable when being ambushed.",
-        "cost": 30,
-        "target": "enemies"
-    },
-    {
         "name": "Invigorate 1",
         "type": "passive",
         "desc": "Regenerate 3 SP at the start of every turn."

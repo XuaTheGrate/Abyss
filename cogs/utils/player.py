@@ -90,6 +90,7 @@ class Player(JSONable):
         self._ex_crit_mod = 1.0  # handled by the battle system in the pre-loop hook
         self._rebellion = [False, -1]  # Rebellion or Revolution, [(is enabled), (time until clear)]
         self._ailment_buff = -1  # > 0: ailment susceptibility is increased
+        self._ex_evasion_mod = 1.0  # handled by the battle system, usually only affected by Pressing Stance
         self._charging = False
         self._concentrating = False
         self._tetrakarn = False
@@ -99,7 +100,7 @@ class Player(JSONable):
         return self.name
 
     def __repr__(self):
-        return f"<({self.arcana.name}) {self.owner.name!r}'s  Level {self.level} {self.name!r}>"
+        return f"<({self.arcana.name}) {self.owner}'s  Level {self.level} {self.name!r}>"
 
     def _debug_repr(self):
         return f"""Player {self.owner}, {self._owner_id}
@@ -141,6 +142,7 @@ class Player(JSONable):
 --- _shields: {self._shields}
 --- _ex_crit_mod: {self._ex_crit_mod}
 --- _ailment_buff: {self._ailment_buff}
+--- _ex_evasion_mod: {self._ex_evasion_mod}
 --- _charging: {self._charging}
 --- _concentrating: {self._concentrating}"""
 
