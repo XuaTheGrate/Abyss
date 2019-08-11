@@ -317,6 +317,7 @@ subclasses['Cadenza'] = Cadenza
 subclasses['Oratorio'] = Oratorio
 subclasses['Salvation'] = Salvation
 subclasses['Tetrakarn'] = subclasses['Makarakarn'] = Karn
+subclasses['Charge'] = subclasses['Concentrate'] = Charge
 subclasses['Debilitate'] = subclasses['Heat Riser'] = StatusMod
 
 
