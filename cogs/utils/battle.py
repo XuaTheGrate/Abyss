@@ -18,7 +18,7 @@ UNSUPPORTED_SKILLS = ['Dia', 'Diarama', 'Diarahan', 'Media', 'Mediarama', 'Media
                       'Makajam', 'Makajamaon', 'Tentarafoo', 'Wage War', 'Dazzler',
                       'Nocturnal Flash', 'Dormina', 'Lullaby', 'Ambient Aid', 'Recarm', 'Samarecarm',
                       'Ailment Boost', 'Divine Grace', 'Rebellion', 'Revolution', 'Insta-Heal',
-                      'Ali Dance', 'Heat Up']
+                      'Ali Dance']
 
 
 class Enemy(Player):
@@ -538,11 +538,17 @@ class WildBattle:
         nxt = self.order.active()
         if not isinstance(nxt, Enemy):
             # log.debug("next: player")
+            if self.ambush and any(s.name == 'Heat Up' for s in self.player.skills):
+                self.player.hp = -(self.player.max_hp * 0.05)
+                self.player.sp = -10
             self.turn_cycle += 1
             await self.handle_player_choices()
         else:
             if not nxt.is_fainted():
                 # log.debug("next enemy not fainted")
+                if self.ambush is False and any(s.name == 'Heat Up' for s in nxt.skills):
+                    nxt.hp = -(nxt.max_hp * 0.05)
+                    nxt.sp = -10
                 await self.handle_enemy_choices(nxt)
             else:
                 self.order.remove(nxt)
