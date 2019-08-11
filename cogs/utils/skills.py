@@ -167,7 +167,7 @@ class PassiveImmunity(Skill):
 
 
 class ShieldSkill(Skill):
-    def effect(self, battle, targets):
+    async def effect(self, battle, targets):
         typ = self.name.split(" ")[0]
         for t in targets:
             if t._shields.get(typ):
