@@ -75,10 +75,10 @@ Encounter: {list(map(str, battle.enemies))}
             return await ctx.message.add_reaction(self.bot.tick_no)
 
         if not ctx.player:
-            return await ctx.send(_("You don't own a player."))
+            return await ctx.send("You don't own a player.")
 
         if random.randint(1, 100) > 75:
-            return await ctx.send(_("You searched around but nothing appeared."))
+            return await ctx.send("You searched around but nothing appeared.")
 
         around = await self.bot.redis.get(f"keys@{ctx.author.id}")
         if around is None:
@@ -101,7 +101,7 @@ return fuckJS(this)"""}).to_list(None)
                 f"missing skills: {', '.join(filter(lambda d: d not in self.bot.players.skill_cache, enc['moves']))}")
 
         enemy = bt.Enemy(**enc, bot=self.bot)
-        await ctx.send(_("You searched around and found a **{0}**!").format(enemy.name))
+        await ctx.send("You searched around and found a **{0}**!".format(enemy.name))
         self.battles[ctx.author.id] = bt.WildBattle(ctx.player, ctx, enemy)
 
 

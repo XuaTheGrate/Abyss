@@ -91,6 +91,7 @@ class Player(JSONable):
         self._rebellion = [False, -1]  # Rebellion or Revolution, [(is enabled), (time until clear)]
         self._ailment_buff = -1  # > 0: ailment susceptibility is increased
         self._ex_evasion_mod = 1.0  # handled by the battle system, usually only affected by Pressing Stance
+        self._endured = False
         self._charging = False
         self._concentrating = False
         self._tetrakarn = False
@@ -143,6 +144,7 @@ class Player(JSONable):
 --- _ex_crit_mod: {self._ex_crit_mod}
 --- _ailment_buff: {self._ailment_buff}
 --- _ex_evasion_mod: {self._ex_evasion_mod}
+--- _endured: {self._endured}
 --- _charging: {self._charging}
 --- _concentrating: {self._concentrating}"""
 
@@ -434,6 +436,7 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
         self._makarakarn = False
         self._shields.clear()
         self._ailment_buff = -1
+        self._endured = False
         if not ran:
             if any(s.name == 'Victory Cry' for s in self.skills):
                 self._sp_used = 0
@@ -523,6 +526,16 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
             base /= 2
             self.hp = -base
             result.damage_dealt = -base
+
+        if self.is_fainted():
+            if any(s.name == 'Endure' for s in self.skills):
+                self._damage_taken -= 1
+                result.fainted = False
+                result.endured = self._endured = True
+            elif any(s.name == 'Enduring Soul' for s in self.skills):
+                self._damage_taken = 0
+                result.fainted = False
+                result.endured = self._endured = True
 
         return result
 

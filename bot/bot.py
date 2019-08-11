@@ -134,11 +134,11 @@ class Abyss(commands.Bot):
     @property
     def description(self):
         return random.choice([
-            _("> Stuck? Try using `$story` to progress."),
-            _("> Confused? Try `$faq` for more information."),
-            _("> Bored? Try your hand at an online battle."),
-            _("> If you have spare stat points, you can still use `$levelup` to use them."),
-            _("> Join the support server for updates and announcements: <https://discord.gg/hkweDCD>"),
+            "> Stuck? Try using `$story` to progress.",
+            "> Confused? Try `$faq` for more information.",
+            "> Bored? Try your hand at an online battle.",
+            "> If you have spare stat points, you can still use `$levelup` to use them.",
+            "> Join the support server for updates and announcements: <https://discord.gg/hkweDCD>",
             "corn"
         ])
 

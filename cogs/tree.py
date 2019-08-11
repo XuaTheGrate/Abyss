@@ -32,10 +32,10 @@ class SkillTreeCog(commands.Cog):
     async def status(self, ctx):
         """Gets the progress of your current skill tree."""
         if not ctx.player:
-            return await ctx.send(_("You don't own a player."))
+            return await ctx.send("You don't own a player.")
 
         if not ctx.player.leaf:
-            return await ctx.send(_("No leaf has been selected. Use `{.prefix}tree activate <leaf>` to start a new")
+            return await ctx.send("No leaf has been selected. Use `{.prefix}tree activate <leaf>` to start a new"
                                   .format(ctx))
 
         embed = discord.Embed(colour=lookups.TYPE_TO_COLOUR[ctx.player.leaf.name])
@@ -51,7 +51,7 @@ class SkillTreeCog(commands.Cog):
     async def unlocked(self, ctx):
         """Views all leaves you have unlocked (not completed)."""
         if not ctx.player:
-            return await ctx.send(_("You don't own a player."))
+            return await ctx.send("You don't own a player.")
         leaves = [k+':0' for k in self.skill_tree.branches]
         while True:
             for leaf in leaves.copy():
@@ -63,11 +63,11 @@ class SkillTreeCog(commands.Cog):
                 break
         leaves = [self.skill_tree.branches[k[:-2]].leaves[k] for k in leaves]
         embed = discord.Embed(colour=lookups.TYPE_TO_COLOUR[ctx.player.specialty.name.lower()])
-        embed.title = _("Available leaves ready for completion")
+        embed.title = "Available leaves ready for completion"
         embed.description = '\n'.join(
             f'{lookups.TYPE_TO_EMOJI[l.name.split(":")[0]]} {l.name}: {l.cost} AP' for l in leaves
         )
-        embed.set_footer(text=_("You cannot activate a leaf if you already have one active."))
+        embed.set_footer(text="You cannot activate a leaf if you already have one active.")
         await ctx.send(embed=embed)
 
     @tree.command()

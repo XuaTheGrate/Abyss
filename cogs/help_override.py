@@ -6,9 +6,9 @@ from discord.ext import commands
 class I18nHelpCommand(commands.MinimalHelpCommand):
     def __init__(self, **options):
         super().__init__(**options)
-        self.commands_heading = _("Commands")
-        self.aliases_heading = _("Aliases:")
-        self.no_category = _("No Category")
+        self.commands_heading = "Commands"
+        self.aliases_heading = "Aliases:"
+        self.no_category = "No Category"
         self.command_attrs = {
             'description': "Provides help for various commands.",
             'cooldown': commands.Cooldown(3, 5, commands.BucketType.channel),
@@ -16,15 +16,15 @@ class I18nHelpCommand(commands.MinimalHelpCommand):
         }
 
     def command_not_found(self, string):
-        return _("Command '{0}' is not found.").format(string)
+        return "Command '{0}' is not found.".format(string)
 
     def subcommand_not_found(self, command, string):
         if isinstance(command, commands.Group):
-            return _("Command '{0}' has no subcommand named '{1}'.").format(command, string)
-        return _("Command '{0}' has no subcommands.").format(command)
+            return "Command '{0}' has no subcommand named '{1}'.".format(command, string)
+        return "Command '{0}' has no subcommands.".format(command)
 
     def get_opening_note(self):
-        return _("Use `{0}{1} [command]` for more info on a command.").format(self.clean_prefix, 'help')
+        return "Use `{0}{1} [command]` for more info on a command.".format(self.clean_prefix, 'help')
 
     async def send_cog_help(self, cog):  # no cog specific help
         return await self.send_bot_help(self.get_bot_mapping())
@@ -49,7 +49,7 @@ class I18nHelpCommand(commands.MinimalHelpCommand):
             self.paginator.add_line(line)
         self.paginator.add_line()
         self.paginator.add_line(self.get_opening_note(), empty=True)
-        self.paginator.add_line(_("**Commands**"))
+        self.paginator.add_line("**Commands**")
         for cmd in sorted(set(command.commands), key=lambda m: m.name):
             self.paginator.add_line(f"{self.clean_prefix}{command.qualified_name} {cmd.name}")
         await self.send_pages()

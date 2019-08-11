@@ -46,7 +46,7 @@ what has to be written in the source is much less. Thus these are both
 translatable strings:
 
     gettext("Translatable String")
-    _("Translatable String")
+    "Translatable String"
 
 Python of course has no preprocessor so this doesn't work so well.  Thus,
 pygettext searches only for _() by default, but see the -k/--keyword flag

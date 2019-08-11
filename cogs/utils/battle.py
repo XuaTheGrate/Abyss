@@ -278,7 +278,7 @@ VS
     @ui.button("\N{BLACK QUESTION MARK ORNAMENT}")
     async def info(self, __):
         # log.debug("info() called")
-        embed = discord.Embed(title=_("How to: Interactive Battle"))
+        embed = discord.Embed(title="How to: Interactive Battle")
         embed.description = _("""Partially ported from Adventure, the battle system has been revived!
 Various buttons have been reacted for use, but move selection requires you to send a message.
 \N{CROSSED SWORDS} Brings you to the Fight menu, where you select your moves.
@@ -360,7 +360,7 @@ def get_message(resistance, *, reflect=False, miss=False, critical=False):
     msg = _(res_msgs[resistance])
     if resistance not in (ResistanceModifier.IMMUNE, ResistanceModifier.WEAK,
                           ResistanceModifier.ABSORB, ResistanceModifier.REFLECT) and critical:
-        msg = _("CRITICAL! ") + msg
+        msg = "CRITICAL! " + msg
     return msg
 
 
@@ -409,11 +409,11 @@ class WildBattle:
 
         if result['type'] == 'run':
             if result['data'].get('timeout', False) or result['data'].get('success', True):
-                await self.ctx.send(_("> You successfully ran away!"))
+                await self.ctx.send("> You successfully ran away!")
                 await self.stop()
                 self._ran = True
             else:
-                await self.ctx.send(_("> You failed to escape!"))
+                await self.ctx.send("> You failed to escape!")
             return
 
         # type must be fight
@@ -436,7 +436,7 @@ class WildBattle:
             if any(s.name == 'Spell Master' for s in self.player.skills):
                 cost /= 2
             if self.player.sp < cost:
-                await self.ctx.send(_("You don't have enough SP for this move!"))
+                await self.ctx.send("You don't have enough SP for this move!")
                 return self.order.decycle()
             self.player.sp = cost
         else:
@@ -447,7 +447,7 @@ class WildBattle:
             else:
                 cost = 0
             if cost > self.player.hp:
-                await self.ctx.send(_("You don't have enough HP for this move!"))
+                await self.ctx.send("You don't have enough HP for this move!")
                 return self.order.decycle()
             self.player.hp = cost
 
@@ -471,12 +471,14 @@ class WildBattle:
                 msg = get_message(res.resistance, reflect=res.was_reflected, miss=res.miss, critical=res.critical)
                 msg = msg.format(demon=self.player, tdemon=target, damage=res.damage_dealt, skill=skill)
                 await self.ctx.send(msg)
+                if res.endured:
+                    await self.ctx.send(f"> __{target}__ endured the hit!")
 
                 weaks.append(res.did_weak)
 
         if all(weaks) and confirm_not_dead(self):
             self.order.decycle()
-            await self.ctx.send(_("> Nice hit! Move again!"))
+            await self.ctx.send("> Nice hit! Move again!")
 
     def filter_targets(self, skill, user):
         if skill.target in ('enemy', 'enemies'):
@@ -524,7 +526,7 @@ class WildBattle:
             await self.ctx.send(msg)
             if res.did_weak:
                 self.order.decycle()
-                await self.ctx.send(_("> Watch out, {demon} is attacking again!").format(demon=enemy))
+                await self.ctx.send("> Watch out, {demon} is attacking again!".format(demon=enemy))
 
     @tasks.loop(seconds=1)
     async def main(self):
@@ -551,7 +553,7 @@ class WildBattle:
         # log.debug("pre battle, determining ambush")
         if self.ambush is True:
             # log.debug("player initiative")
-            await self.ctx.send(_("> {0} {1}! You surprised {2}!").format(
+            await self.ctx.send("> {0} {1}! You surprised {2}!".format(
                 len(self.enemies),
                 _('enemy') if len(self.enemies) == 1 else _('enemies'),
                 _('it') if len(self.enemies) == 1 else _('them')
@@ -568,7 +570,7 @@ class WildBattle:
 
         elif self.ambush is False:
             # log.debug("enemy initiative")
-            await self.ctx.send(_("> It's an ambush! There {2} {0} {1}!").format(
+            await self.ctx.send("> It's an ambush! There {2} {0} {1}!".format(
                 len(self.enemies), _('enemy') if len(self.enemies) == 1 else _('enemies'),
                 _('is') if len(self.enemies) == 1 else _('are')
             ))
@@ -583,7 +585,7 @@ class WildBattle:
                     e._ex_crit_mod += 2.5
         else:
             # log.debug("regular initiative")
-            await self.ctx.send(_("> There {2} {0} {1}! Attack!").format(
+            await self.ctx.send("> There {2} {0} {1}! Attack!".format(
                 len(self.enemies), _('enemy') if len(self.enemies) == 1 else _('enemies'),
                 _('is') if len(self.enemies) == 1 else _('are')))
 

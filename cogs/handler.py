@@ -43,10 +43,8 @@ class ErrorHandler(commands.Cog):
             return
         embed = discord.Embed()
         embed.description = ("\N{REGIONAL INDICATOR SYMBOL LETTER G}\N{REGIONAL INDICATOR SYMBOL LETTER B} "
-                             "Hello! I'm Abyss. Use `$locale set en_US` to change your personal locale.\n"
-                             "\N{REGIONAL INDICATOR SYMBOL LETTER J}\N{REGIONAL INDICATOR SYMBOL LETTER P} "
-                             "こんにちは！私はAbyssです。ロケールを変更するには`$言語 置く ja_JA`を使用してください。")
-        await target.send(embed=embed)
+                             "Hello! I'm Abyss. Use `$locale set en_US` to change your personal locale.")
+        # await target.send(embed=embed)
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, exc, *, force=False):
@@ -56,7 +54,7 @@ class ErrorHandler(commands.Cog):
         if isinstance(exc, commands.CommandInvokeError):
             ctx.command.reset_cooldown(ctx)
             exc = exc.original
-            await ctx.send(_("An internal error occured."))
+            await ctx.send("An internal error occured.")
             self.bot.send_error(f"""Error during execution of command
 `{ctx.message.clean_content}`
 User: {ctx.author}
@@ -74,7 +72,7 @@ Bot permissions: {ctx.channel.permissions_for(ctx.me).value}
 
         if isinstance(exc, commands.CommandOnCooldown):
             time = datetime.timedelta(seconds=exc.retry_after)
-            await ctx.send(_("Command on cooldown, try again in `{time}`.").format(time=time))
+            await ctx.send("Command on cooldown, try again in `{time}`.".format(time=time))
             return
 
         ctx.command.reset_cooldown(ctx)

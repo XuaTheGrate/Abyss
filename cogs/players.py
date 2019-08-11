@@ -59,18 +59,18 @@ class LRUDict(collections.OrderedDict):
 
 def prepare_skill_tree_page(player):
     embed = discord.Embed(colour=lookups.TYPE_TO_COLOUR[player.specialty.name.lower()])
-    embed.title = _("Skill tree status")
+    embed.title = "Skill tree status"
     embed.set_author(name=player.name, icon_url=player.owner.avatar_url_as(format="png", size=32))
     leaf = player.leaf.cost//1000 if player.leaf else 'N/A'
     embed.description = _("""Current leaf: {player._active_leaf}
 AP Points: {player.ap_points} | {leaf} to finish.""").format(player=player, leaf=leaf)
-    embed.set_footer(text=_("<~ Stats | Skills ~>"))
+    embed.set_footer(text="<~ Stats | Skills ~>")
     return embed
 
 
 def skills_page(player):
     embed = discord.Embed(colour=lookups.TYPE_TO_COLOUR[player.specialty.name.lower()])
-    embed.title = _("Skills")
+    embed.title = "Skills"
     embed.set_author(name=player.name, icon_url=player.owner.avatar_url_as(format='png', size=32))
     skills = [f'{lookups.TYPE_TO_EMOJI[skill.type.name.lower()]} {skill.name}' for skill in player.skills
               if skill.name not in ('Attack', 'Guard')]
@@ -81,7 +81,7 @@ def skills_page(player):
 
 def unset_skills_page(player):
     embed = discord.Embed(colour=lookups.TYPE_TO_COLOUR[player.specialty.name.lower()])
-    embed.title = _("Unused skills")
+    embed.title = "Unused skills"
     embed.set_author(name=player.name, icon_url=player.owner.avatar_url_as(format='png', size=32))
     skills = [f'{lookups.TYPE_TO_EMOJI[skill.type.name.lower()]} {skill.name}' for skill in player.unset_skills]
     embed.description = '\n'.join(skills) or _('(All skills equipped)')
@@ -91,7 +91,7 @@ def unset_skills_page(player):
 
 def stats_page(player):
     embed = discord.Embed(colour=lookups.TYPE_TO_COLOUR[player.specialty.name.lower()])
-    embed.title = _("{}'s stats").format(player.name)
+    embed.title = "{}'s stats".format(player.name)
     embed.set_author(name=player.name, icon_url=player.owner.avatar_url_as(format='png', size=32))
     embed.description = f"""\u2694 {_('Strength')}: {player.strength}
 \u2728 {_('Magic')}: {player.magic}
@@ -293,7 +293,7 @@ class Players(commands.Cog):
         """Creates a new player.
         You will be given a random demon to use throughout your journey."""
         if ctx.player:
-            return await ctx.send(_("You already own a player."))
+            return await ctx.send("You already own a player.")
 
         msg = _("This appears to be a public server. The messages sent can get spammy, or cause ratelimits.\n"
                 "It is advised to use a private server/channel.")
@@ -338,7 +338,7 @@ class Players(commands.Cog):
     async def status(self, ctx):
         """Gets your current players status."""
         if not ctx.player:
-            return await ctx.send(_("You don't own a player."))
+            return await ctx.send("You don't own a player.")
         
         session = Status(ctx.player)
         await session.start(ctx)
@@ -350,11 +350,11 @@ class Players(commands.Cog):
         if not ctx.player:
             return
 
-        m1 = await ctx.send(_("Are you sure you want to delete your account? This action is irreversible."))
+        m1 = await ctx.send("Are you sure you want to delete your account? This action is irreversible.")
         if not await self.bot.confirm(m1, ctx.author):
             return
 
-        m2 = await ctx.send(_("...are you really sure?"))
+        m2 = await ctx.send("...are you really sure?")
         if not await self.bot.confirm(m2, ctx.author):
             return
 
@@ -367,7 +367,7 @@ class Players(commands.Cog):
     @commands.command(hidden=True)
     async def profile(self, ctx):
         if not ctx.player:
-            return await ctx.send(_("You don't own a player."))
+            return await ctx.send("You don't own a player.")
 
         data = await imaging.profile_executor(self.bot, ctx.player)
         await ctx.send(file=discord.File(data, 'profile.png'))
@@ -377,14 +377,14 @@ class Players(commands.Cog):
         """Levels up your player, if possible.
         Also lets you divide your spare stat points to increase your stats."""
         if not ctx.player:
-            return await ctx.send(_("You don't own a player."))
+            return await ctx.send("You don't own a player.")
         if ctx.player.can_level_up:
             ctx.player.level_up()
         if ctx.player.stat_points > 0:
             new = Statistics(ctx.player)
             await new.start(ctx)
         else:
-            await ctx.send(_("You have no skill points remaining."))
+            await ctx.send("You have no skill points remaining.")
 
     @commands.command(name='set')
     async def _set(self, ctx, *, name):
@@ -395,14 +395,14 @@ class Players(commands.Cog):
         if name in ('Attack', 'Guard'):
             return await ctx.send("um lol?")
         if name not in self.skill_cache:
-            return await ctx.send(_("Couldn't find a skill by that name."))
+            return await ctx.send("Couldn't find a skill by that name.")
         skill = self.skill_cache[name]
         if skill not in ctx.player.unset_skills:
             if skill in ctx.player.skills:
-                return await ctx.send(_("That skill is already in your repertoire."))
-            return await ctx.send(_("You haven't unlocked that skill yet."))
+                return await ctx.send("That skill is already in your repertoire.")
+            return await ctx.send("You haven't unlocked that skill yet.")
         if len(ctx.player.skills)-2 == 8:  # -2 for Guard and Attack
-            return await ctx.send(_("You can't equip more than 8 skills."))
+            return await ctx.send("You can't equip more than 8 skills.")
         ctx.player.skills.append(skill)
         ctx.player.unset_skills.remove(skill)
         await ctx.send(self.bot.tick_yes)
@@ -414,20 +414,20 @@ class Players(commands.Cog):
             return
         name = name.title()
         if name in ('Attack', 'Guard'):
-            return await ctx.send(_("You can't remove that skill."))
+            return await ctx.send("You can't remove that skill.")
         if name not in self.skill_cache:
-            return await ctx.send(_("Couldn't find a skill by that name."))
+            return await ctx.send("Couldn't find a skill by that name.")
         skill = self.skill_cache[name]
         cp = ctx.player.skills.copy()
         cp.remove(skill)
         if all(s.type is SkillType.PASSIVE for s in cp):
-            return await ctx.send(_("You must have at least 1 non-active skill equipped."))
+            return await ctx.send("You must have at least 1 non-active skill equipped.")
         if skill not in ctx.player.skills:
             if skill in ctx.player.unset_skills:
-                return await ctx.send(_("That skill is not in your repertoire."))
-            return await ctx.send(_("You haven't unlocked that skill yet."))
+                return await ctx.send("That skill is not in your repertoire.")
+            return await ctx.send("You haven't unlocked that skill yet.")
         if len(ctx.player.skills)-2 == 1:
-            return await ctx.send(_("You must equip at least 1 skill."))
+            return await ctx.send("You must equip at least 1 skill.")
         ctx.player.unset_skills.append(skill)
         ctx.player.skills.remove(skill)
         await ctx.send(self.bot.tick_yes)
