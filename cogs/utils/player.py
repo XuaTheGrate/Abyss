@@ -6,6 +6,7 @@ from .enums import *
 from .lookups import TYPE_SHORTEN, STAT_MOD
 from .objects import DamageResult, JSONable
 from .skills import Skill
+from .weather import get_current_weather
 
 CRITICAL_BASE = 4
 
@@ -600,6 +601,11 @@ Attacker: 1.05 | Me: 1.05 | 4.00 chance to crit
         #           f" Me: {my_suku:.2f}/{90 / my_suku:.2f} | {100 - base:.2f} evasion chance")
         if any(s.name == 'Angelic Grace' for s in self.skills):
             base *= 2
+        if any(s.name == 'Rainy Play' for s in self.skills):
+            if get_current_weather() is Weather.RAIN:
+                base *= 2
+            elif get_current_weather() is SevereWeather.THUNDER_STORM:
+                base *= 3
         return random.uniform(1, 100) > base
 
     async def save(self, bot):
