@@ -454,6 +454,7 @@ class WildBattle:
             self.player.hp = cost
 
         if isinstance(skill, StatusMod):
+            await self.ctx.send(f"__{self.player}__ used `{skill}`!")
             await skill.effect(self, targets)
             return
 
@@ -501,7 +502,13 @@ class WildBattle:
         else:
             targets = self.filter_targets(skill, enemy)
             if isinstance(skill, StatusMod):
+                await self.ctx.send(f"__{enemy}__ used `{skill}`!")
                 await skill.effect(self, targets)
+                return
+
+            if skill.name == 'Guard':
+                await self.ctx.send(f"__{enemy}__ guarded!")
+                enemy.guarding = True
                 return
 
             res = self.player.take_damage(enemy, skill)
