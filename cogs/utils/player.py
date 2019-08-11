@@ -416,6 +416,15 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
                 self._rebellion[0] = False
                 await battle.ctx.send(f"> __{self.name}__'s critical rate reverted.")
 
+        reg = self.get_regenerate()
+        if reg:
+            mod = int(reg.name[-1]) * 2
+            self.hp = -(self.max_hp * (mod / 100))
+        inv = self.get_invigorate()
+        if inv:
+            mod = int(reg.name[-1]) * 2 + 1
+            self.sp = -(self.max_sp * (mod / 100))
+
         self.guarding = False
 
     def get_boost_amp_mod(self, type):
