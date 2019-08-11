@@ -361,6 +361,12 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
         for mod in (StatModifier.TARU, StatModifier.RAKU, StatModifier.SUKU):
             yield self.get_auto_mod(mod)
 
+    def get_regenerate(self):
+        return max(filter(lambda s: s.name.startswith('Regenerate'), self.skills), key=lambda s: int(s.name[-1]))
+
+    def get_invigorate(self):
+        return max(filter(lambda s: s.name.startswith('Invigorate'), self.skills), key=lambda s: int(s.name[-1]))
+
     def pre_turn(self):
         self.decrement_stat_modifier()
 
@@ -377,6 +383,15 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
             self._rebellion[1] -= 1
             if self._rebellion[1] == 0:
                 self._rebellion[0] = False
+
+        reg = self.get_regenerate()
+        if reg:
+            mod = int(reg.name[-1])*2
+            self.hp = -(self.max_hp * (mod/100))
+        inv = self.get_invigorate()
+        if inv:
+            mod = int(reg.name[-1]) * 2 + 1
+            self.sp = -(self.max_sp * (mod/100))
 
         self.guarding = False
 

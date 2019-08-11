@@ -10,8 +10,6 @@ NL = '\n'
 UNSUPPORTED_SKILLS = ['Dia', 'Diarama', 'Diarahan', 'Media', 'Mediarama', 'Mediarahan', 'Salvation',
                       'Fast Heal', 'Evil Touch', 'Evil Smile', 'Taunt',
                       'Abysmal Surge', 'Ominous Words', 'Growth 1', 'Growth 2', 'Growth 3',
-                      'Invigorate 1', 'Regenerate 1', 'Invigorate 2', 'Regenerate 2', 'Invigorate 3',
-                      'Regenerate 3', 'Invigorate 4', 'Regenerate 4', 'Invigorate 5', 'Regenerate 5',
                       'Cadenza', 'Oratorio', 'Pulinpa', 'Charge', 'Concentrate', 'Amrita Shower',
                       'Amrita Drop', 'Tetrakarn', 'Makarakarn', 'Brain Jack', 'Marin Karin',
                       'Fortify Spirit',
