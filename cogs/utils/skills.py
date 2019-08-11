@@ -200,16 +200,17 @@ class StatusMod(Skill):
             for target in targets:
                 if target._stat_mod[mod] == up:
                     target._until_clear[mod] = 3
-                    await battle.ctx.send(f"> __{target}__'s {STAT_MOD[self.name[:4]]} boost extended.")
+                    await battle.ctx.send(f"> __{target}__'s {STAT_MOD[mod]} boost extended.")
                 else:
                     target._stat_mod[mod] += up
                     if target._stat_mod[mod] == 0:
                         target._until_clear[mod] = -1
                     else:
                         target._until_clear[mod] = 3
-                    await battle.ctx.send(f"> __{target}__'s {STAT_MOD[self.name[:4]]} {'increased' if up==1 else 'decreased'}.")
+                    await battle.ctx.send(f"> __{target}__'s {STAT_MOD[mod]} {'increased' if up==1 else 'decreased'}.")
         else:
             await battle.ctx.send("sec")
+
 
 subclasses = {
     "Counter": Counter,
