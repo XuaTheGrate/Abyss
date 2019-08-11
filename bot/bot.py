@@ -27,14 +27,20 @@ class BetterRotatingFileHandler(logging.FileHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.init = datetime.utcnow().strftime("%d-%m-%Y")
-        self.old_fn = self.baseFilename
-        self.baseFilename = self.baseFilename+self.init
+
+    def _open(self):
+        return open(self.baseFilename+self.init, 'a', encoding='utf-8')
 
     def emit(self, record):
         strf = datetime.utcnow().strftime("%d-%m-%Y")
         if strf != self.init:
-            self.baseFilename = self.old_fn+strf
-        return super().emit(record)
+            self.init = strf
+            self.close()
+
+        if self.stream is None:
+            self.stream = self._open()
+
+        return logging.StreamHandler.emit(self, record)
 
 
 logger = logging.getLogger('discord')
