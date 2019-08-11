@@ -90,6 +90,19 @@ CONFIG_NEW = {
 }
 
 
+class ContextSoWeDontGetBannedBy403(commands.Context):
+    async def send(self, content=None, *, embed=None, file=None, files=None, tts=False, **kwargs):
+        if not self.guild.me.permissions_for(self.channel).send_messages:
+            return
+        if embed and not self.guild.me.permissions_for(self.channel).embed_links:
+            return
+        elif (file or files) and not self.guild.me.permissions_for(self.channel).attach_files:
+            return
+        elif tts and not self.guild.me.permissions_for(self.channel).send_tts_messages:
+            return
+        return await super().send(content, embed=embed, file=file, files=files, tts=tts, **kwargs)
+
+
 class Abyss(commands.Bot):
     def __init__(self):
         super().__init__(commands.when_mentioned_or("$"))
@@ -287,6 +300,9 @@ class Abyss(commands.Bot):
         i18n.current_locale.set(current.decode())
 
         await self.process_commands(message)
+
+    async def get_context(self, message, *, cls=None):
+        return await super().get_context(message, cls=cls or ContextSoWeDontGetBannedBy403)
 
     async def on_message_edit(self, before, after):
         if after.author.bot or before.content == after.content:
