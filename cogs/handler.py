@@ -3,8 +3,8 @@ import datetime
 import discord
 from discord.ext import commands
 
-from . import utils
-from cogs.utils import i18n
+from .utils.formats import format_exc
+from .utils import i18n
 
 
 _handles = {
@@ -63,7 +63,7 @@ Timestamp: {ctx.message.created_at}
 Permissions: {ctx.channel.permissions_for(ctx.author).value}
 Bot permissions: {ctx.channel.permissions_for(ctx.me).value}
 ```py
-{utils.format_exc(exc)}
+{format_exc(exc)}
 ```""")
             return
 

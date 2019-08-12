@@ -75,7 +75,7 @@ class ResistanceModifier(Enum):
     ABSORB = 5
 
 
-class Ailment(Enum):
+class AilmentType(Enum):
     DESPAIR = 0
     BRAINWASH = 1
     DIZZY = 2

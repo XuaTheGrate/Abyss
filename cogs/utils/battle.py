@@ -1,6 +1,7 @@
 import re
 from contextlib import suppress
 
+from .ailments import *
 from .objects import ListCycle
 from .player import Player
 from .skills import *
@@ -38,6 +39,11 @@ class Enemy(Player):
 
     def get_exp(self):
         return math.ceil(self.level_ ** 3 / random.uniform(1, 3))
+
+    def __str__(self):
+        return ("[Wild] " +
+                (f"~~{self.name}~~" if self.is_fainted() else f"{self.name}") +
+                f" {self.ailment.emote if self.ailment and not self.is_fainted() else ''}")
 
     @property
     def level(self):
@@ -220,9 +226,9 @@ class InitialSession(ui.Session):
     @property
     def header(self):
         return f"""(Turn {self.battle.turn_cycle})
-[{self.player.owner.name}] {self.player.name}
+[{self.player.owner.name}] {self.player.name} {self.player.ailment.emote if self.player.ailment else ''}
 VS
-{NL.join(f"[Wild] {e}" if not e.is_fainted() else f"[Wild] ~~{e}~~" for e in self.enemies)}
+{NL.join(str(e) for e in self.enemies)}
 
 {self.player.hp}/{self.player.max_hp} HP
 {self.player.sp}/{self.player.max_sp} SP"""
@@ -449,7 +455,7 @@ class WildBattle:
                 return self.order.decycle()
             self.player.hp = cost
 
-        if isinstance(skill, (StatusMod, ShieldSkill, HealingSkill, Karn, Charge)):
+        if isinstance(skill, (StatusMod, ShieldSkill, HealingSkill, Karn, Charge, AilmentSkill)):
             await self.ctx.send(f"__{self.player}__ used `{skill}`!")
             await skill.effect(self, targets)
             return
@@ -502,7 +508,7 @@ class WildBattle:
             await self.ctx.send(f"{enemy} used an unhandled skill ({skill.name}), skipping")
         else:
             targets = self.filter_targets(skill, enemy)
-            if isinstance(skill, (StatusMod, ShieldSkill, HealingSkill, Karn, Charge)):
+            if isinstance(skill, (StatusMod, ShieldSkill, HealingSkill, Karn, Charge, AilmentSkill)):
                 await self.ctx.send(f"__{enemy}__ used `{skill}`!")
                 await skill.effect(self, targets)
                 return
@@ -538,6 +544,21 @@ class WildBattle:
             await self.stop()
             return
         nxt = self.order.active()
+
+        try:
+            if not nxt.is_fainted() and nxt.ailment is not None:
+                nxt.ailment.pre_turn_effect()
+        except UserIsImmobilized:
+            await self.ctx.send(f"> __{nxt}__ can't move!")
+            self.order.cycle()
+            return
+        except AilmentRemoved:
+            await self.ctx.send(f"> __{nxt}__'s {nxt.ailment.name} wore off!")
+            nxt.ailment = None
+        except UserTurnInterrupted:
+            await self.ctx.send("turn interrupted but no handler has been done")
+            return  # no handler rn
+
         if not isinstance(nxt, Enemy):
             # log.debug("next: player")
             if not self.double_turn:
@@ -556,6 +577,8 @@ class WildBattle:
                 await self.handle_enemy_choices(nxt)
             else:
                 self.order.remove(nxt)
+        if not nxt.is_fainted() and nxt.ailment is not None:
+            nxt.ailment.post_turn_effect()
         self.order.cycle()
 
     @main.before_loop

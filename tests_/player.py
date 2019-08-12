@@ -1,5 +1,5 @@
 from cogs.utils.player import Player
-from cogs.utils.objects import Skill
+from cogs.utils.skills import Skill
 from cogs.utils import enums
 
 

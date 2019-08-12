@@ -13,8 +13,7 @@ from discord.ext import commands
 import motor.motor_asyncio
 
 import config
-from cogs import utils
-from cogs.utils import i18n
+from cogs.utils import i18n, formats
 from cogs.utils.player import Player
 
 import logging
@@ -263,7 +262,7 @@ class Abyss(commands.Bot):
                 self.load_extension(filename)
             except Exception as e:
                 log.warning(f"Could not load ext `{filename}`.")
-                self.send_error(f"Could not load ext `{filename}`\n```py\n{utils.format_exc(e)}\n````")
+                self.send_error(f"Could not load ext `{filename}`\n```py\n{formats.format_exc(e)}\n````")
 
     async def on_ready(self):
         if self.prepared.is_set():
@@ -276,14 +275,14 @@ class Abyss(commands.Bot):
         except Exception as e:
             log.error("COULD NOT CONNECT TO MONGODB DATABASE.")
             log.error("This could lead to fatal errors. Falling back prefixes to mentions only.")
-            self.send_error(f"FAILED TO CONNECT TO MONGODB\n```py\n{utils.format_exc(e)}\n```")
+            self.send_error(f"FAILED TO CONNECT TO MONGODB\n```py\n{formats.format_exc(e)}\n```")
             return
 
         try:
             self.redis = await aioredis.create_redis_pool(**config.REDIS)
         except Exception as e:
             log.error("couldnt connect to redis")
-            self.send_error(F"failed to connect to redis\n```py\n{utils.format_exc(e)}\n```")
+            self.send_error(F"failed to connect to redis\n```py\n{formats.format_exc(e)}\n```")
 
         self.prepared.set()
         self.start_date = datetime.utcnow()

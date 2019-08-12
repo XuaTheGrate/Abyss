@@ -2081,5 +2081,14 @@
         "name": "Heat Up",
         "desc": "Recover 5% HP and 10 SP at the start of every turn during a successful ambush.",
         "type": "passive"
+    },
+    {
+        "name": "burn test",
+        "desc": "for debugging, guaranteed ailment infliction",
+        "cost": 0,
+        "type": "ailment",
+        "ailment": "burn",
+        "accuracy": 999,
+        "targets": "enemies"
     }
 ]

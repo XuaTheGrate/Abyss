@@ -86,6 +86,7 @@ class Player(JSONable):
         self.finished_leaves = kwargs.pop("finished_leaves", [])
         self.map = kwargs.pop("map", 0)
         self.guarding = False
+        self.ailment = None
         self._shields = {}
         self._ex_crit_mod = 1.0  # handled by the battle system in the pre-loop hook
         self._rebellion = [False, -1]  # Rebellion or Revolution, [(is enabled), (time until clear)]
@@ -96,7 +97,6 @@ class Player(JSONable):
         self._concentrating = False
         self._tetrakarn = False
         self._makarakarn = False
-        self._ailment = None
         self._turns_in_ailment = 0
 
     def __str__(self):
@@ -130,6 +130,7 @@ class Player(JSONable):
 --- sp: {self.sp}
 --- max_sp: {self.max_sp}
 --- can_level_up: {self.can_level_up}
+--- ailment: {self.ailment!r}
 
 --- exp_tp_next_level(): {self.exp_to_next_level()}
 --- is_fainted(): {self.is_fainted()}
@@ -151,7 +152,6 @@ class Player(JSONable):
 --- _endured: {self._endured}
 --- _charging: {self._charging}
 --- _concentrating: {self._concentrating}
---- _ailment: {self._ailment!r}
 --- _turns_in_ailment: {self._turns_in_ailment}"""
 
     @property
@@ -359,8 +359,8 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
     def get_auto_mod(self, modifier):
         for skill in self.skills:
             if (skill.name == 'Attack Master' and modifier is StatModifier.TARU) or (
-                skill.name == 'Defense Master' and modifier is StatModifier.RAKU) or (
-                   skill.name == 'Speed Master' and modifier is StatModifier.SUKU):
+                    skill.name == 'Defense Master' and modifier is StatModifier.RAKU) or (
+                    skill.name == 'Speed Master' and modifier is StatModifier.SUKU):
                 return skill
 
     def get_all_auto_mods(self):
@@ -394,8 +394,8 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
 
         reg = self.get_regenerate()
         if reg:
-            mod = int(reg.name[-1])*2
-            self.hp = -(self.max_hp * (mod/100))
+            mod = int(reg.name[-1]) * 2
+            self.hp = -(self.max_hp * (mod / 100))
         inv = self.get_invigorate()
         if inv:
             mod = int(inv.name[-1]) * 2 + 1
@@ -551,7 +551,7 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
         elif res is ResistanceModifier.RESIST:
             base *= 0.5
 
-        base = math.ceil(base*skill.severity.value)
+        base = math.ceil(base * skill.severity.value)
 
         if any(s.name == 'Firm Stance' for s in self.skills):
             base /= 2
@@ -584,7 +584,7 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
         if any(s.name == 'Sharp Student' for s in attacker.skills):
             base /= 3
         base /= attacker.affected_by(StatModifier.SUKU)
-        base += ((self.luck / 10) - ((attacker.luck/2) / 10))
+        base += ((self.luck / 10) - ((attacker.luck / 2) / 10))
         base *= self.affected_by(StatModifier.SUKU)
         return random.uniform(1, 100) <= base
 
@@ -629,7 +629,10 @@ Attacker: 1.05 | Me: 1.05 | 4.00 chance to crit
     """
 
     def try_evade(self, attacker, skill):
-        if not skill.is_instant_kill and any(s.name == 'Firm Stance' for s in self.skills):
+        if (
+                not skill.is_instant_kill or
+                skill.type is not SkillType.AILMENT
+        ) and any(s.name == 'Firm Stance' for s in self.skills):
             return False
 
         ag = self.agility / 10
