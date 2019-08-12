@@ -2087,8 +2087,8 @@
         "desc": "for debugging, guaranteed ailment infliction",
         "cost": 0,
         "type": "ailment",
-        "ailment": "forget",
+        "ailment": "freeze",
         "accuracy": 999,
-        "targets": "enemies"
+        "target": "enemies"
     }
 ]

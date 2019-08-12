@@ -65,3 +65,14 @@ class Forget(_Ailment):
     You can still use Attack and Guard, and your passive skills will still work.
     """
     emote = '\N{SPEAKER WITH CANCELLATION STROKE}'
+
+
+class Freeze(_Ailment):
+    """
+    You are unable to move.
+    """
+    emote = '\N{SNOWFLAKE}'
+
+    def pre_turn_effect(self):
+        super().pre_turn_effect()
+        raise UserIsImmobilized
