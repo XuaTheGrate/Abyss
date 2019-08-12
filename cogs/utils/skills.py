@@ -259,7 +259,9 @@ class HealingSkill(Skill):
 
 class Salvation(HealingSkill):
     async def effect(self, battle, targets):
-        # todo: when ailments are done, this heals them
+        for t in targets:
+            if t.ailment:
+                t.ailment = None
         await super().effect(battle, targets)
 
 

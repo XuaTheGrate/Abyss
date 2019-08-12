@@ -504,13 +504,14 @@ class WildBattle:
                 if res.endured:
                     await self.ctx.send(f"> __{target}__ endured the hit!")
 
-                if target.ailment and target.ailment.type is AilmentType.SHOCK:
-                    if not self.player.ailment and random.randint(1, 2) == 1:
-                        self.player.ailment = ailments.Shock(self.player, AilmentType.SHOCK)
-                        await self.ctx.send(f"> __{self.player}__ was inflicted with **Shock**!")
-                elif not target.ailment and self.player.ailment and self.player.ailment.type is AilmentType.SHOCK:
-                    target.ailment = ailments.Shock(target, AilmentType.SHOCK)
-                    await self.ctx.send(f"> __{target}__ was inflicted with **Shock**!")
+                if skill.name == 'Attack':
+                    if target.ailment and target.ailment.type is AilmentType.SHOCK:
+                        if not self.player.ailment and random.randint(1, 2) == 1:
+                            self.player.ailment = ailments.Shock(self.player, AilmentType.SHOCK)
+                            await self.ctx.send(f"> __{self.player}__ was inflicted with **Shock**!")
+                    elif not target.ailment and self.player.ailment and self.player.ailment.type is AilmentType.SHOCK:
+                        target.ailment = ailments.Shock(target, AilmentType.SHOCK)
+                        await self.ctx.send(f"> __{target}__ was inflicted with **Shock**!")
 
                 weaks.append(res.did_weak)
 
@@ -565,6 +566,16 @@ class WildBattle:
             msg = get_message(res.resistance, reflect=res.was_reflected, miss=res.miss, critical=res.critical)
             msg = msg.format(demon=enemy, tdemon=self.player, damage=res.damage_dealt, skill=skill)
             await self.ctx.send(msg)
+
+            if skill.name == 'Attack':
+                if self.player.ailment and self.player.ailment.type is AilmentType.SHOCK:
+                    if not enemy.ailment and random.randint(1, 2) == 1:
+                        enemy.ailment = ailments.Shock(enemy, AilmentType.SHOCK)
+                        await self.ctx.send(f"> __{enemy}__ was inflicted with **Shock**!")
+                elif not self.player.ailment and enemy.ailment and enemy.ailment.type is AilmentType.SHOCK:
+                    self.player.ailment = ailments.Shock(self.player, AilmentType.SHOCK)
+                    await self.ctx.send(f"> __{self.player}__ was inflicted with **Shock**!")
+            
             if res.did_weak:
                 self.order.decycle()
                 self.double_turn = True
