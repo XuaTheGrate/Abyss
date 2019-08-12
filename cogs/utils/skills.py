@@ -1,8 +1,7 @@
 import math
 import random
 
-from . import weather
-from .ailments import AilmentSkill
+from . import ailments, weather
 from .enums import *
 from .lookups import WEATHER_TO_TYPE, STAT_MOD
 from .objects import JSONable
@@ -293,6 +292,19 @@ class Charge(Skill):
         else:
             target._concentrating = True
         await battle.ctx.send(f"> __{target}__ is focused!")
+
+
+class AilmentSkill(Skill):
+    def __init__(self, **kwargs):
+        self.ailment = AilmentType[kwargs.pop('ailment').upper()]
+        super().__init__(**kwargs)
+
+    async def effect(self, battle, targets):
+        ailment = getattr(ailments, self.ailment.name.title())
+        for t in targets:
+            if not t.try_evade(battle.cycle.active(), self):  # ailment landed
+                t._ailment = ailment(battle.cycle.active(), self.ailment)
+                await battle.ctx.send(f"> __{t}__ was inflicted with **{ailment.name}**")
 
 
 subclasses = {

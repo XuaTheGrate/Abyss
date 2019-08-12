@@ -1,8 +1,5 @@
 import random
 
-from .enums import AilmentType
-from .skills import Skill
-
 
 class UserIsImmobilized(Exception):
     pass  # raise this when you are unable to move
@@ -16,20 +13,7 @@ class AilmentRemoved(Exception):
     pass  # raise this when the ailment has been removed
 
 
-class AilmentSkill(Skill):
-    def __init__(self, **kwargs):
-        self.ailment = AilmentType[kwargs.pop('ailment').upper()]
-        super().__init__(**kwargs)
-
-    async def effect(self, battle, targets):
-        ailment = globals()[self.ailment.name.title()]
-        for t in targets:
-            if not t.try_evade(battle.cycle.active(), self):  # ailment landed
-                t._ailment = ailment(battle.cycle.active(), self.ailment)
-                await battle.ctx.send(f"> __{t}__ was inflicted with **{ailment.name}**")
-
-
-class Ailment:
+class _Ailment:
     emote = None
     # the emote to appear next to the user inflicted with this ailment
 
@@ -58,7 +42,7 @@ class Ailment:
         pass
 
 
-class Burn(Ailment):
+class Burn(_Ailment):
     """
     After you take your turn, you will take 6% of your max HP in damage.
     """
