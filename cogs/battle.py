@@ -65,6 +65,7 @@ Encounter: {list(map(str, battle.enemies))}
             encounter = await self.bot.db.abyss.encounters.find_one({"name": name})
             e = bt.Enemy(**encounter)
             e._populate_skills(self.bot)
+            e.skills.remove(self.bot.players.skill_cache['Guard'])
             enemies.append(e)
         self.battles[ctx.author.id] = bt.WildBattle(ctx.player, ctx, *enemies)
 

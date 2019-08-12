@@ -36,7 +36,6 @@ class Enemy(Player):
         kwargs['specialty'] = 'almighty'
         super().__init__(**kwargs)
         self.unusable_skills = []  # a list of names the ai has learned not to use since they dont work
-        self.skills.remove(Guard)
 
     def get_exp(self):
         return math.ceil(self.level_ ** 3 / random.uniform(1, 3))

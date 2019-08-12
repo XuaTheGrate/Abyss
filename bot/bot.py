@@ -158,6 +158,9 @@ class Abyss(commands.Bot):
         return self.get_cog("Maps")
 
     async def before_invoke_handler(self, ctx):
+        if not self.players:
+            ctx.player = None
+            return
         try:
             ctx.player = self.players.players[ctx.author.id]
         except KeyError:
