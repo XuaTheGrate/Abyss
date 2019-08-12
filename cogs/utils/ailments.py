@@ -93,3 +93,11 @@ class Dizzy(_Ailment):
     """
     Accuracy is severely reduced.
     """
+    emote = '\N{DIZZY SYMBOL}'
+
+
+class Hunger(_Ailment):
+    """
+    Attack power is greatly reduced.
+    """
+    emote = '\N{HAMBURGER}'
