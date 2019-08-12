@@ -303,7 +303,7 @@ class AilmentSkill(Skill):
         ailment = getattr(ailments, self.ailment.name.title())
         for t in targets:
             if not t.try_evade(battle.order.active(), self):  # ailment landed
-                t._ailment = ailment(t, self.ailment)
+                t.ailment = ailment(t, self.ailment)
                 await battle.ctx.send(f"> __{t}__ was inflicted with **{ailment.name}**")
 
 
