@@ -2087,7 +2087,7 @@
         "desc": "for debugging, guaranteed ailment infliction",
         "cost": 0,
         "type": "ailment",
-        "ailment": "shocks",
+        "ailment": "shock",
         "accuracy": 999,
         "target": "enemies"
     }
