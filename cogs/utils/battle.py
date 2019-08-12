@@ -13,7 +13,7 @@ UNSUPPORTED_SKILLS = ['Fast Heal', 'Evil Touch', 'Evil Smile', 'Taunt',
                       'Pulinpa', 'Amrita Shower',
                       'Amrita Drop', 'Brain Jack', 'Marin Karin',
                       'Fortify Spirit',
-                      'Makajam', 'Makajamaon', 'Tentarafoo', 'Wage War', 'Dazzler',
+                      'Tentarafoo', 'Wage War', 'Dazzler',
                       'Nocturnal Flash', 'Dormina', 'Lullaby', 'Ambient Aid', 'Recarm', 'Samarecarm',
                       'Ailment Boost', 'Rebellion', 'Revolution', 'Insta-Heal',
                       'Ali Dance']
@@ -36,6 +36,7 @@ class Enemy(Player):
         kwargs['specialty'] = 'almighty'
         super().__init__(**kwargs)
         self.unusable_skills = []  # a list of names the ai has learned not to use since they dont work
+        self.skills.remove(Guard)
 
     def get_exp(self):
         return math.ceil(self.level_ ** 3 / random.uniform(1, 3))
@@ -49,14 +50,26 @@ class Enemy(Player):
     def level(self):
         return self.level_
 
+    def skill_filter(self):
+        for skill in self.skills:
+            if skill.type is SkillType.PASSIVE:
+                continue
+            if skill.name in self.unusable_skills:
+                continue
+            if not skill.uses_sp:
+                yield skill
+                continue
+            if any(s.name == 'Spell Master' for s in self.skills):
+                c = skill.cost/2
+            else:
+                c = skill.cost
+            if c <= self.sp:
+                yield skill
+
     def random_move(self):
         if self.ailment and self.ailment.type is AilmentType.FORGET:
-            return random.choice((GenericAttack, Guard))
-        choices = list(filter(
-                lambda s: s.type is not SkillType.PASSIVE and (
-                    True if not s.uses_sp else s.cost <= self.sp
-                ) and s.name not in self.unusable_skills,
-                self.skills))
+            return GenericAttack
+        choices = list(self.skill_filter())
         select = random.choice(choices)
         if select.uses_sp:
             if any(s.name == 'Spell Master' for s in self.skills):
