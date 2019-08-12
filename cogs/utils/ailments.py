@@ -64,3 +64,4 @@ class Forget(_Ailment):
     You will be unable to use your skills.
     You can still use Attack and Guard, and your passive skills will still work.
     """
+    emote = '\N{SPEAKER WITH CANCELLATION STROKE}'
