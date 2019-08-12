@@ -32,11 +32,15 @@ class _Ailment:
         return self.__class__.__name__
 
     def pre_turn_effect(self):
+        log.debug("pre_turn_effect called")
         if self.clears_first_turn:
+            log.debug("clears first turn")
             raise AilmentRemoved
         if self.counter == self.clear_at:
+            log.debug("ailment removed")
             raise AilmentRemoved
         self.counter += 1
+        log.debug("counter incremented")
 
     def post_turn_effect(self):
         pass
@@ -49,4 +53,5 @@ class Burn(_Ailment):
     emote = "\N{FIRE}"
 
     def post_turn_effect(self):
-        self.player.hp = -(self.player.max_hp * 0.06)
+        self.player.hp = self.player.max_hp * 0.06
+        log.debug("burn: lowered hp")

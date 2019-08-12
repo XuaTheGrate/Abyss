@@ -300,11 +300,17 @@ class AilmentSkill(Skill):
         super().__init__(**kwargs)
 
     async def effect(self, battle, targets):
+        log.debug(f"ailment: effect was called, {battle!r} | {targets!r}")
         ailment = getattr(ailments, self.ailment.name.title())
+        log.debug(f"ailment: got {ailment!r}")
         for t in targets:
             if not t.try_evade(battle.order.active(), self):  # ailment landed
+                log.debug(f"ailment: landed")
                 t.ailment = ailment(t, self.ailment)
                 await battle.ctx.send(f"> __{t}__ was inflicted with **{t.ailment.name}**")
+                log.debug(f"ailment: {t.ailment!r}")
+            else:
+                log.debug(f"ailment: evaded")
 
 
 subclasses = {
