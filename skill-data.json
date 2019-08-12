@@ -2083,7 +2083,7 @@
         "type": "passive"
     },
     {
-        "name": "burn test",
+        "name": "Burn Test",
         "desc": "for debugging, guaranteed ailment infliction",
         "cost": 0,
         "type": "ailment",

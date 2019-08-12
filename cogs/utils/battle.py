@@ -40,7 +40,7 @@ class Enemy(Player):
     def get_exp(self):
         return math.ceil(self.level_ ** 3 / random.uniform(1, 3))
 
-    def __str__(self):
+    def header(self):
         return ("[Wild] " +
                 (f"~~{self.name}~~" if self.is_fainted() else f"{self.name}") +
                 f" {self.ailment.emote if self.ailment and not self.is_fainted() else ''}")
@@ -228,7 +228,7 @@ class InitialSession(ui.Session):
         return f"""(Turn {self.battle.turn_cycle})
 [{self.player.owner.name}] {self.player.name} {self.player.ailment.emote if self.player.ailment else ''}
 VS
-{NL.join(str(e) for e in self.enemies)}
+{NL.join(e.header() for e in self.enemies)}
 
 {self.player.hp}/{self.player.max_hp} HP
 {self.player.sp}/{self.player.max_sp} SP"""

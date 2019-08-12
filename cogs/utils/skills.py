@@ -2,6 +2,7 @@ import math
 import random
 
 from . import weather
+from .ailments import AilmentSkill
 from .enums import *
 from .lookups import WEATHER_TO_TYPE, STAT_MOD
 from .objects import JSONable
@@ -37,6 +38,8 @@ class Skill(JSONable):
         new_cls = subclasses.get(name, None)
         if new_cls:
             cls = new_cls
+        if kwargs['type'] == 'ailment':
+            cls = AilmentSkill
         self = object.__new__(cls)
         # noinspection PyArgumentList
         cls.__init__(self, **kwargs)
