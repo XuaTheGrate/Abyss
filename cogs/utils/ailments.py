@@ -20,7 +20,6 @@ class _Ailment:
     def __init__(self, player, type):
         self.type = type
         self.player = player
-        self.clears_first_turn = self.name in ('Shock', 'Freeze')
         self.counter = 0
         self.clear_at = random.randint(2, 7)
 
@@ -31,11 +30,14 @@ class _Ailment:
     def name(self):
         return self.__class__.__name__
 
+    def passive_effect(self):
+        pass  # for Dizzy/Hunger
+
+    # Forget is already handled in battle
+
     def pre_turn_effect(self):
+        # for freeze, shock, sleep, confuse, fear, despair, rage, brainwash
         log.debug("pre_turn_effect called")
-        if self.clears_first_turn:
-            log.debug("clears first turn")
-            raise AilmentRemoved
         if self.counter == self.clear_at:
             log.debug("ailment removed")
             raise AilmentRemoved
@@ -43,7 +45,7 @@ class _Ailment:
         log.debug("counter incremented")
 
     def post_turn_effect(self):
-        pass
+        pass  # for burn
 
 
 class Burn(_Ailment):
@@ -55,3 +57,10 @@ class Burn(_Ailment):
     def post_turn_effect(self):
         self.player.hp = self.player.max_hp * 0.06
         log.debug("burn: lowered hp")
+
+
+class Forget(_Ailment):
+    """
+    You will be unable to use your skills.
+    You can still use Attack and Guard, and your passive skills will still work.
+    """

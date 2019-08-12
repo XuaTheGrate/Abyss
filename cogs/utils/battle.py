@@ -50,6 +50,8 @@ class Enemy(Player):
         return self.level_
 
     def random_move(self):
+        if self.ailment and self.ailment.type is AilmentType.FORGET:
+            return random.choice((GenericAttack, Guard))
         choices = list(filter(
                 lambda s: s.type is not SkillType.PASSIVE and (
                     True if not s.uses_sp else s.cost <= self.sp
@@ -258,6 +260,8 @@ VS
                 if any(s.name == 'Spell Master' for s in self.player.skills):
                     cost /= 2
                 can_use = self.player.sp >= cost
+                if skill.name != 'Guard' and self.player.ailment and self.player.ailment.type is AilmentType.FORGET:
+                    can_use = False
                 t = 'SP'
             else:
                 if skill.cost != 0:
@@ -267,6 +271,8 @@ VS
                 else:
                     cost = 0
                 can_use = self.player.max_hp > cost
+                if skill.name != 'Attack' and self.player.ailment and self.player.ailment.type is AilmentType.FORGET:
+                    can_use = False
                 t = 'HP'
             if can_use:
                 skills.append(f"{e} {skill} ({cost:.0f} {t})")
@@ -277,7 +283,7 @@ VS
             f"{self.header}\n\n{NL.join(skills)}\n\n> Use \N{HOUSE BUILDING} to go back"), embed=None)
 
     @ui.button("\N{BLACK QUESTION MARK ORNAMENT}")
-    async def info(self, __):
+    async def help(self, __):
         # log.debug("info() called")
         embed = discord.Embed(title="How to: Interactive Battle")
         embed.description = _("""Partially ported from Adventure, the battle system has been revived!
@@ -442,6 +448,9 @@ class WildBattle:
             if self.player.sp < cost:
                 await self.ctx.send("You don't have enough SP for this move!")
                 return self.order.decycle()
+            if skill.name != 'Guard' and self.player.ailment and self.player.ailment.type is AilmentType.FORGET:
+                await self.ctx.send("You've forgotten how to use this move!")
+                return self.order.decycle()
             self.player.sp = cost
         else:
             if skill.cost != 0:
@@ -452,6 +461,11 @@ class WildBattle:
                 cost = 0
             if cost > self.player.hp:
                 await self.ctx.send("You don't have enough HP for this move!")
+                self.double_turn = True
+                return self.order.decycle()
+            if skill.name != 'Attack' and self.player.ailment and self.player.ailment.type is AilmentType.FORGET:
+                await self.ctx.send("You've forgotten how to use this move!")
+                self.double_turn = True
                 return self.order.decycle()
             self.player.hp = cost
 
