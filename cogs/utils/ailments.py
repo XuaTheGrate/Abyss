@@ -1,5 +1,7 @@
 import random
 
+from .enums import StatModifier
+
 
 class UserIsImmobilized(Exception):
     pass  # raise this when you are unable to move
@@ -85,3 +87,9 @@ class Shock(_Ailment):
         super().pre_turn_effect()
         if random.randint(1, 10) != 1:
             raise UserIsImmobilized
+
+
+class Dizzy(_Ailment):
+    """
+    Accuracy is severely reduced.
+    """

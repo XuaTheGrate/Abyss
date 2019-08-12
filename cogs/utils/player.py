@@ -551,6 +551,9 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
         elif res is ResistanceModifier.RESIST:
             base *= 0.5
 
+        if attacker.ailment and attacker.ailment.type is AilmentType.HUNGER:
+            base *= 0.25
+
         base = math.ceil(base * skill.severity.value)
 
         if any(s.name == 'Firm Stance' for s in self.skills):
@@ -655,6 +658,10 @@ Attacker: 1.05 | Me: 1.05 | 4.00 chance to crit
         base /= attacker.affected_by(StatModifier.SUKU)
         # log.debug(f"Attacker: {suku_mod:.2f}/{90 * suku_mod:.2f} |"
         #           f" Me: {my_suku:.2f}/{90 / my_suku:.2f} | {100 - base:.2f} evasion chance")
+
+        if attacker.ailment and attacker.ailment.type is AilmentType.DIZZY:
+            base *= 0.25
+
         if any(s.name == 'Angelic Grace' for s in self.skills):
             base *= 2
         if any(s.name == 'Rainy Play' for s in self.skills):
