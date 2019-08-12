@@ -37,12 +37,9 @@ class _Ailment:
 
     def pre_turn_effect(self):
         # for freeze, shock, sleep, confuse, fear, despair, rage, brainwash
-        log.debug("pre_turn_effect called")
         if self.counter == self.clear_at:
-            log.debug("ailment removed")
             raise AilmentRemoved
         self.counter += 1
-        log.debug("counter incremented")
 
     def post_turn_effect(self):
         pass  # for burn
@@ -56,7 +53,6 @@ class Burn(_Ailment):
 
     def post_turn_effect(self):
         self.player.hp = self.player.max_hp * 0.06
-        log.debug("burn: lowered hp")
 
 
 class Forget(_Ailment):
@@ -76,3 +72,16 @@ class Freeze(_Ailment):
     def pre_turn_effect(self):
         super().pre_turn_effect()
         raise UserIsImmobilized
+
+
+class Shock(_Ailment):
+    """
+    High chance of being immobilized. If you hit someone with your Attack, or they hit you with their Attack,
+    there is a medium chance of them being inflicted with Shock.
+    """
+    emote = '\N{HIGH VOLTAGE SIGN}'
+
+    def pre_turn_effect(self):
+        super().pre_turn_effect()
+        if random.randint(1, 10) != 1:
+            raise UserIsImmobilized

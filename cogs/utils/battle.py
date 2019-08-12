@@ -505,6 +505,14 @@ class WildBattle:
                 if res.endured:
                     await self.ctx.send(f"> __{target}__ endured the hit!")
 
+                if target.ailment and target.ailment.type is AilmentType.SHOCK:
+                    if not self.player.ailment and random.randint(1, 2) == 1:
+                        self.player.ailment = ailments.Shock(self.player, AilmentType.SHOCK)
+                        await self.ctx.send(f"> __{self.player}__ was inflicted with **Shock**!")
+                elif not target.ailment and self.player.ailment and self.player.ailment.type is AilmentType.SHOCK:
+                    target.ailment = ailments.Shock(target, AilmentType.SHOCK)
+                    await self.ctx.send(f"> __{target}__ was inflicted with **Shock**!")
+
                 weaks.append(res.did_weak)
 
         if all(weaks) and confirm_not_dead(self):
