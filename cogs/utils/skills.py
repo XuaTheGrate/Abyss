@@ -302,8 +302,8 @@ class AilmentSkill(Skill):
     async def effect(self, battle, targets):
         ailment = getattr(ailments, self.ailment.name.title())
         for t in targets:
-            if not t.try_evade(battle.cycle.active(), self):  # ailment landed
-                t._ailment = ailment(battle.cycle.active(), self.ailment)
+            if not t.try_evade(battle.order.active(), self):  # ailment landed
+                t._ailment = ailment(t, self.ailment)
                 await battle.ctx.send(f"> __{t}__ was inflicted with **{ailment.name}**")
 
 
