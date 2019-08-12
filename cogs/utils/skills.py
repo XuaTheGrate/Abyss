@@ -304,7 +304,7 @@ class AilmentSkill(Skill):
         for t in targets:
             if not t.try_evade(battle.order.active(), self):  # ailment landed
                 t.ailment = ailment(t, self.ailment)
-                await battle.ctx.send(f"> __{t}__ was inflicted with **{ailment.name}**")
+                await battle.ctx.send(f"> __{t}__ was inflicted with **{t.ailment.name}**")
 
 
 subclasses = {
