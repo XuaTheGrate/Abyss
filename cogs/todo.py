@@ -33,10 +33,10 @@ class TodoList(commands.Cog, command_attrs={"hidden": True}):
         d = discord.Embed(title="Todo list")
         groups = {k: [] for k in GROUPS}
         async for doc in self.bot.db.abyss.todo.find({}):
-            groups[doc['group']].append(f'{self.bot.tick_yes if doc["done"] else self.bot.tick_no}')
+            groups[doc['group']].append(f'{self.bot.tick_yes if doc["done"] else self.bot.tick_no} {doc["name"]}')
         for g, t in groups.items():
             if t:
-                d.add_field(name=g, value="\n".join(t), inline=False)
+                d.add_field(name=g.title(), value="\n".join(t), inline=False)
         await ctx.send(embed=d)
 
     @todo.command()
