@@ -15,7 +15,7 @@ IMMUNITY_ORDER = ['Repel', 'Absorb', 'Null', 'Resist']
 
 class Player(JSONable):
     __json__ = ('owner', 'name', 'skills', 'exp', 'stats', 'resistances', 'arcana', 'specialty', 'stat_points',
-                'description', 'skill_leaf', 'ap', 'unsetskills', 'finished_leaves')
+                'description', 'skill_leaf', 'ap', 'unsetskills', 'finished_leaves', 'credits')
 
     def keygetter(self, key):
         if key == 'owner':
@@ -67,6 +67,7 @@ class Player(JSONable):
         self.description = kwargs.pop("description", "<no description found, report to Xua>")
         self.stat_points = kwargs.pop("stat_points", 0)
         self.debug = kwargs.pop("testing", False)
+        self.credits = kwargs.pop("credits", 0)
         self._active_leaf = kwargs.pop("skill_leaf", None)
         self.leaf = None
         self.ap_points = kwargs.pop("ap", 0)
@@ -115,6 +116,7 @@ class Player(JSONable):
 --- finished_leaves: {self.finished_leaves}
 --- unset_skills: {", ".join(map(str, self.unset_skills))}
 --- guarding: {self.guarding}
+--- credits: {self.credits}
 
 --- level: {self.level}
 --- hp: {self.hp}
@@ -201,7 +203,7 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
 
     @property
     def level(self):
-        return min(99, max(math.ceil(self.exp ** .333), 1))
+        return max(math.ceil(self.exp ** .333), 1)
 
     def level_up(self):
         while self._next_level <= self.level:

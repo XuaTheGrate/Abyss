@@ -123,7 +123,7 @@ class Status(ui.Session):
 {player.description}
 
 Specializes in {spec} type skills.
-{NL+f'{player.exp_to_next_level()} to level {player._next_level}'+NL+f'{prog}%'+NL if player.level != 99 else ''}
+{NL+f'{player.exp_to_next_level()} to level {player._next_level}'+NL+f'{prog}%'+NL}
 __Resistances__
 {res_fmt}"""
         embed.description = desc
