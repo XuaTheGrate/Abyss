@@ -11,8 +11,8 @@ ID_GETTER = re.compile(r"@!ID:([0-9]+)!@")
 
 
 _help = {}
-for lang in os.listdir("scripts"):
-    with open(f"scripts/{lang}/_help.xls") as f:
+for lang in os.listdir("cogs/utils/scripts"):
+    with open(f"cogs/utils/scripts/{lang}/_help.xls") as f:
         data = f.readlines()
     d = {}
     for l in data:
