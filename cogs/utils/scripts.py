@@ -47,7 +47,7 @@ class Choices(ui.Session):
         self.question = question
         self.choices = {f'{a+1}\u20e3': c for a, c in enumerate(choices)}
         self.result = None
-        for c in choices:
+        for c in self.choices:
             self.add_button(self.make_choice, c)
             log.debug(f"Choices: added {c.encode('unicode-escape')} as button")
 
