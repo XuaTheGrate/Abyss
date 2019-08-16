@@ -100,15 +100,17 @@ async def do_script(ctx, script, lang="en_US"):
     ctx.current_script = script+'.xls'
 
     skip = await ctx.bot.redis.get(f"breakpoint@{ctx.author.id}")
-    snum, lnum = skip.decode().split(':')
-    if scripts[int(snum)] == ctx.current_script:
-        skip = int(lnum)  # we were partway in this script so lets jump to where we were
+    if skip:
+        snum, lnum = skip.decode().split(':')
+        if scripts[int(snum)] == ctx.current_script:
+            skip = int(lnum)  # we were partway in this script so lets jump to where we were
+        else:
+            skip = 0  # this is a new script with an outdated breakpoint, so lets erase it
+            await ctx.bot.redis.delete(f"breakpoint@{ctx.author.id}")
     else:
-        skip = 0  # this is a new script with an outdated breakpoint, so lets erase it
-        await ctx.bot.redis.delete(f"breakpoint@{ctx.author.id}")
+        skip = 0
 
     lines = iter(data.splitlines())
-    prevline = None
 
     for line in data:
         l = line.strip().format(ctx=ctx)

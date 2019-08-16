@@ -533,7 +533,7 @@ class WildBattle:
                 return [e for e in self.enemies if not e.is_fainted()]
             return self.player,
         elif skill.target == 'self':
-            return user
+            return (user,)
         elif skill.target in ('allies', 'ally'):
             if user is self.player:
                 return self.player,
