@@ -15,7 +15,7 @@ IMMUNITY_ORDER = ['Repel', 'Absorb', 'Null', 'Resist']
 
 class Player(JSONable):
     __json__ = ('owner', 'name', 'skills', 'exp', 'stats', 'resistances', 'arcana', 'specialty', 'stat_points',
-                'description', 'skill_leaf', 'ap', 'unsetskills', 'finished_leaves', 'coord', 'map')
+                'description', 'skill_leaf', 'ap', 'unsetskills', 'finished_leaves')
 
     def keygetter(self, key):
         if key == 'owner':
@@ -34,10 +34,6 @@ class Player(JSONable):
             return self.ap_points
         elif key == 'unsetskills':
             return [z.name for z in self.unset_skills if z.name not in ('Attack', 'Guard')]
-        elif key == 'coord':
-            return tuple(self.coord)
-        elif key == 'map':
-            return self.map.id
         return getattr(self, key)
 
     def __init__(self, **kwargs):
@@ -73,7 +69,6 @@ class Player(JSONable):
         self.debug = kwargs.pop("testing", False)
         self._active_leaf = kwargs.pop("skill_leaf", None)
         self.leaf = None
-        self.coord = kwargs.pop('coord', [0, 0])
         self.ap_points = kwargs.pop("ap", 0)
         self._unset_skills = kwargs.pop("unsetskills", [])
         self.unset_skills = []
@@ -84,7 +79,6 @@ class Player(JSONable):
         self._until_clear = [0, 0, 0]  # turns until it gets cleared for each stat, max of 3 turns
         self._next_level = self.level + 1
         self.finished_leaves = kwargs.pop("finished_leaves", [])
-        self.map = kwargs.pop("map", 0)
         self.guarding = False
         self.ailment = None
         self._shields = {}
@@ -121,8 +115,6 @@ class Player(JSONable):
 --- finished_leaves: {self.finished_leaves}
 --- unset_skills: {", ".join(map(str, self.unset_skills))}
 --- guarding: {self.guarding}
---- coord: {self.coord!r}
---- map: {self.map!r}
 
 --- level: {self.level}
 --- hp: {self.hp}
@@ -232,8 +224,6 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
 
     def _populate_skills(self, bot):
         self.owner = bot.get_user(self._owner_id)
-        self.map = bot.maps.mapmgr.maps[self.map]
-        self.coord = self.map.coordinates[tuple(self.coord)]
         for skill in self._skills:
             self.skills.append(bot.players.skill_cache[skill])
         for skill in self._unset_skills:
@@ -568,7 +558,7 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
             self.hp = -base
             result.damage_dealt = -base
 
-        if self.is_fainted():
+        if self.is_fainted() and not self._endured:
             if any(s.name == 'Endure' for s in self.skills):
                 self._damage_taken -= 1
                 result.fainted = False
@@ -586,8 +576,8 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
             base *= 3
         if any(s.name == 'Sharp Student' for s in attacker.skills):
             base /= 3
-        base /= attacker.affected_by(StatModifier.SUKU)
         base += ((self.luck / 10) - ((attacker.luck / 2) / 10))
+        base /= attacker.affected_by(StatModifier.SUKU)
         base *= self.affected_by(StatModifier.SUKU)
         return random.uniform(1, 100) <= base
 

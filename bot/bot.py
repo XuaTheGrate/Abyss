@@ -154,10 +154,6 @@ class Abyss(commands.Bot):
     def tree(self):
         return self.get_cog("SkillTreeCog")
 
-    @property
-    def maps(self):
-        return self.get_cog("Maps")
-
     async def before_invoke_handler(self, ctx):
         if not self.players:
             ctx.player = None
