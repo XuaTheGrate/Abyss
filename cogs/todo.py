@@ -35,7 +35,8 @@ class TodoList(commands.Cog, command_attrs={"hidden": True}):
         async for doc in self.bot.db.abyss.todo.find({}):
             groups[doc['group']].append(f'{self.bot.tick_yes if doc["done"] else self.bot.tick_no}')
         for g, t in groups.items():
-            d.add_field(name=g, value="\n".join(t), inline=False)
+            if t:
+                d.add_field(name=g, value="\n".join(t), inline=False)
         await ctx.send(embed=d)
 
     @todo.command()
