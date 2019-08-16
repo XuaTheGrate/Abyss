@@ -11,11 +11,14 @@ ID_GETTER = re.compile(r"@!ID:([0-9]+)!@")
 
 
 _help = {}
-for lang in os.listdir("cogs/utils/scripts"):
-    with open(f"cogs/utils/scripts/{lang}/_help.xls") as f:
+for lang in os.listdir("scripts"):
+    with open(f"scripts/{lang}/_help.xls") as f:
         data = f.readlines()
+    d = {}
     for l in data:
-        _help[lang] = {k: v.strip() for k, v in shlex.split(l)}
+        k, v = shlex.split(l)
+        d[k] = v
+    _help[lang] = d
 
 assert 'en_US' in _help
 assert len(_help['en_US']) > 0
