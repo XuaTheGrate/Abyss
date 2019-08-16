@@ -52,7 +52,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
 
     @dev.command()
     async def redis(self, ctx, cmd, *args):
-        args = [int(a) if a.isdigit() else a for a in args]
+        args = [int(a) if a.isdigit() else a.format(ctx=ctx) for a in args]
         try:
             func = getattr(self.bot.redis, cmd)
             ret = await func(*args)
