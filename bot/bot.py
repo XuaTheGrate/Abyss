@@ -2,7 +2,7 @@ import asyncio
 import contextlib
 import io
 import os
-import random
+import numpy.random as random
 import traceback
 from datetime import datetime
 
@@ -133,11 +133,12 @@ class Abyss(commands.Bot):
     @property
     def description(self):
         return random.choice([
-            "> Stuck? Try using `$story` to progress.",
+            "> ~~Stuck? Try using `$story` to progress.~~",
             "> Confused? Try `$faq` for more information.",
-            "> Bored? Try your hand at an online battle.",
+            "> ~~Bored? Try your hand at an online battle.~~",
             "> If you have spare stat points, you can still use `$levelup` to use them.",
             "> Join the support server for updates and announcements: <https://discord.gg/hkweDCD>",
+            "> During scripts, press the stop button to save your progress. Using `$story` will continue where you left off.",
             "corn"
         ])
 

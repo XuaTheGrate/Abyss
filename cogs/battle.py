@@ -1,5 +1,5 @@
 import asyncio
-import random
+import numpy.random as random
 
 from discord.ext import commands
 

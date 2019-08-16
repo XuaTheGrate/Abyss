@@ -1,0 +1,23 @@
+@!ID:0!@
+Foreword: This story has many similarities to the game "Persona 5"
+Whether you have played Persona 5 or not will not affect this story.
+However, the characters personalities are different in this story than in Persona 5.
+Please keep this in mind, and enjoy the story.
+$queuebgm insert_track_here$
+<???> ...
+<???> ..ake up...
+<???> {ctx.author.display_name}...
+<???> Wake up {ctx.author.display_name}.
+<???> The **Abyss** has already begun.
+<???> There is no time to explain. You need to leave, now.
+<???> Come find me. I shall explain everything then.
+<???> Now go, before **they** find you.
+...
+...
+<srrpz> Hmhmhm.
+<eyak5> This will be fun.
+<gatvh> Allow me to lend you some of my power.
+<qgctj> Without it, you may not survive.
+<6l1bc> ...
+***fwoosh***
+$mapset A_airport$

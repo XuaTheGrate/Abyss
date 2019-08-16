@@ -504,6 +504,12 @@ class WildBattle:
                 if res.endured:
                     await self.ctx.send(f"> __{target}__ endured the hit!")
 
+                if skill.type is SkillType.PHYSICAL:
+                    if target.ailment and target.ailment.type is AilmentType.SLEEP:
+                        if random.randint(1, 5) != 1:
+                            target.ailment = None
+                            await self.ctx.send(f"> __{target}__ woke up!")
+
                 if skill.name == 'Attack':
                     if target.ailment and target.ailment.type is AilmentType.SHOCK:
                         if not self.player.ailment and random.randint(1, 2) == 1:
@@ -567,6 +573,12 @@ class WildBattle:
             msg = msg.format(demon=enemy, tdemon=self.player, damage=res.damage_dealt, skill=skill)
             await self.ctx.send(msg)
 
+            if skill.type is SkillType.PHYSICAL:
+                if self.player.ailment and self.player.ailment.type is AilmentType.SLEEP:
+                    if random.randint(1, 5) != 1:
+                        self.player.ailment = None
+                        await self.ctx.send(f"> __{self.player}__ woke up!")
+
             if skill.name == 'Attack':
                 if self.player.ailment and self.player.ailment.type is AilmentType.SHOCK:
                     if not enemy.ailment and random.randint(1, 2) == 1:
@@ -600,6 +612,14 @@ class WildBattle:
         except AilmentRemoved:
             await self.ctx.send(f"> __{nxt}__'s {nxt.ailment.name} wore off!")
             nxt.ailment = None
+        except Fear:
+            await self.ctx.send(f"> __{nxt}__ ran away!")
+            if isinstance(nxt, Enemy):
+                nxt.hp = nxt.max_hp  # faint the enemy ig lol
+            else:
+                await self.stop()
+                self._ran = True
+                return  # player ran away
         except UserTurnInterrupted:
             await self.ctx.send("turn interrupted but no handler has been done")
             return  # no handler rn

@@ -1,6 +1,4 @@
-import random
-
-from .enums import StatModifier
+import numpy.random as random
 
 
 class UserIsImmobilized(Exception):
@@ -26,14 +24,11 @@ class _Ailment:
         self.clear_at = random.randint(2, 7)
 
     def __repr__(self):
-        return f"<Ailment: {self.name}, {self.player!r}, {self.counter}>"
+        return f"<Ailment: {self.name}, {self.player!r}, {self.counter}, {self.type!r}>"
 
     @property
     def name(self):
         return self.__class__.__name__
-
-    def passive_effect(self):
-        pass  # for Dizzy/Hunger
 
     # Forget is already handled in battle
 
@@ -101,3 +96,31 @@ class Hunger(_Ailment):
     Attack power is greatly reduced.
     """
     emote = '\N{HAMBURGER}'
+
+
+class Sleep(_Ailment):
+    """
+    You are unable to move, however your HP and SP will recover by 8% every turn. You have a high chance of waking if
+    the enemy hits you with a physical attack.
+    """
+    emote = '\N{SLEEPING SYMBOL}'
+
+    def pre_turn_effect(self):
+        self.player.hp = -(self.player.max_hp*0.08)
+        self.player.sp = -(self.player.max_sp*0.08)
+        super().pre_turn_effect()
+        raise UserIsImmobilized
+
+
+class Fear(_Ailment, Exception):
+    """
+    High chance of being immobilized. Low chance of running away from battle.
+    """
+    emote = '\N{FACE SCREAMING IN FEAR}'
+
+    def pre_turn_effect(self):
+        super().pre_turn_effect()
+        if random.randint(1, 10) != 1:
+            raise UserIsImmobilized
+        if random.randint(1, 10) == 1:
+            raise self

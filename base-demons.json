@@ -18,7 +18,7 @@
         "skills": ["Zio"],
         "exp": 0,
         "owner": null,
-        "specialty": "elec",
+        "specialty": "electric",
         "arcana": 7,
         "description": null,
         "testing": false
@@ -54,7 +54,7 @@
         "skills": ["Frei"],
         "exp": 0,
         "owner": null,
-        "specialty": "nuke",
+        "specialty": "nuclear",
         "arcana": 17,
         "description": null,
         "testing": false
@@ -126,7 +126,7 @@
         "skills": ["Frei"],
         "exp": 0,
         "owner": null,
-        "specialty": "nuke",
+        "specialty": "nuclear",
         "arcana": 7,
         "description": null,
         "testing": false
@@ -234,7 +234,7 @@
         "skills": ["Frei"],
         "exp": 0,
         "owner": null,
-        "specialty": "nuke",
+        "specialty": "nuclear",
         "arcana": 19,
         "description": null,
         "testing": false
@@ -246,7 +246,7 @@
         "skills": ["Zio"],
         "exp": 0,
         "owner": null,
-        "specialty": "elec",
+        "specialty": "electric",
         "arcana": 10,
         "description": null,
         "testing": false
@@ -294,7 +294,7 @@
         "skills": ["Zio"],
         "exp": 0,
         "owner": null,
-        "specialty": "elec",
+        "specialty": "electric",
         "arcana": 4,
         "description": null,
         "testing": false
@@ -342,7 +342,7 @@
         "skills": ["Cleave"],
         "exp": 0,
         "owner": null,
-        "specialty": "phys",
+        "specialty": "physical",
         "arcana": 5,
         "description": null,
         "testing": false
@@ -366,7 +366,7 @@
         "skills": ["Frei"],
         "exp": 0,
         "owner": null,
-        "specialty": "nuke",
+        "specialty": "nuclear",
         "arcana": 5,
         "description": null,
         "testing": false
@@ -462,7 +462,7 @@
         "skills": ["Psi"],
         "exp": 0,
         "owner": null,
-        "specialty": "psy",
+        "specialty": "psychokinetic",
         "arcana": 7,
         "description": null,
         "testing": false
@@ -546,7 +546,7 @@
         "skills": ["Cleave"],
         "exp": 0,
         "owner": null,
-        "specialty": "phys",
+        "specialty": "physical",
         "arcana": 3,
         "description": null,
         "testing": false
@@ -570,7 +570,7 @@
         "skills": ["Psi"],
         "exp": 0,
         "owner": null,
-        "specialty": "psy",
+        "specialty": "psychokinetic",
         "arcana": 0,
         "description": null,
         "testing": false
@@ -630,7 +630,7 @@
         "skills": ["Psi"],
         "exp": 0,
         "owner": null,
-        "specialty": "psy",
+        "specialty": "psychokinetic",
         "arcana": 5,
         "description": null,
         "testing": false
@@ -654,7 +654,7 @@
         "skills": ["Cleave"],
         "exp": 0,
         "owner": null,
-        "specialty": "phys",
+        "specialty": "physical",
         "arcana": 1,
         "description": null,
         "testing": false
@@ -738,7 +738,7 @@
         "skills": ["Cleave"],
         "exp": 0,
         "owner": null,
-        "specialty": "phys",
+        "specialty": "physical",
         "arcana": 17,
         "description": null,
         "testing": false
@@ -750,7 +750,7 @@
         "skills": ["Zio"],
         "exp": 0,
         "owner": null,
-        "specialty": "elec",
+        "specialty": "electric",
         "arcana": 3,
         "description": null,
         "testing": false
@@ -762,7 +762,7 @@
         "skills": ["Psi"],
         "exp": 0,
         "owner": null,
-        "specialty": "psy",
+        "specialty": "psychokinetic",
         "arcana": 12,
         "description": null,
         "testing": false
@@ -858,7 +858,7 @@
         "skills": ["Cleave"],
         "exp": 0,
         "owner": null,
-        "specialty": "phys",
+        "specialty": "physical",
         "arcana": 9,
         "description": null,
         "testing": false
@@ -954,7 +954,7 @@
         "skills": ["Cleave"],
         "exp": 0,
         "owner": null,
-        "specialty": "phys",
+        "specialty": "physical",
         "arcana": 14,
         "description": null,
         "testing": false
@@ -1038,7 +1038,7 @@
         "skills": ["Cleave"],
         "exp": 0,
         "owner": null,
-        "specialty": "phys",
+        "specialty": "physical",
         "arcana": 7,
         "description": null,
         "testing": false
@@ -1086,7 +1086,7 @@
         "skills": ["Psi"],
         "exp": 0,
         "owner": null,
-        "specialty": "psy",
+        "specialty": "psychokinetic",
         "arcana": 5,
         "description": null,
         "testing": false
@@ -1122,7 +1122,7 @@
         "skills": ["Cleave"],
         "exp": 0,
         "owner": null,
-        "specialty": "phys",
+        "specialty": "physical",
         "arcana": 9,
         "description": null,
         "testing": false
@@ -1230,7 +1230,7 @@
         "skills": ["Psi"],
         "exp": 0,
         "owner": null,
-        "specialty": "psy",
+        "specialty": "psychokinetic",
         "arcana": 0,
         "description": null,
         "testing": false
@@ -1314,7 +1314,7 @@
         "skills": ["Frei"],
         "exp": 0,
         "owner": null,
-        "specialty": "nuke",
+        "specialty": "nuclear",
         "arcana": 14,
         "description": null,
         "testing": false
@@ -1326,7 +1326,7 @@
         "skills": ["Zio"],
         "exp": 0,
         "owner": null,
-        "specialty": "elec",
+        "specialty": "electric",
         "arcana": 13,
         "description": null,
         "testing": false
@@ -1350,7 +1350,7 @@
         "skills": ["Psi"],
         "exp": 0,
         "owner": null,
-        "specialty": "psy",
+        "specialty": "psychokinetic",
         "arcana": 13,
         "description": null,
         "testing": false
@@ -1434,7 +1434,7 @@
         "skills": ["Frei"],
         "exp": 0,
         "owner": null,
-        "specialty": "nuke",
+        "specialty": "nuclear",
         "arcana": 19,
         "description": null,
         "testing": false
@@ -1458,7 +1458,7 @@
         "skills": ["Psi"],
         "exp": 0,
         "owner": null,
-        "specialty": "psy",
+        "specialty": "psychokinetic",
         "arcana": 12,
         "description": null,
         "testing": false
@@ -1494,7 +1494,7 @@
         "skills": ["Zio"],
         "exp": 0,
         "owner": null,
-        "specialty": "elec",
+        "specialty": "electric",
         "arcana": 18,
         "description": null,
         "testing": false
@@ -1506,7 +1506,7 @@
         "skills": ["Zio"],
         "exp": 0,
         "owner": null,
-        "specialty": "elec",
+        "specialty": "electric",
         "arcana": 9,
         "description": null,
         "testing": false
@@ -1602,7 +1602,7 @@
         "skills": ["Cleave"],
         "exp": 0,
         "owner": null,
-        "specialty": "phys",
+        "specialty": "physical",
         "arcana": 0,
         "description": null,
         "testing": false
@@ -1614,7 +1614,7 @@
         "skills": ["Zio"],
         "exp": 0,
         "owner": null,
-        "specialty": "elec",
+        "specialty": "electric",
         "arcana": 4,
         "description": null,
         "testing": false
@@ -1626,7 +1626,7 @@
         "skills": ["Zio"],
         "exp": 0,
         "owner": null,
-        "specialty": "elec",
+        "specialty": "electric",
         "arcana": 4,
         "description": null,
         "testing": false
@@ -1638,7 +1638,7 @@
         "skills": ["Psi"],
         "exp": 0,
         "owner": null,
-        "specialty": "psy",
+        "specialty": "psychokinetic",
         "arcana": 4,
         "description": null,
         "testing": false
@@ -1650,7 +1650,7 @@
         "skills": ["Cleave"],
         "exp": 0,
         "owner": null,
-        "specialty": "phys",
+        "specialty": "physical",
         "arcana": 9,
         "description": null,
         "testing": false
@@ -1662,7 +1662,7 @@
         "skills": ["Cleave"],
         "exp": 0,
         "owner": null,
-        "specialty": "phys",
+        "specialty": "physical",
         "arcana": 11,
         "description": null,
         "testing": false
@@ -1770,7 +1770,7 @@
         "skills": ["Psi"],
         "exp": 0,
         "owner": null,
-        "specialty": "psy",
+        "specialty": "psychokinetic",
         "arcana": 6,
         "description": null,
         "testing": false
@@ -1794,7 +1794,7 @@
         "skills": ["Frei"],
         "exp": 0,
         "owner": null,
-        "specialty": "nuke",
+        "specialty": "nuclear",
         "arcana": 5,
         "description": null,
         "testing": false
@@ -1818,7 +1818,7 @@
         "skills": ["Zio"],
         "exp": 0,
         "owner": null,
-        "specialty": "elec",
+        "specialty": "electric",
         "arcana": 6,
         "description": null,
         "testing": false
@@ -1890,7 +1890,7 @@
         "skills": ["Zio"],
         "exp": 0,
         "owner": null,
-        "specialty": "elec",
+        "specialty": "electric",
         "arcana": 14,
         "description": null,
         "testing": false
@@ -1902,7 +1902,7 @@
         "skills": ["Cleave"],
         "exp": 0,
         "owner": null,
-        "specialty": "phys",
+        "specialty": "physical",
         "arcana": 11,
         "description": null,
         "testing": false
@@ -1938,7 +1938,7 @@
         "skills": ["Psi"],
         "exp": 0,
         "owner": null,
-        "specialty": "psy",
+        "specialty": "psychokinetic",
         "arcana": 16,
         "description": null,
         "testing": false
@@ -2058,7 +2058,7 @@
         "skills": ["Cleave"],
         "exp": 0,
         "owner": null,
-        "specialty": "phys",
+        "specialty": "physical",
         "arcana": 4,
         "description": null,
         "testing": false
@@ -2082,7 +2082,7 @@
         "skills": ["Zio"],
         "exp": 0,
         "owner": null,
-        "specialty": "elec",
+        "specialty": "electric",
         "arcana": 7,
         "description": null,
         "testing": false
@@ -2094,7 +2094,7 @@
         "skills": ["Psi"],
         "exp": 0,
         "owner": null,
-        "specialty": "psy",
+        "specialty": "psychokinetic",
         "arcana": 7,
         "description": null,
         "testing": false
@@ -2106,7 +2106,7 @@
         "skills": ["Psi"],
         "exp": 0,
         "owner": null,
-        "specialty": "psy",
+        "specialty": "psychokinetic",
         "arcana": 20,
         "description": null,
         "testing": false
@@ -2118,7 +2118,7 @@
         "skills": ["Cleave"],
         "exp": 0,
         "owner": null,
-        "specialty": "phys",
+        "specialty": "physical",
         "arcana": 11,
         "description": null,
         "testing": false
@@ -2238,7 +2238,7 @@
         "skills": ["Frei"],
         "exp": 0,
         "owner": null,
-        "specialty": "nuke",
+        "specialty": "nuclear",
         "arcana": 19,
         "description": null,
         "testing": false
@@ -2250,7 +2250,7 @@
         "skills": ["Zio"],
         "exp": 0,
         "owner": null,
-        "specialty": "elec",
+        "specialty": "electric",
         "arcana": 12,
         "description": null,
         "testing": false
@@ -2286,7 +2286,7 @@
         "skills": ["Zio"],
         "exp": 0,
         "owner": null,
-        "specialty": "elec",
+        "specialty": "electric",
         "arcana": 7,
         "description": null,
         "testing": false
@@ -2298,7 +2298,7 @@
         "skills": ["Frei"],
         "exp": 0,
         "owner": null,
-        "specialty": "nuke",
+        "specialty": "nuclear",
         "arcana": 4,
         "description": null,
         "testing": false
@@ -2322,7 +2322,7 @@
         "skills": ["Frei"],
         "exp": 0,
         "owner": null,
-        "specialty": "nuke",
+        "specialty": "nuclear",
         "arcana": 3,
         "description": null,
         "testing": false
@@ -2394,7 +2394,7 @@
         "skills": ["Cleave"],
         "exp": 0,
         "owner": null,
-        "specialty": "phys",
+        "specialty": "physical",
         "arcana": 11,
         "description": null,
         "testing": false
@@ -2478,7 +2478,7 @@
         "skills": ["Cleave"],
         "exp": 0,
         "owner": null,
-        "specialty": "phys",
+        "specialty": "physical",
         "arcana": 16,
         "description": null,
         "testing": false
@@ -2490,7 +2490,7 @@
         "skills": ["Zio"],
         "exp": 0,
         "owner": null,
-        "specialty": "elec",
+        "specialty": "electric",
         "arcana": 19,
         "description": null,
         "testing": false
@@ -2514,7 +2514,7 @@
         "skills": ["Zio"],
         "exp": 0,
         "owner": null,
-        "specialty": "elec",
+        "specialty": "electric",
         "arcana": 11,
         "description": null,
         "testing": false

@@ -1,0 +1,137 @@
+@!ID:1!@
+Pro tip: Press the stop button to set a "break point".
+The script will save your progress and continue where you left off.
+`Chapter I`
+*...*
+*..what in the world was that?*
+<Cheerful Male Classmate> Hey! {ctx.author.display_name}!
+$queuebgm "38 - Butterfly Kiss"$
+<Cheerful Male Classmate> Snap out of it man, we are gonna be late for the plane!
+Come on, let's get moving.
+*Right, I'm already nearly late for our flight.*
+# continues when you get on the plane
+$breakpoint$
+<Flight Attendant> Just in time! Please head this way.
+<Eager Female Classmate> Japan here I come!
+<Excited Male Classmate> This is so exciting!
+<Happy Male Classmate> I've been looking forward to this for so long! It's finally happening!
+<Timid Female Classmate> W-we are going to Shibuya right?
+<Cheerful Male Classmate> Let's get on board and get the good seats eh?
+Hey, you seem pretty out of it. Aren't you excited?
+$choice "Hey, you seem pretty out of it. Aren't you excited?" "Of course I am." "Kind of..." "No, not really."
+"Of course I am." "You really seem like something is on your mind."
+"Kind of..." "Come on, it's Japan! This is the first time you've ever left this country. Show some spirit!"
+"No, not really." "What so you'd rather have stayed here? Lighten up man."$
+<Cheerful Male Classmate> Anyway, hurry up! Let's get the good seats.
+*I know Ryuji has good intentions, but I just can't enjoy this.*
+*Especially after whatever I just saw.*
+<Ryuji> Let's go already!
+*I guess I don't have a choice.*
+<Speaker> Flight #47 will be leaving in 5 minutes.
+$queuebgm "07 - Recollection & Foreboding"$
+*Japan, huh.*
+*I can't say I'm not excited. I've always wanted to leave this country.*
+*I guess it was just something random.*
+*Mom always chalked it up as something that's created by anxiety and I should ignore it.*
+*...There's no use thinking about it I suppose.*
+*The class has been wanting to go on this trip for 3 years.*
+*It was supposed to be last year, but torrential rainfall caused our flight to be canceled.*
+*I have 2 friends in this class at least, so it can't be all bad.*
+*You've already met one of them, his name is Ryuji Sakomoto.*
+*I've known him for a long time, he's a trustworthy guy.*
+*He might be a little bit of an idiot at times, but he means well.*
+$queuebgm "46 - Sunset Bridge"$
+$mapset A_IMMOBILE_plane$
+<Jumpy Female Classmate> Nice choice of seating, Ryuji and {ctx.author.display_name}.
+<Ryuji> Uwah! Futaba!? When did you get there?
+<Futaba> I've been sitting here for a few minutes now. This class is so slow.
+*The other is Futaba Sakura.*
+*She's a junior and been in this class since only last year.*
+*We met purely by poor seating arrangements and the three of us have been friends since.*
+<Futaba> Hmm? What's with the blank face {ctx.author.display_name}?
+$choice "Hmm? What's with the blank face {ctx.author.display_name}?" "It's nothing." "Just thinking about things."
+"It's nothing." "<Futaba> When most people say that it's something serious."
+"Just thinking about things." "<Futaba> Thinking is dangerous, so you should stop!"$
+<Futaba> Be happy we finally get to leave this dump country!
+<Ryuji> So cruel to the place you grew up in.
+<Futaba> I can't help it I've always wanted to go overseas!
+<Ryuji> Oh yea this is your first time overseas too.
+I've never been to Japan though, so this is a first for me too.
+*..?*
+*A girl sat down a few seats away, but I don't recognize her.*
+*I'm gonna feel bad if she's been in the class the whole time but I've never noticed.*
+*She doesn't look particularly happy.*
+<Ryuji> Ooh is that the kind of girl you like {ctx.author.display_name}?
+*Annoyed, I averted my gaze and looked out the window.*
+*It's raining again this year, but it's not nearly as bad as it was.*
+<Futaba> Hope you don't get air-sick because this is gonna be one bumpy ride.
+Hey, which mode of transportation do you prefer?
+$choice "Hey, which mode of transportation do you prefer?" Car Boat Plane
+Car "A safe, yet dangerous choice. Close to the ground but has the most victims."
+Boat "I love the breeze of the ocean but I can't swim very well."
+Plane "The fastest way to travel. Too bad I can't fly by myself."$
+<Futaba> I prefer boats. I may not be able to swim but I can stay afloat long enough for a rescue boat.
+<Ryuji> Assuming one comes for you.
+<Futaba> Okay Ryuji, what's your preference?
+<Ryuji> Me? I'd have to say cars.
+I like a good drive around the countryside every once in a while.
+<Futaba> Ooo a mature answer, that's unexpected.
+<Ryuji> Hey what's that s'posed to mean!?
+$queuebgm "60 - Alleycat"$
+*...*
+*..maybe I'm just not the biggest fan of travel at all.*
+*I've never been away from my parents this much.*
+*And here I am going on a trip away from them for a whole year.*
+*I am excited, I've never been to a big city - let alone outside my home country.*
+*I just wonder if everything will be alright.*
+<Pilot> The plane will now be leaving. Please be seated and enjoy your flight.
+*...it's not like me to be so pessimistic.*
+*Maybe I'll just sleep the whole way.*
+*I snuck at glance at the girl a few seats away.*
+*She seems like she's asleep.*
+*I look back out the window to see the runway speeding past underneath us.*
+*Take off is imminent, and a new adventure will begin.*
+*...*
+$mapset A_velvetroom$
+$breakpoint$
+$queuebgm "08 - Hymn of the Soul (Velvet Room Theme)"$
+*...*
+*..?*
+*Where am I?*
+<ajfb2> ...
+*And who is that?*
+<8vbjh> That is not important right now.
+<fhf89> You remember what you were told, yes?
+*What I was told..?*
+$choice "What I was told..?" "I do." "Not really..."
+"I do." "<k1nmb> Very good. Be sure not to forget."
+"Not really..." "<k1nmb> Hmm, that may be troublesome in the future."$
+<19jfa> Nevermind that now, your **true role** is about to begin.
+<lakf8> I shall call you here again when you have harnessed your unique power.
+<sdxf8> Til' we meet again...
+$mapset A_IMMOBILE_plane$
+$breakpoint$
+$queuebgm "10 - Meeting" "30 - Endless Days"$
+<Futaba> There it is! Japan!
+*...I was awoken by a loud shouting in my ear.*
+<Ryuji> About time you woke up! We are about to land!
+*Did I really sleep the entire flight?*
+<Ryuji> Come on, get your stuff ready. We will be leaving any minute now.
+Hey Futaba, what time is it in Japan right now?
+<Futaba> I dunno, like 4?
+<Ryuji> 4 what?
+<Futaba> Look outside Einstein, is it dark?
+*Meanwhile they continue to bicker away, I took another glance at the girl from earlier.*
+*She seems like an ordinary girl, why am I so intrigued by her?*
+<Ryuji> What's with the puzzled face {ctx.author.display_name}? Never seen her before?
+$choice "What's with the puzzled face {ctx.author.display_name}? Never seen her before?" "I have." "It's nothing." "I don't recognize her."
+"I have." "<Ryuji> Oh really? Mind telling me where you met her?"
+"It's nothing." "<Ryuji> Ooh is that right? Nothing at all, huh?"
+"I don't recognize her." "<Ryuji> She's been in the class since last year but she never attended much."$
+<Pilot> Please strap yourself in as we begin our descent into **Shibuya Airport**.
+<Futaba> Alright here we go!
+*...*
+*For the coming year, we will be staying at a campsite resort in sourthern Tokyo.*
+*It's a great spot since Kirei High is just down the road.*
+*Oh yea, even though this is an overseas trip, we are still students.*
+*In fact, we will be transfer students at Kirei.*

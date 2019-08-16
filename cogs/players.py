@@ -2,7 +2,7 @@ import asyncio
 import contextlib
 import itertools
 import json
-import random
+import numpy.random as random
 from operator import itemgetter
 
 import discord

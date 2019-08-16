@@ -1,5 +1,5 @@
 import math
-import random
+import numpy.random as random
 
 from . import ailments, weather
 from .enums import *
@@ -100,7 +100,7 @@ Skill
 
     @property
     def is_instant_kill(self):
-        return any(x.lower() in self.name.lower() for x in ('Hama', 'Mudo', 'Die for Me!', 'Samsara'))
+        return any(x.lower() in self.name.lower() for x in ('Hama', 'Mudo', 'Die For Me!', 'Samsara'))
 
     @property
     def is_damaging_skill(self):

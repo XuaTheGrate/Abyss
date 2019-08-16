@@ -25,7 +25,7 @@ def recursive_decode(i):
 class Developers(commands.Cog, command_attrs={"hidden": True}):
     def __init__(self, bot):
         self.bot = bot
-        self.valid = ('py', 'po', 'json', 'scr')
+        self.valid = ('py', 'po', 'json', 'xls')
 
     async def cog_check(self, ctx):
         return await self.bot.is_owner(ctx.author)

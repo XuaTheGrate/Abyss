@@ -1,5 +1,5 @@
 import math
-import random
+import numpy.random as random
 import re
 
 from .enums import *
