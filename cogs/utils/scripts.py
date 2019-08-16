@@ -49,17 +49,22 @@ class Choices(ui.Session):
         self.result = None
         for c in choices:
             self.add_button(self.make_choice, c)
+            log.debug(f"Choices: added {c.encode('unicode-escape')} as button")
 
     async def send_initial_message(self):
+        log.debug("Choices: start")
         return await self.context.send(f"> {self.question}\n\n"+"\n".join(f'{k} {v}' for k, v in self.choices.items()))
 
     async def stop(self):
         with suppress(Exception):
             await self.message.clear_reactions()
+            log.debug("Choices: remove reactions")
         await self.context.bot.redis.hset(f"choices@{self.context.author.id}", self.question, self.result)
+        log.debug("Choices: stop")
 
     async def make_choice(self, payload):
-        self.result = self.choices[str(payload)]
+        log.debug(f"Choices: received {str(payload.emoji).encode('unicode-escape')}")
+        self.result = self.choices[str(payload.emoji)]
         await self.stop()
 
 
