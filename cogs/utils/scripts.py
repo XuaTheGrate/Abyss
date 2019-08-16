@@ -117,7 +117,7 @@ async def do_script(ctx, script, lang="en_US"):
 
         if not l or l.startswith(('#', '@!')):
             continue
-
+        log.debug(f"new line in script: {l.startswith('$choice')} {ctx.cln >= skip}")
         if l.startswith('$choice') and ctx.cln >= skip:
             cmd, question, *choices = shlex.split(l.lstrip("$"))
             outcomes = {}
