@@ -119,6 +119,10 @@ async def do_script(ctx, script, lang="en_US"):
     skip = await ctx.bot.redis.get(f"breakpoint@{ctx.author.id}")
     if skip:
         log.debug(f"skip key found for {ctx.author}")
+        key = skip.decode()
+        t_help = _help[lang].get(key)
+        if t_help:
+            return await ctx.send(t_help)
         snum, lnum = skip.decode().split(':')
         if scripts[int(snum)] == ctx.current_script:
             skip = int(lnum)  # we were partway in this script so lets jump to where we were
@@ -134,6 +138,8 @@ async def do_script(ctx, script, lang="en_US"):
     lines = iter(data.split('\n'))
 
     for line in lines:
+        ctx.cln += 1
+
         l = line.strip().format(ctx=ctx)
 
         if not l or l.startswith(('#', '@!')):
@@ -180,7 +186,6 @@ async def do_script(ctx, script, lang="en_US"):
             if not await wait_next(ctx.bot, m, ctx.author):
                 await breakpoint(ctx, stop=True)
                 return False
-        ctx.cln += 1
 
     return True
 
