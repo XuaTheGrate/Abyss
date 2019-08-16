@@ -93,22 +93,28 @@ async def do_script(ctx, script, lang="en_US"):
         log.warning(f"no such file: {path}")
         return await do_script(ctx, script)
 
-    with open(path) as f:
+    with open(path, encoding='utf-8') as f:
         data = f.read()
+
+    log.debug(f"opened and read file {script} ({lang})")
 
     ctx.cln = 0
     ctx.current_script = script+'.xls'
 
     skip = await ctx.bot.redis.get(f"breakpoint@{ctx.author.id}")
     if skip:
+        log.debug(f"skip key found for {ctx.author}")
         snum, lnum = skip.decode().split(':')
         if scripts[int(snum)] == ctx.current_script:
             skip = int(lnum)  # we were partway in this script so lets jump to where we were
+            log.debug(f"skip key is for this script")
         else:
             skip = 0  # this is a new script with an outdated breakpoint, so lets erase it
+            log.debug(f"skip key is not for this script")
             await ctx.bot.redis.delete(f"breakpoint@{ctx.author.id}")
     else:
         skip = 0
+        log.debug(f"no script key found for {ctx.author}")
 
     lines = iter(data.splitlines())
 
@@ -117,8 +123,9 @@ async def do_script(ctx, script, lang="en_US"):
 
         if not l or l.startswith(('#', '@!')):
             continue
-        log.debug(f"new line in script: {l.startswith('$choice')} {ctx.cln >= skip}")
+        log.debug(f"new line in script: {l.startswith('$choice')} {ctx.cln >= skip} {l[0:5]}")
         if l.startswith('$choice') and ctx.cln >= skip:
+            log.debug("choice command found")
             cmd, question, *choices = shlex.split(l.lstrip("$"))
             outcomes = {}
             while True:
@@ -139,6 +146,7 @@ async def do_script(ctx, script, lang="en_US"):
             continue
 
         if l.startswith("$") and ctx.cln >= skip:
+            log.debug("regular command found")
             cmd, *args = shlex.split(l.strip('$'))
             cmd = globals()[cmd]
             try:
@@ -148,6 +156,7 @@ async def do_script(ctx, script, lang="en_US"):
             continue
 
         if ctx.cln >= skip:  # skip so we continue where we left off
+            log.debug("regular script line, sending")
             m = await ctx.send(l)
             if not await wait_next(ctx.bot, m, ctx.author):
                 await breakpoint(ctx, stop=True)
