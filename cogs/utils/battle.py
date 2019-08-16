@@ -1,4 +1,5 @@
 import re
+import random
 from contextlib import suppress
 
 from .ailments import *
