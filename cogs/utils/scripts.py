@@ -60,6 +60,7 @@ class Choices(ui.Session):
             await self.message.clear_reactions()
             log.debug("Choices: remove reactions")
         await self.context.bot.redis.hset(f"choices@{self.context.author.id}", self.question, self.result)
+        await super().stop()
         log.debug("Choices: stop")
 
     async def make_choice(self, payload):
