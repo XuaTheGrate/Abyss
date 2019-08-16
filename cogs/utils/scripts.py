@@ -5,6 +5,8 @@ import shlex
 from contextlib import suppress
 
 from discord.ext import ui
+NL = '\n'
+NNL = '\\n'
 
 
 ID_GETTER = re.compile(r"@!ID:([0-9]+)!@")
@@ -116,14 +118,14 @@ async def do_script(ctx, script, lang="en_US"):
         skip = 0
         log.debug(f"no script key found for {ctx.author}")
 
-    lines = iter(data.splitlines())
+    lines = iter(data.split('\n'))
 
     for line in data:
         l = line.strip().format(ctx=ctx)
 
         if not l or l.startswith(('#', '@!')):
             continue
-        log.debug(f"new line in script: {l.startswith('$choice')} {ctx.cln >= skip} {l[0:5]}")
+        log.debug(f"new line in script: {l.startswith('$choice')} {ctx.cln >= skip} {l.replace(NL, NNL)}")
         if l.startswith('$choice') and ctx.cln >= skip:
             log.debug("choice command found")
             cmd, question, *choices = shlex.split(l.lstrip("$"))
