@@ -135,6 +135,7 @@ async def do_script(ctx, script, lang="en_US"):
             log.debug("choice command found")
             cmd, question, *choices = shlex.split(l.lstrip("$"))
             outcomes = {}
+            log.debug(f"{cmd},{question},{choices}")
             while True:
                 ln = next(lines)
                 ch, an = shlex.split(ln)
@@ -144,12 +145,15 @@ async def do_script(ctx, script, lang="en_US"):
                     break
 
             s = Choices(question, *choices)
+            log.debug(f"outcomes")
             await s.start(ctx)
             r = s.result
+            log.debug(f"{r!r}")
             if not r:
                 await breakpoint(ctx, stop=True)
                 return True
             await ctx.send(outcomes[r])
+            log.debug("choice finished")
             continue
 
         if l.startswith("$") and ctx.cln >= skip:
