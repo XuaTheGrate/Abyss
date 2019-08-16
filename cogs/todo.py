@@ -28,7 +28,7 @@ class TodoList(commands.Cog, command_attrs={"hidden": True}):
     async def cog_check(self, ctx):
         return ctx.author.id in self.bot.config.OWNERS
 
-    @commands.group()
+    @commands.group(invoke_without_command=True)
     async def todo(self, ctx):
         d = discord.Embed(title="Todo list")
         groups = {k: [] for k in GROUPS}
