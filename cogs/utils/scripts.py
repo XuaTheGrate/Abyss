@@ -120,7 +120,7 @@ async def do_script(ctx, script, lang="en_US"):
 
     lines = iter(data.split('\n'))
 
-    for line in data:
+    for line in lines:
         l = line.strip().format(ctx=ctx)
 
         if not l or l.startswith(('#', '@!')):
