@@ -27,7 +27,7 @@ class BattleSystem(commands.Cog):
         try:
             while True:
                 uid = await self._queue.get()
-                log.debug(f"got uid {uid}")
+                # log.debug(f"got uid {uid}")
                 b = self.battles.pop(uid)
                 await b.stop()
         except asyncio.CancelledError:

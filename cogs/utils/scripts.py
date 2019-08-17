@@ -53,25 +53,25 @@ class Choices(ui.Session):
         self.result = None
         for c in self.choices:
             self.add_button(self.make_choice, c)
-            log.debug(f"Choices: added {c.encode('unicode-escape')} as button")
+            # log.debug(f"Choices: added {c.encode('unicode-escape')} as button")
 
     async def handle_timeout(self):
         return await self.stop()
 
     async def send_initial_message(self):
-        log.debug("Choices: start")
+        # log.debug("Choices: start")
         return await self.context.send(f"> {self.question}\n\n"+"\n".join(f'{k} {v}' for k, v in self.choices.items()))
 
     async def stop(self):
         with suppress(Exception):
             await super().stop()
             await self.message.clear_reactions()
-            log.debug("Choices: remove reactions")
+            # log.debug("Choices: remove reactions")
         await self.context.bot.redis.hset(f"choices@{self.context.author.id}", self.question, self.result)
-        log.debug("Choices: stop")
+        # log.debug("Choices: stop")
 
     async def make_choice(self, payload):
-        log.debug(f"Choices: received {str(payload.emoji).encode('unicode-escape')}")
+        # log.debug(f"Choices: received {str(payload.emoji).encode('unicode-escape')}")
         self.result = self.choices[str(payload.emoji)]
         await self.stop()
 
@@ -111,14 +111,14 @@ async def do_script(ctx, script, lang="en_US"):
     with open(path, encoding='utf-8') as f:
         data = f.read()
 
-    log.debug(f"opened and read file {script} ({lang})")
+    # log.debug(f"opened and read file {script} ({lang})")
 
     ctx.cln = 0
     ctx.current_script = script+'.xls'
 
     skip = await ctx.bot.redis.get(f"breakpoint@{ctx.author.id}")
     if skip:
-        log.debug(f"skip key found for {ctx.author}")
+        # log.debug(f"skip key found for {ctx.author}")
         key = skip.decode()
         t_help = _help[lang].get(key)
         if t_help:
@@ -126,14 +126,14 @@ async def do_script(ctx, script, lang="en_US"):
         snum, lnum = skip.decode().split(':')
         if scripts[int(snum)] == ctx.current_script:
             skip = int(lnum)  # we were partway in this script so lets jump to where we were
-            log.debug(f"skip key is for this script")
+            # log.debug(f"skip key is for this script")
         else:
             skip = 0  # this is a new script with an outdated breakpoint, so lets erase it
-            log.debug(f"skip key is not for this script")
+            # log.debug(f"skip key is not for this script")
             await ctx.bot.redis.delete(f"breakpoint@{ctx.author.id}")
     else:
         skip = 0
-        log.debug(f"no script key found for {ctx.author}")
+        # log.debug(f"no script key found for {ctx.author}")
 
     lines = iter(data.split('\n'))
 
@@ -144,12 +144,12 @@ async def do_script(ctx, script, lang="en_US"):
 
         if not l or l.startswith(('#', '@!')):
             continue
-        log.debug(f"new line in script: {l.startswith('$choice')} {ctx.cln >= skip} {l.replace(NL, NNL)}")
+        # log.debug(f"new line in script: {l.startswith('$choice')} {ctx.cln >= skip} {l.replace(NL, NNL)}")
         if l.startswith('$choice') and ctx.cln >= skip:
-            log.debug("choice command found")
+            # log.debug("choice command found")
             cmd, question, *choices = shlex.split(l.lstrip("$"))
             outcomes = {}
-            log.debug(f"{cmd},{question},{choices}")
+            # log.debug(f"{cmd},{question},{choices}")
             while True:
                 ln = next(lines)
                 ch, an = shlex.split(ln)
@@ -159,19 +159,19 @@ async def do_script(ctx, script, lang="en_US"):
                     break
 
             s = Choices(question, *choices)
-            log.debug(f"outcomes")
+            # log.debug(f"outcomes")
             await s.start(ctx)
             r = s.result
-            log.debug(f"{r!r}")
+            # log.debug(f"{r!r}")
             if not r:
                 await breakpoint(ctx, stop=True)
                 return True
             await ctx.send(outcomes[r])
-            log.debug("choice finished")
+            # log.debug("choice finished")
             continue
 
         if l.startswith("$") and ctx.cln >= skip:
-            log.debug("regular command found")
+            # log.debug("regular command found")
             cmd, *args = shlex.split(l.strip('$'))
             cmd = globals()[cmd]
             try:
@@ -181,7 +181,7 @@ async def do_script(ctx, script, lang="en_US"):
             continue
 
         if ctx.cln >= skip:  # skip so we continue where we left off
-            log.debug("regular script line, sending")
+            # log.debug("regular script line, sending")
             m = await ctx.send(l)
             if not await wait_next(ctx.bot, m, ctx.author):
                 await breakpoint(ctx, stop=True)
