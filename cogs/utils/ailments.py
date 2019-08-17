@@ -163,7 +163,7 @@ class Brainwash(_Ailment):
             log.debug(f"len(skills) = {len(skills)}")
             if not skills:
                 log.debug("no skills found")
-                return
+                raise UserTurnInterrupted
             s = random.choice(skills)
             log.debug(f"random skill: {s}, {s.uses_sp}")
             if s.uses_sp:
