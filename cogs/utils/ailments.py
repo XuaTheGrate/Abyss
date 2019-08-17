@@ -188,3 +188,4 @@ class Brainwash(_Ailment):
             else:
                 await s.effect(battle, (self.player,))
                 log.debug("it is not the player")
+            raise UserTurnInterrupted
