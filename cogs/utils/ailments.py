@@ -183,9 +183,15 @@ class Brainwash(_Ailment):
             await battle.ctx.send(f"__{self.player}__ used `{s}`!")
             log.debug(f"{self.player} used {s}!")
             if self.player is battle.player:
-                await s.effect(battle, battle.enemies)
+                if s.target in ('enemy', 'enemies'):
+                    await s.effect(battle, (self.player,))
+                else:
+                    await s.effect(battle, battle.enemies)
                 log.debug("its the player")
             else:
-                await s.effect(battle, (self.player,))
+                if s.target in ('enemy', 'enemies'):
+                    await s.effect(battle, battle.enemies)
+                else:
+                    await s.effect(battle, (self.player,))
                 log.debug("it is not the player")
             raise UserTurnInterrupted
