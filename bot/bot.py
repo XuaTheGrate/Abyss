@@ -4,7 +4,7 @@ import io
 import os
 import numpy.random as random
 import traceback
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import aiohttp
 import aioredis
@@ -37,6 +37,9 @@ class BetterRotatingFileHandler(logging.FileHandler):
 
         if self.stream is None:
             self.stream = self._open()
+
+        if os.path.isfile("logs/"+self.baseFilename+(datetime.utcnow()-timedelta(days=7)).strftime("%d-%m-%Y")):
+            os.remove("logs/"+self.baseFilename+(datetime.utcnow()-timedelta(days=7)).strftime("%d-%m-%Y"))
 
         return logging.StreamHandler.emit(self, record)
 
@@ -78,6 +81,7 @@ def get_logger():
 
 
 get_logger()
+log.debug(f"--- BOOT @ {datetime.utcnow().strftime('%m-%d-%Y/%H:%M:%S')} ---")
 
 
 CONFIG_NEW = {

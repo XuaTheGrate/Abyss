@@ -159,10 +159,10 @@ class Brainwash(_Ailment):
             log.debug("sent msg")
             await asyncio.sleep(1)
             skills = [s for s in self.player.skills if s.type in (SkillType.SUPPORT, SkillType.HEALING)
-                      and s.target != 'self' and _skill_cost(self.player, s)]
+                      and s.target != 'self' and _skill_cost(self.player, s) and s.name != 'Guard']
             log.debug(f"len(skills) = {len(skills)}")
-            if not skills or (len(skills) == 1 and skills[0].name == 'Guard'):
-                log.debug("only guard was found or none at all")
+            if not skills:
+                log.debug("no skills found")
                 return
             s = random.choice(skills)
             log.debug(f"random skill: {s}, {s.uses_sp}")
