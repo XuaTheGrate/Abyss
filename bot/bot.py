@@ -83,14 +83,10 @@ def get_logger():
 get_logger()
 log.debug(f"--- BOOT @ {datetime.utcnow().strftime('%m-%d-%Y/%H:%M:%S')} ---")
 
-
-CONFIG_NEW = {
-    "guild": None,              # guild id
-    "prefixes": config.PREFIX,  # list of prefixes
-    "autoMessages": True,       # toggle automatic messages in the entire guild
-    "ignoreChannels": [],       # prevent automatic messages in these channels
-    "blacklist": []             # ignore commands from these users
-}
+if not os.path.isdir("music"):
+    os.mkdir("music")
+if not os.path.isdir("logs"):
+    os.mkdir("logs")
 
 
 class ContextSoWeDontGetBannedBy403(commands.Context):

@@ -1,4 +1,5 @@
 git+https://github.com/Rapptz/discord.py
+PyNaCl
 jishaku
 psutil
 motor
@@ -7,3 +8,4 @@ dpy-ui
 Pillow
 contextvars ; python_version < '3.7'
 numpy
+youtube_dl

@@ -20,6 +20,9 @@ class _Ailment:
     emote = None
     # the emote to appear next to the user inflicted with this ailment
 
+    cannot_move_msg = None
+    # the message to display when UserIsImmobilized gets raised
+
     def __init__(self, player, type):
         self.type = type
         self.player = player
@@ -71,6 +74,7 @@ class Freeze(_Ailment):
     You are unable to move.
     """
     emote = '\N{SNOWFLAKE}'
+    cannot_move_msg = "> __{self.player}__ is frozen!"
 
     def pre_turn_effect(self):
         super().pre_turn_effect()
@@ -83,6 +87,7 @@ class Shock(_Ailment):
     there is a medium chance of them being inflicted with Shock.
     """
     emote = '\N{HIGH VOLTAGE SIGN}'
+    cannot_move_msg = "> __{self.player}__ is paralyzed!"
 
     def pre_turn_effect(self):
         super().pre_turn_effect()
@@ -104,12 +109,26 @@ class Hunger(_Ailment):
     emote = '\N{HAMBURGER}'
 
 
+class Despair(_Ailment):
+    """
+    Unable to move, and you will lose 6% SP per turn.
+    """
+    emote = '\N{FEARFUL FACE}'
+    cannot_move_msg = "> __{self.player}__ despairs..."
+
+    def pre_turn_effect(self):
+        super().pre_turn_effect()
+        self.player.sp = self.player.max_sp*0.06
+        raise UserIsImmobilized
+
+
 class Sleep(_Ailment):
     """
     You are unable to move, however your HP and SP will recover by 8% every turn. You have a high chance of waking if
     the enemy hits you with a physical attack.
     """
     emote = '\N{SLEEPING SYMBOL}'
+    cannot_move_msg = "> __{self.player}__ is asleep!"
 
     def pre_turn_effect(self):
         self.player.hp = -(self.player.max_hp*0.08)
@@ -123,6 +142,7 @@ class Fear(_Ailment, Exception):
     High chance of being immobilized. Low chance of running away from battle.
     """
     emote = '\N{FACE SCREAMING IN FEAR}'
+    cannot_move_msg = "> __{self.player}__ is immobilized with fear!"
 
     def pre_turn_effect(self):
         super().pre_turn_effect()

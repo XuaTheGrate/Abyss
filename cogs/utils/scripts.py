@@ -1,10 +1,26 @@
 import asyncio
+import functools
 import re
 import os
 import shlex
+import subprocess
 from contextlib import suppress
 
+import discord
 from discord.ext import ui
+
+from .formats import format_exc
+
+
+@property
+def kill_track(self):
+    if not hasattr(self, "_kill_track"):
+        self._kill_track = asyncio.Event()
+    return self._kill_track
+
+
+discord.Guild.kill_track = kill_track
+
 NL = '\n'
 NNL = '\\n'
 
@@ -201,11 +217,68 @@ async def breakpoint(ctx, scriptnum=None, linenum=None, *, stop=False):
         raise StopScript
 
 
+TRACKS = {
+    "38 - Butterfly Kiss": "https://youtu.be/Yjdo6KSqMcg"
+}
+
+
+def _download_track_file(name):
+    link = TRACKS.get(name)
+    if not link:
+        raise ValueError("unknown track name {}".format(name))
+    cmd = f"youtube-dl --abort-on-error --output \"music/{name}.mp3\" --extract-audio --audio-format mp3 --prefer-ffmpeg"
+    proc = subprocess.Popen(shlex.split(cmd))
+    proc.wait()
+
+
+def _post_track_complete(exc=None):
+    if exc:
+        log.error(f"exception during track play:\n{format_exc(exc)}")
+        raise exc
+
+
+def _bgm_loop_complete(task):
+    log.debug("bgm loop complete")
+    if task.exception():
+        log.error(f"bgm loop error: {format_exc(task.exception())}")
+
+
 async def queuebgm(ctx, track, aftertrack=None):
     """Start playing a track in voice, if possible.
     Optional aftertrack param to loop after the first finishes.
     If undefined, will loop "track"."""
-    pass
+    if not ctx.voice_client or not ctx.voice_client.is_connected():
+        if ctx.author.voice is not None and ctx.author.voice.channel is not None:
+            await ctx.author.voice.channel.connect()
+    elif ctx.voice_client.is_playing():
+        ctx.voice_client.stop()
+        ctx.guild.kill_track.set()
+
+    if not os.path.isfile("music/"+track+".mp3"):
+        log.debug(f"no file named music/{track}.mp3, downloading")
+        loop = ctx.bot.loop
+        func = functools.partial(_download_track_file, track)
+        await loop.run_in_executor(None, func)
+        log.debug("download finished")
+
+    task = ctx.bot.loop.create_task(_bgm_loop(ctx, track, aftertrack))
+    task.add_done_callback(_bgm_loop_complete)
+
+
+async def _bgm_loop(ctx, track, aftertrack=None):
+    track_wait = asyncio.Event()
+    source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio("music/" + track + ".mp3"))
+    while True:
+        track_wait.clear()
+        ctx.voice_client.play(source, after=lambda e: _post_track_complete(e) or track_wait.set())
+        await asyncio.wait([track_wait.wait(), ctx.guild.kill_track.wait()])
+        if ctx.guild.kill_track.is_set():
+            ctx.guild.kill_track.clear()
+            ctx.voice_client.stop()
+            return
+
+        if aftertrack:
+            return await queuebgm(ctx, track=aftertrack, aftertrack=None)
 
 
 async def mapset(ctx, mapname):

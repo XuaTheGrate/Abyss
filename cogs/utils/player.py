@@ -92,7 +92,6 @@ class Player(JSONable):
         self._concentrating = False
         self._tetrakarn = False
         self._makarakarn = False
-        self._turns_in_ailment = 0
 
     def __str__(self):
         return self.name
@@ -145,8 +144,7 @@ class Player(JSONable):
 --- _makarakarn: {self._makarakarn}
 --- _endured: {self._endured}
 --- _charging: {self._charging}
---- _concentrating: {self._concentrating}
---- _turns_in_ailment: {self._turns_in_ailment}"""
+--- _concentrating: {self._concentrating}"""
 
     @property
     def stats(self):
@@ -461,6 +459,7 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
         self._shields.clear()
         self._ailment_buff = -1
         self._endured = False
+        self.ailment = None
         if not ran:
             if any(s.name == 'Victory Cry' for s in self.skills):
                 self._sp_used = 0
@@ -578,6 +577,8 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
             base *= 3
         if any(s.name == 'Sharp Student' for s in attacker.skills):
             base /= 3
+        if self._rebellion[0]:
+            base *= 2
         base += ((self.luck / 10) - ((attacker.luck / 2) / 10))
         base /= attacker.affected_by(StatModifier.SUKU)
         base *= self.affected_by(StatModifier.SUKU)
@@ -631,7 +632,7 @@ Attacker: 1.05 | Me: 1.05 | 4.00 chance to crit
             return False
 
         ag = self.agility / 10
-        if not skill.is_instant_kill:
+        if not skill.is_instant_kill and skill.type is not SkillType.AILMENT:
             base = (skill.accuracy + attacker.agility / 2) - ag / 2
         else:
             base = skill.accuracy - ag / 2
@@ -653,6 +654,9 @@ Attacker: 1.05 | Me: 1.05 | 4.00 chance to crit
 
         if attacker.ailment and attacker.ailment.type is AilmentType.DIZZY:
             base *= 0.25
+
+        if skill.type is SkillType.AILMENT and self._ailment_buff >= 0:
+            base *= 2
 
         if any(s.name == 'Angelic Grace' for s in self.skills):
             base *= 2

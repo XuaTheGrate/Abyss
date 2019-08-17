@@ -607,7 +607,7 @@ class WildBattle:
             if not nxt.is_fainted() and nxt.ailment is not None:
                 await nxt.ailment.pre_turn_effect_async(self)
         except UserIsImmobilized:
-            await self.ctx.send(f"> __{nxt}__ can't move!")
+            await self.ctx.send(nxt.ailment.cannot_move_msg.format(self=nxt.ailment))
             self.order.cycle()
             return
         except AilmentRemoved:
