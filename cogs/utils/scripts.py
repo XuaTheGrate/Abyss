@@ -227,8 +227,12 @@ def _download_track_file(name):
     if not link:
         raise ValueError("unknown track name {}".format(name))
     cmd = f"youtube-dl --abort-on-error --output \"music/{name}.mp3\" --extract-audio --audio-format mp3 --prefer-ffmpeg"
-    proc = subprocess.Popen(shlex.split(cmd))
-    proc.wait()
+    proc = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, err = proc.communicate()
+    if out:
+        log.debug(f"track download stdout: {out.decode()}")
+    if err:
+        log.error(f"track download stderr: {err.decode()}")
 
 
 def _post_track_complete(exc=None):
@@ -250,6 +254,8 @@ async def queuebgm(ctx, track, aftertrack=None):
     if not ctx.voice_client or not ctx.voice_client.is_connected():
         if ctx.author.voice is not None and ctx.author.voice.channel is not None:
             await ctx.author.voice.channel.connect()
+        else:
+            return
     elif ctx.voice_client.is_playing():
         ctx.voice_client.stop()
         ctx.guild.kill_track.set()
