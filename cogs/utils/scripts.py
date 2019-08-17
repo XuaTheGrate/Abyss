@@ -12,14 +12,7 @@ from discord.ext import ui
 from .formats import format_exc
 
 
-@property
-def kill_track(self):
-    if not hasattr(self, "_kill_track"):
-        self._kill_track = asyncio.Event()
-    return self._kill_track
-
-
-discord.Guild.kill_track = kill_track
+kill_track = {}
 
 NL = '\n'
 NNL = '\\n'
@@ -226,7 +219,8 @@ def _download_track_file(name):
     link = TRACKS.get(name)
     if not link:
         raise ValueError("unknown track name {}".format(name))
-    cmd = f"youtube-dl --abort-on-error --output \"music/{name}.mp3\" --extract-audio --audio-format mp3 --prefer-ffmpeg"
+    cmd = f"youtube-dl --abort-on-error --output \"music/{name}.mp3\"" \
+          f" --extract-audio --audio-format mp3 --prefer-ffmpeg {TRACKS[name]}"
     proc = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = proc.communicate()
     if out:
@@ -258,7 +252,7 @@ async def queuebgm(ctx, track, aftertrack=None):
             return
     elif ctx.voice_client.is_playing():
         ctx.voice_client.stop()
-        ctx.guild.kill_track.set()
+        kill_track[ctx.guild.id].set()
 
     if not os.path.isfile("music/"+track+".mp3"):
         log.debug(f"no file named music/{track}.mp3, downloading")
@@ -266,6 +260,9 @@ async def queuebgm(ctx, track, aftertrack=None):
         func = functools.partial(_download_track_file, track)
         await loop.run_in_executor(None, func)
         log.debug("download finished")
+
+    if ctx.guild.id not in kill_track:
+        kill_track[ctx.guild.id] = asyncio.Event()
 
     task = ctx.bot.loop.create_task(_bgm_loop(ctx, track, aftertrack))
     task.add_done_callback(_bgm_loop_complete)
@@ -277,9 +274,9 @@ async def _bgm_loop(ctx, track, aftertrack=None):
     while True:
         track_wait.clear()
         ctx.voice_client.play(source, after=lambda e: _post_track_complete(e) or track_wait.set())
-        await asyncio.wait([track_wait.wait(), ctx.guild.kill_track.wait()])
-        if ctx.guild.kill_track.is_set():
-            ctx.guild.kill_track.clear()
+        await asyncio.wait([track_wait.wait(), kill_track[ctx.guild.id].wait()])
+        if kill_track[ctx.guild.id].is_set():
+            kill_track[ctx.guild.id].clear()
             ctx.voice_client.stop()
             return
 
