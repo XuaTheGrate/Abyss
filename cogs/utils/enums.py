@@ -110,3 +110,10 @@ class Season(Enum):
     SUMMER = 1
     AUTUMN = 2
     WINTER = 3
+
+
+class ItemType(Enum):
+    USABLE = 0
+    TRASH = 1
+    MATERIAL = 2
+    SKILL_CARD = 3

@@ -605,7 +605,7 @@ class WildBattle:
 
         try:
             if not nxt.is_fainted() and nxt.ailment is not None:
-                nxt.ailment.pre_turn_effect()
+                await nxt.ailment.pre_turn_effect_async(self)
         except UserIsImmobilized:
             await self.ctx.send(f"> __{nxt}__ can't move!")
             self.order.cycle()
@@ -622,7 +622,8 @@ class WildBattle:
                 self._ran = True
                 return  # player ran away
         except UserTurnInterrupted:
-            await self.ctx.send("turn interrupted but no handler has been done")
+            # await self.ctx.send("turn interrupted but no handler has been done")
+            self.order.cycle()
             return  # no handler rn
 
         if not isinstance(nxt, Enemy):

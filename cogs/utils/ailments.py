@@ -1,4 +1,7 @@
+import asyncio
 import numpy.random as random
+
+from .enums import SkillType
 
 
 class UserIsImmobilized(Exception):
@@ -37,6 +40,9 @@ class _Ailment:
         if self.counter == self.clear_at:
             raise AilmentRemoved
         self.counter += 1
+
+    async def pre_turn_effect_async(self, battle):
+        self.pre_turn_effect()
 
     def post_turn_effect(self):
         pass  # for burn
@@ -124,3 +130,49 @@ class Fear(_Ailment, Exception):
             raise UserIsImmobilized
         if random.randint(1, 10) == 1:
             raise self
+
+
+def _skill_cost(p, s):
+    if s.uses_sp:
+        if any(ss.name == 'Spell Master' for ss in p.skills):
+            return p.sp >= s.cost/2
+        return p.sp >= s.cost
+    elif any(ss.name == 'Arms Master' for ss in p.skills):
+        return p.hp > s.cost/2
+    return p.hp > s.cost
+
+
+class Brainwash(_Ailment):
+    """
+    Chance to heal/buff the enemy.
+    """
+    emote = "\N{PLAYING CARD BLACK JOKER}"
+
+    async def pre_turn_effect_async(self, battle):
+        super().pre_turn_effect()
+        choice = random.choice((True, False))
+        if choice:
+            await battle.ctx.send(f"> __{self.player}__ is brainwashed!")
+            await asyncio.sleep(1)
+            skills = [s for s in self.player.skills if s.type in (SkillType.SUPPORT, SkillType.HEALING)
+                      and s.target != 'self' and _skill_cost(self.player, s)]
+            if not skills or (len(skills) == 1 and skills[0].name == 'Guard'):
+                return
+            s = random.choice(skills)
+            if s.uses_sp:
+                if any(s.name == 'Spell Master' for s in self.player.skills):
+                    c = s.cost/2
+                else:
+                    c = s.cost
+                self.player.sp = c
+            else:
+                if any(s.name == 'Arms Master' for s in self.player.skills):
+                    c = s.cost/2
+                else:
+                    c = s.cost
+                self.player.hp = c
+            await battle.ctx.send(f"__{self.player}__ used `{s}`!")
+            if self.player is battle.player:
+                await s.effect(battle, battle.enemies)
+            else:
+                await s.effect(battle, (self.player,))
