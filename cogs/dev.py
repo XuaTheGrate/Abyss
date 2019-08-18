@@ -156,7 +156,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
     async def lua(self, ctx, *, code_string):
         with open("_exec.lua", "w") as f:
             f.write(code_string)
-        pg = BetterPaginator(max_size=1985)
+        pg = BetterPaginator('```lua\n', '\n```', 1985)
         log.debug("init")
         hdlr = PaginationHandler(self.bot, pg)
         await hdlr.start(ctx)

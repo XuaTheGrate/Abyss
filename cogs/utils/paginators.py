@@ -13,7 +13,7 @@ class BetterPaginator:
 
     @property
     def pages(self):
-        return self._pages + [f'{self.prefix}\n{self._current_page}\n{self.suffix}']
+        return self._pages + [f'{self.prefix}{self._current_page}{self.suffix}']
 
     def add_line(self, line='', empty=False):
         line += '\n'
