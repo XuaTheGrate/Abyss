@@ -22,6 +22,7 @@ class Subprocess:
         self._process = await asyncio.create_subprocess_exec(cmd, *args, loop=loop)
         self._stream_handlers.append(loop.create_task(stream_handler(self, self._process.stdout)))
         self._stream_handlers.append(loop.create_task(stream_handler(self, self._process.stderr)))
+        return self
 
     def __aiter__(self):
         return self
