@@ -7,6 +7,8 @@ from discord.ext.commands import Paginator
 class PaginationHandler:
     def __init__(self, abyss, paginator: Paginator, *,
                  owner=None, send_as="content"):
+        if paginator.max_size > 1985:
+            raise TypeError(f"paginator is too big: {paginator.max_size}/1985")
         self.pg = paginator
         self.abyss = abyss
         self.current_page = 0
@@ -37,8 +39,8 @@ class PaginationHandler:
             else:
                 page.set_footer(text=f"{self.page.footer.text} | Page {self.current_page+1}/{len(self.pg.pages)}")
         else:
-            page = self.pg.pages[self.current_page] + f'\n\nPage {self.current_page+1}/{len(self.pg.pages)}'
-        return {self.send_as: page}
+            page = self.pg.pages[self.current_page] + f'\nPage {self.current_page+1}/{len(self.pg.pages)}'
+        return {self.send_as: page, ('embed' if self.send_as == 'content' else 'content'): None}
 
     @property
     def page(self):
@@ -67,8 +69,11 @@ class PaginationHandler:
             return
         button = self.buttons[str(payload.emoji)]
         await button()
+        if self.has_perms:
+            await self.msg.remove_reaction(str(payload.emoji), self.owner)
 
     async def stop(self):
+        """Stops the pagination."""
         self._timeout.cancel()
         if self.has_perms:
             await self.msg.clear_reactions()
@@ -80,8 +85,7 @@ class PaginationHandler:
         if not self.owner:
             self.owner = ctx.author
         for r in self.buttons:
-            if r:
-                await self.msg.add_reaction(r)
+            await self.msg.add_reaction(r)
         self.abyss.add_listener(self._raw_reaction_event, "on_raw_reaction_add")
         if not ctx.channel.permissions_for(ctx.me).manage_messages:
             self.abyss.add_listener(self._raw_reaction_event, "on_raw_reaction_remove")
@@ -89,9 +93,15 @@ class PaginationHandler:
             self.has_perms = True
 
     async def help(self):
-        pass
+        """Shows this screen."""
+        e = discord.Embed(title="Paginator Help")
+        e.description = '\n'.join(f'{m} {f.__doc__}' for m, f in self.buttons.items())
+        e.description += "\n\nIf I don't have `Manage Messages` permissions, removing reactions will also trigger" \
+                         " the buttons."
+        e.set_footer(text="Session will timeout after 180s")
 
     async def first_page(self):
+        """Brings you back to the first page."""
         if not self.msg:
             raise RuntimeError
 
@@ -99,6 +109,7 @@ class PaginationHandler:
         await self.msg.edit(**self.send_kwargs)
 
     async def last_page(self):
+        """Brings you to the last page."""
         if not self.msg:
             raise RuntimeError
 
@@ -106,6 +117,7 @@ class PaginationHandler:
         await self.msg.edit(**self.send_kwargs)
 
     async def previous_page(self):
+        """Goes back 1 page."""
         if not self.msg:
             raise RuntimeError("initial message not sent")
 
@@ -115,6 +127,7 @@ class PaginationHandler:
         await self.msg.edit(**self.send_kwargs)
 
     async def next_page(self):
+        """Goes forward one page."""
         if not self.msg:
             raise RuntimeError("initial message not sent")
 
