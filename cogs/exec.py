@@ -77,7 +77,7 @@ class ExecCog(commands.Cog, command_attrs={"hidden": True}):
             proc.kill()
             return await ctx.send("Execution took too long.")
         data = v.value.decode('unicode-escape')
-        pg = WrappedPaginator()
+        pg = WrappedPaginator(max_size=1985)
         for line in data.split('\n'):
             pg.add_line(line)
         inf = PaginatorInterface(ctx.bot, pg, owner=ctx.author)
