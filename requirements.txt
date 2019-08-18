@@ -1,6 +1,6 @@
 git+https://github.com/Rapptz/discord.py
 PyNaCl
-jishaku
+import_expression
 psutil
 motor
 aioredis

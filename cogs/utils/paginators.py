@@ -40,14 +40,17 @@ class PaginationHandler:
 
     @property
     def send_kwargs(self):
-        if isinstance(self.page, discord.Embed):
-            page = self.page.copy()
-            if not self.page.footer:
-                page.set_footer(text=f"Page {self.current_page+1}/{len(self.pg.pages)}")
+        if len(self.pg.pages) > 1:
+            if isinstance(self.page, discord.Embed):
+                page = self.page.copy()
+                if not self.page.footer:
+                    page.set_footer(text=f"Page {self.current_page+1}/{len(self.pg.pages)}")
+                else:
+                    page.set_footer(text=f"{self.page.footer.text} | Page {self.current_page+1}/{len(self.pg.pages)}")
             else:
-                page.set_footer(text=f"{self.page.footer.text} | Page {self.current_page+1}/{len(self.pg.pages)}")
+                page = self.page + f'\nPage {self.current_page+1}/{len(self.pg.pages)}'
         else:
-            page = self.pg.pages[self.current_page] + f'\nPage {self.current_page+1}/{len(self.pg.pages)}'
+            page = self.page
         return {self.send_as: page, ('embed' if self.send_as == 'content' else 'content'): None}
 
     @property
@@ -63,6 +66,17 @@ class PaginationHandler:
                 break
             finally:
                 self._stop_event.clear()
+
+    async def _update(self):
+        if len(self.pg.pages) > 1:
+            self.buttons['\U0001f448'] = self.previous_page
+            self.buttons['\U0001f449'] = self.next_page
+        if len(self.pg.pages) > 2:
+            self.buttons['\U0001f91b'] = self.first_page
+            self.buttons['\U0001f91c'] = self.last_page
+        for k in self.buttons:
+            await self.msg.add_reaction(k)
+        await self.msg.edit(**self.send_kwargs)
 
     async def _raw_reaction_event(self, payload):
         if not self.msg:

@@ -2,10 +2,14 @@ import collections
 import os
 import pathlib
 from pprint import pformat
+import textwrap
 
+import import_expression
 from discord.ext import commands
 
 from .utils.formats import format_exc
+from .utils.paginators import PaginationHandler
+from .utils.subprocess import Subprocess
 
 
 def recursive_decode(i):
@@ -110,8 +114,48 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         await ctx.send_as_paginator(fmt)
 
     @dev.command()
-    async def py(self, ctx, *, code_string):
-        pass
+    async def eval(self, ctx, *, code_string):
+        env = {"ctx": ctx}
+        try:
+            ret = import_expression.eval(code_string, env)
+        except SyntaxError:
+            pass
+        else:
+            if not isinstance(ret, str):
+                ret = repr(ret)
+            return await ctx.send_as_paginator(ret)
+        code = f"""async def __func__():
+{textwrap.indent(code_string, '    ')}
+    pass"""
+        try:
+            import_expression.exec(code, env)
+        except Exception as e:
+            await ctx.message.add_reaction(self.bot.tick_no)
+            return await ctx.send_as_paginator(f'```py\n{format_exc(e)}\n```', destination=ctx.author)
+
+        func = env['__func__']
+        try:
+            ret = await func()
+        except Exception as e:
+            await ctx.message.add_reaction(self.bot.tick_no)
+            return await ctx.send_as_paginator(f'```py\n{format_exc(e)}\n```', destination=ctx.author)
+
+        if not isinstance(ret, str):
+            ret = repr(ret)
+        await ctx.message.add_reaction(self.bot.tick_yes)
+        return await ctx.send_as_paginator(ret)
+
+    @dev.command()
+    async def lua(self, ctx, *, code_string):
+        with open("_exec.lua", "w") as f:
+            f.write(code_string)
+        pg = commands.Paginator(max_size=1985)
+        hdlr = PaginationHandler(self.bot, pg)
+        await hdlr.start(ctx)
+        proc = await Subprocess.init('lua5.3', '_exec.lua', loop=self.bot.loop)
+        async for line in proc:
+            pg.add_line(line)
+            await hdlr._update()
 
 
 def setup(bot):

@@ -102,7 +102,7 @@ class ContextSoWeDontGetBannedBy403(commands.Context):
             return
         return await super().send(content, embed=embed, file=file, files=files, tts=tts, **kwargs)
 
-    async def send_as_paginator(self, content=None, *, embeds=None):
+    async def send_as_paginator(self, content=None, *, embeds=None, destination=None):
         if embeds:  # embed has higher priority over content
             pg = EmbedPaginator()
             for e in embeds:
@@ -112,7 +112,7 @@ class ContextSoWeDontGetBannedBy403(commands.Context):
             pg = commands.Paginator(prefix="", suffix="", max_size=1985)
             for l in content.split("\n"):
                 pg.add_line(l)
-            await PaginationHandler(self.bot, pg).start(self)
+            await PaginationHandler(self.bot, pg).start(destination or self)
         else:
             raise TypeError("missing arguments")
 
