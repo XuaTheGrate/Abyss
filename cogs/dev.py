@@ -51,7 +51,7 @@ async def __run_func__():
 
     try:
         with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
-            fut = asyncio.run_coroutine_threadsafe(func, loop=asyncio.get_event_loop())
+            fut = asyncio.run_coroutine_threadsafe(func(), loop=asyncio.get_event_loop())
             ret = fut.result()
     except Exception as e:
         value.value = format_exc(e)
@@ -157,7 +157,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
             proc.kill()
             return await ctx.send("Execution took too long.")
         data = v.value
-        pg = WrappedPaginator(max_size=1985)
+        pg = WrappedPaginator(max_size=1983, prefix="```py")
         for line in data.split('\n'):
             pg.add_line(line)
         inf = PaginatorInterface(ctx.bot, pg, owner=ctx.author)
