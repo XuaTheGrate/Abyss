@@ -99,6 +99,7 @@ class PaginationHandler:
         e.description += "\n\nIf I don't have `Manage Messages` permissions, removing reactions will also trigger" \
                          " the buttons."
         e.set_footer(text="Session will timeout after 180s")
+        await self.msg.edit(content=None, embed=e)
 
     async def first_page(self):
         """Brings you back to the first page."""
