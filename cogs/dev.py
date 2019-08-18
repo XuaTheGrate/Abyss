@@ -153,10 +153,13 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         v = manager.Value(ctypes.c_char_p, code_string)
         proc = multiprocessing.Process(target=exec_py, args=(v, waiter, env))
         proc.start()
-        get = await ctx.bot.loop.run_in_executor(None, functools.partial(waiter.wait, timeout=self.timeout))
-        if not get:
-            proc.kill()
-            return await ctx.send("Execution took too long.")
+        try:
+            get = await ctx.bot.loop.run_in_executor(None, functools.partial(waiter.wait, timeout=self.timeout))
+            if not get:
+                proc.kill()
+                return await ctx.send(f"Execution took too long.\n{proc}, {proc.is_alive()}, {proc.exitcode}")
+        finally:
+            proc.close()
         data = v.value
         pg = WrappedPaginator(max_size=1983, prefix="```py")
         for line in data.split('\n'):
