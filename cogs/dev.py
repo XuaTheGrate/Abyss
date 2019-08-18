@@ -1,19 +1,11 @@
-import asyncio
 import collections
-import contextlib
-import ctypes
-import functools
 import importlib
-import io
-import multiprocessing
 import os
 import pathlib
 import sys
-import textwrap
 from pprint import pformat
 
 from discord.ext import commands
-from jishaku.paginators import WrappedPaginator, PaginatorInterface
 
 from .utils.formats import format_exc
 
@@ -28,54 +20,6 @@ def recursive_decode(i):
             return int(i)
         return i.decode()
     return i
-
-
-def exec_py(value, waiter, env=None):
-    code_string = value.value
-    func = f"""
-async def __run_func__():
-{textwrap.indent(code_string, '    ')}
-    pass
-"""
-    g = env or {}
-    try:
-        exec(func, g)
-    except SyntaxError as e:
-        value.value = format_exc(e)
-        waiter.set()
-        return
-
-    func = g['__run_func__']
-    out = io.StringIO()
-    err = io.StringIO()
-
-    try:
-        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
-            fut = asyncio.run_coroutine_threadsafe(func(), loop=asyncio.get_event_loop())
-            ret = fut.result()
-    except Exception as e:
-        value.value = format_exc(e)
-        waiter.set()
-        return
-
-    d = []
-
-    if ret:
-        if not isinstance(ret, str):
-            ret = repr(ret)
-        d.append(f'-- result --\n{ret}')
-
-    out = out.getvalue()
-    if out:
-        d.append(f'-- stdout --\n{out}')
-    err = err.getvalue()
-    if err:
-        d.append(f'-- stderr --\n{err}')
-
-    d = '\n'.join(d) + '\n-- end --'
-
-    value.value = d
-    waiter.set()
 
 
 class Developers(commands.Cog, command_attrs={"hidden": True}):
@@ -147,26 +91,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
 
     @dev.command()
     async def py(self, ctx, *, code_string):
-        env = {"_ctx": ctx}
-        manager = multiprocessing.Manager()
-        waiter = manager.Event()
-        v = manager.Value(ctypes.c_char_p, code_string)
-        proc = multiprocessing.Process(target=exec_py, args=(v, waiter, env))
-        proc.start()
-        try:
-            get = await ctx.bot.loop.run_in_executor(None, functools.partial(waiter.wait, timeout=self.timeout))
-            proc.kill()
-            proc.join()
-            if not get:
-                return await ctx.send(f"Execution took too long.\n{proc}, {proc.is_alive()}, {proc.exitcode}")
-        finally:
-            proc.close()
-        data = v.value
-        pg = WrappedPaginator(max_size=1983, prefix="```py")
-        for line in data.split('\n'):
-            pg.add_line(line)
-        inf = PaginatorInterface(ctx.bot, pg, owner=ctx.author)
-        await inf.send_to(ctx)
+        pass
 
 
 def setup(bot):
