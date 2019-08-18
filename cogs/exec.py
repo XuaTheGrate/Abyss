@@ -31,7 +31,7 @@ async def __run_func__():
 
     try:
         with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
-            ret = asyncio.run(func)
+            ret = asyncio.run(func())
     except Exception as e:
         value.value = format_exc(e)
         waiter.set()
