@@ -82,6 +82,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
     def __init__(self, bot):
         self.bot = bot
         self.valid = ('py', 'po', 'json', 'xls')
+        self.timeout = 5
 
     async def cog_check(self, ctx):
         return await self.bot.is_owner(ctx.author)
@@ -152,7 +153,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         v = manager.Value(ctypes.c_char_p, code_string)
         proc = multiprocessing.Process(target=exec_py, args=(v, waiter, env))
         proc.start()
-        get = await ctx.bot.loop.run_in_executor(None, functools.partial(waiter.wait, timeout=5))
+        get = await ctx.bot.loop.run_in_executor(None, functools.partial(waiter.wait, timeout=self.timeout))
         if not get:
             proc.kill()
             return await ctx.send("Execution took too long.")
