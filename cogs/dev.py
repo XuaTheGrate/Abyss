@@ -103,7 +103,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
                 if any(x in './' + str(pathlib.PurePath(path, name)) for x in ('venv', '.git')):
                     continue
                 count[ext] += 1
-                with open('./' + str(pathlib.PurePath(path, name)), 'r', encoding='raw-unicode-escape') as f:
+                with open('./' + str(pathlib.PurePath(path, name)), 'r', encoding='utf-8') as f:
                     for l in f:
                         if (l.strip().startswith("#") and ext == 'py') or len(l.strip()) == 0:
                             continue
@@ -162,6 +162,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
             log.debug("pg add line")
             await hdlr._update()
             log.debug("_update called")
+        log.debug("eof")
 
 
 def setup(bot):
