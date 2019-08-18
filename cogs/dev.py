@@ -1,13 +1,12 @@
 import collections
-import importlib
 import os
 import pathlib
-import sys
 from pprint import pformat
 
 from discord.ext import commands
 
 from .utils.formats import format_exc
+from .utils.paginators import PaginationHandler
 
 
 def recursive_decode(i):
@@ -36,13 +35,41 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         pass
 
     @dev.command()
-    async def reload(self, ctx, *, module):
-        try:
-            sys.modules[module] = importlib.reload(sys.modules[module])
-            await ctx.send(ctx.bot.tick_yes)
-        except Exception as e:
-            await ctx.send(ctx.bot.tick_no)
-            ctx.bot.send_error(f'```py\n{format_exc(e)}\n```')
+    async def reload(self, ctx, *modules):
+        done = {}
+        for mod in modules:
+            if mod in self.bot.extensions:
+                try:
+                    self.bot.reload_extension(mod)
+                    done[mod] = True
+                except commands.NoEntryPointError:
+                    done[mod] = False
+                except Exception as e:
+                    done[mod] = format_exc(getattr(e, '__cause__', e))
+            else:
+                try:
+                    self.bot.load_extension(mod)
+                    done[mod] = True
+                except commands.NoEntryPointError:
+                    done[mod] = False
+                except Exception as e:
+                    done[mod] = format_exc(getattr(e, '__cause__', e))
+        if all(z is True for z in done.values()):
+            return await ctx.message.add_reaction(self.bot.tick_yes)
+        fmt = []
+        for k, v in done.items():
+            if v is True:
+                fmt.append(f"{self.bot.tick_yes} {k}\n")
+            elif v is False:
+                fmt.append(f'\U0001f504 {k}\n')
+            else:
+                fmt.append(f"{self.bot.tick_no} {k}\n```py\n{v}\n```\n")
+        data = '\n'.join(fmt).split('\n')
+        pg = commands.Paginator(prefix="", suffix="", max_size=1985)
+        for l in data:
+            pg.add_line(l)
+        hdlr = PaginationHandler(self.bot, pg)
+        await hdlr.start(ctx)
 
     @dev.command()
     async def cleanup(self, ctx):
