@@ -1,8 +1,9 @@
 import collections
 import os
 import pathlib
-from pprint import pformat
 import textwrap
+from contextlib import suppress
+from pprint import pformat
 
 import import_expression
 import discord
@@ -166,7 +167,11 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         async for line in proc:
             pg.add_line(line)
             # log.debug("pg add line")
-            await hdlr._update()
+            try:
+                await hdlr._update()
+            except discord.NotFound:
+                with suppress(ProcessLookupError):
+                    proc._process.kill()
             # log.debug("_update called")
         # log.debug("eof")
 
