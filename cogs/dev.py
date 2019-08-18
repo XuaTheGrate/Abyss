@@ -155,8 +155,9 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         proc.start()
         try:
             get = await ctx.bot.loop.run_in_executor(None, functools.partial(waiter.wait, timeout=self.timeout))
+            proc.kill()
+            proc.join()
             if not get:
-                proc.kill()
                 return await ctx.send(f"Execution took too long.\n{proc}, {proc.is_alive()}, {proc.exitcode}")
         finally:
             proc.close()
