@@ -16,7 +16,6 @@ class BetterPaginator:
         return self._pages + [f'{self.prefix}{self._current_page}{self.suffix}']
 
     def add_line(self, line='', empty=False):
-        line += '\n'
         if empty:
             line += '\n'
         if len(self.prefix) + len(self._current_page) + len(self.suffix) + len(line) >= self.max_size:
