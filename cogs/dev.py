@@ -151,12 +151,17 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
             f.write(code_string)
         pg = commands.Paginator(max_size=1985)
         pg.add_line(empty=True)
+        log.debug("init")
         hdlr = PaginationHandler(self.bot, pg)
         await hdlr.start(ctx)
+        log.debug("handler started")
         proc = await Subprocess.init('lua5.3', '_exec.lua', loop=self.bot.loop)
+        log.debug("process initialized")
         async for line in proc:
             pg.add_line(line)
+            log.debug("pg add line")
             await hdlr._update()
+            log.debug("_update called")
 
 
 def setup(bot):
