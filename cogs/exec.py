@@ -74,8 +74,9 @@ class ExecCog(commands.Cog, command_attrs={"hidden": True}):
         proc.start()
         get = await ctx.bot.loop.run_in_executor(None, functools.partial(waiter.wait, timeout=5))
         if not get:
+            proc.kill()
             return await ctx.send("Execution took too long.")
-        data = v.value.decode()
+        data = v.value.decode('unicode-escape')
         pg = WrappedPaginator()
         for line in data.split('\n'):
             pg.add_line(line)
