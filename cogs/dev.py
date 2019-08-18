@@ -28,6 +28,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
     def __init__(self, bot):
         self.bot = bot
         self.valid = ('py', 'po', 'json', 'xls')
+        self._latest_proc = None
 
     async def cog_check(self, ctx):
         return await self.bot.is_owner(ctx.author)
@@ -155,7 +156,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         hdlr = PaginationHandler(self.bot, pg)
         await hdlr.start(ctx)
         log.debug("handler started")
-        proc = await Subprocess.init('lua5.3', '_exec.lua', loop=self.bot.loop)
+        self._latest_proc = proc = await Subprocess.init('lua5.3', '_exec.lua', loop=self.bot.loop)
         log.debug("process initialized")
         async for line in proc:
             pg.add_line(line)

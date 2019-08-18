@@ -28,7 +28,10 @@ class Subprocess:
         return self
 
     async def __anext__(self):
-        n = await self._stream.get()
+        try:
+            n = await asyncio.wait_for(self._stream.get(), timeout=30)
+        except asyncio.TimeoutError:
+            n = None
         if not n:
             list(map(asyncio.Task.cancel, self._stream_handlers))
             raise StopAsyncIteration
