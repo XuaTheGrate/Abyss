@@ -8,7 +8,7 @@ class BetterPaginator:
         self.prefix = prefix or ''
         self.suffix = suffix or ''
         self.max_size = max_size
-        self._pages = []
+        self._pages = ['\u200b']
         self._current_page = ""
 
     @property
