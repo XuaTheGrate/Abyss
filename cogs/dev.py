@@ -150,6 +150,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         with open("_exec.lua", "w") as f:
             f.write(code_string)
         pg = commands.Paginator(max_size=1985)
+        pg.add_line(empty=True)
         hdlr = PaginationHandler(self.bot, pg)
         await hdlr.start(ctx)
         proc = await Subprocess.init('lua5.3', '_exec.lua', loop=self.bot.loop)
