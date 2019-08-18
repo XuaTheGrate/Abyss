@@ -31,13 +31,14 @@ class PaginationHandler:
     @property
     def send_kwargs(self):
         if isinstance(self.page, discord.Embed):
+            page = self.page.copy()
             if not self.page.footer:
-                self.page.set_footer(text=f"Page {self.current_page+1}/{len(self.pg.pages)}")
+                page.set_footer(text=f"Page {self.current_page+1}/{len(self.pg.pages)}")
             else:
-                self.page.set_footer(text=f"{self.page.footer.text} | Page {self.current_page+1}/{len(self.pg.pages)}")
+                page.set_footer(text=f"{self.page.footer.text} | Page {self.current_page+1}/{len(self.pg.pages)}")
         else:
-            self.pg.pages[self.current_page] += f'\n\nPage {self.current_page+1}/{len(self.pg.pages)}'
-        return {self.send_as: self.page}
+            page = self.pg.pages[self.current_page] + f'\n\nPage {self.current_page+1}/{len(self.pg.pages)}'
+        return {self.send_as: page}
 
     @property
     def page(self):
@@ -117,7 +118,7 @@ class PaginationHandler:
         if not self.msg:
             raise RuntimeError("initial message not sent")
 
-        if self.current_page == len(self.pg)-1:
+        if self.current_page == len(self.pg.pages)-1:
             return
         self.current_page += 1
         await self.msg.edit(**self.send_kwargs)
