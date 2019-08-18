@@ -4,6 +4,14 @@ import discord
 from discord.ext.commands import Paginator
 
 
+class EmbedPaginator(Paginator):
+    def __init__(self):
+        super().__init__(prefix="", suffix="", max_size=1985)
+
+    def add_page(self, embed):
+        self.pages.append(embed)
+
+
 class PaginationHandler:
     def __init__(self, abyss, paginator: Paginator, *,
                  owner=None, send_as="content"):

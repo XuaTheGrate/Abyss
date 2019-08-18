@@ -14,6 +14,7 @@ import motor.motor_asyncio
 
 import config
 from cogs.utils import i18n, formats
+from cogs.utils.paginators import PaginationHandler, EmbedPaginator
 from cogs.utils.player import Player
 
 import logging
@@ -100,6 +101,20 @@ class ContextSoWeDontGetBannedBy403(commands.Context):
         elif tts and not self.guild.me.permissions_in(self.channel).send_tts_messages:
             return
         return await super().send(content, embed=embed, file=file, files=files, tts=tts, **kwargs)
+
+    async def send_as_paginator(self, content=None, *, embeds=None):
+        if embeds:  # embed has higher priority over content
+            pg = EmbedPaginator()
+            for e in embeds:
+                pg.add_page(e)
+            await PaginationHandler(self.bot, pg, send_as="embed").start(self)
+        elif content:
+            pg = commands.Paginator(prefix="", suffix="", max_size=1985)
+            for l in content.split("\n"):
+                pg.add_line(l)
+            await PaginationHandler(self.bot, pg).start(self)
+        else:
+            raise TypeError("missing arguments")
 
 
 class Abyss(commands.Bot):

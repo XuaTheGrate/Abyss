@@ -6,7 +6,6 @@ from pprint import pformat
 from discord.ext import commands
 
 from .utils.formats import format_exc
-from .utils.paginators import PaginationHandler
 
 
 def recursive_decode(i):
@@ -25,7 +24,6 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
     def __init__(self, bot):
         self.bot = bot
         self.valid = ('py', 'po', 'json', 'xls')
-        self.timeout = 5
 
     async def cog_check(self, ctx):
         return await self.bot.is_owner(ctx.author)
@@ -64,12 +62,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
                 fmt.append(f'\U0001f504 {k}\n')
             else:
                 fmt.append(f"{self.bot.tick_no} {k}\n```py\n{v}\n```\n")
-        data = '\n'.join(fmt).split('\n')
-        pg = commands.Paginator(prefix="", suffix="", max_size=1985)
-        for l in data:
-            pg.add_line(l)
-        hdlr = PaginationHandler(self.bot, pg)
-        await hdlr.start(ctx)
+        await ctx.send_as_paginator('\n'.join(fmt))
 
     @dev.command()
     async def cleanup(self, ctx):
@@ -86,13 +79,13 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
             ret = await func(*args)
         except Exception as e:
             await ctx.message.add_reaction(self.bot.tick_no)
-            await ctx.author.send(f"```py\n{format_exc(e)}```")
+            await ctx.send_as_paginator(f'```py\n{format_exc(e)}\n```')
         else:
             await ctx.message.add_reaction(self.bot.tick_yes)
             if not ret:
                 return
             ret = recursive_decode(ret)
-            await ctx.send(f"```py\n{pformat(ret)}```")
+            await ctx.send_as_paginator(f"```py\n{pformat(ret)}```")
 
     @dev.command()
     async def linecount(self, ctx):
@@ -114,7 +107,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         t = lines
         fmt = "```\n" + "\n".join(
             sorted([f'{x} {y} ({count[y]} files)' for y, x in t.items()], key=lambda m: len(m))) + "```"
-        await ctx.send(fmt)
+        await ctx.send_as_paginator(fmt)
 
     @dev.command()
     async def py(self, ctx, *, code_string):
