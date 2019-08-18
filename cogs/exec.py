@@ -12,7 +12,7 @@ from .utils.formats import format_exc
 
 
 def exec_py(value, waiter, env=None):
-    code_string = value.value.decode()
+    code_string = value.value
     func = f"""
 async def __run_func__():
 {textwrap.indent(code_string, '    ')}
@@ -22,7 +22,7 @@ async def __run_func__():
     try:
         exec(func, g)
     except SyntaxError as e:
-        value.value = format_exc(e).encode()
+        value.value = format_exc(e)
         waiter.set()
         return
 
@@ -33,7 +33,7 @@ async def __run_func__():
         with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
             ret = asyncio.run(func)
     except Exception as e:
-        value.value = format_exc(e).encode()
+        value.value = format_exc(e)
         waiter.set()
         return
 
@@ -53,7 +53,7 @@ async def __run_func__():
 
     d = '\n'.join(d) + '\n-- end --'
 
-    value.value = d.encode()
+    value.value = d
     waiter.set()
 
 
@@ -69,14 +69,14 @@ class ExecCog(commands.Cog, command_attrs={"hidden": True}):
     async def py(self, ctx, *, code_string):
         env = {"_ctx": ctx}
         waiter = multiprocessing.Event()
-        v = multiprocessing.Value(ctypes.c_char_p, code_string.encode())
+        v = multiprocessing.Value('u', code_string)
         proc = multiprocessing.Process(target=functools.partial(exec_py, v, waiter, env))
         proc.start()
         get = await ctx.bot.loop.run_in_executor(None, functools.partial(waiter.wait, timeout=5))
         if not get:
             proc.kill()
             return await ctx.send("Execution took too long.")
-        data = v.value.decode('unicode-escape')
+        data = v.value
         pg = WrappedPaginator(max_size=1985)
         for line in data.split('\n'):
             pg.add_line(line)
