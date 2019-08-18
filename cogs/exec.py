@@ -68,9 +68,10 @@ class ExecCog(commands.Cog, command_attrs={"hidden": True}):
     @eval.command()
     async def py(self, ctx, *, code_string):
         env = {"_ctx": ctx}
-        waiter = multiprocessing.Event()
-        v = multiprocessing.Value('u', code_string)
-        proc = multiprocessing.Process(target=functools.partial(exec_py, v, waiter, env))
+        manager = multiprocessing.Manager()
+        waiter = manager.Event()
+        v = manager.Value(ctypes.c_char_p, code_string)
+        proc = multiprocessing.Process(target=exec_py, args=(v, waiter, env))
         proc.start()
         get = await ctx.bot.loop.run_in_executor(None, functools.partial(waiter.wait, timeout=5))
         if not get:
