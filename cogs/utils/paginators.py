@@ -1,10 +1,31 @@
 import asyncio
 
 import discord
-from discord.ext.commands import Paginator
 
 
-class EmbedPaginator(Paginator):
+class BetterPaginator:
+    def __init__(self, prefix=None, suffix=None, max_size=1985):
+        self.prefix = prefix or ''
+        self.suffix = suffix or ''
+        self.max_size = max_size
+        self._pages = []
+        self._current_page = ""
+
+    @property
+    def pages(self):
+        return self._pages + [f'{self.prefix}\n{self._current_page}\n{self.suffix}']
+
+    def add_line(self, line='', empty=False):
+        line += '\n'
+        if empty:
+            line += '\n'
+        if len(self.prefix) + len(self._current_page) + len(self.suffix) + len(line) >= self.max_size:
+            self._pages.append(f'{self.prefix}\n{self._current_page}\n{self.suffix}')
+            self._current_page = ''
+        self._current_page += line
+
+
+class EmbedPaginator(BetterPaginator):
     def __init__(self):
         super().__init__(prefix="", suffix="", max_size=1985)
 
@@ -13,7 +34,7 @@ class EmbedPaginator(Paginator):
 
 
 class PaginationHandler:
-    def __init__(self, abyss, paginator: Paginator, *,
+    def __init__(self, abyss, paginator: BetterPaginator, *,
                  owner=None, send_as="content", no_help=False):
         if paginator.max_size > 1985:
             raise TypeError(f"paginator is too big: {paginator.max_size}/1985")

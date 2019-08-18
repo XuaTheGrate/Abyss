@@ -9,7 +9,7 @@ import discord
 from discord.ext import commands
 
 from .utils.formats import format_exc
-from .utils.paginators import PaginationHandler
+from .utils.paginators import PaginationHandler, BetterPaginator
 from .utils.subprocess import Subprocess
 
 
@@ -151,7 +151,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
     async def lua(self, ctx, *, code_string):
         with open("_exec.lua", "w") as f:
             f.write(code_string)
-        pg = commands.Paginator(max_size=1985)
+        pg = BetterPaginator(max_size=1985)
         pg.add_line(empty=True)
         log.debug("init")
         hdlr = PaginationHandler(self.bot, pg)

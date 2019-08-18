@@ -14,7 +14,7 @@ import motor.motor_asyncio
 
 import config
 from cogs.utils import i18n, formats
-from cogs.utils.paginators import PaginationHandler, EmbedPaginator
+from cogs.utils.paginators import PaginationHandler, EmbedPaginator, BetterPaginator
 from cogs.utils.player import Player
 
 import logging
@@ -109,7 +109,7 @@ class ContextSoWeDontGetBannedBy403(commands.Context):
                 pg.add_page(e)
             await PaginationHandler(self.bot, pg, send_as="embed").start(self)
         elif content:
-            pg = commands.Paginator(prefix=None, suffix=None, max_size=1985)
+            pg = BetterPaginator(prefix=None, suffix=None, max_size=1985)
             for l in content.split("\n"):
                 pg.add_line(l)
             await PaginationHandler(self.bot, pg, no_help=True).start(destination or self)
