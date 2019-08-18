@@ -72,7 +72,7 @@ class ExecCog(commands.Cog, command_attrs={"hidden": True}):
         v = multiprocessing.Value(ctypes.c_char_p, code_string.encode())
         proc = multiprocessing.Process(target=functools.partial(exec_py, v, waiter, env))
         proc.start()
-        get = await ctx.bot.loop.run_in_executor(waiter.wait(timeout=5))
+        get = await ctx.bot.loop.run_in_executor(None, waiter.wait(timeout=5))
         if not get:
             return await ctx.send("Execution took too long.")
         data = v.value.decode()
