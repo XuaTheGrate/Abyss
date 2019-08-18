@@ -14,15 +14,18 @@ class EmbedPaginator(Paginator):
 
 class PaginationHandler:
     def __init__(self, abyss, paginator: Paginator, *,
-                 owner=None, send_as="content"):
+                 owner=None, send_as="content", no_help=False):
         if paginator.max_size > 1985:
             raise TypeError(f"paginator is too big: {paginator.max_size}/1985")
         self.pg = paginator
         self.abyss = abyss
         self.current_page = 0
         self.msg = None
-        bt = [None, None, '\N{RAISED HAND}', None, None, '\N{BLACK QUESTION MARK ORNAMENT}']
-        ex = [self.first_page, self.previous_page, self.stop, self.next_page, self.last_page, self.help]
+        bt = [None, None, '\N{RAISED HAND}', None, None]
+        ex = [self.first_page, self.previous_page, self.stop, self.next_page, self.last_page]
+        if not no_help:
+            bt.append('\N{BLACK QUESTION MARK ORNAMENT}')
+            ex.append(self.help)
         if len(self.pg.pages) > 1:
             bt[1] = '\U0001f448'
             bt[3] = '\U0001f449'

@@ -112,7 +112,7 @@ class ContextSoWeDontGetBannedBy403(commands.Context):
             pg = commands.Paginator(prefix="", suffix="", max_size=1985)
             for l in content.split("\n"):
                 pg.add_line(l)
-            await PaginationHandler(self.bot, pg).start(destination or self)
+            await PaginationHandler(self.bot, pg, no_help=True).start(destination or self)
         else:
             raise TypeError("missing arguments")
 

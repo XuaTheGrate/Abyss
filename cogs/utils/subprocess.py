@@ -1,4 +1,5 @@
 import asyncio
+import subprocess
 
 
 async def stream_handler(self, stream):
@@ -19,7 +20,7 @@ class Subprocess:
     async def init(cls, cmd, *args, loop=None):
         loop = loop or asyncio.get_event_loop()
         self = cls(loop)
-        self._process = await asyncio.create_subprocess_exec(cmd, *args, loop=loop)
+        self._process = await asyncio.create_subprocess_exec(cmd, *args, loop=loop, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self._stream_handlers.append(loop.create_task(stream_handler(self, self._process.stdout)))
         self._stream_handlers.append(loop.create_task(stream_handler(self, self._process.stderr)))
         return self
