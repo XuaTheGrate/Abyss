@@ -148,11 +148,15 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         return await ctx.send_as_paginator(ret)
 
     @dev.command()
+    async def shutdown(self, ctx):
+        await ctx.send(":wave:")
+        await self.bot.logout()
+
+    @dev.command()
     async def lua(self, ctx, *, code_string):
         with open("_exec.lua", "w") as f:
             f.write(code_string)
         pg = BetterPaginator(max_size=1985)
-        pg.add_line(empty=True)
         log.debug("init")
         hdlr = PaginationHandler(self.bot, pg)
         await hdlr.start(ctx)

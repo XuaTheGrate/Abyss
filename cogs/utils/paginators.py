@@ -8,8 +8,8 @@ class BetterPaginator:
         self.prefix = prefix or ''
         self.suffix = suffix or ''
         self.max_size = max_size
-        self._pages = ['\u200b']
-        self._current_page = ""
+        self._pages = []
+        self._current_page = "\u200b"
 
     @property
     def pages(self):
@@ -21,7 +21,7 @@ class BetterPaginator:
             line += '\n'
         if len(self.prefix) + len(self._current_page) + len(self.suffix) + len(line) >= self.max_size:
             self._pages.append(f'{self.prefix}\n{self._current_page}\n{self.suffix}')
-            self._current_page = ''
+            self._current_page = '\u200b'
         self._current_page += line
 
 
