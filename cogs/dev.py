@@ -5,6 +5,7 @@ from pprint import pformat
 import textwrap
 
 import import_expression
+import discord
 from discord.ext import commands
 
 from .utils.formats import format_exc
@@ -116,7 +117,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
 
     @dev.command()
     async def eval(self, ctx, *, code_string):
-        env = {"ctx": ctx}
+        env = {"ctx": ctx, "discord": discord, "commands": commands}
         try:
             ret = import_expression.eval(code_string, env)
         except SyntaxError:
