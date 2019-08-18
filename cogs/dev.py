@@ -45,7 +45,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
                 except commands.NoEntryPointError:
                     done[mod] = False
                 except Exception as e:
-                    done[mod] = format_exc(getattr(e, '__cause__', e))
+                    done[mod] = format_exc(getattr(e, '__cause__', e) or e)
             else:
                 try:
                     self.bot.load_extension(mod)
@@ -53,7 +53,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
                 except commands.NoEntryPointError:
                     done[mod] = False
                 except Exception as e:
-                    done[mod] = format_exc(getattr(e, '__cause__', e))
+                    done[mod] = format_exc(getattr(e, '__cause__', e) or e)
         if all(z is True for z in done.values()):
             return await ctx.message.add_reaction(self.bot.tick_yes)
         fmt = []
