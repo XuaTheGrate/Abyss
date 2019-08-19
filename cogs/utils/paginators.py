@@ -60,6 +60,7 @@ class PaginationHandler:
         self.owner = owner
         self._stop_event = asyncio.Event()
         self._timeout = abyss.loop.create_task(self._timeout_task())
+        self.update_lock = asyncio.Lock()
 
     @property
     def send_kwargs(self):
@@ -91,15 +92,19 @@ class PaginationHandler:
                 self._stop_event.clear()
 
     async def _update(self):
-        if len(self.pg.pages) > 1:
-            self.buttons['\U0001f448'] = self.previous_page
-            self.buttons['\U0001f449'] = self.next_page
-        if len(self.pg.pages) > 2:
-            self.buttons['\U0001f91b'] = self.first_page
-            self.buttons['\U0001f91c'] = self.last_page
-        for k in self.buttons:
-            await self.msg.add_reaction(k)
-        await self.msg.edit(**self.send_kwargs)
+        if self.update_lock.locked():
+            return
+        async with self.update_lock:
+            if len(self.pg.pages) > 1:
+                self.buttons['\U0001f448'] = self.previous_page
+                self.buttons['\U0001f449'] = self.next_page
+            if len(self.pg.pages) > 2:
+                self.buttons['\U0001f91b'] = self.first_page
+                self.buttons['\U0001f91c'] = self.last_page
+            for k in self.buttons:
+                await self.msg.add_reaction(k)
+            await self.msg.edit(**self.send_kwargs)
+            await asyncio.sleep(1)
 
     async def _raw_reaction_event(self, payload):
         if not self.msg:
