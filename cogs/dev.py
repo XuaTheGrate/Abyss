@@ -173,7 +173,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
             pg.add_line(line)
             # log.debug("pg add line")
             try:
-                await asyncio.wait_for(hdlr._update(), timeout=1)
+                await asyncio.wait_for(hdlr._update(), timeout=2)
             except asyncio.TimeoutError:
                 continue
             except discord.NotFound:
