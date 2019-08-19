@@ -164,30 +164,17 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
             f.write(code_string)
         pg = BetterPaginator('```lua\n', '\n```', 1985)
         # log.debug("init")
-        hdlr = PaginationHandler(self.bot, pg, no_help=True)
-        await hdlr.start(ctx)
         # log.debug("handler started")
         self._latest_proc = proc = await Subprocess.init('lua5.3', '_exec.lua', loop=self.bot.loop)
         # log.debug("process initialized")
         async for line in proc:
             pg.add_line(line)
-            # log.debug("pg add line")
-            try:
-                await asyncio.wait_for(hdlr._update(), timeout=2)
-            except asyncio.TimeoutError:
-                continue
-            except discord.NotFound:
-                with suppress(ProcessLookupError):
-                    proc._process.kill()
             # log.debug("_update called")
         await asyncio.sleep(1)
         code = proc._process.returncode
         pg.add_line(f"\nExit code: {code}")
-        try:
-            await hdlr._update()
-        except discord.NotFound:
-            with suppress(ProcessLookupError):
-                proc._process.kill()
+        hdlr = PaginationHandler(self.bot, pg, no_help=True)
+        await hdlr.start(ctx)
         # log.debug("eof")
 
 
