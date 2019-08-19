@@ -29,7 +29,7 @@ class Subprocess:
         return self
 
     async def __anext__(self):
-        if self._process.poll() is None:
+        if self._process.returncode is not None:
             raise StopAsyncIteration
         try:
             n = await asyncio.wait_for(self._stream.get(), timeout=30)
