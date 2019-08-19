@@ -180,6 +180,14 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
                 with suppress(ProcessLookupError):
                     proc._process.kill()
             # log.debug("_update called")
+        await asyncio.sleep(1)
+        code = proc._process.returncode
+        pg.add_line(f"\nExit code: {code}")
+        try:
+            await hdlr._update()
+        except discord.NotFound:
+            with suppress(ProcessLookupError):
+                proc._process.kill()
         # log.debug("eof")
 
 

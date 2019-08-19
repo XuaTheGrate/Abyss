@@ -29,6 +29,8 @@ class Subprocess:
         return self
 
     async def __anext__(self):
+        if self._process.poll() is None:
+            raise StopAsyncIteration
         try:
             n = await asyncio.wait_for(self._stream.get(), timeout=30)
         except asyncio.TimeoutError:
