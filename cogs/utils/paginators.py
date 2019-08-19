@@ -78,7 +78,7 @@ class PaginationHandler:
 
     @property
     def page(self):
-        return self.pg.pages[self.current_page]
+        return self.pg.pages[self.current_page].replace('\\n', '\n')
 
     async def _timeout_task(self):
         while True:

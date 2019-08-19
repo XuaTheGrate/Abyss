@@ -4,7 +4,7 @@ import subprocess
 
 async def stream_handler(self, stream):
     async for line in stream:
-        await self._stream.put(line.decode())
+        await self._stream.put(line.decode().replace('\n', '\\n'))
     # stream was closed
     await self._stream.put(None)
 

@@ -143,9 +143,13 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
             await ctx.message.add_reaction(self.bot.tick_no)
             return await ctx.send_as_paginator(f'```py\n{format_exc(e)}\n```', destination=ctx.author)
 
+        await ctx.message.add_reaction(self.bot.tick_yes)
+
+        if not ret:
+            return
+
         if not isinstance(ret, str):
             ret = repr(ret)
-        await ctx.message.add_reaction(self.bot.tick_yes)
         return await ctx.send_as_paginator(ret)
 
     @dev.command()
