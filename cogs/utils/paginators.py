@@ -2,6 +2,8 @@ import asyncio
 
 import discord
 
+from jishaku.paginators import PaginatorInterface
+
 
 class BetterPaginator:
     def __init__(self, prefix=None, suffix=None, max_size=1985):
@@ -60,7 +62,10 @@ class PaginationHandler:
         self.owner = owner
         self._stop_event = asyncio.Event()
         self._timeout = abyss.loop.create_task(self._timeout_task())
-        self.update_lock = asyncio.Lock()
+        self.update_lock = asyncio.Semaphore(value=2)
+        self.update = asyncio.Event()
+        self._lock_time = 1
+        self.backoff = 0
 
     @property
     def send_kwargs(self):
@@ -94,17 +99,7 @@ class PaginationHandler:
     async def _update(self):
         if self.update_lock.locked():
             return
-        async with self.update_lock:
-            if len(self.pg.pages) > 1:
-                self.buttons['\U0001f448'] = self.previous_page
-                self.buttons['\U0001f449'] = self.next_page
-            if len(self.pg.pages) > 2:
-                self.buttons['\U0001f91b'] = self.first_page
-                self.buttons['\U0001f91c'] = self.last_page
-            for k in self.buttons:
-                await self.msg.add_reaction(k)
-            await self.msg.edit(**self.send_kwargs)
-            await asyncio.sleep(1)
+        self.update.set()
 
     async def _raw_reaction_event(self, payload):
         if not self.msg:
@@ -141,6 +136,21 @@ class PaginationHandler:
             self.abyss.add_listener(self._raw_reaction_event, "on_raw_reaction_remove")
         else:
             self.has_perms = True
+
+        while await self.update.wait():
+            async with self.update_lock:
+                if self.update_lock.locked():
+                    await asyncio.sleep(1)
+                if len(self.pg.pages) > 1:
+                    self.buttons['\U0001f448'] = self.previous_page
+                    self.buttons['\U0001f449'] = self.next_page
+                if len(self.pg.pages) > 2:
+                    self.buttons['\U0001f91b'] = self.first_page
+                    self.buttons['\U0001f91c'] = self.last_page
+                for k in self.buttons:
+                    await self.msg.add_reaction(k)
+                await self.msg.edit(**self.send_kwargs)
+                self.update.clear()
 
     async def help(self):
         """Shows this screen."""

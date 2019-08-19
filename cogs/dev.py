@@ -164,7 +164,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         pg = BetterPaginator('```lua\n', '\n```', 1985)
         # log.debug("init")
         hdlr = PaginationHandler(self.bot, pg, no_help=True)
-        await hdlr.start(ctx)
+        self.bot.loop.create_task(hdlr.start(ctx))
         # log.debug("handler started")
         self._latest_proc = proc = await Subprocess.init('lua5.3', '_exec.lua', loop=self.bot.loop)
         # log.debug("process initialized")
@@ -172,7 +172,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
             pg.add_line(line)
             # log.debug("pg add line")
             try:
-                await hdlr._update()
+                hdlr._update()
             except discord.NotFound:
                 with suppress(ProcessLookupError):
                     proc._process.kill()
