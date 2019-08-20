@@ -10,7 +10,7 @@ import discord
 from discord.ext import commands
 
 from .utils.formats import format_exc
-from .utils.paginators import PaginationHandler, BetterPaginator, Submitter
+from .utils.paginators import PaginationHandler, BetterPaginator, Timer
 from .utils.subprocess import Subprocess
 
 
@@ -138,7 +138,8 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
 
         func = env['__func__']
         try:
-            ret = await func()
+            with Timer(ctx.message):
+                ret = await func()
         except Exception as e:
             await ctx.message.add_reaction(self.bot.tick_no)
             return await ctx.send_as_paginator(f'```py\n{format_exc(e)}\n```', destination=ctx.author)
@@ -166,7 +167,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         # log.debug("handler started")
         self._latest_proc = proc = await Subprocess.init('lua5.3', '_exec.lua', loop=self.bot.loop)
         # log.debug("process initialized")
-        with Submitter(ctx.message):
+        with Timer(ctx.message):
             async for line in proc:
                 pg.add_line(line)
             # log.debug("_update called")
@@ -176,6 +177,26 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         hdlr = PaginationHandler(self.bot, pg, no_help=True)
         await hdlr.start(ctx)
         # log.debug("eof")
+
+    @dev.command(aliases=['bash'])
+    async def sh(self, ctx, *, code_string):
+        if os.sys.platform == 'win32':
+            return await ctx.send("unsupported")
+
+        cmd = ['/bin/bash', '-c', code_string]
+
+        pg = BetterPaginator('```sh\n', '\n```')
+        self._latest_proc = proc = await Subprocess.init(*cmd, loop=self.bot.loop)
+
+        with Timer(ctx.message):
+            async for line in proc:
+                pg.add_line(line)
+
+        await asyncio.sleep(.1)
+        code = proc._process.returncode
+        pg.add_line(f'\nExit code: {code}')
+        hdlr = PaginationHandler(self.bot, pg, no_help=True)
+        await hdlr.start(ctx)
 
 
 def setup(bot):
