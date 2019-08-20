@@ -3,7 +3,6 @@ import collections
 import os
 import pathlib
 import textwrap
-from contextlib import suppress
 from pprint import pformat
 
 import import_expression
@@ -11,7 +10,7 @@ import discord
 from discord.ext import commands
 
 from .utils.formats import format_exc
-from .utils.paginators import PaginationHandler, BetterPaginator
+from .utils.paginators import PaginationHandler, BetterPaginator, Submitter
 from .utils.subprocess import Subprocess
 
 
@@ -167,10 +166,11 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         # log.debug("handler started")
         self._latest_proc = proc = await Subprocess.init('lua5.3', '_exec.lua', loop=self.bot.loop)
         # log.debug("process initialized")
-        async for line in proc:
-            pg.add_line(line)
+        with Submitter(ctx.message):
+            async for line in proc:
+                pg.add_line(line)
             # log.debug("_update called")
-        await asyncio.sleep(1)
+        await asyncio.sleep(.1)
         code = proc._process.returncode
         pg.add_line(f"\nExit code: {code}")
         hdlr = PaginationHandler(self.bot, pg, no_help=True)

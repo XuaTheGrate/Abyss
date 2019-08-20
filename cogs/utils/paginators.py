@@ -1,4 +1,5 @@
 import asyncio
+import functools
 
 import discord
 
@@ -181,3 +182,19 @@ class PaginationHandler:
             return
         self.current_page += 1
         await self.msg.edit(**self.send_kwargs)
+
+
+class Submitter:
+    __slots__ = ('msg', 'timer', 'loop')
+
+    def __init__(self, msg, *, loop=None):
+        self.msg = msg
+        self.timer = None
+        self.loop = loop or asyncio.get_event_loop()
+
+    def __enter__(self):
+        self.timer = self.loop.call_later(1, functools.partial(asyncio.ensure_future, self.msg.add_reaction('\U0001f504')))
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.timer.cancel()
+        return False
