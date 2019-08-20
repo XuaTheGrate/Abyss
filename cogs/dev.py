@@ -5,8 +5,9 @@ import pathlib
 import textwrap
 from pprint import pformat
 
-import import_expression
 import discord
+import import_expression
+import psutil
 from discord.ext import commands
 
 from .utils.formats import format_exc
@@ -27,6 +28,8 @@ def recursive_decode(i):
 
 
 class Developers(commands.Cog, command_attrs={"hidden": True}):
+    process = psutil.Process()
+
     def __init__(self, bot):
         self.bot = bot
         self.valid = ('py', 'po', 'json', 'xls')
@@ -34,6 +37,16 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
 
     async def cog_check(self, ctx):
         return await self.bot.is_owner(ctx.author)
+
+    @commands.Cog.listener()
+    async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
+        if payload.user_id not in self.bot.config.OWNERS:
+            return
+        if str(payload.emoji) == '\U0001f504':
+            message = await self.bot.get_channel(payload.channel_id).fetch_message(payload.message_id)
+            ctx = await self.bot.get_context(message)
+            if ctx.valid:
+                await ctx.reinvoke()
 
     @commands.group()
     async def dev(self, ctx):
@@ -197,6 +210,10 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         pg.add_line(f'\nExit code: {code}')
         hdlr = PaginationHandler(self.bot, pg, no_help=True)
         await hdlr.start(ctx)
+
+    @dev.command()
+    async def status(self, ctx):
+        pass
 
 
 def setup(bot):
