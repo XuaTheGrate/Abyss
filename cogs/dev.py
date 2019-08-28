@@ -34,6 +34,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         self.bot = bot
         self.valid = ('py', 'po', 'json', 'xls')
         self._latest_proc = None
+        self._env = {}
 
     async def cog_check(self, ctx):
         return await self.bot.is_owner(ctx.author)
@@ -131,25 +132,31 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
 
     @dev.command()
     async def eval(self, ctx, *, code_string):
-        env = {"ctx": ctx, "discord": discord, "commands": commands}
+        if not self._env:
+            self._env.update({"ctx": ctx, "discord": discord, "commands": commands, '_': None})
         try:
-            ret = import_expression.eval(code_string, env)
+            ret = import_expression.eval(code_string, self._env)
         except SyntaxError:
             pass
         else:
-            if not isinstance(ret, str):
-                ret = repr(ret)
-            return await ctx.send_as_paginator(ret)
+            await ctx.message.add_reaction(self.bot.tick_yes)
+            if ret:
+                self._env['_'] = ret
+                if not isinstance(ret, str):
+                    ret = repr(ret)
+                return await ctx.send_as_paginator(ret)
         code = f"""async def __func__():
-{textwrap.indent(code_string, '    ')}
-    pass"""
+    try:
+{textwrap.indent(code_string, '        ')}
+    finally:
+        globals().update(locals())"""
         try:
-            import_expression.exec(code, env)
+            import_expression.exec(code, self._env)
         except Exception as e:
             await ctx.message.add_reaction(self.bot.tick_no)
             return await ctx.send_as_paginator(f'```py\n{format_exc(e)}\n```', destination=ctx.author)
 
-        func = env['__func__']
+        func = self._env.pop('__func__')
         try:
             with Timer(ctx.message):
                 ret = await func()
@@ -161,6 +168,8 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
 
         if not ret:
             return
+
+        self._env['_'] = ret
 
         if not isinstance(ret, str):
             ret = repr(ret)
