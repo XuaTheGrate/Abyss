@@ -6,7 +6,7 @@ async def stream_handler(self, stream):
     async for line in stream:
         await self._stream.put(line.decode())
     # stream was closed
-    await self._stream.put(None)
+    # await self._stream.put(None)
 
 
 class Subprocess:
@@ -15,6 +15,7 @@ class Subprocess:
         self._stream = asyncio.Queue(loop=loop)
         self._stream_handlers = []
         self.loop = loop
+        self._close = 0
 
     @classmethod
     async def init(cls, cmd, *args, loop=None):
@@ -36,6 +37,9 @@ class Subprocess:
         except asyncio.TimeoutError:
             n = None
         if not n:
+            self._close += 1
+            return
+        if self._close == 2:
             list(map(asyncio.Task.cancel, self._stream_handlers))
             raise StopAsyncIteration
         return n

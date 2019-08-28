@@ -193,7 +193,7 @@ class Timer:
         self.loop = loop or asyncio.get_event_loop()
 
     def __enter__(self):
-        self.timer = self.loop.call_later(1.5, functools.partial(asyncio.ensure_future, self.msg.add_reaction('\U0001f504')))
+        self.timer = self.loop.call_later(1.5, functools.partial(asyncio.ensure_future, self.msg.add_reaction('\u23e9')))
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.timer.cancel()
