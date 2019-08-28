@@ -9,3 +9,4 @@ Pillow
 contextvars ; python_version < '3.7'
 numpy
 youtube_dl
+aiostream

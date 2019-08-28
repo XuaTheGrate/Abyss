@@ -1,45 +1,33 @@
 import asyncio
 import subprocess
+import aiostream
 
 
-async def stream_handler(self, stream):
+async def formatter(stream, err=False):
     async for line in stream:
-        await self._stream.put(line.decode().strip('\n'))
-    # stream was closed
-    # await self._stream.put(None)
+        if err:
+            yield '[stderr] '+line.decode().strip('\n')
+        else:
+            yield line.decode().strip('\n')
 
 
 class Subprocess:
-    def __init__(self, loop):
+    def __init__(self, loop, *, filter_error=False):
         self._process = None
-        self._stream = asyncio.Queue(loop=loop)
         self._stream_handlers = []
         self.loop = loop
         self._close = 0
+        self._stream = None
+        self._filter = filter_error
 
     @classmethod
     async def init(cls, cmd, *args, loop=None):
         loop = loop or asyncio.get_event_loop()
         self = cls(loop)
         self._process = await asyncio.create_subprocess_exec(cmd, *args, loop=loop, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        self._stream_handlers.append(loop.create_task(stream_handler(self, self._process.stdout)))
-        self._stream_handlers.append(loop.create_task(stream_handler(self, self._process.stderr)))
+        streams = [formatter(self._process.stdout), formatter(self._process.stderr, self._filter)]
+        self._stream = aiostream.stream.merge(*streams)
         return self
 
     def __aiter__(self):
-        return self
-
-    async def __anext__(self):
-        if self._process.returncode is not None:
-            raise StopAsyncIteration
-        try:
-            n = await asyncio.wait_for(self._stream.get(), timeout=30)
-        except asyncio.TimeoutError:
-            n = None
-        if not n:
-            self._close += 1
-            return
-        if self._close == 2:
-            list(map(asyncio.Task.cancel, self._stream_handlers))
-            raise StopAsyncIteration
-        return n
+        return self._stream.__aiter__()
