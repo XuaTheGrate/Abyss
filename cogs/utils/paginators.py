@@ -22,7 +22,7 @@ class BetterPaginator:
         if len(self.prefix) + len(self._current_page) + len(self.suffix) + len(line) >= self.max_size:
             self._pages.append(f'{self.prefix}\n{self._current_page}\n{self.suffix}')
             self._current_page = '\u200b'
-        self._current_page += line
+        self._current_page += '\n'+line
 
 
 class EmbedPaginator(BetterPaginator):
