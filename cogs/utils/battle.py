@@ -487,7 +487,7 @@ class WildBattle:
             await skill.effect(self, targets)
             return
 
-        weaks = []
+        weaked = False
         for target in targets:
             force_crit = 0
 
@@ -520,9 +520,10 @@ class WildBattle:
                         target.ailment = ailments.Shock(target, AilmentType.SHOCK)
                         await self.ctx.send(f"> __{target}__ was inflicted with **Shock**!")
 
-                weaks.append(res.did_weak)
+                if res.did_weak:
+                    weaked = True
 
-        if all(weaks) and confirm_not_dead(self):
+        if weaked and confirm_not_dead(self):
             self.order.decycle()
             self.double_turn = True
             await self.ctx.send("> Nice hit! Move again!")
@@ -533,7 +534,7 @@ class WildBattle:
                 return [e for e in self.enemies if not e.is_fainted()]
             return self.player,
         elif skill.target == 'self':
-            return (user,)
+            return user,
         elif skill.target in ('allies', 'ally'):
             if user is self.player:
                 return self.player,
@@ -550,6 +551,7 @@ class WildBattle:
             await self.ctx.send(f"{enemy} used an unhandled skill ({skill.name}), skipping")
         else:
             targets = self.filter_targets(skill, enemy)
+            mn, mx = skill.hits
             if isinstance(skill, (StatusMod, ShieldSkill, HealingSkill, Karn, Charge, AilmentSkill)):
                 await self.ctx.send(f"__{enemy}__ used `{skill}`!")
                 await skill.effect(self, targets)
@@ -560,36 +562,43 @@ class WildBattle:
                 enemy.guarding = True
                 return
 
-            res = self.player.take_damage(enemy, skill)
+            weaked = False
+            force_crit = 0
 
-            if res.resistance in (
-                ResistanceModifier.IMMUNE,
-                ResistanceModifier.REFLECT,
-                ResistanceModifier.ABSORB
-            ):
-                enemy.unusable_skills.append(skill.name)
-                # the ai learns not to use it in the future, but still use it this turn
+            for a in range(random.randint(mn, mx+1)):
+                res = self.player.take_damage(enemy, skill, enforce_crit=force_crit)
+                force_crit = 1 if res.critical else 2
+                if res.did_weak:
+                    weaked = True
 
-            msg = get_message(res.resistance, reflect=res.was_reflected, miss=res.miss, critical=res.critical)
-            msg = msg.format(demon=enemy, tdemon=self.player, damage=res.damage_dealt, skill=skill)
-            await self.ctx.send(msg)
+                if res.resistance in (
+                    ResistanceModifier.IMMUNE,
+                    ResistanceModifier.REFLECT,
+                    ResistanceModifier.ABSORB
+                ):
+                    enemy.unusable_skills.append(skill.name)
+                    # the ai learns not to use it in the future, but still use it this turn
 
-            if skill.type is SkillType.PHYSICAL:
-                if self.player.ailment and self.player.ailment.type is AilmentType.SLEEP:
-                    if random.randint(1, 5) != 1:
-                        self.player.ailment = None
-                        await self.ctx.send(f"> __{self.player}__ woke up!")
+                msg = get_message(res.resistance, reflect=res.was_reflected, miss=res.miss, critical=res.critical)
+                msg = msg.format(demon=enemy, tdemon=self.player, damage=res.damage_dealt, skill=skill)
+                await self.ctx.send(msg)
 
-            if skill.name == 'Attack':
-                if self.player.ailment and self.player.ailment.type is AilmentType.SHOCK:
-                    if not enemy.ailment and random.randint(1, 2) == 1:
-                        enemy.ailment = ailments.Shock(enemy, AilmentType.SHOCK)
-                        await self.ctx.send(f"> __{enemy}__ was inflicted with **Shock**!")
-                elif not self.player.ailment and enemy.ailment and enemy.ailment.type is AilmentType.SHOCK:
-                    self.player.ailment = ailments.Shock(self.player, AilmentType.SHOCK)
-                    await self.ctx.send(f"> __{self.player}__ was inflicted with **Shock**!")
+                if skill.type is SkillType.PHYSICAL:
+                    if self.player.ailment and self.player.ailment.type is AilmentType.SLEEP:
+                        if random.randint(1, 5) != 1:
+                            self.player.ailment = None
+                            await self.ctx.send(f"> __{self.player}__ woke up!")
+
+                if skill.name == 'Attack':
+                    if self.player.ailment and self.player.ailment.type is AilmentType.SHOCK:
+                        if not enemy.ailment and random.randint(1, 2) == 1:
+                            enemy.ailment = ailments.Shock(enemy, AilmentType.SHOCK)
+                            await self.ctx.send(f"> __{enemy}__ was inflicted with **Shock**!")
+                    elif not self.player.ailment and enemy.ailment and enemy.ailment.type is AilmentType.SHOCK:
+                        self.player.ailment = ailments.Shock(self.player, AilmentType.SHOCK)
+                        await self.ctx.send(f"> __{self.player}__ was inflicted with **Shock**!")
             
-            if res.did_weak:
+            if weaked and not self.player.is_fainted():
                 self.order.decycle()
                 self.double_turn = True
                 await self.ctx.send("> Watch out, {demon} is attacking again!".format(demon=enemy))
