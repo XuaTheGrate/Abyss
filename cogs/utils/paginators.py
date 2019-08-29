@@ -10,7 +10,7 @@ class BetterPaginator:
         self.suffix = suffix or ''
         self.max_size = max_size
         self._pages = []
-        self._current_page = "\u200b"
+        self._current_page = ""
 
     @property
     def pages(self):
@@ -82,7 +82,7 @@ class PaginationHandler:
                 page = self.page + f'\nPage {self.current_page+1}/{len(self.pg.pages)}'
         else:
             page = self.page
-        return {self.send_as: page, ('embed' if self.send_as == 'content' else 'content'): None}
+        return {self.send_as: page if page else '\u200b', ('embed' if self.send_as == 'content' else 'content'): None}
 
     @property
     def page(self):
