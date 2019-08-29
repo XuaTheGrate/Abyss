@@ -246,7 +246,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         lines, firstlno = inspect.getsourcelines(cmd.callback)
         pg = BetterPaginator('```py\n', '```')
         for lno, line in enumerate(lines, start=firstlno):
-            pg.add_line(f'{lno}\t{line.rstrip()}')
+            pg.add_line(f'{lno}\t{line.rstrip()}'.replace('``', '`\u200b`'))
         await PaginationHandler(self.bot, pg, no_help=True).start(ctx)
 
     @dev.command()
