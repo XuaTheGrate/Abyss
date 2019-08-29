@@ -21,9 +21,9 @@ class Subprocess:
         self._filter = filter_error
 
     @classmethod
-    async def init(cls, cmd, *args, loop=None):
+    async def init(cls, cmd, *args, loop=None, filter_error=False):
         loop = loop or asyncio.get_event_loop()
-        self = cls(loop)
+        self = cls(loop, filter_error=filter_error)
         self._process = await asyncio.create_subprocess_exec(cmd, *args, loop=loop, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         streams = [formatter(self._process.stdout), formatter(self._process.stderr, self._filter)]
         self._stream = aiostream.stream.merge(*streams)
