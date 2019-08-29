@@ -36,6 +36,10 @@ class EmbedPaginator(BetterPaginator):
     def __init__(self):
         super().__init__(prefix="", suffix="", max_size=1985)
 
+    @property
+    def pages(self):
+        return self._pages
+
     def add_page(self, embed):
         self.pages.append(embed)
 
