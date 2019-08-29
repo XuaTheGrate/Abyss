@@ -1,5 +1,6 @@
 import asyncio
 import collections
+import inspect
 import os
 import pathlib
 import textwrap
@@ -235,6 +236,18 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         pg.add_line(f'\nExit code: {code}')
         hdlr = PaginationHandler(self.bot, pg, no_help=True)
         await hdlr.start(ctx)
+
+    @dev.command()
+    async def src(self, ctx, *, command):
+        cmd = self.bot.get_command(command)
+        if not cmd:
+            return await ctx.message.add_reaction(self.bot.tick_no)
+
+        lines, firstlno = inspect.getsourcelines(cmd.callback)
+        pg = BetterPaginator('```py\n', '```')
+        for lno, line in enumerate(lines, start=firstlno):
+            pg.add_line(f'{lno}\t{line.rstrip()}')
+        await PaginationHandler(self.bot, pg, no_help=True).start(ctx)
 
     @dev.command()
     async def status(self, ctx):
