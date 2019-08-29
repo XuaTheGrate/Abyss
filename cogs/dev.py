@@ -35,6 +35,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         self.valid = ('py', 'po', 'json', 'xls')
         self._latest_proc = None
         self._env = {}
+        self._send_in_codeblocks = False
 
     async def cog_check(self, ctx):
         return await self.bot.is_owner(ctx.author)
@@ -133,7 +134,8 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
     @dev.command()
     async def eval(self, ctx, *, code_string):
         if not self._env:
-            self._env.update({"ctx": ctx, "discord": discord, "commands": commands, '_': None})
+            self._env.update({"discord": discord, "commands": commands, '_': None})
+        self._env['ctx'] = ctx
         try:
             ret = import_expression.eval(code_string, self._env)
         except SyntaxError:
@@ -173,7 +175,10 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
 
         if not isinstance(ret, str):
             ret = repr(ret)
-        return await ctx.send_as_paginator(ret)
+
+        if not self._send_in_codeblocks:
+            return await ctx.send_as_paginator(ret)
+        return await ctx.send_as_paginator(ret, codeblock=True)
 
     @dev.command()
     async def shutdown(self, ctx):
@@ -223,6 +228,20 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
     @dev.command()
     async def status(self, ctx):
         pass
+
+    @dev.group()
+    async def config(self, ctx):
+        pass
+
+    @config.command()
+    async def codeblocks(self, ctx, trigger: bool):
+        self._send_in_codeblocks = trigger
+        await ctx.message.add_reaction(self.bot.tick_yes if trigger else self.bot.tick_no)
+
+    @config.command()
+    async def clearenv(self, ctx):
+        self._env.clear()
+        await ctx.message.add_reaction(self.bot.tick_yes)
 
 
 def setup(bot):

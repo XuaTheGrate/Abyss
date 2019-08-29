@@ -102,14 +102,14 @@ class ContextSoWeDontGetBannedBy403(commands.Context):
             return
         return await super().send(content, embed=embed, file=file, files=files, tts=tts, **kwargs)
 
-    async def send_as_paginator(self, content=None, *, embeds=None, destination=None):
+    async def send_as_paginator(self, content=None, *, embeds=None, destination=None, codeblock=False):
         if embeds:  # embed has higher priority over content
-            pg = EmbedPaginator()
+            pg = EmbedPaginator()  # also `codeblock` has no effect with embeds
             for e in embeds:
                 pg.add_page(e)
             await PaginationHandler(self.bot, pg, send_as="embed").start(self)
         elif content:
-            pg = BetterPaginator(prefix=None, suffix=None, max_size=1985)
+            pg = BetterPaginator(prefix='```' if codeblock else None, suffix='```' if codeblock else None, max_size=1985)
             for l in content.split("\n"):
                 pg.add_line(l)
             await PaginationHandler(self.bot, pg, no_help=True).start(destination or self)
