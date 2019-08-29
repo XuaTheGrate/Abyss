@@ -82,7 +82,7 @@ class PaginationHandler:
                 page = self.page + f'\nPage {self.current_page+1}/{len(self.pg.pages)}'
         else:
             page = self.page
-        return {self.send_as: page if page else '\u200b', ('embed' if self.send_as == 'content' else 'content'): None}
+        return {self.send_as: page if page == '' else '\u200b', ('embed' if self.send_as == 'content' else 'content'): None}
 
     @property
     def page(self):
@@ -136,11 +136,14 @@ class PaginationHandler:
     async def start(self, ctx):
         self.msg = await ctx.send(**self.send_kwargs)
         if not self.owner:
-            self.owner = ctx.author
+            if isinstance(ctx, discord.abc.User):
+                self.owner = ctx
+            else:  # assume actual Context object
+                self.owner = ctx.author
         for r in self.buttons:
             await self.msg.add_reaction(r)
         self.abyss.add_listener(self._raw_reaction_event, "on_raw_reaction_add")
-        if not ctx.channel.permissions_for(ctx.me).manage_messages:
+        if not self.msg.guild or not ctx.channel.permissions_for(ctx.me).manage_messages:
             self.abyss.add_listener(self._raw_reaction_event, "on_raw_reaction_remove")
         else:
             self.has_perms = True
