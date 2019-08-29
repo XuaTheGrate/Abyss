@@ -36,7 +36,6 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         self._latest_proc = None
         self._env = {}
         self._send_in_codeblocks = False
-        self._show_stderr = False
 
     async def cog_check(self, ctx):
         return await self.bot.is_owner(ctx.author)
@@ -141,19 +140,13 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
             ret = import_expression.eval(code_string, self._env)
         except SyntaxError:
             pass
-        except Exception as e:
-            await ctx.message.add_reaction(self.bot.tick_no)
-            return await ctx.send_as_paginator(f'```py\n{format_exc(e)}\n```', destination=ctx.author)
         else:
             await ctx.message.add_reaction(self.bot.tick_yes)
-            if ret is None:
-                return
-            self._env['_'] = ret
-            if isinstance(ret, discord.Embed):
-                return await ctx.send_as_paginator(embeds=[ret])
-            if not isinstance(ret, str):
-                ret = repr(ret)
-            return await ctx.send_as_paginator(ret, codeblock=self._send_in_codeblocks)
+            if ret:
+                self._env['_'] = ret
+                if not isinstance(ret, str):
+                    ret = repr(ret)
+                return await ctx.send_as_paginator(ret)
         code = f"""async def __func__():
     try:
 {textwrap.indent(code_string, '        ')}
@@ -175,18 +168,17 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
 
         await ctx.message.add_reaction(self.bot.tick_yes)
 
-        if ret is None:
+        if not ret:
             return
 
         self._env['_'] = ret
 
-        if isinstance(ret, discord.Embed):
-            return await ctx.send_as_paginator(embeds=[ret])
-
         if not isinstance(ret, str):
             ret = repr(ret)
 
-        return await ctx.send_as_paginator(ret, codeblock=self._send_in_codeblocks)
+        if not self._send_in_codeblocks:
+            return await ctx.send_as_paginator(ret)
+        return await ctx.send_as_paginator(ret, codeblock=True)
 
     @dev.command()
     async def shutdown(self, ctx):
@@ -200,8 +192,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         pg = BetterPaginator('```lua\n', '\n```', 1985)
         # log.debug("init")
         # log.debug("handler started")
-        self._latest_proc = proc = await Subprocess.init('lua5.3', '_exec.lua',
-                                                         loop=self.bot.loop, filter_error=self._show_stderr)
+        self._latest_proc = proc = await Subprocess.init('lua5.3', '_exec.lua', loop=self.bot.loop)
         # log.debug("process initialized")
         with Timer(ctx.message):
             async for line in proc:
@@ -222,7 +213,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         cmd = ['/bin/bash', '-c', code_string]
 
         pg = BetterPaginator('```sh\n', '\n```')
-        self._latest_proc = proc = await Subprocess.init(*cmd, loop=self.bot.loop, filter_error=self._show_stderr)
+        self._latest_proc = proc = await Subprocess.init(*cmd, loop=self.bot.loop)
 
         with Timer(ctx.message):
             async for line in proc:
@@ -243,19 +234,14 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         pass
 
     @config.command()
-    async def codeblocks(self, ctx, toggle: bool):
-        self._send_in_codeblocks = toggle
-        await ctx.message.add_reaction(self.bot.tick_yes if toggle else self.bot.tick_no)
+    async def codeblocks(self, ctx, trigger: bool):
+        self._send_in_codeblocks = trigger
+        await ctx.message.add_reaction(self.bot.tick_yes if trigger else self.bot.tick_no)
 
     @config.command()
     async def clearenv(self, ctx):
         self._env.clear()
         await ctx.message.add_reaction(self.bot.tick_yes)
-
-    @config.command()
-    async def showstderr(self, ctx, toggle: bool):
-        self._show_stderr = toggle
-        await ctx.message.add_reaction(self.bot.tick_yes if toggle else self.bot.tick_no)
 
 
 def setup(bot):
