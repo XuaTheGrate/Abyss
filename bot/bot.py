@@ -107,12 +107,12 @@ class ContextSoWeDontGetBannedBy403(commands.Context):
             pg = EmbedPaginator()  # also `codeblock` has no effect with embeds
             for e in embeds:
                 pg.add_page(e)
-            await PaginationHandler(self.bot, pg, send_as="embed").start(self)
+            await PaginationHandler(self.bot, pg, send_as="embed", owner=self.author, no_help=True).start(destination or self)
         elif content:
             pg = BetterPaginator(prefix='```' if codeblock else None, suffix='```' if codeblock else None, max_size=1985)
             for l in content.split("\n"):
                 pg.add_line(l)
-            await PaginationHandler(self.bot, pg, no_help=True).start(destination or self)
+            await PaginationHandler(self.bot, pg, no_help=True, owner=self.author).start(destination or self)
         else:
             raise TypeError("missing arguments")
 

@@ -104,7 +104,7 @@ from . import lookups
 
 
 def confirm_not_dead(battle):
-    if battle.player.is_fainted():
+    if all(p.is_fainted() for p in battle.players):
         return False
     return not all(e.is_fainted() for e in battle.enemies)
 
@@ -125,7 +125,7 @@ class TargetSession(ui.Session):
         self.result = None
         self.target = target
 
-    async def send_initial_message(self):
+    async def send_initial_message(self, dm=False):
         if self.target == 'enemy':
             c = ["**Pick a target!**\n"]
             # noinspection PyUnresolvedReferences
@@ -170,11 +170,11 @@ class TargetSession(ui.Session):
 
 
 class InitialSession(ui.Session):
-    def __init__(self, battle):
+    def __init__(self, battle, player):
         super().__init__(timeout=180)
         # log.debug("initial session init")
         self.battle = battle
-        self.player = battle.player
+        self.player = player
         self.enemies = battle.enemies
         self.bot = battle.ctx.bot
         self.result = None  # dict, {"type": "fight/run", data: [whatever is necessary]}
@@ -186,6 +186,24 @@ class InitialSession(ui.Session):
         with suppress(discord.HTTPException, AttributeError):
             await self.message.delete()
         await super().stop()
+
+    async def start(self, ctx, *, dm=False):
+        self.context = ctx
+
+        self.message = await self.send_initial_message(dm)
+        # `self.context` is replaced inside `send_initial_message` if `dm is True`
+        # however, an initial context is required to re-get the context
+        # so we always use a base context first, then use the updated one down the road
+
+        if self.allowed_users is None:
+            self.allowed_users = {ctx.author.id}
+
+        await self._prepare()
+
+        try:
+            await self.__loop()
+        finally:
+            await self._cleanup()
 
     async def select_target(self, target):
         # log.debug("initialsession target selector")
@@ -241,7 +259,7 @@ class InitialSession(ui.Session):
     @property
     def header(self):
         return f"""(Turn {self.battle.turn_cycle})
-[{self.player.owner.name}] {self.player.name} {self.player.ailment.emote if self.player.ailment else ''}
+{NL.join(e.header() for e in self.battle.players)}
 VS
 {NL.join(e.header() for e in self.enemies)}
 
@@ -256,9 +274,14 @@ VS
 \N{RUNNER} Escape
 """)
 
-    async def send_initial_message(self):
+    async def send_initial_message(self, dm=False):
         # log.debug("sent initial message")
-        return await self.context.send(self.get_home_content())
+        if not dm:
+            return await self.context.send(self.get_home_content())
+        else:
+            m = await self.player.owner.send(self.get_home_content())
+            self.context = await self.context.bot.get_context(m)
+            return m
 
     @ui.button('\N{CROSSED SWORDS}')
     async def fight(self, __):
@@ -389,7 +412,7 @@ class WildBattle:
         assert not all((ambush, ambushed))  # dont set ambush AND ambushed to True
         self.ctx = ctx
         self.cmd = self.ctx.bot.get_cog("BattleSystem").cog_command_error
-        self.player = player
+        self.players = (player,)
         self.menu = None
         self.turn_cycle = 0
         self.enemies = sorted(enemies, key=lambda e: e.agility, reverse=True)
@@ -400,11 +423,11 @@ class WildBattle:
         # False -> enemy got the jump
         # None -> proceed by agility
         if self.ambush is True:
-            self.order = [self.player, *self.enemies]
+            self.order = [*self.players, *self.enemies]
         elif self.ambush is False:
-            self.order = [*self.enemies, self.player]
+            self.order = [*self.enemies, *self.players]
         else:
-            self.order = sorted([self.player, *self.enemies], key=lambda i: i.agility, reverse=True)
+            self.order = sorted([*self.players, *self.enemies], key=lambda i: i.agility, reverse=True)
         self.double_turn = False
         self.order = ListCycle(self.order)
         self.main.start()
@@ -415,14 +438,19 @@ class WildBattle:
         with suppress(AttributeError):
             await self.menu.stop()
 
-    async def handle_player_choices(self):
-        if not self.double_turn:
-            await self.player.pre_turn_async(self)
-        self.double_turn = False
-        self.menu = InitialSession(self)
+    async def get_player_choice(self, player):
+        self.menu = InitialSession(self, player)
         await self.menu.start(self.ctx)
-        result = self.menu.result
-        await self.menu.stop()
+        try:
+            return self.menu.result
+        finally:
+            await self.menu.stop()
+
+    async def handle_player_choices(self, player):
+        if not self.double_turn:
+            await player.pre_turn_async(self)
+        self.double_turn = False
+        result = await self.get_player_choice(player)
         if result is None and not self._stopping:
             self.order.decycle()  # shitty way to do it but w.e
             return await self.stop()
@@ -443,7 +471,7 @@ class WildBattle:
         skill = result['data']['skill']
 
         if skill.name == "Guard":
-            self.player.guarding = True
+            player.guarding = True
             return
 
         targets = result['data']['targets']
@@ -456,34 +484,34 @@ class WildBattle:
 
         if skill.uses_sp:
             cost = skill.cost
-            if any(s.name == 'Spell Master' for s in self.player.skills):
+            if any(s.name == 'Spell Master' for s in player.skills):
                 cost /= 2
-            if self.player.sp < cost:
+            if player.sp < cost:
                 await self.ctx.send("You don't have enough SP for this move!")
                 return self.order.decycle()
-            if skill.name != 'Guard' and self.player.ailment and self.player.ailment.type is AilmentType.FORGET:
+            if skill.name != 'Guard' and player.ailment and player.ailment.type is AilmentType.FORGET:
                 await self.ctx.send("You've forgotten how to use this move!")
                 return self.order.decycle()
-            self.player.sp = cost
+            player.sp = cost
         else:
             if skill.cost != 0:
-                cost = self.player.max_hp // skill.cost
-                if any(s.name == 'Arms Master' for s in self.player.skills):
+                cost = player.max_hp // skill.cost
+                if any(s.name == 'Arms Master' for s in player.skills):
                     cost /= 2
             else:
                 cost = 0
-            if cost > self.player.hp:
+            if cost > player.hp:
                 await self.ctx.send("You don't have enough HP for this move!")
                 self.double_turn = True
                 return self.order.decycle()
-            if skill.name != 'Attack' and self.player.ailment and self.player.ailment.type is AilmentType.FORGET:
+            if skill.name != 'Attack' and player.ailment and player.ailment.type is AilmentType.FORGET:
                 await self.ctx.send("You've forgotten how to use this move!")
                 self.double_turn = True
                 return self.order.decycle()
-            self.player.hp = cost
+            player.hp = cost
 
         if isinstance(skill, (StatusMod, ShieldSkill, HealingSkill, Karn, Charge, AilmentSkill)):
-            await self.ctx.send(f"__{self.player}__ used `{skill}`!")
+            await self.ctx.send(f"__{player}__ used `{skill}`!")
             await skill.effect(self, targets)
             return
 
@@ -492,7 +520,7 @@ class WildBattle:
             force_crit = 0
 
             for __ in range(random.randint(*skill.hits)):
-                res = target.take_damage(self.player, skill, enforce_crit=force_crit)
+                res = target.take_damage(player, skill, enforce_crit=force_crit)
                 # this is to ensure crits only happen IF the first hit did land a crit
                 # we use a Troolean:
                 # 0: first hit, determine crit
@@ -500,7 +528,7 @@ class WildBattle:
                 # 2: first hit passed, was not a crit
                 force_crit = 1 if res.critical else 2
                 msg = get_message(res.resistance, reflect=res.was_reflected, miss=res.miss, critical=res.critical)
-                msg = msg.format(demon=self.player, tdemon=target, damage=res.damage_dealt, skill=skill)
+                msg = msg.format(demon=player, tdemon=target, damage=res.damage_dealt, skill=skill)
                 await self.ctx.send(msg)
                 if res.endured:
                     await self.ctx.send(f"> __{target}__ endured the hit!")
@@ -513,10 +541,10 @@ class WildBattle:
 
                 if skill.name == 'Attack':
                     if target.ailment and target.ailment.type is AilmentType.SHOCK:
-                        if not self.player.ailment and random.randint(1, 2) == 1:
-                            self.player.ailment = ailments.Shock(self.player, AilmentType.SHOCK)
-                            await self.ctx.send(f"> __{self.player}__ was inflicted with **Shock**!")
-                    elif not target.ailment and self.player.ailment and self.player.ailment.type is AilmentType.SHOCK:
+                        if not player.ailment and random.randint(1, 2) == 1:
+                            player.ailment = ailments.Shock(player, AilmentType.SHOCK)
+                            await self.ctx.send(f"> __{player}__ was inflicted with **Shock**!")
+                    elif not target.ailment and player.ailment and player.ailment.type is AilmentType.SHOCK:
                         target.ailment = ailments.Shock(target, AilmentType.SHOCK)
                         await self.ctx.send(f"> __{target}__ was inflicted with **Shock**!")
 
@@ -530,17 +558,17 @@ class WildBattle:
 
     def filter_targets(self, skill, user):
         if skill.target in ('enemy', 'enemies'):
-            if user is self.player:
+            if user in self.players:
                 return [e for e in self.enemies if not e.is_fainted()]
-            return self.player,
+            return self.players
         elif skill.target == 'self':
             return user,
         elif skill.target in ('allies', 'ally'):
-            if user is self.player:
-                return self.player,
+            if user in self.players:
+                return self.players
             return [e for e in self.enemies if not e.is_fainted()]
         elif skill.target == 'all':
-            return [self.player] + [e for e in self.enemies if not e.is_fainted()]
+            return [*self.players] + [e for e in self.enemies if not e.is_fainted()]
 
     async def handle_enemy_choices(self, enemy):
         if not self.double_turn:
@@ -562,46 +590,47 @@ class WildBattle:
                 enemy.guarding = True
                 return
 
-            weaked = False
-            force_crit = 0
-
-            for a in range(random.randint(mn, mx+1)):
-                res = self.player.take_damage(enemy, skill, enforce_crit=force_crit)
-                force_crit = 1 if res.critical else 2
-                if res.did_weak:
-                    weaked = True
-
-                if res.resistance in (
-                    ResistanceModifier.IMMUNE,
-                    ResistanceModifier.REFLECT,
-                    ResistanceModifier.ABSORB
-                ):
-                    enemy.unusable_skills.append(skill.name)
-                    # the ai learns not to use it in the future, but still use it this turn
-
-                msg = get_message(res.resistance, reflect=res.was_reflected, miss=res.miss, critical=res.critical)
-                msg = msg.format(demon=enemy, tdemon=self.player, damage=res.damage_dealt, skill=skill)
-                await self.ctx.send(msg)
-
-                if skill.type is SkillType.PHYSICAL:
-                    if self.player.ailment and self.player.ailment.type is AilmentType.SLEEP:
-                        if random.randint(1, 5) != 1:
-                            self.player.ailment = None
-                            await self.ctx.send(f"> __{self.player}__ woke up!")
-
-                if skill.name == 'Attack':
-                    if self.player.ailment and self.player.ailment.type is AilmentType.SHOCK:
-                        if not enemy.ailment and random.randint(1, 2) == 1:
-                            enemy.ailment = ailments.Shock(enemy, AilmentType.SHOCK)
-                            await self.ctx.send(f"> __{enemy}__ was inflicted with **Shock**!")
-                    elif not self.player.ailment and enemy.ailment and enemy.ailment.type is AilmentType.SHOCK:
-                        self.player.ailment = ailments.Shock(self.player, AilmentType.SHOCK)
-                        await self.ctx.send(f"> __{self.player}__ was inflicted with **Shock**!")
-            
-            if weaked and not self.player.is_fainted():
-                self.order.decycle()
-                self.double_turn = True
-                await self.ctx.send("> Watch out, {demon} is attacking again!".format(demon=enemy))
+            for target in targets:
+                weaked = False
+                force_crit = 0
+                
+                for a in range(random.randint(mn, mx+1)):
+                    res = target.take_damage(enemy, skill, enforce_crit=force_crit)
+                    force_crit = 1 if res.critical else 2
+                    if res.did_weak:
+                        weaked = True
+    
+                    if res.resistance in (
+                        ResistanceModifier.IMMUNE,
+                        ResistanceModifier.REFLECT,
+                        ResistanceModifier.ABSORB
+                    ):
+                        enemy.unusable_skills.append(skill.name)
+                        # the ai learns not to use it in the future, but still use it this turn
+    
+                    msg = get_message(res.resistance, reflect=res.was_reflected, miss=res.miss, critical=res.critical)
+                    msg = msg.format(demon=enemy, tdemon=target, damage=res.damage_dealt, skill=skill)
+                    await self.ctx.send(msg)
+    
+                    if skill.type is SkillType.PHYSICAL:
+                        if target.ailment and target.ailment.type is AilmentType.SLEEP:
+                            if random.randint(1, 5) != 1:
+                                target.ailment = None
+                                await self.ctx.send(f"> __{target}__ woke up!")
+    
+                    if skill.name == 'Attack':
+                        if target.ailment and target.ailment.type is AilmentType.SHOCK:
+                            if not enemy.ailment and random.randint(1, 2) == 1:
+                                enemy.ailment = ailments.Shock(enemy, AilmentType.SHOCK)
+                                await self.ctx.send(f"> __{enemy}__ was inflicted with **Shock**!")
+                        elif not target.ailment and enemy.ailment and enemy.ailment.type is AilmentType.SHOCK:
+                            target.ailment = ailments.Shock(target, AilmentType.SHOCK)
+                            await self.ctx.send(f"> __{target}__ was inflicted with **Shock**!")
+                
+                if weaked and not target.is_fainted():
+                    self.order.decycle()
+                    self.double_turn = True
+                    await self.ctx.send("> Watch out, {demon} is attacking again!".format(demon=enemy))
 
     @tasks.loop(seconds=1)
     async def main(self):
@@ -638,11 +667,11 @@ class WildBattle:
         if not isinstance(nxt, Enemy):
             # log.debug("next: player")
             if not self.double_turn:
-                if self.ambush and any(s.name == 'Heat Up' for s in self.player.skills):
-                    self.player.hp = -(self.player.max_hp * 0.05)
-                    self.player.sp = -10
+                if self.ambush and any(s.name == 'Heat Up' for s in nxt.skills):
+                    nxt.hp = -(nxt.max_hp * 0.05)
+                    nxt.sp = -10
                 self.turn_cycle += 1
-            await self.handle_player_choices()
+            await self.handle_player_choices(nxt)
         else:
             if not nxt.is_fainted():
                 # log.debug("next enemy not fainted")
@@ -674,8 +703,9 @@ class WildBattle:
                 if any(s.name == 'Pressing Stance' for s in e.skills):
                     e._ex_evasion_mod += 3.0
 
-            if any(s.name == 'Fortified Moxy' for s in self.player.skills):
-                self.player._ex_crit_mod += 2.5
+            for p in self.players:
+                if any(s.name == 'Fortified Moxy' for s in p.skills):
+                    p._ex_crit_mod += 2.5
 
         elif self.ambush is False:
             # log.debug("enemy initiative")
@@ -684,10 +714,11 @@ class WildBattle:
                 _('is') if len(self.enemies) == 1 else _('are')
             ))
 
-            if any(s.name == 'Adverse Resolve' for s in self.player.skills):
-                self.player._ex_crit_mod += 5.0
-            if any(s.name == 'Pressing Stance' for s in self.player.skills):
-                self.player._ex_evasion_mod += 3.0
+            for p in self.players:
+                if any(s.name == 'Adverse Resolve' for s in p.skills):
+                    p._ex_crit_mod += 5.0
+                if any(s.name == 'Pressing Stance' for s in p.skills):
+                    p._ex_evasion_mod += 3.0
 
             for e in self.enemies:
                 if any(s.name == 'Fortified Moxy' for s in e.skills):
@@ -698,7 +729,8 @@ class WildBattle:
                 len(self.enemies), _('enemy') if len(self.enemies) == 1 else _('enemies'),
                 _('is') if len(self.enemies) == 1 else _('are')))
 
-        self.player.pre_battle()
+        for p in self.players:
+            p.pre_battle()
         for e in self.enemies:
             e.pre_battle()
 
@@ -712,5 +744,21 @@ class WildBattle:
             err = None
         await self.cmd(self.ctx, err, battle=self)
         await self.ctx.send("game over")
-        self.player.post_battle(self._ran)
+        for p in self.players:
+            p.post_battle(self._ran)
         # log.debug("finish")
+
+
+class PVPBattle(WildBattle):
+    def __init__(self, ctx, *, teama, teamb):
+        super().__init__(None, ctx, *teamb)
+        self.players = tuple(teama)
+
+    async def get_player_choice(self, player):
+        self.menu = InitialSession(self, player)
+        try:
+            await self.menu.start(self.ctx, dm=True)
+            return self.menu.result
+        finally:
+            await self.menu.stop()
+

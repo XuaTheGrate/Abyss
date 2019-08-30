@@ -1,6 +1,8 @@
 import asyncio
 import numpy.random as random
 
+import discord
+import tabulate
 from discord.ext import commands
 
 from .utils import battle as bt, i18n, formats
@@ -69,7 +71,7 @@ Encounter: {list(map(str, battle.enemies))}
             enemies.append(e)
         self.battles[ctx.author.id] = bt.WildBattle(ctx.player, ctx, *enemies)
 
-    @commands.command()
+    @commands.command(enabled=False)
     @commands.cooldown(5, 60, commands.BucketType.user)
     async def encounter(self, ctx):
         if ctx.author.id in self.battles:
@@ -104,6 +106,59 @@ return fuckJS(this)"""}).to_list(None)
         enemy = bt.Enemy(**enc, bot=self.bot)
         await ctx.send("You searched around and found a **{0}**!".format(enemy.name))
         self.battles[ctx.author.id] = bt.WildBattle(ctx.player, ctx, enemy)
+
+    @commands.command()
+    async def pvp(self, ctx, *, user: discord.Member):
+        try:
+            p2 = self.bot.players.players[user.id]
+        except KeyError:
+            # todo: cache the player
+            return await ctx.send("users player is not loaded.")
+        battle = bt.PVPBattle(ctx, teama=(ctx.player,), teamb=(p2,))
+        self.battles[ctx.author.id] = battle
+        await ctx.send(f'> {ctx.author.display_name} VS {user}')
+
+    @commands.group(hidden=True)
+    @commands.is_owner()
+    async def custom(self, ctx):
+        pass
+
+    @custom.command()
+    async def new(self, ctx):
+        valid = [m['name'] async for m in self.bot.db.abyss.encounters.find()]
+        data = tabulate.tabulate([valid[x:x + 4] for x in range(0, len(valid), 4)])
+        await ctx.send("You'll need a base demon to go off of. Select one from here:")
+        t = self.bot.loop.create_task(ctx.send_as_paginator(data, codeblock=True))
+        nvalid = list(map(str.lower, valid))
+        choice = None
+
+        while True:
+            try:
+                select = await self.bot.wait_for("message", check=lambda m: m.author == ctx.author and m.channel == ctx.channel, timeout=60)
+            except asyncio.TimeoutError:
+                t.cancel()
+                return
+            if select.content.lower() not in nvalid:
+                await ctx.send("Couldn't find that one, try another.", delete_after=5)
+                continue
+            else:
+                choice = select.content.lower()
+                t.cancel()
+                break
+
+        # {'_id': ObjectId('5d3befc9ed9940c2bbd6e9ea'), 'name': 'Arsene',
+        # 'moves': ['Adverse Resolve', 'Cleave', 'Dream Needle', 'Eiha', 'Sukunda'],
+        # 'stats': [2, 2, 2, 3, 1], 'level': 1, 'resistances': [2, 2, 2, 3, 2, 2, 2, 2, 3, 1],
+        # 'maps': [754265], 'id': 16,
+        # 'desc': "..."}
+
+        demondata = await self.bot.db.abyss.encounters.find_one({"name": valid[nvalid.index(choice)]})
+        nd = {'name': demondata['name'], 'desc': demondata['desc']}
+        embed = discord.Embed(title=demondata['name'], description=demondata['desc'])
+        await ctx.send(f"Great, let's use {demondata['name']}. Next you need to assign a level. Any number between 1-99 is valid.")
+        m = await self.bot.wait_for("message", check=lambda m: m.content.isdigit() and 0 < int(m.content) < 100)
+        embed.add_field(name='Level', value=m.content)
+        nd['level'] = int(m.content)
 
 
 def setup(bot):

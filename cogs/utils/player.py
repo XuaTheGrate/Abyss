@@ -212,6 +212,9 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
     def can_level_up(self):
         return self._next_level <= self.level
 
+    def header(self):
+        return f"[{self.owner.name}] {self.name} {self.ailment.emote if self.ailment else ''}"
+
     def exp_to_next_level(self):
         return self._next_level ** 3 - self.exp
 
