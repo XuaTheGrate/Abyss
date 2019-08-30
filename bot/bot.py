@@ -116,6 +116,21 @@ class ContextSoWeDontGetBannedBy403(commands.Context):
         else:
             raise TypeError("missing arguments")
 
+    async def confirm(self, message, waiter=None):
+        waiter = waiter or self.author
+        m = await self.send(message)
+        await asyncio.gather(m.add_reaction(self.bot.tick_yes), m.add_reaction(self.bot.tick_no))
+        try:
+            p = await self.bot.wait_for('raw_reaction_add', check=lambda p: str(p.emoji) in (self.bot.tick_yes, self.bot.tick_no)
+                                        and p.user_id == waiter.id and p.message_id == m.id,
+                                        timeout=60)
+        except asyncio.TimeoutError:
+            return False
+        else:
+            return str(p.emoji) == self.bot.tick_yes
+        finally:
+            await m.delete()
+
 
 class Abyss(commands.Bot):
     def __init__(self):

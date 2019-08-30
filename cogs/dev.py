@@ -3,6 +3,7 @@ import collections
 import inspect
 import os
 import pathlib
+import re
 import textwrap
 from pprint import pformat
 
@@ -242,16 +243,42 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         cmd = self.bot.get_command(command)
         if not cmd:
             try:
-                cmd = import_expression.eval(command, {})
+                obj = import_expression.eval(command, {})
             except Exception as e:
                 await ctx.message.add_reaction(self.bot.tick_no)
                 return await ctx.send_as_paginator(format_exc(e), codeblock=True, destination=ctx.author)
+        else:
+            obj = cmd.callback
 
-        lines, firstlno = inspect.getsourcelines(cmd.callback)
+        lines, firstlno = inspect.getsourcelines(obj)
         pg = BetterPaginator('```py\n', '```')
         for lno, line in enumerate(lines, start=firstlno):
             pg.add_line(f'{lno}\t{line.rstrip()}'.replace('``', '`\u200b`'))
         await PaginationHandler(self.bot, pg, no_help=True).start(ctx)
+
+    @dev.command()
+    async def update(self, ctx):
+        """
+From https://github.com/XuaTheGrate/Abyss
+   0387c15..7869764  master     -> origin/master
+Updating 0387c15..7869764
+Fast-forward
+ cogs/dev.py | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+        """
+        data = []
+        self._latest_proc = proc = await Subprocess.init('git', 'pull', loop=self.bot.loop)
+        async for line in proc:
+            data.append(line)
+        m = '\n'.join(data)
+        if m.strip() == 'Already up to date.':
+            return await ctx.send("Nothing to update.")
+        ver = re.findall(r'([a-fA-F0-9]{7})\.\.([a-fA-F0-9]{7})', m)
+        pre, pos = ver[0]
+        mods = re.findall(r'\s(cogs/[a-z]+\.py) \|', m)
+        if not await ctx.confirm(f'Update `{pre}` -> `{pos}`\nReload {len(mods)} modules?\n{" | ".join(mod.replace("/", ".")[:-3] for mod in mods)}'):
+            return
+        await ctx.invoke(self.reload, *[m.replace('/', '.')[:-3] for m in mods])
 
     @dev.command()
     async def status(self, ctx):
