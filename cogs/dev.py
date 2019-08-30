@@ -241,7 +241,11 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
     async def src(self, ctx, *, command):
         cmd = self.bot.get_command(command)
         if not cmd:
-            return await ctx.message.add_reaction(self.bot.tick_no)
+            try:
+                cmd = import_expression.eval(command, {})
+            except Exception as e:
+                await ctx.message.add_reaction(self.bot.tick_no)
+                return await ctx.send_as_paginator(format_exc(e), codeblock=True, destination=ctx.author)
 
         lines, firstlno = inspect.getsourcelines(cmd.callback)
         pg = BetterPaginator('```py\n', '```')
