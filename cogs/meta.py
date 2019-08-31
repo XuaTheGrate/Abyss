@@ -29,7 +29,7 @@ class Meta(commands.Cog):
         """Measures round trip time to Discord."""
         start = time.perf_counter()
         m = await ctx.send("\u200b")
-        end = start - time.perf_counter()
+        end = time.perf_counter() - start
         await m.edit(content=f':ping_pong: Pong! | {end*1000:.2f}ms')
 
     @commands.command(aliases=['about'])
