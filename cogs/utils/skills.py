@@ -39,10 +39,7 @@ class Skill(JSONable):
             cls = new_cls
         if kwargs['type'] == 'ailment':
             cls = AilmentSkill
-        self = object.__new__(cls)
-        # noinspection PyArgumentList
-        cls.__init__(self, **kwargs)
-        return self
+        return object.__new__(cls)
 
     def __init__(self, **kwargs):
         self.name = kwargs.pop("name")

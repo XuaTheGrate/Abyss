@@ -117,3 +117,4 @@ class ItemType(Enum):
     TRASH = 1
     MATERIAL = 2
     SKILL_CARD = 3
+    EQUIPABLE = 4
