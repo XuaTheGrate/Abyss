@@ -1,0 +1,35 @@
+{
+    "areas": [
+        {
+            "name": "Floor 1",
+            "desc": "The main floor of the dungeon. Fairly empty.",
+            "encounters": ["Arsene", "Pixie", "Angel"],
+            "interactions": [
+                {
+                    "name": "L Door",
+                    "command": ["travelto", "Left Hall"],
+                    "type": 0
+                },
+                {
+                    "name": "R Door",
+                    "command": ["travelto", "Right Hall"],
+                    "type": 0
+                }
+            ],
+            "treasurecount": 3
+        },
+        {
+            "name": "Left Hall",
+            "desc": "Hall to the left of the first floor.",
+            "encounters": ["Arsene", "Pixie", "Angel"],
+            "interactions": [
+                {
+                    "name": "Chest",
+                    "command": ["giveitem", "SkillCard:Agi"],
+                    "type": 1
+                }
+            ],
+            "treasurecount": 2
+        }
+    ]
+}
