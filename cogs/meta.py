@@ -2,6 +2,7 @@ import collections
 import re
 import os
 import sys
+import time
 from datetime import datetime, timedelta
 
 import discord
@@ -22,6 +23,14 @@ class Meta(commands.Cog):
     async def ping(self, ctx):
         """Get my websocket latency to Discord."""
         await ctx.send(f":ping_pong: Pong! | {ctx.bot.latency * 1000:.2f}ms websocket latency.")
+
+    @commands.command()
+    async def ping2(self, ctx):
+        """Measures round trip time to Discord."""
+        start = time.perf_counter()
+        m = await ctx.send("\u200b")
+        end = start - time.perf_counter()
+        await m.edit(content=f':ping_pong: Pong! | {end*1000:.2f}ms')
 
     @commands.command(aliases=['about'])
     async def info(self, ctx):
