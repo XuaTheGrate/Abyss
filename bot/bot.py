@@ -148,7 +148,6 @@ class Abyss(commands.Bot):
         self.debug_hook = config.DEBUG_WEBHOOK
         self.unload_tasks = {}
         self.config = config
-        self._ctx_locks = {}
         self.start_date = None
 
         self.help_command = commands.MinimalHelpCommand(verify_checks=False)
