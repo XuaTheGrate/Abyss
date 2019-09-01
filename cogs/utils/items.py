@@ -64,7 +64,8 @@ class _ItemCache:
 
             for item in itemdata:
                 item['type'] = tp
-                self.items[item['name']] = _ItemABC(item, tp, item['worth'])
+                self.items[item['name']] = _ItemABC(name=item['name'], desc=item.get('desc', "no desc"),
+                                                    worth=item.get('worth', 1), type=tp)
 
     def __repr__(self):
         return repr(list(self.items))
