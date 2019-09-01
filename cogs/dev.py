@@ -31,6 +31,10 @@ def recursive_decode(i):
     return i
 
 
+async def _replace_checks(*args, **kwargs):
+    return True
+
+
 class FakeUser:
     __slots__ = ('id', 'name', 'display_name')
 
@@ -294,6 +298,8 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
             nctx = await self.bot.get_context(nmsg, cls=PerformanceContext)
             if nctx.command is None:
                 return await ctx.send("No command found.")
+            nctx.command = copy.copy(nctx.command)
+            nctx.command.can_run = _replace_checks
             start = time.perf_counter()
             try:
                 await nctx.command.invoke(nctx)
