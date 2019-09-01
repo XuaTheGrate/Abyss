@@ -290,19 +290,19 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
 
     @dev.command()
     async def timeit(self, ctx, *, command):
+        nmsg = copy.copy(ctx.message)
+        nmsg.content = ctx.prefix + command
+        nctx = await self.bot.get_context(nmsg, cls=PerformanceContext)
+        if nctx.command is None:
+            return await ctx.send("No command found.")
         times = []
         f = False
         for a in range(self._perf_loops):
-            nmsg = copy.copy(ctx.message)
-            nmsg.content = ctx.prefix + command
-            nctx = await self.bot.get_context(nmsg, cls=PerformanceContext)
-            if nctx.command is None:
-                return await ctx.send("No command found.")
-            nctx.command = copy.copy(nctx.command)
-            nctx.command.can_run = _replace_checks
+            # nctx.command = copy.copy(nctx.command)
+            # nctx.command.can_run = _replace_checks
             start = time.perf_counter()
             try:
-                await nctx.command.invoke(nctx)
+                await nctx.reinvoke()
             except Exception as e:
                 if not f:
                     f = True
