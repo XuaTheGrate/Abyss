@@ -1,10 +1,12 @@
 import asyncio
 import collections
+import copy
 import inspect
 import os
 import pathlib
 import re
 import textwrap
+import time
 from pprint import pformat
 
 import discord
@@ -29,6 +31,74 @@ def recursive_decode(i):
     return i
 
 
+class FakeUser:
+    __slots__ = ('id', 'name', 'display_name')
+
+    def __init__(self, *args, **kwargs):
+        self.id = 0
+        self.name = ""
+        self.display_name = ""
+
+    async def send(self, *args, **kwargs):
+        await asyncio.sleep(.093)
+        return FakeMessage
+
+
+class FakeGuild:
+    __slots__ = ('id', 'name', 'members')
+
+    def __init__(self, *args, **kwargs):
+        self.id = 0
+        self.name = ''
+        self.members = []
+
+
+class FakeChannel:
+    __slots__ = ('id', 'name', 'category', 'members', 'guild', 'mention')
+
+    def __init__(self, *args, **kwargs):
+        self.id = 0
+        self.name = ""
+        self.category = None
+        self.members = []
+        self.guild = FakeGuild
+        self.mention = ""
+
+    async def send(self, *args, **kwargs):
+        await asyncio.sleep(0.093)
+        return FakeMessage
+
+    async def delete(self, *args, **kwargs):
+        await asyncio.sleep(0.093)
+
+
+class FakeMessage:
+    __slots__ = ('content', 'id', 'author', 'channel', 'guild')
+
+    def __init__(self):
+        self.content = ""
+        self.id = 0
+        self.author = FakeUser
+        self.channel = FakeChannel
+        self.guild = FakeGuild
+
+    async def add_reaction(self, *args, **kwargs):
+        await asyncio.sleep(0.093)
+
+
+class PerformanceContext(commands.Context):
+    async def send(self, *args, **kwargs):
+        await asyncio.sleep(0.093)
+        return FakeMessage
+
+    async def send_as_paginator(self, *args, **kwargs):
+        await asyncio.sleep(0.093)
+
+    async def confirm(self, *args, **kwargs):
+        await asyncio.sleep(0.093)
+        return True
+
+
 class Developers(commands.Cog, command_attrs={"hidden": True}):
     process = psutil.Process()
 
@@ -39,6 +109,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         self._env = {}
         self._send_in_codeblocks = False
         self._show_stderr = False
+        self._perf_loops = 10
 
     async def cog_check(self, ctx):
         return await self.bot.is_owner(ctx.author)
@@ -198,6 +269,29 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         await self.bot.logout()
 
     @dev.command()
+    async def timeit(self, ctx, *, command):
+        nmsg = copy.copy(ctx.message)
+        nmsg.content = ctx.prefix + command
+        nctx = await self.bot.get_context(nmsg, cls=PerformanceContext)
+        if nctx.command is None:
+            return await ctx.send("No command found.")
+        times = []
+        f = False
+        for a in range(self._perf_loops):
+            start = time.perf_counter()
+            try:
+                await nctx.command.invoke(nctx)
+            except Exception as e:
+                if not f:
+                    f = True
+                    await ctx.author.send(f'```py\n{format_exc(e)}\n```')
+            finally:
+                end = time.perf_counter() - start
+                times.append(round(end*1000, 2))
+        await ctx.send(f'{self._perf_loops} loops, {min(times)}ms min,'
+                       f' {max(times)}ms max, {sum(times)/len(times):.2f}ms avg, success={not f}')
+
+    @dev.command()
     async def lua(self, ctx, *, code_string):
         with open("_exec.lua", "w") as f:
             f.write(code_string)
@@ -302,6 +396,11 @@ Fast-forward
     async def showstderr(self, ctx, toggle: bool):
         self._show_stderr = toggle
         await ctx.message.add_reaction(self.bot.tick_yes if toggle else self.bot.tick_no)
+
+    @config.command()
+    async def perfloops(self, ctx, amount: int):
+        self._perf_loops = amount
+        await ctx.message.add_reaction(self.bot.tick_yes)
 
 
 def setup(bot):
