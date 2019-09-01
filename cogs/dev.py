@@ -98,6 +98,11 @@ class PerformanceContext(commands.Context):
         await asyncio.sleep(0.093)
         return True
 
+    async def invoke(self, cmd):
+        await cmd.prepare(self)
+        await cmd._parse_arguments(self)
+        await cmd.invoke(self)
+
 
 class Developers(commands.Cog, command_attrs={"hidden": True}):
     process = psutil.Process()
@@ -280,7 +285,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         for a in range(self._perf_loops):
             start = time.perf_counter()
             try:
-                await nctx.command.invoke(nctx)
+                await nctx.invoke(nctx.cmd)
             except Exception as e:
                 if not f:
                     f = True
