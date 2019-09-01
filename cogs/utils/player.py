@@ -3,6 +3,7 @@ import numpy.random as random
 import re
 
 from .enums import *
+from .inventory import Inventory
 from .lookups import TYPE_SHORTEN, STAT_MOD
 from .objects import DamageResult, JSONable
 from .skills import Skill
@@ -15,7 +16,7 @@ IMMUNITY_ORDER = ['Repel', 'Absorb', 'Null', 'Resist']
 
 class Player(JSONable):
     __json__ = ('owner', 'name', 'skills', 'exp', 'stats', 'resistances', 'arcana', 'specialty', 'stat_points',
-                'description', 'skill_leaf', 'ap', 'unsetskills', 'finished_leaves', 'credits')
+                'description', 'skill_leaf', 'ap', 'unsetskills', 'finished_leaves', 'credits', 'location', "inventory")
 
     def keygetter(self, key):
         if key == 'owner':
@@ -34,6 +35,10 @@ class Player(JSONable):
             return self.ap_points
         elif key == 'unsetskills':
             return [z.name for z in self.unset_skills if z.name not in ('Attack', 'Guard')]
+        elif key == 'location':
+            return self.map.name, self.area['name']
+        elif key == 'inventory':
+            return self.inventory.to_json()
         return getattr(self, key)
 
     def __init__(self, **kwargs):
@@ -49,7 +54,11 @@ class Player(JSONable):
             self.skills = []
             self._skills = list({'Attack', 'Guard', *skills})
 
+        self.map, self.area = kwargs.pop('location')
+
         self.exp = kwargs.pop("exp")
+        self._next_level = self.level + 1
+
         self.strength, self.magic, self.endurance, self.agility, self.luck = kwargs.pop("stats")
 
         # self.resistances = dict(zip(SkillType, map(ResistanceModifier, kwargs.pop("resistances"))))
@@ -62,6 +71,8 @@ class Player(JSONable):
             for x in self._resistances]))
         # noinspection PyArgumentList
 
+        self.inventory = kwargs.pop("inventory", {})
+
         self.arcana = Arcana(kwargs.pop("arcana"))
         self.specialty = SkillType[kwargs.pop("specialty").upper()]
         self.description = kwargs.pop("description", "<no description found, report to Xua>")
@@ -70,16 +81,16 @@ class Player(JSONable):
         self.credits = kwargs.pop("credits", 0)
         self._active_leaf = kwargs.pop("skill_leaf", None)
         self.leaf = None
+        self.finished_leaves = kwargs.pop("finished_leaves", [])
         self.ap_points = kwargs.pop("ap", 0)
         self._unset_skills = kwargs.pop("unsetskills", [])
         self.unset_skills = []
+
         self._damage_taken = 0
         self._sp_used = 0
         self._stat_mod = [0, 0, 0]
         # [attack][defense][agility]
         self._until_clear = [0, 0, 0]  # turns until it gets cleared for each stat, max of 3 turns
-        self._next_level = self.level + 1
-        self.finished_leaves = kwargs.pop("finished_leaves", [])
         self.guarding = False
         self.ailment = None
         self._shields = {}
@@ -99,6 +110,15 @@ class Player(JSONable):
     def __repr__(self):
         return f"<({self.arcana.name}) {self.owner}'s  Level {self.level} {self.name!r}>"
 
+    def _populate_skills(self, bot):
+        self.owner = bot.get_user(self._owner_id)
+        self.map = bot.map_handler.maps[self.map]
+        self.inventory = Inventory(bot, self, self.inventory)
+        for skill in self._skills:
+            self.skills.append(bot.players.skill_cache[skill])
+        for skill in self._unset_skills:
+            self.unset_skills.append(bot.players.skill_cache[skill])
+
     def _debug_repr(self):
         return f"""Player {self.owner}, {self._owner_id}
 --- name: {self.name}
@@ -116,6 +136,9 @@ class Player(JSONable):
 --- unset_skills: {", ".join(map(str, self.unset_skills))}
 --- guarding: {self.guarding}
 --- credits: {self.credits}
+--- map: {self.map!r}
+--- area: {self.area!r}
+--- inventory: {self.inventory!r}
 
 --- level: {self.level}
 --- hp: {self.hp}
@@ -224,13 +247,6 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
         diff = next - (self.level ** 3)
         mdiff = next - me
         return ((diff - mdiff) / diff) * 100
-
-    def _populate_skills(self, bot):
-        self.owner = bot.get_user(self._owner_id)
-        for skill in self._skills:
-            self.skills.append(bot.players.skill_cache[skill])
-        for skill in self._unset_skills:
-            self.unset_skills.append(bot.players.skill_cache[skill])
 
     def affected_by(self, modifier):
         return 1.0 + (0.05 * self._stat_mod[modifier.value])

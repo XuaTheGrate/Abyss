@@ -13,7 +13,8 @@ from discord.ext import commands
 import motor.motor_asyncio
 
 import config
-from cogs.utils import i18n, formats
+from cogs.utils import i18n, formats, items
+from cogs.utils.mapping import MapHandler
 from cogs.utils.paginators import PaginationHandler, EmbedPaginator, BetterPaginator
 from cogs.utils.player import Player
 
@@ -149,6 +150,8 @@ class Abyss(commands.Bot):
         self.unload_tasks = {}
         self.config = config
         self.start_date = None
+        self.map_handler = MapHandler(self)
+        self.item_cache = items.item_cache
 
         self.help_command = commands.MinimalHelpCommand(verify_checks=False)
 
