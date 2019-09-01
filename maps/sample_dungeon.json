@@ -3,7 +3,7 @@
         {
             "name": "Floor 1",
             "desc": "The main floor of the dungeon. Fairly empty.",
-            "encounters": ["Arsene", "Pixie", "Angel"],
+            "encounters": ["Arsene", "Pixie", "Mandrake"],
             "interactions": [
                 {
                     "name": "L Door",
@@ -21,15 +21,33 @@
         {
             "name": "Left Hall",
             "desc": "Hall to the left of the first floor.",
-            "encounters": ["Arsene", "Pixie", "Angel"],
+            "encounters": ["Arsene", "Pixie", "Mandrake", "Jack-o'-Lantern"],
             "interactions": [
                 {
                     "name": "Chest",
                     "command": ["giveitem", "SkillCard:Agi"],
                     "type": 1
+                },
+                {
+                    "name": "L Door",
+                    "command": ["travelto", "Floor 1"],
+                    "type": 0
                 }
             ],
             "treasurecount": 2
+        },
+        {
+            "name": "Right Hall",
+            "desc": "Hall to the right of the first floor.",
+            "encounters": ["Arsene", "Pixie", "Mandrake", "Agathion"],
+            "interactions": [
+                {
+                    "name": "R Door",
+                    "command": ["travelto", "Floor 1"],
+                    "type": 0
+                }
+            ],
+            "treasurecount": 1
         }
     ]
 }
