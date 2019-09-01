@@ -87,6 +87,22 @@ class FakeMessage:
 
 
 class PerformanceContext(commands.Context):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.message = FakeMessage
+
+    @property
+    def guild(self):
+        return FakeGuild
+
+    @property
+    def author(self):
+        return FakeUser
+
+    @property
+    def channel(self):
+        return FakeChannel
+
     async def send(self, *args, **kwargs):
         await asyncio.sleep(0.093)
         return FakeMessage
