@@ -13,7 +13,8 @@ class Shitpost(commands.Cog):
 
     @commands.command(aliases=['smoltext', 'smol', 'small'])
     async def smalltext(self, ctx, *, text: commands.clean_content):
-        await ctx.send(text.translate(smoltext))
+        """ᵗᵘʳⁿˢ ʸᵒᵘʳ ᵗᵉˣᵗ ᶦⁿᵗᵒ ˢᵐᵃˡˡ ᵗᵉˣᵗ"""
+        await ctx.send(text.lower().translate(smoltext))
 
 
 def setup(bot):
