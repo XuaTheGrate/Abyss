@@ -55,7 +55,7 @@ class HealingItem(_ItemABC):
 
 
 class _ItemCache:
-    def __init__(self):
+    def __init__(self, bot):
         self.items = {}
         for file in os.listdir("items"):
             tp = ItemType[file[:-5].upper()]
@@ -64,6 +64,9 @@ class _ItemCache:
 
             for item in itemdata:
                 item['type'] = tp
+                if item.get('skill'):
+                    item['name'] = item['skill']
+                    item['skill'] = bot.players.skill_cache[item['skill']]
                 self.items[item['name']] = _ItemABC(**item)
 
     def __repr__(self):
@@ -71,6 +74,3 @@ class _ItemCache:
 
     def get_item(self, name):
         return self.items[name]
-
-
-item_cache = _ItemCache()

@@ -8,7 +8,7 @@ from operator import itemgetter
 import discord
 from discord.ext import commands, ui
 
-from .utils import lookups, scripts, i18n, imaging
+from .utils import lookups, scripts, i18n, imaging, items
 from .utils.enums import SkillType
 from .utils.player import Player
 from .utils.skills import Skill, GenericAttack, Guard
@@ -255,6 +255,7 @@ class Players(commands.Cog):
         self._base_demon_cache = {}
         self.bot.unload_tasks[self] = self._unloader_task = self.bot.loop.create_task(self.flush_cached_players())
         self.cache_skills()
+        bot.item_cache = items._ItemCache(bot)
 
     def __repr__(self):
         return f"<PlayerHandler {len(self.players)} loaded, {len(self.skill_cache)} skills>"
