@@ -285,7 +285,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         for a in range(self._perf_loops):
             start = time.perf_counter()
             try:
-                await nctx.invoke(nctx.cmd)
+                await nctx.invoke(nctx.command)
             except Exception as e:
                 if not f:
                     f = True
