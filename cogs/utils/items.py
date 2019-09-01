@@ -32,7 +32,7 @@ class _ItemABC:
 
 
 class SkillCard(_ItemABC):
-    def __init__(self, *, name, worth, desc, type, skill):
+    def __init__(self, *, name, type, skill, worth=1, desc="no desc"):
         super().__init__(name=name, worth=worth, type=type, desc=desc)
         self.skill = skill
         self.refusable = skill.name not in ()
@@ -47,7 +47,7 @@ class TrashItem(_ItemABC):
 
 
 class HealingItem(_ItemABC):
-    def __init__(self, *, name, worth, desc, type, healtype, healamount, healtarget):
+    def __init__(self, *, name, type, healtype, healamount, healtarget, worth=1, desc="no desc"):
         super().__init__(name=name, worth=worth, desc=desc, type=type)
         self.heal_type = healtype
         self.heal_amount = healamount
