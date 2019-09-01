@@ -4,7 +4,7 @@
         "worth": 150,
         "desc": "Heals 10 SP to one ally.",
         "healtype": "sp",
-        "amount": 10,
-        "targets": "ally"
+        "healamount": 10,
+        "healtarget": "ally"
     }
 ]

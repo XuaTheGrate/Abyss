@@ -15,7 +15,7 @@ class _ItemABC:
             raise TypeError("unknown item type '%r', excepted enum ItemType" % tp)
         return object.__new__(cls)
 
-    def __init__(self, *, name: str, worth: int, desc: str, type: ItemType):
+    def __init__(self, *, name: str, type: ItemType, worth: int = 1, desc: str = "no desc"):
         self.name = name
         self.worth = worth
         self.type = type
@@ -64,8 +64,7 @@ class _ItemCache:
 
             for item in itemdata:
                 item['type'] = tp
-                self.items[item['name']] = _ItemABC(name=item['name'], desc=item.get('desc', "no desc"),
-                                                    worth=item.get('worth', 1), type=tp)
+                self.items[item['name']] = _ItemABC(**tp)
 
     def __repr__(self):
         return repr(list(self.items))
