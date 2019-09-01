@@ -280,7 +280,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
                 return await ctx.send("No command found.")
             start = time.perf_counter()
             try:
-                await nctx.invoke(nctx.command)
+                await nctx.command.invoke(nctx)
             except Exception as e:
                 if not f:
                     f = True
