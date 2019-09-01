@@ -98,11 +98,6 @@ class PerformanceContext(commands.Context):
         await asyncio.sleep(0.093)
         return True
 
-    async def invoke(self, cmd):
-        await cmd.prepare(self)
-        await cmd._parse_arguments(self)
-        await cmd.invoke(self)
-
 
 class Developers(commands.Cog, command_attrs={"hidden": True}):
     process = psutil.Process()
@@ -275,14 +270,14 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
 
     @dev.command()
     async def timeit(self, ctx, *, command):
-        nmsg = copy.copy(ctx.message)
-        nmsg.content = ctx.prefix + command
-        nctx = await self.bot.get_context(nmsg, cls=PerformanceContext)
-        if nctx.command is None:
-            return await ctx.send("No command found.")
         times = []
         f = False
         for a in range(self._perf_loops):
+            nmsg = copy.copy(ctx.message)
+            nmsg.content = ctx.prefix + command
+            nctx = await self.bot.get_context(nmsg, cls=PerformanceContext)
+            if nctx.command is None:
+                return await ctx.send("No command found.")
             start = time.perf_counter()
             try:
                 await nctx.invoke(nctx.command)
