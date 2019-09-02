@@ -46,4 +46,4 @@ class MapHandler:
             with open(m['mapfile']) as f:
                 md = json.load(f)
             md['desc'] = m['desc']
-            self.maps[md['name']] = Map(self.bot, md['name'], md)
+            self.maps[md['name']] = Map(self.bot, m['name'], md)
