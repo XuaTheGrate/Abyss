@@ -12,7 +12,7 @@ class _ItemABC:
         elif tp is ItemType.TRASH:
             cls = TrashItem
         else:
-            raise TypeError("unknown item type '%r', excepted enum ItemType" % tp)
+            raise TypeError("unknown item type '{!r}', excepted enum ItemType".format(tp))
         return object.__new__(cls)
 
     def __init__(self, *, name: str, type: ItemType, worth: int = 1, desc: str = "no desc"):
