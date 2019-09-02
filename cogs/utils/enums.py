@@ -113,7 +113,7 @@ class Season(Enum):
 
 
 class ItemType(Enum):
-    USABLE = 0
+    HEALING = 0
     TRASH = 1
     MATERIAL = 2
     SKILL_CARD = 3
