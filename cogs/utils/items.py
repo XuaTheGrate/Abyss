@@ -11,6 +11,8 @@ class _ItemABC:
             cls = SkillCard
         elif tp is ItemType.TRASH:
             cls = TrashItem
+        elif tp is ItemType.HEALING:
+            cls = HealingItem
         else:
             raise TypeError("unknown item type '{!r}', excepted enum ItemType".format(tp))
         return object.__new__(cls)
