@@ -1,5 +1,8 @@
 import math
-import numpy.random as random
+try:
+    import numpy.random as random
+except ImportError:
+    import random
 
 from . import ailments, weather
 from .enums import *

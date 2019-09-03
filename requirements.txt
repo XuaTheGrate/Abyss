@@ -1,13 +1,13 @@
 git+https://github.com/Rapptz/discord.py
-PyNaCl
+PyNaCl ; sys_platform == 'linux'
 import_expression
 psutil
 motor
 aioredis
 dpy-ui
-Pillow
+Pillow ; sys_platform == 'linux'
 contextvars ; python_version < '3.7'
-numpy
+numpy ; sys_platform == 'linux'
 youtube_dl
 aiostream
 tabulate

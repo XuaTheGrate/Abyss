@@ -2,7 +2,10 @@ import asyncio
 import contextlib
 import io
 import os
-import numpy.random as random
+try:
+    import numpy.random as random
+except ImportError:
+    import random
 import traceback
 from datetime import datetime, timedelta
 

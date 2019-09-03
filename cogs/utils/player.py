@@ -1,5 +1,8 @@
 import math
-import numpy.random as random
+try:
+    import numpy.random as random
+except ImportError:
+    import random
 import re
 
 from .enums import *
@@ -54,7 +57,7 @@ class Player(JSONable):
             self.skills = []
             self._skills = list({'Attack', 'Guard', *skills})
 
-        self.map, self.area = kwargs.pop('location')
+        self.map, self.area = kwargs.pop('location', (None, None))
 
         self.exp = kwargs.pop("exp")
         self._next_level = self.level + 1
@@ -112,7 +115,8 @@ class Player(JSONable):
 
     def _populate_skills(self, bot):
         self.owner = bot.get_user(self._owner_id)
-        self.map = bot.map_handler.maps[self.map]
+        if self.map:
+            self.map = bot.map_handler.maps[self.map]
         self.inventory = Inventory(bot, self, self.inventory)
         for skill in self._skills:
             self.skills.append(bot.players.skill_cache[skill])

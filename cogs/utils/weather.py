@@ -1,6 +1,9 @@
 from datetime import datetime, timedelta
 
-import numpy.random as np
+try:
+    import numpy.random as np
+except ImportError:
+    import random as np
 
 from .enums import Weather, SevereWeather, Season
 from .lookups import WIND_SPEED_SEASON, WIND_SPEED_WEATHER
