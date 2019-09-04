@@ -115,7 +115,7 @@ class TargetSession(ui.Session):
         if target in ('enemy', 'ally'):
             self.targets = {f"{c+1}\u20e3": targets[c] for c in range(len(targets))}
             for e in self.targets.keys():
-                log.debug(f"added button for {self.enemies[e]}")
+                # log.debug(f"added button for {self.enemies[e]}")
                 self.add_button(self.button_enemy, e)
         elif target in ('enemies', 'self', 'allies'):
             self.targets = targets
@@ -130,7 +130,7 @@ class TargetSession(ui.Session):
             c = ["**Pick a target!**\n"]
             # noinspection PyUnresolvedReferences
             c.extend([f"{a} {b.name}" for a, b in self.targets.items()])
-            log.debug("target session initial message")
+            # log.debug("target session initial message")
             return await self.context.send(NL.join(c))
         elif self.target == 'enemies':
             c = ["**Targets all enemies**\n"]
@@ -150,7 +150,7 @@ class TargetSession(ui.Session):
     async def stop(self):
         with suppress(discord.HTTPException, AttributeError):
             await self.message.delete()
-        log.debug("le stop()")
+        # log.debug("le stop()")
         await super().stop()
 
     @ui.button("<:tickNo:568613146152009768>")
@@ -159,7 +159,7 @@ class TargetSession(ui.Session):
         await self.stop()
 
     async def button_enemy(self, payload):
-        log.debug("le button")
+        # log.debug("le button")
         # noinspection PyTypeChecker
         self.result = (self.targets[str(payload.emoji)],)
         await self.stop()
@@ -172,7 +172,7 @@ class TargetSession(ui.Session):
 class InitialSession(ui.Session):
     def __init__(self, battle, player):
         super().__init__(timeout=180)
-        log.debug("initial session init")
+        # log.debug("initial session init")
         self.battle = battle
         self.player = player
         self.enemies = battle.enemies
@@ -182,7 +182,7 @@ class InitialSession(ui.Session):
             lambda s: s.type is not SkillType.PASSIVE, self.player.skills)))+")")
 
     async def stop(self):
-        log.debug("initialsession stop()")
+        # log.debug("initialsession stop()")
         with suppress(discord.HTTPException, AttributeError):
             await self.message.delete()
         await super().stop()
@@ -199,18 +199,18 @@ class InitialSession(ui.Session):
             self.allowed_users = {ctx.author.id}
 
         await self._prepare()
-        log.debug("after prepare")
+        # log.debug("after prepare")
 
         try:
-            log.debug("before loop")
+            # log.debug("before loop")
             await self._Session__loop()  # @ikusaba-san pls
-            log.debug("after loop")
+            # log.debug("after loop")
         finally:
             await self._cleanup()
-            log.debug("_cleanup")
+            # log.debug("_cleanup")
 
     async def select_target(self, target):
-        log.debug("initialsession target selector")
+        # log.debug("initialsession target selector")
         if target in ('enemy', 'enemies'):
             menu = TargetSession(*[e for e in self.enemies if not e.is_fainted()], target=target)
         elif target == 'self':
@@ -223,9 +223,9 @@ class InitialSession(ui.Session):
 
         await menu.start(self.context)
         if not menu.result:
-            log.debug("no result")
+            # log.debug("no result")
             return 'cancel'
-        log.debug(f"result: {menu.result!r}")
+        # log.debug(f"result: {menu.result!r}")
         return menu.result
 
     async def select_skill(self, _, skill):
@@ -236,12 +236,12 @@ class InitialSession(ui.Session):
         target = await self.select_target(obj.target)
         if target != 'cancel':
             self.result = {"type": "fight", "data": {"skill": obj, "targets": target}}
-            log.debug(f"select skill: {self.result}")
+            # log.debug(f"select skill: {self.result}")
             await self.stop()
 
     async def handle_timeout(self):
         self.result = {"type": "run", "data": {"timeout": True}}
-        log.debug("timeout")
+        # log.debug("timeout")
         await self.stop()
 
     async def on_message(self, message):
@@ -255,7 +255,7 @@ class InitialSession(ui.Session):
             match = re.fullmatch(pattern, message.content, flags=re.IGNORECASE)
             if not match:
                 continue
-            log.debug("callback found for message")
+            # log.debug("callback found for message")
             callback = command.__get__(self, self.__class__)
             await self._queue.put((callback, message, *match.groups()))
             break
@@ -279,21 +279,21 @@ VS
 """)
 
     async def send_initial_message(self, dm=False):
-        log.debug("sent initial message")
+        # log.debug("sent initial message")
         if not dm:
             m = await self.context.send(self.get_home_content())
-            log.debug(f"sent non-dm message {m!r}")
+            # log.debug(f"sent non-dm message {m!r}")
             return m
         else:
             m = await self.player.owner.send(self.get_home_content())
             old_ctx = self.context
             self.context = await self.context.bot.get_context(m)
-            log.debug(f"changed context and sent dm message {m!r} {old_ctx!r} {self.context!r} {old_ctx is self.context}")
+            # log.debug(f"changed context and sent dm message {m!r} {old_ctx!r} {self.context!r} {old_ctx is self.context}")
             return m
 
     @ui.button('\N{CROSSED SWORDS}')
     async def fight(self, __):
-        log.debug("fight() called")
+        # log.debug("fight() called")
         skills = []
         for skill in self.player.skills:
             if skill.type is SkillType.PASSIVE:
@@ -327,12 +327,12 @@ VS
             f"{self.header}\n\n{NL.join(skills)}\n\n> Use \N{HOUSE BUILDING} to go back"), embed=None)
 
     async def _cleanup(self):
-        log.debug("_cleanup was called???")
+        # log.debug("_cleanup was called???")
         await super()._cleanup()
 
     @ui.button("\N{BLACK QUESTION MARK ORNAMENT}")
     async def help(self, __):
-        log.debug("info() called")
+        # log.debug("info() called")
         embed = discord.Embed(title="How to: Interactive Battle")
         embed.description = _("""Partially ported from Adventure, the battle system has been revived!
 Various buttons have been reacted for use, but move selection requires you to send a message.
@@ -351,7 +351,7 @@ For more information regarding battles, see `$faq battle`.""")
 
     @ui.button("\N{RUNNER}")
     async def escape(self, _):
-        log.debug("escape() called")
+        # log.debug("escape() called")
         chance = 75 - (max(self.enemies, key=lambda e: e.level).level - self.player.level)
         if random.randint(1, 100) < chance:
             self.result = {"type": "run", "data": {"success": True}}
@@ -361,7 +361,7 @@ For more information regarding battles, see `$faq battle`.""")
 
     @ui.button("\N{HOUSE BUILDING}")
     async def ret(self, _):
-        log.debug("ret() called")
+        # log.debug("ret() called")
         await self.message.edit(content=f"""{self.header}
 
 \N{CROSSED SWORDS} Fight
@@ -646,9 +646,9 @@ class WildBattle:
 
     @tasks.loop(seconds=1)
     async def main(self):
-        log.debug("starting loop")
+        # log.debug("starting loop")
         if not confirm_not_dead(self):
-            log.debug("confirm not dead failed, stopping")
+            # log.debug("confirm not dead failed, stopping")
             await self.stop()
             return
         nxt = self.order.active()
@@ -677,7 +677,7 @@ class WildBattle:
             return  # no handler rn
 
         if not isinstance(nxt, Enemy):
-            log.debug("next: player")
+            # log.debug("next: player")
             if not self.double_turn:
                 if self.ambush and any(s.name == 'Heat Up' for s in nxt.skills):
                     nxt.hp = -(nxt.max_hp * 0.05)
@@ -686,7 +686,7 @@ class WildBattle:
             await self.handle_player_choices(nxt)
         else:
             if not nxt.is_fainted():
-                log.debug("next enemy not fainted")
+                # log.debug("next enemy not fainted")
                 if not self.double_turn:
                     if self.ambush is False and any(s.name == 'Heat Up' for s in nxt.skills):
                         nxt.hp = -(nxt.max_hp * 0.05)
@@ -700,9 +700,9 @@ class WildBattle:
 
     @main.before_loop
     async def pre_battle_start(self):
-        log.debug("pre battle, determining ambush")
+        # log.debug("pre battle, determining ambush")
         if self.ambush is True:
-            log.debug("player initiative")
+            # log.debug("player initiative")
             await self.ctx.send("> {0} {1}! You surprised {2}!".format(
                 len(self.enemies),
                 _('enemy') if len(self.enemies) == 1 else _('enemies'),
@@ -720,7 +720,7 @@ class WildBattle:
                     p._ex_crit_mod += 2.5
 
         elif self.ambush is False:
-            log.debug("enemy initiative")
+            # log.debug("enemy initiative")
             await self.ctx.send("> It's an ambush! There {2} {0} {1}!".format(
                 len(self.enemies), _('enemy') if len(self.enemies) == 1 else _('enemies'),
                 _('is') if len(self.enemies) == 1 else _('are')
@@ -736,7 +736,7 @@ class WildBattle:
                 if any(s.name == 'Fortified Moxy' for s in e.skills):
                     e._ex_crit_mod += 2.5
         else:
-            log.debug("regular initiative")
+            # log.debug("regular initiative")
             await self.ctx.send("> There {2} {0} {1}! Attack!".format(
                 len(self.enemies), _('enemy') if len(self.enemies) == 1 else _('enemies'),
                 _('is') if len(self.enemies) == 1 else _('are')))
@@ -748,17 +748,17 @@ class WildBattle:
 
     @main.after_loop
     async def post_battle_complete(self):
-        log.debug("complete")
+        # log.debug("complete")
         if self.main.failed():
             err = self.main.exception()
-            log.debug(f"error occured: {err!r}")
+            # log.debug(f"error occured: {err!r}")
         else:
             err = None
         await self.cmd(self.ctx, err, battle=self)
         await self.ctx.send("game over")
         for p in self.players:
             p.post_battle(self._ran)
-        log.debug("finish")
+        # log.debug("finish")
 
 
 class PVPBattle(WildBattle):
