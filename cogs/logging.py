@@ -1,5 +1,6 @@
+import os.path
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from discord.ext import commands
 
@@ -20,6 +21,9 @@ class BetterRotatingFileHandler(logging.FileHandler):
         if strf != self.init:
             self.init = strf
             self.close()
+
+        if os.path.isfile("logs/"+self.baseFilename+(datetime.utcnow()-timedelta(days=7)).strftime("%d-%m-%Y")):
+            os.remove("logs/"+self.baseFilename+(datetime.utcnow()-timedelta(days=7)).strftime("%d-%m-%Y"))
 
         if self.stream is None:
             self.stream = self._open()

@@ -1,9 +1,8 @@
 import builtins
+import contextvars
 import gettext
 import os.path
 from glob import glob
-
-import contextvars
 
 from main import BASE_DIR
 
