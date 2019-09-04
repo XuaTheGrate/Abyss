@@ -132,11 +132,9 @@ Skill
 
         if self.uses_sp:
             if attacker._concentrating:
-                attacker._concentrating = False
                 base *= 2.5
         else:
             if attacker._charging:
-                attacker._charging = False
                 base *= 2.5
 
         return max(1, base)

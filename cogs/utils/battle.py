@@ -563,6 +563,10 @@ class WildBattle:
 
                 if res.did_weak:
                     weaked = True
+        if skill.uses_sp:  # reset here so all hits of a skill are charged up
+            player._concentrating = False
+        else:
+            player._charging = False
 
         if weaked and confirm_not_dead(self):
             self.order.decycle()
@@ -590,60 +594,65 @@ class WildBattle:
         skill = enemy.random_move()
         if skill.name in UNSUPPORTED_SKILLS:
             await self.ctx.send(f"{enemy} used an unhandled skill ({skill.name}), skipping")
-        else:
-            targets = self.filter_targets(skill, enemy)
-            if isinstance(skill, (StatusMod, ShieldSkill, HealingSkill, Karn, Charge, AilmentSkill)):
-                await self.ctx.send(f"__{enemy}__ used `{skill}`!")
-                await skill.effect(self, targets)
-                return
+            return
+        targets = self.filter_targets(skill, enemy)
+        if isinstance(skill, (StatusMod, ShieldSkill, HealingSkill, Karn, Charge, AilmentSkill)):
+            await self.ctx.send(f"__{enemy}__ used `{skill}`!")
+            await skill.effect(self, targets)
+            return
 
-            if skill.name == 'Guard':
-                await self.ctx.send(f"__{enemy}__ guarded!")
-                enemy.guarding = True
-                return
+        if skill.name == 'Guard':
+            await self.ctx.send(f"__{enemy}__ guarded!")
+            enemy.guarding = True
+            return
 
-            # log.debug(f"enemy: {targets}, {skill.hits}")
-            for target in targets:
-                weaked = False
-                force_crit = 0
+        # log.debug(f"enemy: {targets}, {skill.hits}")
+        for target in targets:
+            weaked = False
+            force_crit = 0
                 
-                for a in range(random.randint(*skill.hits)):
-                    res = target.take_damage(enemy, skill, enforce_crit=force_crit)
-                    force_crit = 1 if res.critical else 2
-                    if res.did_weak:
-                        weaked = True
+            for a in range(random.randint(*skill.hits)):
+                res = target.take_damage(enemy, skill, enforce_crit=force_crit)
+                force_crit = 1 if res.critical else 2
+                if res.did_weak:
+                    weaked = True
     
-                    if res.resistance in (
-                        ResistanceModifier.IMMUNE,
-                        ResistanceModifier.REFLECT,
-                        ResistanceModifier.ABSORB
-                    ):
-                        enemy.unusable_skills.append(skill.name)
-                        # the ai learns not to use it in the future, but still use it this turn
+                if res.resistance in (
+                    ResistanceModifier.IMMUNE,
+                    ResistanceModifier.REFLECT,
+                    ResistanceModifier.ABSORB
+                ):
+                    enemy.unusable_skills.append(skill.name)
+                    # the ai learns not to use it in the future, but still use it this turn
     
-                    msg = get_message(res.resistance, reflect=res.was_reflected, miss=res.miss, critical=res.critical)
-                    msg = msg.format(demon=enemy, tdemon=target, damage=res.damage_dealt, skill=skill)
-                    await self.ctx.send(msg)
+                msg = get_message(res.resistance, reflect=res.was_reflected, miss=res.miss, critical=res.critical)
+                msg = msg.format(demon=enemy, tdemon=target, damage=res.damage_dealt, skill=skill)
+                await self.ctx.send(msg)
     
-                    if skill.type is SkillType.PHYSICAL:
-                        if target.ailment and target.ailment.type is AilmentType.SLEEP:
-                            if random.randint(1, 6) != 1:
-                                target.ailment = None
-                                await self.ctx.send(f"> __{target}__ woke up!")
+                if skill.type is SkillType.PHYSICAL:
+                    if target.ailment and target.ailment.type is AilmentType.SLEEP:
+                        if random.randint(1, 6) != 1:
+                            target.ailment = None
+                            await self.ctx.send(f"> __{target}__ woke up!")
     
-                    if skill.name == 'Attack':
-                        if target.ailment and target.ailment.type is AilmentType.SHOCK:
-                            if not enemy.ailment and random.randint(1, 3) == 1:
-                                enemy.ailment = ailments.Shock(enemy, AilmentType.SHOCK)
-                                await self.ctx.send(f"> __{enemy}__ was inflicted with **Shock**!")
-                        elif not target.ailment and enemy.ailment and enemy.ailment.type is AilmentType.SHOCK:
-                            target.ailment = ailments.Shock(target, AilmentType.SHOCK)
-                            await self.ctx.send(f"> __{target}__ was inflicted with **Shock**!")
+                if skill.name == 'Attack':
+                    if target.ailment and target.ailment.type is AilmentType.SHOCK:
+                        if not enemy.ailment and random.randint(1, 3) == 1:
+                            enemy.ailment = ailments.Shock(enemy, AilmentType.SHOCK)
+                            await self.ctx.send(f"> __{enemy}__ was inflicted with **Shock**!")
+                    elif not target.ailment and enemy.ailment and enemy.ailment.type is AilmentType.SHOCK:
+                        target.ailment = ailments.Shock(target, AilmentType.SHOCK)
+                        await self.ctx.send(f"> __{target}__ was inflicted with **Shock**!")
+
+            if skill.uses_sp:
+                enemy._concentrating = False
+            else:
+                enemy._charging = False
                 
-                if weaked and not target.is_fainted():
-                    self.order.decycle()
-                    self.double_turn = True
-                    await self.ctx.send("> Watch out, {demon} is attacking again!".format(demon=enemy))
+            if weaked and not target.is_fainted():
+                self.order.decycle()
+                self.double_turn = True
+                await self.ctx.send("> Watch out, {demon} is attacking again!".format(demon=enemy))
 
     @tasks.loop(seconds=1)
     async def main(self):

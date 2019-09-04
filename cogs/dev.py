@@ -31,10 +31,6 @@ def recursive_decode(i):
     return i
 
 
-async def _replace_checks(*args, **kwargs):
-    return True
-
-
 class FakeUser:
     __slots__ = ('id', 'name', 'display_name')
 
