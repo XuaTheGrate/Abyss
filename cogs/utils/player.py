@@ -615,7 +615,7 @@ In [58]: for my_suku in (0.95, 1.0, 1.05):
     ...:         base /= my_suku
     ...:         print(f"Attacker: {attacker_suku:.2f}/{90*attacker_suku:.2f} | Me: {my_suku:.2f}/{90/my_suku:.2f} | {100-base:.2f} evasion chance")
     ...:
-Attacker: mod \ base * mod | Me: mod \ base / mod | overall evasion chance
+Attacker: mod / base * mod | Me: mod / base / mod | overall evasion chance
 Attacker: 0.95/85.50 | Me: 0.95/94.74 | 10.00 evasion chance
 Attacker: 1.00/90.00 | Me: 0.95/94.74 | 5.26 evasion chance
 Attacker: 1.05/94.50 | Me: 0.95/94.74 | 0.53 evasion chance

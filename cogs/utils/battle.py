@@ -275,12 +275,16 @@ VS
 """)
 
     async def send_initial_message(self, dm=False):
-        # log.debug("sent initial message")
+        log.debug("sent initial message")
         if not dm:
-            return await self.context.send(self.get_home_content())
+            m = await self.context.send(self.get_home_content())
+            log.debug(f"sent non-dm message {m!r}")
+            return m
         else:
             m = await self.player.owner.send(self.get_home_content())
+            old_ctx = self.context
             self.context = await self.context.bot.get_context(m)
+            log.debug(f"changed context and sent dm message {m!r} {old_ctx!r} {self.context!r} {old_ctx is self.context}")
             return m
 
     @ui.button('\N{CROSSED SWORDS}')
