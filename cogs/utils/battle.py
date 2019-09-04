@@ -203,7 +203,7 @@ class InitialSession(ui.Session):
 
         try:
             log.debug("before loop")
-            await self.__loop()
+            await self._Session__loop()  # @ikusaba-san pls
             log.debug("after loop")
         finally:
             await self._cleanup()
