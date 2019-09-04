@@ -322,6 +322,10 @@ VS
         await self.message.edit(content=_(
             f"{self.header}\n\n{NL.join(skills)}\n\n> Use \N{HOUSE BUILDING} to go back"), embed=None)
 
+    async def _cleanup(self):
+        log.debug("_cleanup was called???")
+        await super()._cleanup()
+
     @ui.button("\N{BLACK QUESTION MARK ORNAMENT}")
     async def help(self, __):
         # log.debug("info() called")
