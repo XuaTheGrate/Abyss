@@ -39,7 +39,7 @@ class Player(JSONable):
         elif key == 'unsetskills':
             return [z.name for z in self.unset_skills if z.name not in ('Attack', 'Guard')]
         elif key == 'location':
-            return self.map.name, self.area['name']
+            return self.map.name, (self.area['name'] if self.area else None)
         elif key == 'inventory':
             return self.inventory.to_json()
         return getattr(self, key)
