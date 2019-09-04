@@ -528,6 +528,7 @@ class WildBattle:
             return
 
         weaked = False
+        # log.debug(f'{targets}, {skill.hits}')
         for target in targets:
             force_crit = 0
 
@@ -547,13 +548,13 @@ class WildBattle:
 
                 if skill.type is SkillType.PHYSICAL:
                     if target.ailment and target.ailment.type is AilmentType.SLEEP:
-                        if random.randint(1, 5) != 1:
+                        if random.randint(1, 6) != 1:
                             target.ailment = None
                             await self.ctx.send(f"> __{target}__ woke up!")
 
                 if skill.name == 'Attack':
                     if target.ailment and target.ailment.type is AilmentType.SHOCK:
-                        if not player.ailment and random.randint(1, 2) == 1:
+                        if not player.ailment and random.randint(1, 3) == 1:
                             player.ailment = ailments.Shock(player, AilmentType.SHOCK)
                             await self.ctx.send(f"> __{player}__ was inflicted with **Shock**!")
                     elif not target.ailment and player.ailment and player.ailment.type is AilmentType.SHOCK:
@@ -591,7 +592,6 @@ class WildBattle:
             await self.ctx.send(f"{enemy} used an unhandled skill ({skill.name}), skipping")
         else:
             targets = self.filter_targets(skill, enemy)
-            mn, mx = skill.hits
             if isinstance(skill, (StatusMod, ShieldSkill, HealingSkill, Karn, Charge, AilmentSkill)):
                 await self.ctx.send(f"__{enemy}__ used `{skill}`!")
                 await skill.effect(self, targets)
@@ -602,11 +602,12 @@ class WildBattle:
                 enemy.guarding = True
                 return
 
+            # log.debug(f"enemy: {targets}, {skill.hits}")
             for target in targets:
                 weaked = False
                 force_crit = 0
                 
-                for a in range(random.randint(mn, mx+1)):
+                for a in range(random.randint(*skill.hits)):
                     res = target.take_damage(enemy, skill, enforce_crit=force_crit)
                     force_crit = 1 if res.critical else 2
                     if res.did_weak:
@@ -626,13 +627,13 @@ class WildBattle:
     
                     if skill.type is SkillType.PHYSICAL:
                         if target.ailment and target.ailment.type is AilmentType.SLEEP:
-                            if random.randint(1, 5) != 1:
+                            if random.randint(1, 6) != 1:
                                 target.ailment = None
                                 await self.ctx.send(f"> __{target}__ woke up!")
     
                     if skill.name == 'Attack':
                         if target.ailment and target.ailment.type is AilmentType.SHOCK:
-                            if not enemy.ailment and random.randint(1, 2) == 1:
+                            if not enemy.ailment and random.randint(1, 3) == 1:
                                 enemy.ailment = ailments.Shock(enemy, AilmentType.SHOCK)
                                 await self.ctx.send(f"> __{enemy}__ was inflicted with **Shock**!")
                         elif not target.ailment and enemy.ailment and enemy.ailment.type is AilmentType.SHOCK:
