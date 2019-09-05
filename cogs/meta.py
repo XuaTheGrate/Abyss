@@ -100,7 +100,7 @@ Online for {humanize.naturaldelta(ctx.bot.start_date - datetime.utcnow())}
     @commands.group(invoke_without_command=True, name="help")
     async def faq(self, ctx):
         """Brings up the Frequently Asked Questions."""
-        embed = discord.Embed(title="FAQ")
+        embed = discord.Embed(title="Help")
         embed.description = "\n".join(f"${c} - **{c.short_doc}**" for c in self.faq.commands)
         embed.set_footer(text="Looking for the command list? See $commands")
         await ctx.send(embed=embed)
@@ -108,7 +108,7 @@ Online for {humanize.naturaldelta(ctx.bot.start_date - datetime.utcnow())}
     @faq.group()
     async def battle(self, ctx):
         """How do I fight?"""
-        embed = discord.Embed(title="FAQ: Battle")
+        embed = discord.Embed(title="Help: Battle")
         embed.description = """Each battle will require you to fight against one or more opponents.
 > __Losing the battle will not be tolerated.__
 Each demon gets a turn. The fastest demon moves first, in order of your Agility stat.
@@ -121,7 +121,7 @@ Winning the battle will earn EXP, Credits and you may even obtain an item."""
     @faq.command(aliases=['resistance'])
     async def resistances(self, ctx):
         """What are resistances and how do they affect battle?"""
-        embed = discord.Embed(title="FAQ: Resistances")
+        embed = discord.Embed(title="Help: Resistances")
         embed.description = """Each demon has their own unique resistances.
 Some may not have a weakness, and some may not have a resistance.
 Some may even nullify all attacks of a certain type.
@@ -149,7 +149,7 @@ Todo: dont obtain bonus turns for exploting the same enemy's weakness twice"""
     @faq.command(aliases=['skill'])
     async def skills(self, ctx):
         """What are all the skill categories?"""
-        embed = discord.Embed(title="FAQ: Skills")
+        embed = discord.Embed(title="Help: Skills")
         embed.description = """Each skill has their own type, power, accuracy and possible secret ability.
 There are 6 categories of skills:
 > __Physical__
@@ -175,7 +175,7 @@ You can view `$faq ailments` to view information about every ailment."""
     @faq.command(aliases=['statuses', 'ailment'])
     async def ailments(self, ctx):
         """What is an ailment and what do they do?"""
-        embed = discord.Embed(title="FAQ: Ailments")
+        embed = discord.Embed(title="Help: Ailments")
         embed.set_footer(text="All ailments will heal themselves 2-7 turns after infliction.")
         embed.description = """In total, there are **12** ailments.
 `Technical` is like a crit, but different. See `$faq technicals`
@@ -210,6 +210,6 @@ Greatly lowers your attack power."""
 
 
 def setup(bot):
+    bot.add_cog(Meta())
     bot.help_command = commands.MinimalHelpCommand(verify_checks=False,
                                                    command_attrs={"name": "cmds", "aliases": ["commands"]})
-    bot.add_cog(Meta())

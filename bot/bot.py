@@ -300,7 +300,7 @@ class Abyss(commands.Bot):
 
     async def on_ready(self):
         if self.prepared.is_set():
-            await self.change_presence(activity=discord.Game(name="$help"))
+            await self.change_presence(activity=discord.Game(name="$cmds"))
             return
 
         try:
@@ -321,7 +321,7 @@ class Abyss(commands.Bot):
         self.prepared.set()
         self.start_date = datetime.utcnow()
         log.warning("Successfully loaded.")
-        await self.change_presence(activity=discord.Game(name="$help"))
+        await self.change_presence(activity=discord.Game(name="$cmds"))
 
     async def on_message(self, message):
         if message.author.bot:
