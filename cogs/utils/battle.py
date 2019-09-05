@@ -1,5 +1,5 @@
 import re
-import random
+from abc import ABC
 from contextlib import suppress
 
 from .ailments import *
@@ -109,7 +109,7 @@ def confirm_not_dead(battle):
     return not all(e.is_fainted() for e in battle.enemies)
 
 
-class TargetSession(ui.Session):
+class TargetSession(ui.Session, ABC):
     def __init__(self, *targets, target):
         super().__init__(timeout=180)
         if target in ('enemy', 'ally'):
@@ -533,6 +533,7 @@ class WildBattle:
             force_crit = 0
 
             for __ in range(random.randint(*skill.hits)):
+                await asyncio.sleep(1.1)
                 res = target.take_damage(player, skill, enforce_crit=force_crit)
                 # this is to ensure crits only happen IF the first hit did land a crit
                 # we use a Troolean:
@@ -612,6 +613,7 @@ class WildBattle:
             force_crit = 0
                 
             for a in range(random.randint(*skill.hits)):
+                await asyncio.sleep(1.1)  # we are sending messages too fast tbh
                 res = target.take_damage(enemy, skill, enforce_crit=force_crit)
                 force_crit = 1 if res.critical else 2
                 if res.did_weak:

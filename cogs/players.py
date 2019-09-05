@@ -11,7 +11,7 @@ from operator import itemgetter
 import discord
 from discord.ext import commands, ui
 
-from .utils import lookups, scripts, i18n, imaging, items
+from .utils import lookups, imaging, items
 from .utils.enums import SkillType
 from .utils.player import Player
 from .utils.skills import Skill, GenericAttack, Guard
@@ -306,7 +306,7 @@ class Players(commands.Cog):
             await ctx.send(msg)
             await asyncio.sleep(5)
 
-        task = self.bot.loop.create_task(scripts.do_script(ctx, "creation", i18n.current_locale.get()))
+        # task = self.bot.loop.create_task(scripts.do_script(ctx, "creation", i18n.current_locale.get()))
 
         if not await self.bot.is_owner(ctx.author):
             demon = random.choice(list(self._base_demon_cache.keys()))
@@ -323,20 +323,21 @@ class Players(commands.Cog):
         data['unsetskills'] = []
         player = Player(**data)
 
-        await task
-        if not task.result():
-            ctx.command.reset_cooldown(ctx)
-            return
+        # await task
+        # if not task.result():
+        # ctx.command.reset_cooldown(ctx)
+        # return
 
-        await self.bot.redis.set(f"story@{ctx.author.id}", 1)
+        # await self.bot.redis.set(f"story@{ctx.author.id}", 1)
 
         self.players[ctx.author.id] = player
         player._populate_skills(self.bot)
         await player.save(self.bot)
 
-        await ctx.send(
-            _("<꽦䐯嬜継ḉ> The deed is done. You have been given the demon `{player.name}`. Use its power wisely..."
-              ).format(player=player))
+        # await ctx.send(
+        # _("<꽦䐯嬜継ḉ> The deed is done. You have been given the demon `{player.name}`. Use its power wisely..."
+        # ).format(player=player))
+        await ctx.send(f"Done. You now control the demon `{player.name}`.")
 
     @commands.command()
     async def status(self, ctx):
