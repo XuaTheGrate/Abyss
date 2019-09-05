@@ -210,6 +210,6 @@ Greatly lowers your attack power."""
 
 
 def setup(bot):
-    bot.add_cog(Meta())
     bot.help_command = commands.MinimalHelpCommand(verify_checks=False,
                                                    command_attrs={"name": "cmds", "aliases": ["commands"]})
+    bot.add_cog(Meta())
