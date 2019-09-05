@@ -156,8 +156,7 @@ class Abyss(commands.Bot):
         self.map_handler = MapHandler(self)
         self.item_cache = None
 
-        self.help_command = commands.MinimalHelpCommand(verify_checks=False,
-                                                        command_attrs={"name": "cmds", "aliases": ["commands"]})
+        self.help_command = commands.MinimalHelpCommand(verify_checks=False)
 
         self.add_check(self.global_check)
         self.before_invoke(self.before_invoke_handler)
