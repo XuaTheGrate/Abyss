@@ -156,13 +156,16 @@ class Fear(_Ailment, Exception):
 
 
 def _skill_cost(p, s):
+    cost = s.cost
     if s.uses_sp:
         if any(ss.name == 'Spell Master' for ss in p.skills):
-            return p.sp >= s.cost/2
-        return p.sp >= s.cost
-    elif any(ss.name == 'Arms Master' for ss in p.skills):
-        return p.hp > s.cost/2
-    return p.hp > s.cost
+            cost = cost / 2
+        return p.sp >= cost
+    else:
+        if any(ss.name == 'Arms Master' for ss in p.skills):
+            cost = cost / 2
+        cost = p.max_hp * (cost / 100)  # we wanted a % smh
+        return p.hp > cost
 
 
 class Brainwash(_Ailment):
@@ -201,6 +204,7 @@ class Brainwash(_Ailment):
                     c = s.cost/2
                 else:
                     c = s.cost
+                c = self.player.max_hp * (c / 100)
                 log.debug(f"costs {c}/{self.player.hp}")
                 self.player.hp = c
             await battle.ctx.send(f"__{self.player}__ used `{s}`!")

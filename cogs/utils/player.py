@@ -253,7 +253,7 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
         return ((diff - mdiff) / diff) * 100
 
     def affected_by(self, modifier):
-        return 1.0 + (0.05 * self._stat_mod[modifier.value])
+        return 1.0 + (0.5 * self._stat_mod[modifier.value])
 
     def refresh_stat_modifier(self, modifier=None, to=True):
         if not modifier:  # all modifiers

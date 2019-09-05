@@ -309,7 +309,7 @@ VS
                 t = 'SP'
             else:
                 if skill.cost != 0:
-                    cost = self.player.max_hp // skill.cost
+                    cost = self.player.max_hp * (skill.cost / 100)
                     if any(s.name == 'Arms Master' for s in self.player.skills):
                         cost /= 2
                 else:
@@ -507,7 +507,7 @@ class WildBattle:
             player.sp = cost
         else:
             if skill.cost != 0:
-                cost = player.max_hp // skill.cost
+                cost = player.max_hp * (skill.cost / 100)
                 if any(s.name == 'Arms Master' for s in player.skills):
                     cost /= 2
             else:
