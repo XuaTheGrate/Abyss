@@ -50,7 +50,7 @@ class BetterRotatingFileHandler(logging.FileHandler):
 
 
 logger = logging.getLogger('discord')
-logger.setLevel(logging.DEBUG)
+# log.setLevel(logging.DEBUG)
 handler = BetterRotatingFileHandler('logs/discord.log', encoding='utf-8')
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)

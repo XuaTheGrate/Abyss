@@ -253,7 +253,7 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
         return ((diff - mdiff) / diff) * 100
 
     def affected_by(self, modifier):
-        return 1.0 + (0.5 * self._stat_mod[modifier.value])
+        return 1.0 + (0.075 * self._stat_mod[modifier.value])
 
     def refresh_stat_modifier(self, modifier=None, to=True):
         if not modifier:  # all modifiers
@@ -652,43 +652,61 @@ Attacker: 1.05 | Me: 1.05 | 4.00 chance to crit
                 not skill.is_instant_kill or
                 skill.type is not SkillType.AILMENT
         ) and any(s.name == 'Firm Stance' for s in self.skills):
+            log.debug("Evasion: Firm Stance")
             return False
 
+        log.debug(f"{attacker} -> {self} with {skill}")
+
         ag = self.agility / 10
+        log.debug(f"self.agility/10 == {ag}")
         if not skill.is_instant_kill and skill.type is not SkillType.AILMENT:
             base = (skill.accuracy + attacker.agility / 2) - ag / 2
+            log.debug(f"not instant death and not ailment type: {base}")
         else:
             base = skill.accuracy - ag / 2
+            log.debug(f"instant death or ailment type: {base}")
             base += attacker.get_boost_amp_mod(skill.type)  # light/dark only
             if self.resists(skill.type) is ResistanceModifier.WEAK:
                 base *= 1.1
+                log.debug("weak to type")
             elif self.resists(skill.type) is ResistanceModifier.RESIST:
                 base *= 0.9
+                log.debug("resists type")
+
+        log.debug(f"new base: {base}")
 
         passive = self.get_passive_evasion(skill.type)
+        log.debug(f"passive? {passive}")
         if passive:
             base += passive.evasion
 
         my_suku = self.affected_by(StatModifier.SUKU)
+        log.debug(f"defenders sukukaja modifier == {my_suku}, {base * my_suku}")
         base *= my_suku
         base /= attacker.affected_by(StatModifier.SUKU)
-        # log.debug(f"Attacker: {suku_mod:.2f}/{90 * suku_mod:.2f} |"
-        #           f" Me: {my_suku:.2f}/{90 / my_suku:.2f} | {100 - base:.2f} evasion chance")
+        log.debug(f"attackers sukukaja modifier == {attacker.affected_by(StatModifier.SUKU)}, {base}")
 
         if attacker.ailment and attacker.ailment.type is AilmentType.DIZZY:
             base *= 0.25
+            log.debug("attacker has dizzy")
 
         if skill.type is SkillType.AILMENT and self._ailment_buff >= 0:
-            base *= 2
+            base /= 2
+            log.debug(f"type is ailment and affected by foul breath, {base}")
 
         if any(s.name == 'Angelic Grace' for s in self.skills):
             base *= 2
+            log.debug(f"we have angelic grace, {base}")
         if any(s.name == 'Rainy Play' for s in self.skills):
             if get_current_weather() is Weather.RAIN:
                 base *= 2
+                log.debug(f"rain type+rainy play = {base}")
             elif get_current_weather() is SevereWeather.THUNDER_STORM:
                 base *= 3
-        return random.uniform(1, 100) > base
+                log.debug(f"severe rain+rainy play = {base}")
+        rng = random.uniform(1, 100)
+        log.debug(f"rng>base? {rng}, {base}, {rng > base}")
+        return rng > base
 
     async def save(self, bot):
         data = self.to_json()
