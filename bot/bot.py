@@ -138,7 +138,10 @@ class ContextSoWeDontGetBannedBy403(commands.Context):
 
 class Abyss(commands.Bot):
     def __init__(self):
-        super().__init__(commands.when_mentioned_or("$"))
+        super().__init__(
+            commands.when_mentioned_or("$"),
+            help_command=commands.MinimalHelpCommand(verify_checks=False,
+                                                     command_attrs={"name": "cmds", "aliases": ["commands"]}))
         self.prepared = asyncio.Event()
         # `prepared` is to make sure the bot has loaded the database and such
 
@@ -155,8 +158,6 @@ class Abyss(commands.Bot):
         self.start_date = None
         self.map_handler = MapHandler(self)
         self.item_cache = None
-
-        self.help_command = commands.MinimalHelpCommand(verify_checks=False)
 
         self.add_check(self.global_check)
         self.before_invoke(self.before_invoke_handler)
