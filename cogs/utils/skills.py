@@ -110,8 +110,7 @@ Skill
         if self.is_instant_kill:
             return target.hp
 
-        base = 5 * math.sqrt((attacker.magic if self.uses_sp else attacker.strength) / target.endurance *
-                             SKILL_BASE) * random.uniform(0.95, 1.05)
+        base = 5 * math.sqrt((attacker.magic if self.uses_sp else attacker.strength) / target.endurance * SKILL_BASE)
         base *= attacker.affected_by(StatModifier.TARU)
         base /= target.affected_by(StatModifier.RAKU)
         base += (attacker.level - target.level)
@@ -137,7 +136,7 @@ Skill
             if attacker._charging:
                 base *= 2.5
 
-        return max(1, base)
+        return max(1, base * random.uniform(0.75, 1.25))
 
 
 class Counter(Skill):
