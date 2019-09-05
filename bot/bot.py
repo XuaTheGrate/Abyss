@@ -138,9 +138,8 @@ class ContextSoWeDontGetBannedBy403(commands.Context):
 
 class Abyss(commands.Bot):
     def __init__(self):
-        super().__init__(
-            commands.when_mentioned_or("$"),
-            help_command=None)
+        super().__init__(commands.when_mentioned_or("$"))
+        self.remove_command("help")  # fuck you danny
         self.prepared = asyncio.Event()
         # `prepared` is to make sure the bot has loaded the database and such
 
