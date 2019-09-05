@@ -533,10 +533,17 @@ class WildBattle:
             force_crit = 0
 
             for __ in range(random.randint(*skill.hits)):
+                if target.is_fainted():
+                    break  # no point hitting the dead
                 await asyncio.sleep(1.1)
                 res = target.take_damage(player, skill, enforce_crit=force_crit)
+                if res.miss:
+                    # the first hit was a miss, so just break
+                    # the back door is explained in utils/player.py#L526
+                    break
+
                 # this is to ensure crits only happen IF the first hit did land a crit
-                # we use a Troolean:
+                # we use a Triboolean:
                 # 0: first hit, determine crit
                 # 1: first hit passed, it was a crit
                 # 2: first hit passed, was not a crit

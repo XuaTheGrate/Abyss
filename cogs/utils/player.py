@@ -522,7 +522,11 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
         if res is ResistanceModifier.IMMUNE:
             return result
 
-        if self.try_evade(attacker, skill):
+        if enforce_crit == 0 and self.try_evade(attacker, skill):
+            # we can use enforce_crit here as a back door to determine if we missed the first shot
+            # if its 0, this is still the first of a multihit move
+            # since we break the hits inside the battle system
+            # itll only be non-zero if we did NOT miss the first shot
             result.miss = True
             return result
 
