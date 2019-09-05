@@ -1,6 +1,6 @@
 import collections
-import re
 import os
+import re
 import sys
 import time
 from datetime import datetime, timedelta
@@ -97,11 +97,12 @@ Online for {humanize.naturaldelta(ctx.bot.start_date - datetime.utcnow())}
 """
         await ctx.send(embed=embed)
 
-    @commands.group(invoke_without_command=True)
+    @commands.group(invoke_without_command=True, name="help")
     async def faq(self, ctx):
         """Brings up the Frequently Asked Questions."""
         embed = discord.Embed(title="FAQ")
         embed.description = "\n".join(f"${c} - **{c.short_doc}**" for c in self.faq.commands)
+        embed.set_footer(text="Looking for the command list? See $commands")
         await ctx.send(embed=embed)
 
     @faq.group()

@@ -156,7 +156,8 @@ class Abyss(commands.Bot):
         self.map_handler = MapHandler(self)
         self.item_cache = None
 
-        self.help_command = commands.MinimalHelpCommand(verify_checks=False)
+        self.help_command = commands.MinimalHelpCommand(verify_checks=False,
+                                                        command_attrs={"name": "cmds", "aliases": ["commands"]})
 
         self.add_check(self.global_check)
         self.before_invoke(self.before_invoke_handler)
@@ -169,11 +170,11 @@ class Abyss(commands.Bot):
     def description(self):
         return random.choice([
             "> ~~Stuck? Try using `$story` to progress.~~",
-            "> Confused? Try `$faq` for more information.",
+            "> Confused? Try `$help` for more information.",
             "> ~~Bored? Try your hand at an online battle.~~",
             "> If you have spare stat points, you can still use `$levelup` to use them.",
             "> Join the support server for updates and announcements: <https://discord.gg/hkweDCD>",
-            "> During scripts, press the stop button to save your progress. Using `$story` will continue where you left off.",
+            "> ~~During scripts, press the stop button to save your progress. Using `$story` will continue where you left off.~~",
             "corn"
         ])
 
