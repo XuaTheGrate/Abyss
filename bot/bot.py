@@ -160,8 +160,6 @@ class Abyss(commands.Bot):
         self.add_check(self.global_check)
         self.before_invoke(self.before_invoke_handler)
         self.prepare_extensions()
-        self.help_command = commands.MinimalHelpCommand(verify_checks=False,
-                                                        command_attrs={"name": "cmds", "aliases": ["commands"]})
 
     async def on_command_error(self, *__, **_):
         pass
