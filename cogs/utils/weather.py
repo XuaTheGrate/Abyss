@@ -39,14 +39,15 @@ def get_current_season(date=None):
     raise RuntimeError
 
 
-def try_severe_weather(season, weather):
+def try_severe_weather(season, weather, state=None):
+    rng = state or random
     if season is Season.SUMMER and weather is Weather.SUNNY:
-        return random.random() < 0.5
+        return rng.random() < 0.5
     elif season is Season.WINTER and weather is Weather.SNOW:
-        return random.random() < 0.45
+        return rng.random() < 0.45
     elif season is Season.SUMMER and weather is Weather.RAIN:
-        return random.random() < 0.37
-    return random.random() < 0.1
+        return rng.random() < 0.37
+    return rng.random() < 0.1
 
 
 # noinspection PyArgumentList
@@ -79,7 +80,7 @@ def get_current_weather(date=None):
     weather = Weather(weather)
 
     if weather is not Weather.FOGGY:
-        do = try_severe_weather(season, weather)
+        do = try_severe_weather(season, weather, state=nrand)
         if do:
             return SevereWeather(weather.value)
 
