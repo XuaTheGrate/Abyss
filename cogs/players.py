@@ -1,11 +1,9 @@
 import asyncio
+import collections
 import contextlib
 import itertools
 import json
-try:
-    import numpy.random as random
-except ImportError:
-    import random
+import random
 from operator import itemgetter
 
 import discord
@@ -15,8 +13,6 @@ from .utils import lookups, imaging, items
 from .utils.enums import SkillType
 from .utils.player import Player
 from .utils.skills import Skill, GenericAttack, Guard
-
-import collections
 
 NL = '\n'
 

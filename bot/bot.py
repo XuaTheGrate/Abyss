@@ -1,27 +1,23 @@
 import asyncio
 import contextlib
 import io
+import logging
 import os
-try:
-    import numpy.random as random
-except ImportError:
-    import random
+import random
 import traceback
 from datetime import datetime, timedelta
 
 import aiohttp
 import aioredis
 import discord
-from discord.ext import commands
 import motor.motor_asyncio
+from discord.ext import commands
 
 import config
 from cogs.utils import i18n, formats
 from cogs.utils.mapping import MapHandler
 from cogs.utils.paginators import PaginationHandler, EmbedPaginator, BetterPaginator
 from cogs.utils.player import Player
-
-import logging
 
 NL = '\n'
 

@@ -1,14 +1,10 @@
 import math
-try:
-    import numpy.random as random
-except ImportError:
-    import random
+import random
 
 from . import ailments, weather
 from .enums import *
 from .lookups import WEATHER_TO_TYPE, STAT_MOD
 from .objects import JSONable
-
 
 # Damage calc
 # DMG = ((5 * sqrt(STRMAG / END * BASE) * RNG * TRU) / RKU) + (ATK - TRG)

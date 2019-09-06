@@ -1,9 +1,6 @@
 import json
 
-try:
-    import numpy.random as random
-except ImportError:
-    import random
+import random
 
 
 class Map:

@@ -1,8 +1,5 @@
 import math
-try:
-    import numpy.random as random
-except ImportError:
-    import random
+import random
 import re
 
 from .enums import *

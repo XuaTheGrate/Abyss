@@ -1,14 +1,11 @@
 import asyncio
-try:
-    import numpy.random as random
-except ImportError:
-    import random
+import random
 
 import discord
 import tabulate
 from discord.ext import commands
 
-from .utils import battle as bt, i18n, formats
+from .utils import battle as bt, formats
 
 
 class BattleException(commands.CommandError):
