@@ -30,7 +30,12 @@ class _Ailment:
         self.type = type
         self.player = player
         self.counter = 0
-        self.clear_at = random.randint(2, 7)
+        if any(s.name == 'Fast Heal' for s in player.skills):
+            self.clear_at = random.randint(1, 5)
+        elif any(s.name == 'Insta-Heal' for s in player.skills):
+            self.clear_at = 1
+        else:
+            self.clear_at = random.randint(2, 8)
 
     def __repr__(self):
         return f"<Ailment: {self.name}, {self.player!r}, {self.counter}, {self.type!r}>"

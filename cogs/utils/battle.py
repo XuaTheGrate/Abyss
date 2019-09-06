@@ -9,15 +9,10 @@ from .skills import *
 
 NL = '\n'
 
-UNSUPPORTED_SKILLS = ['Fast Heal', 'Evil Touch', 'Evil Smile', 'Taunt',
-                      'Abysmal Surge', 'Ominous Words', 'Growth 1', 'Growth 2', 'Growth 3',
-                      'Pulinpa', 'Amrita Shower',
-                      'Amrita Drop', 'Brain Jack', 'Marin Karin',
-                      'Fortify Spirit',
-                      'Tentarafoo', 'Wage War', 'Dazzler',
-                      'Nocturnal Flash', 'Dormina', 'Lullaby', 'Ambient Aid', 'Recarm', 'Samarecarm',
-                      'Ailment Boost', 'Rebellion', 'Revolution', 'Insta-Heal',
-                      'Ali Dance']
+UNSUPPORTED_SKILLS = ['Growth 1', 'Growth 2', 'Growth 3',
+                      'Amrita Shower', 'Amrita Drop',
+                      'Fortify Spirit', 'Recarm', 'Samarecarm',
+                      'Rebellion', 'Revolution']
 
 
 class Enemy(Player):

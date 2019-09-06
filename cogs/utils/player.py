@@ -681,6 +681,9 @@ Attacker: 1.05 | Me: 1.05 | 4.00 chance to crit
 
         # log.debug(f"new base: {base}")
 
+        if any(s.name == 'Ailment Boost' for s in attacker.skills):
+            base = base + (base * 0.25)
+
         passive = self.get_passive_evasion(skill.type)
         # log.debug(f"passive? {passive}")
         if passive:
@@ -700,7 +703,8 @@ Attacker: 1.05 | Me: 1.05 | 4.00 chance to crit
             base *= 2
             # log.debug(f"type is ailment and affected by foul breath, {base}")
 
-        if any(s.name == 'Angelic Grace' for s in self.skills):
+        if skill.uses_sp and skill.type is not SkillType.ALMIGHTY and any(
+                s.name == 'Angelic Grace' for s in self.skills):
             base /= 2
             # log.debug(f"we have angelic grace, {base}")
         if any(s.name == 'Rainy Play' for s in self.skills):
@@ -710,6 +714,13 @@ Attacker: 1.05 | Me: 1.05 | 4.00 chance to crit
             elif get_current_weather() is SevereWeather.THUNDER_STORM:
                 base /= 3
                 # log.debug(f"severe rain+rainy play = {base}")
+
+        if any(s.name == 'Ambient Aid' for s in attacker.skills) and get_current_weather() is Weather.RAIN:
+            base *= 2
+
+        if any(s.name == 'Ali Dance' for s in self.skills):
+            base /= 2
+
         rng = random.uniform(1, 100)
         # log.debug(f"rng>base? {rng}, {base}, {rng > base}")
         return rng > base
