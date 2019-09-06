@@ -52,7 +52,7 @@ class Skill(JSONable):
         self.cost = kwargs.pop("cost", 0)
         self.description = kwargs.pop("desc")
         self.accuracy = kwargs.pop("accuracy", 90)
-        self.hits = (kwargs.pop("min_hits", 1), kwargs.pop("max_hits", 1)+1)
+        self.hits = (kwargs.pop("min_hits", 1), kwargs.pop("max_hits", 1))
         self.target = kwargs.pop("target", "enemy")
 
         self.is_evasion = False
