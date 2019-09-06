@@ -22,7 +22,7 @@ WINTER_END = SPRING_START + timedelta(days=365)
 
 
 def _now(d=None):
-    now = datetime.utcnow()
+    now = d or datetime.utcnow()
     return datetime(now.year, now.month, now.day)
 
 
@@ -74,9 +74,8 @@ def get_current_weather(date=None):
         chances[3] += 0.29  # more snow
 
     now = _now(date)
-    random.seed(int(now.timestamp()))
-    weather = random.choices([w.value for w in Weather], cum_weights=chances)[0]
-    random.seed(int(datetime.utcnow().timestamp() * 1_000_000))  # refresh the seed engine after determining weather
+    nrand = random.Random(int(now.timestamp()))
+    weather = nrand.choices([w.value for w in Weather], cum_weights=chances)[0]
     weather = Weather(weather)
 
     if weather is not Weather.FOGGY:
@@ -100,7 +99,6 @@ def get_wind_speed(date=None):  # KM/H
     min_speed += WIND_SPEED_WEATHER[weather]
     max_speed += WIND_SPEED_WEATHER[weather]
 
-    random.seed(int(now.timestamp()))
-    speed = random.randint(max(min_speed + 1, 1), max(max_speed + 1, 2))
-    random.seed(int(datetime.utcnow().timestamp() * 1_000_000))
+    nrand = random.Random(int(now.timestamp()))
+    speed = nrand.randint(max(min_speed + 1, 1), max(max_speed + 1, 2))
     return speed-1
