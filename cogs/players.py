@@ -315,7 +315,7 @@ class Players(commands.Cog):
             demon = random.choice(list(self._base_demon_cache.keys()))
             data = self._base_demon_cache[demon]
         data['owner'] = ctx.author.id
-        data['exp'] = 0
+        data['exp'] = 125
         data['skill_leaf'] = None
         data['unsetskills'] = []
         data['location'] = ('Sample Dungeon', 'Floor 1')
