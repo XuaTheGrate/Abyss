@@ -32,6 +32,7 @@ class Enemy(Player):
         kwargs['specialty'] = 'almighty'
         super().__init__(**kwargs)
         self.unusable_skills = []  # a list of names the ai has learned not to use since they dont work
+        log.debug(f"new enemy: {self.name}: {self.skills} --- {list(self.skill_filter())}")
 
     def get_exp(self):
         state = random.Random(int(''.join(map(str, map(ord, self.name)))))
@@ -66,7 +67,7 @@ class Enemy(Player):
         if self.ailment and self.ailment.type is AilmentType.FORGET:
             return GenericAttack
         choices = list(self.skill_filter())
-        select = random.choice(choices)
+        select = random.choice(choices) or GenericAttack
         if select.uses_sp:
             if any(s.name == 'Spell Master' for s in self.skills):
                 self.sp = select.cost / 2
@@ -766,8 +767,9 @@ class WildBattle:
         if self.main.failed():
             err = self.main.exception()
             # log.debug(f"error occured: {err!r}")
-        else:
-            err = None
+            await self.cmd(self.ctx, err, battle=self)
+            return
+        await self.cmd(self.ctx, None, battle=self)
 
         if self._ran:
             msg = "That was a close one.\n0 EXP and 0 Credits earned."
@@ -783,7 +785,6 @@ class WildBattle:
             p.credits += cash
             p.post_battle(self._ran)
         await self.ctx.send(msg)
-        await self.cmd(self.ctx, err, battle=self)
         # log.debug("finish")
 
 
