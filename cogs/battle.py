@@ -89,7 +89,7 @@ Encounter: {list(map(str, battle.enemies))}
 
         encounters = await self.bot.db.abyss.encounters.find({
             "name": {"$in": ctx.player.map.areas[ctx.player.area]['encounters']}
-        })
+        }).to_list(None)
 
         enc = random.choice(encounters)
 
