@@ -67,7 +67,7 @@ class Enemy(Player):
         if self.ailment and self.ailment.type is AilmentType.FORGET:
             return GenericAttack
         choices = list(self.skill_filter())
-        select = random.choice(choices) or GenericAttack
+        select = random.choice(choices or (GenericAttack,))
         if select.uses_sp:
             if any(s.name == 'Spell Master' for s in self.skills):
                 self.sp = select.cost / 2

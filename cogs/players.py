@@ -287,6 +287,11 @@ class Players(commands.Cog):
 
     # -- finally, some fucking commands -- #
 
+    @commands.command(hidden=True)
+    @commands.is_owner()
+    async def debug_create(self, ctx):
+        pass
+
     @commands.command()
     @commands.cooldown(1, 86400, commands.BucketType.user)
     async def create(self, ctx):
@@ -304,15 +309,11 @@ class Players(commands.Cog):
 
         # task = self.bot.loop.create_task(scripts.do_script(ctx, "creation", i18n.current_locale.get()))
 
-        if not await self.bot.is_owner(ctx.author):
+        demon = random.choice(list(self._base_demon_cache.keys()))
+        data = self._base_demon_cache[demon]
+        while data.get('testing', False):
             demon = random.choice(list(self._base_demon_cache.keys()))
             data = self._base_demon_cache[demon]
-            while data.get('testing', False):
-                demon = random.choice(list(self._base_demon_cache.keys()))
-                data = self._base_demon_cache[demon]
-        else:
-            data = self._base_demon_cache['debug']
-            data['testing'] = True
         data['owner'] = ctx.author.id
         data['exp'] = 0
         data['skill_leaf'] = None
