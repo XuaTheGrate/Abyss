@@ -284,7 +284,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         await ctx.send(":wave:")
         await self.bot.logout()
 
-    @dev.comand()
+    @dev.command()
     async def reset(self, ctx):
         self._latest_proc = proc = await Subprocess.init("git", "pull", loop=self.bot.loop)
         with Timer(ctx.message):
