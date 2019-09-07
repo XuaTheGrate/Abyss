@@ -2,7 +2,6 @@ from discord import PartialEmoji
 
 from .enums import *
 
-
 TYPE_TO_COLOUR = {
     "physical": 0xe79e2d,
     "gun": 0xf3a807,
@@ -116,4 +115,27 @@ WIND_SPEED_WEATHER = {
     SevereWeather.SEVERE_WIND: 70,
     SevereWeather.SNOW_STORM: 53,
     SevereWeather.THUNDER_STORM: 42
+}
+
+STAT_VARIATION = {
+    'Chariot': [30.8, 15.4, 23.1, 15.4, 15.4],
+    'Death': [23.1, 30.8, 15.4, 15.4, 15.4],
+    'Devil': [15.4, 30.8, 15.4, 23.1, 15.4],
+    'Emperor': [25.0, 25.0, 16.7, 16.7, 16.7],
+    'Empress': [15.4, 30.8, 15.4, 23.1, 15.4],
+    'Fool': [20.0, 20.0, 20.0, 20.0, 20.0],
+    'Fortune': [15.4, 30.8, 15.4, 15.4, 23.1],
+    'Hermit': [15.4, 23.1, 15.4, 30.8, 15.4],
+    'Hierophant': [23.1, 23.1, 23.1, 15.4, 15.4],
+    'Judgement': [15.4, 30.8, 23.1, 15.4, 15.4],
+    'Justice': [15.4, 23.1, 15.4, 30.8, 15.4],
+    'Lovers': [15.4, 23.1, 15.4, 15.4, 30.8],
+    'Magician': [15.4, 30.8, 15.4, 23.1, 15.4],
+    'Moon': [25.0, 25.0, 16.7, 16.7, 16.7],
+    'Priestess': [15.4, 30.8, 15.4, 15.4, 23.1],
+    'Star': [28.6, 21.4, 14.3, 14.3, 21.4],
+    'Strength': [30.8, 15.4, 23.1, 15.4, 15.4],
+    'Sun': [14.3, 21.4, 14.3, 28.6, 21.4],
+    'Temperance': [23.1, 23.1, 23.1, 15.4, 15.4],
+    'Tower': [30.8, 15.4, 23.1, 15.4, 15.4]
 }

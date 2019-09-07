@@ -290,5 +290,5 @@ async def mapset(ctx, mapname):
     pass
 
 
-async def sleep(amount):
+async def sleep(ctx, amount):
     await asyncio.sleep(int(amount))
