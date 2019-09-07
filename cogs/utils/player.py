@@ -119,6 +119,7 @@ class Player(JSONable):
             self.skills.append(bot.players.skill_cache[skill])
         for skill in self._unset_skills:
             self.unset_skills.append(bot.players.skill_cache[skill])
+        return self
 
     def _debug_repr(self):
         return f"""Player {self.owner}, {self._owner_id}

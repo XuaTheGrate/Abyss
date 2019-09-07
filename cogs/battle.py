@@ -93,7 +93,7 @@ Encounter: {list(map(str, battle.enemies))}
 
         enc = random.choices(encounters, k=random.randint(1, 3))
 
-        enemies = [bt.Enemy(**e, bot=self.bot) for e in enc]
+        enemies = [bt.Enemy(**e, bot=self.bot)._populate_skills(self.bot) for e in enc]
 
         fastest = max(enemies, key=lambda e: e.agility)
         weights = [50, 50, 50]
