@@ -318,7 +318,7 @@ class Players(commands.Cog):
         data['exp'] = 0
         data['skill_leaf'] = None
         data['unsetskills'] = []
-        data['map'] = self.bot.map_handler.maps['Sample Dungeon']
+        data['location'] = (self.bot.map_handler.maps['Sample Dungeon'], 'Floor 1')
         data['area'] = 'Floor 1'
         # TODO: update this when we add a real map
         player = Player(**data)

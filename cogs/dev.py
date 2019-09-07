@@ -284,6 +284,15 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         await ctx.send(":wave:")
         await self.bot.logout()
 
+    @dev.comand()
+    async def reset(self, ctx):
+        self._latest_proc = proc = await Subprocess.init("git", "pull", loop=self.bot.loop)
+        with Timer(ctx.message):
+            async for line in proc:
+                pass
+        await ctx.message.add_reaction(self.bot.tick_yes)
+        await self.bot.logout()
+
     @dev.command()
     async def timeit(self, ctx, *, command):
         nmsg = copy.copy(ctx.message)
