@@ -72,7 +72,7 @@ Encounter: {list(map(str, battle.enemies))}
         self.battles[ctx.author.id] = bt.WildBattle(ctx.player, ctx, *enemies)
 
     @commands.command()
-    @commands.cooldown(5, 60, commands.BucketType.user)
+    @commands.cooldown(5, 120, commands.BucketType.user)
     async def encounter(self, ctx):
         if ctx.author.id in self.battles:
             return await ctx.message.add_reaction(self.bot.tick_no)
@@ -91,15 +91,21 @@ Encounter: {list(map(str, battle.enemies))}
             "name": {"$in": ctx.player.map.areas[ctx.player.area]['encounters']}
         }).to_list(None)
 
-        enc = random.choice(encounters)
+        enc = random.choices(encounters, k=random.randint(1, 3))
 
-        if any(s not in self.bot.players.skill_cache for s in enc['moves']):
-            raise RuntimeError(
-                f"missing skills: {', '.join(filter(lambda d: d not in self.bot.players.skill_cache, enc['moves']))}")
+        enemies = [bt.Enemy(**e, bot=self.bot) for e in enc]
 
-        enemy = bt.Enemy(**enc, bot=self.bot)
-        await ctx.send("You searched around and found a **{0}**!".format(enemy.name))
-        self.battles[ctx.author.id] = bt.WildBattle(ctx.player, ctx, enemy)
+        fastest = max(enemies, key=lambda e: e.agility)
+        weights = [50, 50, 50]
+        weights[0] += fastest.agility - ctx.player.agility
+        weights[2] -= fastest.agility - ctx.player.agility
+        log.debug(f"encounter weights: {weights}, {random.choices([False, None, True], k=10, weights=weights)}")
+        ambush = random.choices([False,  # Enemy advantage
+                                 None,  # Regular batle
+                                 True],  # Player advantage
+                                k=1, weights=weights)[0]
+
+        self.battles[ctx.author.id] = bt.WildBattle(ctx.player, ctx, *enemies, ambush=ambush)
 
     @commands.command(enabled=False)
     async def pvp(self, ctx, *, user: discord.Member):

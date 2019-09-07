@@ -34,7 +34,8 @@ class Enemy(Player):
         self.unusable_skills = []  # a list of names the ai has learned not to use since they dont work
 
     def get_exp(self):
-        return math.ceil(self.level_ ** 3 / random.uniform(1, 3))
+        state = random.Random(int(''.join(map(str, map(ord, self.name)))))
+        return math.ceil(math.sqrt(self.level_ ** 3 / state.uniform(1, 3)))
 
     def header(self):
         return ("[Wild] " +
@@ -415,20 +416,19 @@ def get_message(resistance, *, reflect=False, miss=False, critical=False):
 
 
 class WildBattle:
-    def __init__(self, player, ctx, *enemies, ambush=False, ambushed=False):
-        assert not all((ambush, ambushed))  # dont set ambush AND ambushed to True
+    def __init__(self, player, ctx, *enemies, ambush=False):
         self.ctx = ctx
         self.cmd = self.ctx.bot.get_cog("BattleSystem").cog_command_error
         self.players = (player,)
         self.menu = None
         self.turn_cycle = 0
         self.enemies = sorted(enemies, key=lambda e: e.agility, reverse=True)
-        self.ambush = True if ambush else False if ambushed else None
-        self._stopping = False
-        self._ran = False
+        self.ambush = ambush
         # True -> player got the initiative
         # False -> enemy got the jump
         # None -> proceed by agility
+        self._stopping = False
+        self._ran = False
         if self.ambush is True:
             self.order = [*self.players, *self.enemies]
         elif self.ambush is False:
@@ -768,10 +768,22 @@ class WildBattle:
             # log.debug(f"error occured: {err!r}")
         else:
             err = None
-        await self.cmd(self.ctx, err, battle=self)
-        await self.ctx.send("game over")
+
+        if self._ran:
+            msg = "That was a close one.\n0 EXP and 0 Credits earned."
+            exp = 0
+            cash = 0
+        else:
+            exp = sum(map(Enemy.get_exp, self.enemies))
+            cash = 0  # TODO: implement this
+            msg = f"Nice work!\n{exp} EXP and {cash} Credits earned."
+
         for p in self.players:
+            p.exp += exp
+            p.credits += cash
             p.post_battle(self._ran)
+        await self.ctx.send(msg)
+        await self.cmd(self.ctx, err, battle=self)
         # log.debug("finish")
 
 
