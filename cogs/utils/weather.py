@@ -101,5 +101,5 @@ def get_wind_speed(date=None):  # KM/H
     max_speed += WIND_SPEED_WEATHER[weather]
 
     nrand = random.Random(int(now.timestamp()))
-    speed = nrand.randint(max(min_speed + 1, 1), max(max_speed + 1, 2))
+    speed = nrand.randint(max(min_speed + 1, 1), max(max_speed + 1, 1))
     return speed-1

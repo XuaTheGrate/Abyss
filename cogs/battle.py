@@ -71,7 +71,7 @@ Encounter: {list(map(str, battle.enemies))}
             enemies.append(e)
         self.battles[ctx.author.id] = bt.WildBattle(ctx.player, ctx, *enemies)
 
-    @commands.command(enabled=False)
+    @commands.command()
     @commands.cooldown(5, 60, commands.BucketType.user)
     async def encounter(self, ctx):
         if ctx.author.id in self.battles:
@@ -83,19 +83,13 @@ Encounter: {list(map(str, battle.enemies))}
         if random.randint(1, 100) > 75:
             return await ctx.send("You searched around but nothing appeared.")
 
-        around = await self.bot.redis.get(f"keys@{ctx.author.id}")
-        if around is None:
-            raise RuntimeError("story not set :excusemewtf:")
+        # around = await self.bot.redis.get(f"keys@{ctx.author.id}")
+        # if around is None:
+        # raise RuntimeError("story not set :excusemewtf:")
 
-        around = int(around)
-        encounters = await self.bot.db.abyss.encounters.find(
-            {"$where": f"""
-var fuckJS = function(obj) {{
-    return Math.abs((obj['level']+{around})-5<=3);
-}}
-return fuckJS(this)"""}).to_list(None)
-        if not encounters:
-            raise RuntimeError("`{'$where': lambda d: abs((d['level']+around)-5) <= 3}` -> None")
+        encounters = await self.bot.db.abyss.encounters.find({
+            "name": {"$in": ctx.player.map.areas[ctx.player.area]['encounters']}
+        })
 
         enc = random.choice(encounters)
 
@@ -107,7 +101,7 @@ return fuckJS(this)"""}).to_list(None)
         await ctx.send("You searched around and found a **{0}**!".format(enemy.name))
         self.battles[ctx.author.id] = bt.WildBattle(ctx.player, ctx, enemy)
 
-    @commands.command()
+    @commands.command(enabled=False)
     async def pvp(self, ctx, *, user: discord.Member):
         try:
             p2 = self.bot.players.players[user.id]
