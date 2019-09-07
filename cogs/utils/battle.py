@@ -775,6 +775,14 @@ class WildBattle:
         p = self.players[0]
         if p.is_fainted():
             # TODO: reset map back to first map and lose some cash
+            await self.ctx.send("ok so theres supposed to be some magic script thing but i cant figure it out\n"
+                                "ill heal you and then kick you from battle because i havent fixed it yet")
+            p.post_battle(False)
+            p._sp_used = 0
+            p._damage_taken = 0
+            p.ailment = None
+            return await self.cmd(self.ctx, None, battle=self)
+            # noinspection PyUnreachableCode
             await do_script(self.ctx, "death", i18n.current_locale.get())
             for p in self.players:
                 p.post_battle(False)
