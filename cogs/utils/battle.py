@@ -2,9 +2,11 @@ import re
 from abc import ABC
 from contextlib import suppress
 
+from . import i18n
 from .ailments import *
 from .objects import ListCycle
 from .player import Player
+from .scripts import do_script
 from .skills import *
 
 NL = '\n'
@@ -578,15 +580,15 @@ class WildBattle:
             await self.ctx.send("> Nice hit! Move again!")
 
     def filter_targets(self, skill, user):
-        if skill.target in ('enemy', 'enemies'):
-            if user in self.players:
-                return [e for e in self.enemies if not e.is_fainted()]
+        if skill.target == 'enemies':
             return self.players
+        elif skill.target == 'enemy':
+            return random.choice(self.players),
         elif skill.target == 'self':
             return user,
-        elif skill.target in ('allies', 'ally'):
-            if user in self.players:
-                return self.players
+        elif skill.target == 'ally':
+            return random.choice([e for e in self.enemies if not e.is_fainted()]),
+        elif skill.target == 'allies':
             return [e for e in self.enemies if not e.is_fainted()]
         elif skill.target == 'all':
             return [*self.players] + [e for e in self.enemies if not e.is_fainted()]
@@ -769,6 +771,18 @@ class WildBattle:
             # log.debug(f"error occured: {err!r}")
             await self.cmd(self.ctx, err, battle=self)
             return
+
+        p = self.players[0]
+        if p.is_fainted():
+            # TODO: reset map back to first map and lose some cash
+            await do_script(self.ctx, "death", i18n.current_locale.get())
+            for p in self.players:
+                p.post_battle(False)
+                p._sp_used = 0
+                p._damage_taken = 0  # heal the player
+                p.ailment = None
+            return self.main.restart()
+
         await self.cmd(self.ctx, None, battle=self)
 
         if self._ran:

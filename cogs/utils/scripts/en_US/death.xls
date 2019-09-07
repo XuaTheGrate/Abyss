@@ -1,0 +1,14 @@
+@!ID:8745867458967!@
+<...> No! You can't die here! {ctx.author.display_name}....!
+$sleep 3
+$queuebgm "08 - Hymn of the Soul"
+<jg89a> It seems you have died.
+<9k3tn> With your death, you leave behind all you have met and gained throughout your journey.
+<1snfc> I'm disappointed in you, I was sure you were the one to stop the coming *abyss*.
+<nq871m> Will you let it end here?
+$choice "Will you let it end here?" "No way." "Not yet..." "..."
+"No way." "You still have determination to continue in spite of your death?"
+"Not yet..." "It seems there is still some determination in your heart."
+"..." "I see you are still willing to continue."$
+<93nfg> Very well, you will not die here {ctx.author.display_name}.
+<01klf> Find the strength of your heart and live on to stop the *abyss*.

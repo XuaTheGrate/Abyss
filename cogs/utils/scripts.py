@@ -1,7 +1,7 @@
 import asyncio
 import functools
-import re
 import os
+import re
 import shlex
 import subprocess
 from contextlib import suppress
@@ -10,7 +10,6 @@ import discord
 from discord.ext import ui
 
 from .formats import format_exc
-
 
 kill_track = {}
 
@@ -211,6 +210,8 @@ async def breakpoint(ctx, scriptnum=None, linenum=None, *, stop=False):
 
 
 TRACKS = {
+    "08 - Hymn of the Soul": "https://youtu.be/THAUTFg0hxQ",
+    "17 - Last Surprise": "https://youtu.be/B3mdoHnSqfU",
     "38 - Butterfly Kiss": "https://youtu.be/Yjdo6KSqMcg"
 }
 
@@ -287,3 +288,7 @@ async def _bgm_loop(ctx, track, aftertrack=None):
 async def mapset(ctx, mapname):
     """Change the players map."""
     pass
+
+
+async def sleep(amount):
+    await asyncio.sleep(int(amount))

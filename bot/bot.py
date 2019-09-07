@@ -169,6 +169,7 @@ class Abyss(commands.Bot):
             "> If you have spare stat points, you can still use `$levelup` to use them.",
             "> Join the support server for updates and announcements: <https://discord.gg/hkweDCD>",
             "> ~~During scripts, press the stop button to save your progress. Using `$story` will continue where you left off.~~",
+            "> Join a voice channel to experience immersive Background Music!",
             "corn"
         ])
 
