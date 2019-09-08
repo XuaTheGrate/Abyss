@@ -458,64 +458,82 @@ class WildBattle:
 
     async def handle_player_choices(self, player):
         if not self.double_turn:
+            log.debug("turn was repeated due to knock down")
             await player.pre_turn_async(self)
         self.double_turn = False
         result = await self.get_player_choice(player)
+        log.debug(f"player chose: {result}")
         if result is None and not self._stopping:
             self.order.decycle()  # shitty way to do it but w.e
+            log.debug("stopping")
             return await self.stop()
 
         if self._stopping:
             return
 
         if result['type'] == 'run':
+            log.debug("we trying to run")
             if result['data'].get('timeout', False) or result['data'].get('success', True):
                 await self.ctx.send("> You successfully ran away!")
                 await self.stop()
                 self._ran = True
+                log.debug("successfully ran")
             else:
                 await self.ctx.send("> You failed to escape!")
+                log.debug("failed to run")
             return
 
         # type must be fight
         skill = result['data']['skill']
 
         if skill.name == "Guard":
+            log.debug("we guarding")
             player.guarding = True
             return
 
         targets = result['data']['targets']
+        log.debug(f"attacking: {targets}")
 
         if skill.name in UNSUPPORTED_SKILLS:
+            log.debug(f"unhandled skill?? {skill.name}")
             await self.ctx.send("this skill doesnt have a handler, this incident has been reported")
             self.ctx.bot.send_error(f"no skill handler for {skill}")
             self.order.decycle()
             return
 
         if skill.uses_sp:
+            log.debug("skill uses sp")
             cost = skill.cost
             if any(s.name == 'Spell Master' for s in player.skills):
                 cost /= 2
+                log.debug("spell master")
             if player.sp < cost:
                 await self.ctx.send("You don't have enough SP for this move!")
+                log.debug("not enough sp")
                 return self.order.decycle()
             if skill.name != 'Guard' and player.ailment and player.ailment.type is AilmentType.FORGET:
+                log.debug("we mf forgot")
                 await self.ctx.send("You've forgotten how to use this move!")
                 return self.order.decycle()
             player.sp = cost
         else:
             if skill.cost != 0:
+                log.debug("skill cost is not 0")
                 cost = player.max_hp * (skill.cost / 100)
                 if any(s.name == 'Arms Master' for s in player.skills):
                     cost /= 2
+                    log.debug("arms master")
             else:
                 cost = 0
+                log.debug("GenericAttack?")
             if cost > player.hp:
                 await self.ctx.send("You don't have enough HP for this move!")
                 self.double_turn = True
+                log.debug("not enough hp")
                 return self.order.decycle()
             if skill.name != 'Attack' and player.ailment and player.ailment.type is AilmentType.FORGET:
                 await self.ctx.send("You've forgotten how to use this move!")
+                log.debug("le forget")
                 self.double_turn = True
                 return self.order.decycle()
             player.hp = cost
@@ -523,21 +541,26 @@ class WildBattle:
         if isinstance(skill, (StatusMod, ShieldSkill, HealingSkill, Karn, Charge, AilmentSkill)):
             await self.ctx.send(f"__{player}__ used `{skill}`!")
             await skill.effect(self, targets)
+            log.debug("skill is unique")
             return
 
         weaked = False
         # log.debug(f'{targets}, {skill.hits}')
         for target in targets:
             force_crit = 0
+            log.debug(f"attacking: {target!r}")
 
             for __ in range(random.randint(*skill.hits)):
                 if target.is_fainted():
+                    log.debug("target fainted")
                     break  # no point hitting the dead
                 await asyncio.sleep(1.1)
                 res = target.take_damage(player, skill, enforce_crit=force_crit)
+                log.debug(repr(res))
                 if res.miss:
                     # the first hit was a miss, so just break
                     # the back door is explained in utils/player.py#L526
+                    log.debug("we missed")
                     break
 
                 # this is to ensure crits only happen IF the first hit did land a crit
@@ -546,35 +569,45 @@ class WildBattle:
                 # 1: first hit passed, it was a crit
                 # 2: first hit passed, was not a crit
                 force_crit = 1 if res.critical else 2
+                log.debug(f"force_crit: {force_crit}")
                 msg = get_message(res.resistance, reflect=res.was_reflected, miss=res.miss, critical=res.critical)
                 msg = msg.format(demon=player, tdemon=target, damage=res.damage_dealt, skill=skill)
+                log.debug(msg)
                 await self.ctx.send(msg)
                 if res.endured:
+                    log.debug("thou endured the hit")
                     await self.ctx.send(f"> __{target}__ endured the hit!")
 
                 if skill.type is SkillType.PHYSICAL:
                     if target.ailment and target.ailment.type is AilmentType.SLEEP:
                         if random.randint(1, 6) != 1:
                             target.ailment = None
+                            log.debug("they woke up")
                             await self.ctx.send(f"> __{target}__ woke up!")
 
                 if skill.name == 'Attack':
                     if target.ailment and target.ailment.type is AilmentType.SHOCK:
                         if not player.ailment and random.randint(1, 3) == 1:
                             player.ailment = ailments.Shock(player, AilmentType.SHOCK)
+                            log.debug("le shok!")
                             await self.ctx.send(f"> __{player}__ was inflicted with **Shock**!")
                     elif not target.ailment and player.ailment and player.ailment.type is AilmentType.SHOCK:
                         target.ailment = ailments.Shock(target, AilmentType.SHOCK)
+                        log.debug("thou shoc!")
                         await self.ctx.send(f"> __{target}__ was inflicted with **Shock**!")
 
                 if res.did_weak:
+                    log.debug("de weaked")
                     weaked = True
         if skill.uses_sp:  # reset here so all hits of a skill are charged up
             player._concentrating = False
+            log.debug("no concentrate")
         else:
+            log.debug("no charge")
             player._charging = False
 
         if weaked and confirm_not_dead(self):
+            log.debug("go again!")
             self.order.decycle()
             self.double_turn = True
             await self.ctx.send("> Nice hit! Move again!")
