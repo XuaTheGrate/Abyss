@@ -115,7 +115,8 @@ class Status(ui.Session):
         spec = f"{lookups.TYPE_TO_EMOJI[player.specialty.name.lower()]} {player.specialty.name.title()}"
         res_fmt = "\n".join(
             [f"{FMT[k]}: {' '.join(map(lambda x: str(lookups.TYPE_TO_EMOJI[x.lower()]), v))}" for k, v in res.items()])
-        prog = int(player.exp_progress())
+        # prog = int(player.exp_progress())
+        prog = -1
         arcana = lookups.ROMAN_NUMERAL[player.arcana.value]
         desc = f"""**{arcana}** {player.arcana.name}
 
