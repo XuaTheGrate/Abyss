@@ -170,6 +170,19 @@ def _skill_cost(p, s):
         return p.hp > cost
 
 
+class Confuse(_Ailment):
+    """
+    Chance to throw away an item/credits, do nothing or use a random skill.
+    """
+    emote = "\u2754"
+
+    async def pre_turn_effect_async(self, battle):
+        super().pre_turn_effect()
+        # todo: add a handler
+        if random.randint(1, 5) == 1:
+            raise UserTurnInterrupted()
+
+
 class Brainwash(_Ailment):
     """
     Chance to heal/buff the enemy.
