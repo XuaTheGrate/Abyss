@@ -21,3 +21,13 @@ class Inventory:
         for tab in self.items:
             pg.add_page(discord.Embed(title=tab, description="\n".join(map(str, self.items[tab]))))
         await PaginationHandler(ctx.bot, pg, send_as='embed').start(ctx)
+
+    def get_item(self, name):
+        for t in self.items.values():
+            for i in t:
+                if i.name.lower() == name:
+                    return i
+
+    def has_item(self, name):
+        """Case-insensitive search to check if a player has this item."""
+        return self.get_item(name) is not None
