@@ -34,11 +34,18 @@ class Maps(commands.Cog):
         You can select some items and use them if you wish,
         though some items may only be used in battle."""
         await ctx.player.inventory.view(ctx)
+        c1 = self.bot.loop.create_task(
+            self.bot.wait_for("message",
+                              check=lambda m: m.author == ctx.author and m.channel == ctx.channel
+                                              and ctx.player.inventory.has_item(m.content.lower()),
+                              timeout=60))
+        c2 = self.bot.loop.create_task(ctx.player.inventory.pg.wait_stop())
+        await asyncio.wait([c1, c2], return_when=asyncio.FIRST_COMPLETED)
+        if c2.done():
+            c1.cancel()
+            return
         try:
-            m = await self.bot.wait_for("message",
-                                        check=lambda m: m.author == ctx.author and m.channel == ctx.channel
-                                                        and ctx.player.inventory.has_item(m.content.lower()),
-                                        timeout=60)
+            m = c1.result()
         except asyncio.TimeoutError:
             return
 

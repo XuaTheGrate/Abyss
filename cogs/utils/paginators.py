@@ -92,6 +92,9 @@ class PaginationHandler:
     def page(self):
         return self.pg.pages[self.current_page]
 
+    async def wait_stop(self):
+        await self._stop_event.wait()
+
     async def _timeout_task(self):
         while True:
             try:
