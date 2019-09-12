@@ -4,6 +4,7 @@ import random
 from discord.ext import commands
 
 from cogs.utils.formats import SilentError
+from cogs.utils.items import Unusable
 
 
 class Maps(commands.Cog):
@@ -34,14 +35,18 @@ class Maps(commands.Cog):
         though some items may only be used in battle."""
         await ctx.player.inventory.view(ctx)
         try:
-            m = await self.bot.wait_for("message", check=lambda m: m.author == ctx.author and
-                                                                   m.channel == ctx.channel and ctx.player.inventory.has_item(
-                m.content.lower()),
+            m = await self.bot.wait_for("message",
+                                        check=lambda m: m.author == ctx.author and m.channel == ctx.channel
+                                                        and ctx.player.inventory.has_item(m.content.lower()),
                                         timeout=60)
         except asyncio.TimeoutError:
             return
 
-        await ctx.send(f"todo: use {ctx.player.inventory.get_item(m.content.lower())!r}")
+        item = ctx.player.inventory.get_item(m.content.lower())
+        try:
+            await item.use(ctx)
+        except Unusable as e:
+            await ctx.send(str(e))
 
     @commands.command(enabled=False)
     async def move(self, ctx):

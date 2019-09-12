@@ -10,6 +10,12 @@ def dataclass(cls):
     return cls
 
 
+class Unusable(Exception):
+    # raised when an item cannot be used
+    def __init__(self, message="Cannot use that here."):
+        super().__init__(message)
+
+
 @dataclass
 class _ItemABC:
     def __new__(cls, **kwargs):
@@ -36,6 +42,9 @@ class _ItemABC:
     def sell_price(self):
         return round(self.worth/2)
 
+    async def use(self, ctx):
+        raise NotImplementedError
+
 
 class SkillCard(_ItemABC):
     def __init__(self, *, name, type, skill, worth=1, desc="no desc"):
@@ -47,17 +56,68 @@ class SkillCard(_ItemABC):
     def sell_price(self):
         return 1  # skill cards dont sell for shit
 
+    async def use(self, ctx):
+        if self.skill in ctx.player.unset_skills or self.skill in ctx.player.skills:
+            raise Unusable("You already learnt this skill.")
+        ctx.player.unset_skills.append(self.skill)
+        await ctx.send(f"{self.skill} is now learnt. Use `$set {self.skill.name.lower()}` to equip it.")
+
 
 class TrashItem(_ItemABC):
-    pass
+    async def use(self, ctx):
+        raise Unusable()
 
 
 class HealingItem(_ItemABC):
-    def __init__(self, *, name, type, healtype, healamount, healtarget, worth=1, desc="no desc"):
+    def __init__(self, *, name, type, heal_type, heal_amount, target, worth=1, desc="no desc"):
         super().__init__(name=name, worth=worth, desc=desc, type=type)
-        self.heal_type = healtype
-        self.heal_amount = healamount
-        self.target = healtarget
+        self.heal_type = heal_type
+        self.heal_amount = heal_amount
+        self.target = target
+
+    async def use(self, ctx, battle=None):
+        # todo: raise Unusable() when no valid targets (ie everyone max sp/hp or no ailments to heal)
+        if battle:
+            if self.target == 'allies':
+                if self.heal_type == 'sp':
+                    if all(p._sp_used == 0 for p in battle.players):
+                        raise Unusable("No valid targets.")
+                    for p in battle.players:
+                        if p._sp_used != 0:
+                            p.sp = -self.heal_amount  # no point healing the unhealable
+                            await ctx.send(f"> __{p}__ healed {self.heal_amount} SP!")
+                elif self.heal_type == 'hp':
+                    if all(p._damage_taken == 0 for p in battle.players):
+                        raise Unusable("No valid targets.")
+                    for p in battle.players:
+                        if p._damage_taken != 0:
+                            p.hp = -self.heal_amount
+                            await ctx.send(f"> __{p}__ healed {self.heal_amount} HP!")
+                elif self.heal_type == 'ailment':
+                    if all(not p.ailment or p.ailment.type.name.lower() != self.heal_amount for p in battle.players):
+                        raise Unusable("No valid targets.")
+                    for p in battle.players:
+                        if p.ailment and p.ailment.type.name.lower() == self.heal_amount:
+                            p.ailment = None
+                            await ctx.send(f"> __{p}__ recovered!")
+        else:
+            # only one target available
+            if self.heal_type == 'sp':
+                if ctx.player._sp_used == 0:
+                    raise Unusable("SP is full.")
+                ctx.player.sp = -self.heal_amount
+                await ctx.send(f"Recovered {self.heal_amount} SP.")
+            elif self.heal_type == 'hp':
+                if ctx.player._damage_taken == 0:
+                    raise Unusable("HP is full.")
+                ctx.player.hp = -self.heal_amount
+                await ctx.send(f"Recovered {self.heal_amount} HP.")
+            elif self.heal_type == 'ailment':
+                if ctx.player.ailment and ctx.player.ailment.type.name.lower() == self.heal_amount:
+                    ctx.player.ailment = None
+                    await ctx.send(f"Recovered from your ailment.")
+                else:
+                    raise Unusable()
 
 
 class _ItemCache:
