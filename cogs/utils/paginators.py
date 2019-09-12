@@ -132,9 +132,11 @@ class PaginationHandler:
     async def stop(self):
         """Stops the pagination."""
         self._timeout.cancel()
+        self.abyss.remove_listener(self._raw_reaction_event, "on_raw_reaction_add")
         if self.has_perms:
             await self.msg.clear_reactions()
         else:
+            self.abyss.remove_listener(self._raw_reaction_event, "on_raw_reaction_remove")
             await self.msg.delete()
 
     async def start(self, ctx):
