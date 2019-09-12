@@ -11,7 +11,10 @@ class Maps(commands.Cog):
         self.bot = bot
 
     async def cog_before_invoke(self, ctx):
-        if self.bot.players.players.get(ctx.author.id, None) in self.bot.get_cog("BattleSystem").battles:
+        if not self.bot.players.players.get(ctx.author.id, None):
+            raise SilentError  # todo: this is stupid
+        ctx.player = self.bot.players.players[ctx.author.id]
+        if ctx.player in self.bot.get_cog("BattleSystem").battles:
             await ctx.send("Cannot move while in battle.")
             raise SilentError
         if random.randint(1, 5) == 1:  # interrupt the command with an encounter :^)
