@@ -3,7 +3,16 @@ import os
 
 from .enums import ItemType
 
+try:
+    from dataclasses import dataclass
+except ImportError:
+    def dataclass(cls):
+        cls.__repr__ = lambda s: f'{type(s).__name__}({", ".join(f"{x}={y!r}" for x, y in vars(s).items())})'
+        cls.__eq__ = lambda s, o: all(x == y for x, y in zip(vars(s).values(), vars(o).values()))
+        return cls
 
+
+@dataclass
 class _ItemABC:
     def __new__(cls, **kwargs):
         tp = kwargs.get('type')
@@ -25,9 +34,6 @@ class _ItemABC:
 
     def __str__(self):
         return self.name
-
-    def __repr__(self):
-        return f'{type(self).__name__}(name={self.name!r}, worth={self.worth!r}, type={self.type!r})'
 
     def sell_price(self):
         return round(self.worth/2)
@@ -72,7 +78,7 @@ class _ItemCache:
                 self.items[item['name']] = _ItemABC(**item)
 
     def __repr__(self):
-        return repr(list(self.items))
+        return repr(self.items.keys())
 
     def get_item(self, name):
         return self.items[name]

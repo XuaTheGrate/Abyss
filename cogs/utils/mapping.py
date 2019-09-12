@@ -18,18 +18,18 @@ class Map:
         key = await self.bot.redis.hget(f'treasures_found:{player.owner.id}', player.area)
         if self.areas[player.area]['treasurecount'] == key:  # None doesn't matter since we havent seen any treasures
             # also its set to None every 24h
-            return False  # return False indicating that no treasures are available here
+            return -1  # return False indicating that no treasures are available here
         await self.bot.redis.hincrby(f'treasures_found:{player.owner.id}', player.area, 1)
         # otherwise, return None (we didnt find anything) or an item/treasure demon
         choice = random.uniform()
         if choice <= 0.1:
             # remind me to start a Treasure Demon battle
-            return None
+            return 2
         elif choice <= 0.9:
             # return an item of some kind
-            return None
+            return 1
         else:
-            return None  # we didnt find anything
+            return 0  # we didnt find anything
 
 
 class MapHandler:

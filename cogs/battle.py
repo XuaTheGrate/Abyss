@@ -73,14 +73,14 @@ Encounter: {list(map(str, battle.enemies))}
 
     @commands.command()
     @commands.cooldown(5, 120, commands.BucketType.user)
-    async def encounter(self, ctx):
+    async def encounter(self, ctx, *, ___=None, force=False):
         if ctx.author.id in self.battles:
             return await ctx.message.add_reaction(self.bot.tick_no)
 
         if not ctx.player:
             return await ctx.send("You don't own a player.")
 
-        if random.randint(1, 100) > 75:
+        if not force and random.randint(1, 100) > 75:
             return await ctx.send("You searched around but nothing appeared.")
 
         # around = await self.bot.redis.get(f"keys@{ctx.author.id}")

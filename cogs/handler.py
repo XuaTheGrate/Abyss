@@ -3,9 +3,7 @@ import datetime
 import discord
 from discord.ext import commands
 
-from .utils.formats import format_exc
-from .utils import i18n
-
+from .utils.formats import format_exc, SilentError
 
 _handles = {
     commands.DisabledCommand: "This command is disabled, because it is broken, "
@@ -67,7 +65,7 @@ Bot permissions: {ctx.channel.permissions_for(ctx.me).value}
 ```""")
             return
 
-        if isinstance(exc, (commands.CommandNotFound, commands.NoPrivateMessage)):
+        if isinstance(exc, (commands.CommandNotFound, commands.NoPrivateMessage, SilentError)):
             return
 
         if isinstance(exc, commands.CommandOnCooldown):
