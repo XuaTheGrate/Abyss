@@ -3,13 +3,11 @@ import os
 
 from .enums import ItemType
 
-try:
-    from dataclasses import dataclass
-except ImportError:
-    def dataclass(cls):
-        cls.__repr__ = lambda s: f'{type(s).__name__}({", ".join(f"{x}={y!r}" for x, y in vars(s).items())})'
-        cls.__eq__ = lambda s, o: all(x == y for x, y in zip(vars(s).values(), vars(o).values()))
-        return cls
+
+def dataclass(cls):
+    cls.__repr__ = lambda s: f'{type(s).__name__}({", ".join(f"{x}={y!r}" for x, y in vars(s).items())})'
+    cls.__eq__ = lambda s, o: isinstance(o, type(s)) and all(x == y for x, y in zip(vars(s).values(), vars(o).values()))
+    return cls
 
 
 @dataclass
