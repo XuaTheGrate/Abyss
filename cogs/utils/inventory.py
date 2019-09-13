@@ -22,6 +22,9 @@ class _ItemCount:
     def __bool__(self):
         return self.count > 0
 
+    def __str__(self):
+        return self.name
+
 
 class Inventory:
     def __init__(self, bot, player, data):
@@ -51,7 +54,7 @@ class Inventory:
         for t in self.items.values():
             for i in t:
                 if i.name.lower() == name:
-                    return i
+                    return i.item
 
     def has_item(self, name):
         """Case-insensitive search to check if a player has this item."""
