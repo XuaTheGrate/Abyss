@@ -382,9 +382,8 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         if user.id not in self.bot.players.players:
             return await ctx.send("User has no player.")
         player = self.bot.players.players[user.id]
-        try:
-            item = self.bot.item_cache[item]
-        except KeyError:
+        item = self.bot.item_cache.get_item(item)
+        if not item:
             return await ctx.send("No item found.")
         player.inventory.add_item(item)
         await ctx.send(self.bot.tick_yes)
