@@ -1,10 +1,26 @@
 [
     {
-        "name": "Melon Soda",
+        "name": "Soul Drop",
         "worth": 150,
         "desc": "Heals 10 SP to one ally.",
-      "heal_type": "sp",
-      "heal_amount": 10,
-      "target": "ally"
+        "heal_type": "sp",
+        "heal_amount": 10,
+        "target": "ally"
+    },
+    {
+        "name": "Medicine",
+        "worth": 150,
+        "desc": "Heals 50 HP to one ally.",
+        "heal_type": "hp",
+        "heal_amount": 50,
+        "target": "ally"
+    },
+    {
+        "name": "Hiranya",
+        "worth": 150,
+        "desc": "Heals all ailments for one ally.",
+        "heal_type": "ailment",
+        "heal_amount": "all",
+        "target": "ally"
     }
 ]

@@ -378,14 +378,15 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         await PaginationHandler(self.bot, pg, no_help=True).start(ctx)
 
     @dev.command()
-    async def giveitem(self, ctx, user: discord.Member, item):
+    async def giveitem(self, ctx, user: discord.Member, item, count=1):
         if user.id not in self.bot.players.players:
             return await ctx.send("User has no player.")
         player = self.bot.players.players[user.id]
         item = self.bot.item_cache.get_item(item)
         if not item:
             return await ctx.send("No item found.")
-        player.inventory.add_item(item)
+        for a in range(count):
+            player.inventory.add_item(item)
         await ctx.send(self.bot.tick_yes)
 
     @dev.command()

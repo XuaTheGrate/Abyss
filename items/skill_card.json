@@ -1,5 +1,44 @@
 [
     {
         "skill": "Agi"
+    },
+    {
+        "skill": "Bufu"
+    },
+    {
+        "skill": "Garu"
+    },
+    {
+        "skill": "Zio"
+    },
+    {
+        "skill": "Frei"
+    },
+    {
+        "skill": "Psi"
+    },
+    {
+        "skill": "Eiha"
+    },
+    {
+        "skill": "Kouha"
+    },
+    {
+        "skill": "Single Shot"
+    },
+    {
+        "skill": "Bash"
+    },
+    {
+        "skill": "Tarukaja"
+    },
+    {
+        "skill": "Dia"
+    },
+    {
+        "skill": "Dodge Phys"
+    },
+    {
+        "skill": "Dormina"
     }
 ]

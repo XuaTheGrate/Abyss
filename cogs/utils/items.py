@@ -94,10 +94,12 @@ class HealingItem(_ItemABC):
                             p.hp = -self.heal_amount
                             await ctx.send(f"> __{p}__ healed {self.heal_amount} HP!")
                 elif self.heal_type == 'ailment':
-                    if all(not p.ailment or p.ailment.type.name.lower() != self.heal_amount for p in battle.players):
-                        raise Unusable("No valid targets.")
+                    if self.heal_amount != "all":
+                        if all(not p.ailment or p.ailment.type.name.lower() != self.heal_amount for p in
+                               battle.players):
+                            raise Unusable("No valid targets.")
                     for p in battle.players:
-                        if p.ailment and p.ailment.type.name.lower() == self.heal_amount:
+                        if p.ailment and (self.heal_amount == 'all' or p.ailment.type.name.lower() == self.heal_amount):
                             p.ailment = None
                             await ctx.send(f"> __{p}__ recovered!")
         else:
@@ -113,7 +115,8 @@ class HealingItem(_ItemABC):
                 ctx.player.hp = -self.heal_amount
                 await ctx.send(f"Recovered {self.heal_amount} HP.")
             elif self.heal_type == 'ailment':
-                if ctx.player.ailment and ctx.player.ailment.type.name.lower() == self.heal_amount:
+                if ctx.player.ailment and (
+                        self.heal_amount == 'all' or ctx.player.ailment.type.name.lower() == self.heal_amount):
                     ctx.player.ailment = None
                     await ctx.send(f"Recovered from your ailment.")
                 else:
