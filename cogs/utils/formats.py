@@ -37,6 +37,7 @@ def ensure_player(func):
             if not pdata:
                 raise NoPlayer()
             ctx.player = ctx.bot.players.players[ctx.author.id] = Player(**pdata)
+            ctx.player._populate_skills(ctx.bot)
         return True
 
     return commands.check(predicate)(func)
