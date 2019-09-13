@@ -37,7 +37,7 @@ class Inventory:
         return f"<{self.player.owner.name}'s inventory, {sum(map(len, self.items.values()))} items>"
 
     def to_json(self):
-        return {t: list(map(str, k)) for t, k in self.items.items()}
+        return {t.name: list(map(str, k)) for t, k in self.items.items()}
 
     async def view(self, ctx):
         pg = EmbedPaginator()
@@ -58,6 +58,8 @@ class Inventory:
         return self.get_item(name) is not None
 
     def add_item(self, item):
+        if item.type not in self.items:
+            self.items[item.type] = []
         if item not in self.items[item.type]:
             self.items[item.type].append(_ItemCount(item, 1))
         else:
