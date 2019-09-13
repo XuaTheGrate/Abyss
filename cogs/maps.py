@@ -43,6 +43,8 @@ class Maps(commands.Cog):
             await item.use(ctx)
         except Unusable as e:
             await ctx.send(str(e))
+        if not ctx.player.inventory.remove_item(item):
+            log.warning(f"apparently {ctx.player} has {item}, but we couldnt remove it for some reason")
 
     @commands.command(enabled=False)
     @ensure_player
