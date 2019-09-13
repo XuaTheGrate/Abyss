@@ -154,7 +154,7 @@ class Abyss(commands.Bot):
         self.item_cache = None
 
         self.add_check(self.global_check)
-        self.before_invoke(self.before_invoke_handler)
+        # self.before_invoke(self.before_invoke_handler)
         self.prepare_extensions()
 
     async def on_command_error(self, *__, **_):

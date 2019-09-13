@@ -1,9 +1,11 @@
 
-import discord
 import json
+
+import discord
 from discord.ext import commands
 
-from .utils import i18n, lookups
+from cogs.utils.formats import ensure_player
+from .utils import lookups
 from .utils.objects import SkillTree
 
 
@@ -29,11 +31,9 @@ class SkillTreeCog(commands.Cog):
         pass
 
     @tree.command(aliases=['progress'])
+    @ensure_player
     async def status(self, ctx):
         """Gets the progress of your current skill tree."""
-        if not ctx.player:
-            return await ctx.send("You don't own a player.")
-
         if not ctx.player.leaf:
             return await ctx.send("No leaf has been selected. Use `{.prefix}tree activate <leaf>` to start a new"
                                   .format(ctx))
@@ -48,10 +48,9 @@ class SkillTreeCog(commands.Cog):
         await ctx.send(embed=embed)
 
     @tree.command()
+    @ensure_player
     async def unlocked(self, ctx):
         """Views all leaves you have unlocked (not completed)."""
-        if not ctx.player:
-            return await ctx.send("You don't own a player.")
         leaves = [k+':0' for k in self.skill_tree.branches]
         while True:
             for leaf in leaves.copy():

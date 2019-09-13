@@ -5,6 +5,7 @@ import discord
 import tabulate
 from discord.ext import commands
 
+from cogs.utils.formats import ensure_player
 from .utils import battle as bt, formats
 
 
@@ -61,6 +62,7 @@ Encounter: {list(map(str, battle.enemies))}
 
     @commands.command(hidden=True)
     @commands.is_owner()
+    @ensure_player
     async def _encounter(self, ctx, *names):
         enemies = []
         for name in names:
@@ -72,6 +74,7 @@ Encounter: {list(map(str, battle.enemies))}
         self.battles[ctx.author.id] = bt.WildBattle(ctx.player, ctx, *enemies)
 
     @commands.command()
+    @ensure_player
     @commands.cooldown(5, 120, commands.BucketType.user)
     async def encounter(self, ctx, *, ___=None, force=False):
         if ctx.author.id in self.battles:
@@ -108,6 +111,7 @@ Encounter: {list(map(str, battle.enemies))}
         self.battles[ctx.author.id] = bt.WildBattle(ctx.player, ctx, *enemies, ambush=ambush)
 
     @commands.command(enabled=False)
+    @ensure_player
     async def pvp(self, ctx, *, user: discord.Member):
         try:
             p2 = self.bot.players.players[user.id]
@@ -120,6 +124,7 @@ Encounter: {list(map(str, battle.enemies))}
 
     @commands.group(hidden=True)
     @commands.is_owner()
+    @ensure_player
     async def custom(self, ctx):
         pass
 

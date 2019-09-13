@@ -3,7 +3,7 @@ import datetime
 import discord
 from discord.ext import commands
 
-from .utils.formats import format_exc, SilentError
+from .utils.formats import format_exc, SilentError, NoPlayer
 
 _handles = {
     commands.DisabledCommand: "This command is disabled, because it is broken, "
@@ -48,6 +48,10 @@ class ErrorHandler(commands.Cog):
     async def on_command_error(self, ctx, exc, *, force=False):
         if ctx.cog and commands.Cog._get_overridden_method(ctx.cog.cog_command_error) and not force:
             return
+
+        if isinstance(exc, NoPlayer):
+            return await ctx.send("This command requires you have an account, but you don't have one. "
+                                  "You can with `$create`.")
 
         if isinstance(exc, commands.CommandInvokeError):
             ctx.command.reset_cooldown(ctx)

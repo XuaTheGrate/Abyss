@@ -9,6 +9,7 @@ from operator import itemgetter
 import discord
 from discord.ext import commands, ui
 
+from cogs.utils.formats import ensure_player
 from .utils import lookups, imaging, items
 from .utils.enums import SkillType
 from .utils.player import Player
@@ -247,6 +248,17 @@ class Statistics(ui.Session):
             await super().stop()
 
 
+def ensure_no_player(func):
+    async def predicate(ctx):
+        if ctx.author.id in ctx.bot.players.players:
+            return False
+        elif await ctx.bot.db.abyss.accounts.find_one({"owner": ctx.author.id}) is not None:
+            return False
+        return True
+
+    return commands.check(predicate)(func)
+
+
 class Players(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -286,6 +298,11 @@ class Players(commands.Cog):
         except (KeyError, AttributeError):
             pass
 
+    async def cog_command_error(self, ctx, error):
+        if ctx.command is self.create and isinstance(error, commands.CheckFailure):
+            return await ctx.send("You can't create multiple players!")
+        self.bot.dispatch("command_error", ctx, error, force=True)
+
     # -- finally, some fucking commands -- #
 
     @commands.command(hidden=True)
@@ -294,6 +311,7 @@ class Players(commands.Cog):
         pass
 
     @commands.command()
+    @ensure_no_player
     @commands.cooldown(1, 86400, commands.BucketType.user)
     async def create(self, ctx):
         """Creates a new player.
@@ -341,20 +359,18 @@ class Players(commands.Cog):
         await ctx.send(f"Done. You now control the demon `{player.name}`.")
 
     @commands.command()
+    @ensure_player
     async def status(self, ctx):
         """Gets your current players status."""
-        if not ctx.player:
-            return await ctx.send("You don't own a player.")
         
         session = Status(ctx.player)
         await session.start(ctx)
 
     @commands.command()
+    @ensure_player
     async def delete(self, ctx):
         """Deletes your player.
         ! THIS ACTION IS IRREVERSIBLE !"""
-        if not ctx.player:
-            return
 
         m1 = await ctx.send("Are you sure you want to delete your account? This action is irreversible.")
         if not await self.bot.confirm(m1, ctx.author):
@@ -371,6 +387,7 @@ class Players(commands.Cog):
         await ctx.send(self.bot.tick_yes)
 
     @commands.command(hidden=True)
+    @ensure_player
     async def profile(self, ctx):
         if not ctx.player:
             return await ctx.send("You don't own a player.")
@@ -379,11 +396,10 @@ class Players(commands.Cog):
         await ctx.send(file=discord.File(data, 'profile.png'))
 
     @commands.command()
+    @ensure_player
     async def levelup(self, ctx):
         """Levels up your player, if possible.
         Also lets you divide your spare stat points to increase your stats."""
-        if not ctx.player:
-            return await ctx.send("You don't own a player.")
         if ctx.player.can_level_up:
             ctx.player.level_up()
         if ctx.player.stat_points > 0:
@@ -393,6 +409,7 @@ class Players(commands.Cog):
             await ctx.send("You have no skill points remaining.")
 
     @commands.command(name='set')
+    @ensure_player
     async def _set(self, ctx, *, name):
         """Puts an inactive skill into your repertoire."""
         if not ctx.player:
@@ -414,6 +431,7 @@ class Players(commands.Cog):
         await ctx.send(self.bot.tick_yes)
 
     @commands.command()
+    @ensure_player
     async def unset(self, ctx, *, name):
         """Removes an active skill from your repertoire."""
         if not ctx.player:

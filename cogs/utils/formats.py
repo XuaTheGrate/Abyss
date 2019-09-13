@@ -2,6 +2,8 @@ import traceback
 
 from discord.ext import commands
 
+from cogs.utils.player import Player
+
 
 def format_exc(exc):
     """Helper function for formatting tracebacks.
@@ -20,3 +22,21 @@ def format_exc(exc):
 
 class SilentError(commands.CommandError):
     pass
+
+
+class NoPlayer(commands.CommandError):
+    pass
+
+
+def ensure_player(func):
+    async def predicate(ctx):
+        try:
+            ctx.player = ctx.bot.players.players[ctx.author.id]
+        except KeyError:
+            pdata = await ctx.bot.db.abyss.accounts.find_one({"owner": ctx.author.id})
+            if not pdata:
+                raise NoPlayer()
+            ctx.player = ctx.bot.players.players[ctx.author.id] = Player(**pdata)
+        return True
+
+    return commands.check(predicate)(func)
