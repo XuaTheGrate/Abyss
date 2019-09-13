@@ -10,6 +10,7 @@ import discord
 from discord.ext import commands, ui
 
 from cogs.utils.formats import ensure_player
+from cogs.utils.paginators import EmbedPaginator, PaginationHandler
 from .utils import lookups, imaging, items
 from .utils.enums import SkillType
 from .utils.player import Player
@@ -102,63 +103,37 @@ def stats_page(player):
     return embed
 
 
-class Status(ui.Session):
-    def __init__(self, player):
-        super().__init__(timeout=120)
-        self.player = player
-        embed = discord.Embed(title=f"Lvl{player.level} {player.name}",
-                              colour=lookups.TYPE_TO_COLOUR[player.specialty.name.lower()])
-        embed.set_author(name=player.owner, icon_url=player.owner.avatar_url_as(format="png", size=32))
-        res = {}
-        for key, value_iter in itertools.groupby(list(player.resistances.items()), key=itemgetter(1)):
-            res.setdefault(key.name.lower(), []).extend([v[0].name.lower() for v in value_iter])
-        res.pop("normal", None)
-        spec = f"{lookups.TYPE_TO_EMOJI[player.specialty.name.lower()]} {player.specialty.name.title()}"
-        res_fmt = "\n".join(
-            [f"{FMT[k]}: {' '.join(map(lambda x: str(lookups.TYPE_TO_EMOJI[x.lower()]), v))}" for k, v in res.items()])
-        # prog = int(player.exp_progress())
-        prog = -1
-        arcana = lookups.ROMAN_NUMERAL[player.arcana.value]
-        desc = f"""**{arcana}** {player.arcana.name}
+async def status(ctx):
+    player = ctx.player
+    embed = discord.Embed(title=f"Lvl{player.level} {player.name}",
+                          colour=lookups.TYPE_TO_COLOUR[player.specialty.name.lower()])
+    embed.set_author(name=player.owner, icon_url=player.owner.avatar_url_as(format="png", size=32))
+    res = {}
+    for key, value_iter in itertools.groupby(list(player.resistances.items()), key=itemgetter(1)):
+        res.setdefault(key.name.lower(), []).extend([v[0].name.lower() for v in value_iter])
+    res.pop("normal", None)
+    spec = f"{lookups.TYPE_TO_EMOJI[player.specialty.name.lower()]} {player.specialty.name.title()}"
+    res_fmt = "\n".join(
+        [f"{FMT[k]}: {' '.join(map(lambda x: str(lookups.TYPE_TO_EMOJI[x.lower()]), v))}" for k, v in res.items()])
+    # prog = int(player.exp_progress())
+    prog = -1
+    arcana = lookups.ROMAN_NUMERAL[player.arcana.value]
+    desc = f"""**{arcana}** {player.arcana.name}
 
 {player.description}
 
 Specializes in {spec} type skills.
-{NL+f'{player.exp_to_next_level()} to level {player._next_level}'+NL+f'{prog}%'+NL}
+{NL + f'{player.exp_to_next_level()} to level {player._next_level}' + NL + f'{prog}%' + NL}
 __Resistances__
 {res_fmt}"""
-        embed.description = desc
-        embed.set_footer(text=_('Stats ~>'))
-        self.pages = [embed, stats_page(player), prepare_skill_tree_page(player),
-                      skills_page(player), unset_skills_page(player)]
-        self.current_page = 0
+    embed.description = desc
+    embed.set_footer(text=_('Stats ~>'))
 
-    async def send_initial_message(self):
-        m = _('You can level up! Use `$levelup`!')
-        return await self.context.send(m if self.player.can_level_up else None, embed=self.pages[0])
-
-    async def handle_timeout(self):
-        await self.stop()
-
-    async def stop(self):
-        with contextlib.suppress(discord.HTTPException):
-            await self.message.delete()
-
-    @ui.button('\u25c0')
-    async def back(self, _):
-        if self.current_page + 1 > 0:
-            self.current_page -= 1
-            await self.message.edit(embed=self.pages[self.current_page])
-
-    @ui.button('\u23f9')
-    async def _stop(self, _):
-        await self.stop()
-
-    @ui.button('\u25b6')
-    async def next(self, _):
-        if self.current_page + 1 < len(self.pages):
-            self.current_page += 1
-            await self.message.edit(embed=self.pages[self.current_page])
+    pg = EmbedPaginator()
+    for e in [embed, stats_page(player), prepare_skill_tree_page(player),
+              skills_page(player), unset_skills_page(player)]:
+        pg.add_page(e)
+    await PaginationHandler(ctx.bot, pg, send_as="embed").start(ctx)
 
 
 class Statistics(ui.Session):
@@ -362,9 +337,8 @@ class Players(commands.Cog):
     @ensure_player
     async def status(self, ctx):
         """Gets your current players status."""
-        
-        session = Status(ctx.player)
-        await session.start(ctx)
+
+        await status(ctx)  # todo: maybe move this? idk its a lot of shit i dont want to break
 
     @commands.command()
     @ensure_player

@@ -378,6 +378,18 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         await PaginationHandler(self.bot, pg, no_help=True).start(ctx)
 
     @dev.command()
+    async def giveitem(self, ctx, user: discord.Member, item):
+        if user.id not in self.bot.players.players:
+            return await ctx.send("User has no player.")
+        player = self.bot.players.players[user.id]
+        try:
+            item = self.bot.item_cache[item]
+        except KeyError:
+            return await ctx.send("No item found.")
+        player.inventory.add_item(item)
+        await ctx.send(self.bot.tick_yes)
+
+    @dev.command()
     async def update(self, ctx):
         """
 From https://github.com/XuaTheGrate/Abyss
@@ -396,7 +408,7 @@ Fast-forward
             return await ctx.send("Nothing to update.")
         ver = re.findall(r'([a-fA-F0-9]{7})\.\.([a-fA-F0-9]{7})', m)
         pre, pos = ver[0]
-        mods = re.findall(r'\s(cogs/[a-z]+\.py) \|', m)
+        mods = re.findall(r'\s(cogs/[a-z_]+\.py) \|', m)
         if not await ctx.confirm(f'Update `{pre}` -> `{pos}`\nReload {len(mods)} modules?\n{" | ".join(mod.replace("/", ".")[:-3] for mod in mods)}'):
             return
         await ctx.invoke(self.reload, *[m.replace('/', '.')[:-3] for m in mods])

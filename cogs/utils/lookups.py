@@ -139,3 +139,11 @@ STAT_VARIATION = {
     'Temperance': [23.1, 23.1, 23.1, 15.4, 15.4],
     'Tower': [30.8, 15.4, 23.1, 15.4, 15.4]
 }
+
+ITEM_TYPE_STRINGIFY = {
+    ItemType.EQUIPABLE: "Equipable",
+    ItemType.HEALING: "Healing",
+    ItemType.TRASH: "Trash",
+    ItemType.MATERIAL: "Materials",
+    ItemType.SKILL_CARD: "Skill Cards"
+}

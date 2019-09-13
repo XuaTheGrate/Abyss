@@ -1,14 +1,22 @@
 import asyncio
+import random
 
 from discord.ext import commands
 
-from cogs.utils.formats import ensure_player
+from cogs.utils.formats import ensure_player, SilentError
 from cogs.utils.items import Unusable
 
 
 class Maps(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+    async def cog_before_invoke(self, ctx):
+        if ctx.command is self.inventory:
+            return  # we dont want to interrupt the search if we are just opening our inventory
+        if random.randint(1, 5) == 1:
+            await ctx.invoke(self.bot.get_command("encounter"), force=True)
+            raise SilentError
 
     @commands.command(enabled=False)
     @ensure_player
@@ -24,12 +32,14 @@ class Maps(commands.Cog):
         though some items may only be used in battle."""
         await ctx.player.inventory.view(ctx)
         c1 = self.bot.loop.create_task(
-            self.bot.wait_for("message",
-                              check=lambda m: m.author == ctx.author and m.channel == ctx.channel
-                                              and ctx.player.inventory.has_item(m.content.lower()),
-                              timeout=60))
+            self.bot.wait_for(
+                "message",
+                check=lambda m: m.author == ctx.author and m.channel == ctx.channel and ctx.player.inventory.has_item(
+                    m.content.lower()),
+                timeout=60))
         c2 = self.bot.loop.create_task(ctx.player.inventory.pg.wait_stop())
         await asyncio.wait([c1, c2], return_when=asyncio.FIRST_COMPLETED)
+        await ctx.player.inventory.pg.stop()
         if c2.done():
             c1.cancel()
             return

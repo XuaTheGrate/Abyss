@@ -1,6 +1,8 @@
 import discord
 
 from cogs.utils.items import dataclass
+from .enums import ItemType
+from .lookups import ITEM_TYPE_STRINGIFY
 from .paginators import EmbedPaginator, PaginationHandler
 
 
@@ -29,7 +31,7 @@ class Inventory:
         for tab, iids in data.items():
             self.items[tab] = []
             for item, count in iids:
-                self.items[tab].append(_ItemCount(bot.item_cache.get_item(item), count))
+                self.items[ItemType[tab]].append(_ItemCount(bot.item_cache.get_item(item), count))
 
     def __repr__(self):
         return f"<{self.player.owner.name}'s inventory, {sum(map(len, self.items.values()))} items>"
@@ -40,7 +42,8 @@ class Inventory:
     async def view(self, ctx):
         pg = EmbedPaginator()
         for tab in self.items:
-            pg.add_page(discord.Embed(title=tab, description="\n".join(map(str, self.items[tab]))))
+            pg.add_page(discord.Embed(title=f"<| {ITEM_TYPE_STRINGIFY[tab]} |>",
+                                      description="\n".join(map(str, self.items[tab]))))
         self.pg = PaginationHandler(ctx.bot, pg, send_as='embed')
         await self.pg.start(ctx)
 
@@ -53,6 +56,15 @@ class Inventory:
     def has_item(self, name):
         """Case-insensitive search to check if a player has this item."""
         return self.get_item(name) is not None
+
+    def add_item(self, item):
+        if item not in self.items[item.type]:
+            self.items[item.type].append(_ItemCount(item, 1))
+        else:
+            for i in self.items[item.type]:
+                if i == item:
+                    i.count += 1
+                    break
 
     def remove_item(self, item):
         for tab, items in self.items.values():

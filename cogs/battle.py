@@ -77,6 +77,9 @@ Encounter: {list(map(str, battle.enemies))}
     @ensure_player
     @commands.cooldown(5, 120, commands.BucketType.user)
     async def encounter(self, ctx, *, ___=None, force=False):
+        """Searches around for an encounter.
+
+        Ignore the `___` and `force` variables, they are for internal use."""
         if ctx.author.id in self.battles:
             return await ctx.message.add_reaction(self.bot.tick_no)
 

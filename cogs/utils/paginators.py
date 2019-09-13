@@ -1,4 +1,5 @@
 import asyncio
+import contextlib
 import functools
 
 import discord
@@ -137,10 +138,12 @@ class PaginationHandler:
         self._timeout.cancel()
         self.abyss.remove_listener(self._raw_reaction_event, "on_raw_reaction_add")
         if self.has_perms:
-            await self.msg.clear_reactions()
+            with contextlib.suppress(discord.HTTPException):
+                await self.msg.clear_reactions()
         else:
             self.abyss.remove_listener(self._raw_reaction_event, "on_raw_reaction_remove")
-            await self.msg.delete()
+            with contextlib.suppress(discord.HTTPException):
+                await self.msg.delete()
 
     async def start(self, ctx):
         self.msg = await ctx.send(**self.send_kwargs)
