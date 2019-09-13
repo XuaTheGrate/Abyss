@@ -21,7 +21,7 @@ class Inventory:
         pg = EmbedPaginator()
         for tab in self.items:
             pg.add_page(discord.Embed(title=tab, description="\n".join(map(str, self.items[tab]))))
-        self.pg = PaginationHandler(ctx.bot, pg)
+        self.pg = PaginationHandler(ctx.bot, pg, send_as='embed')
         await self.pg.start(ctx)
 
     def get_item(self, name):
