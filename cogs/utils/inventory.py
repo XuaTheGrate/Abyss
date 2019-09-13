@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 import discord
 
 from cogs.utils.items import dataclass
@@ -29,10 +31,9 @@ class _ItemCount:
 class Inventory:
     def __init__(self, bot, player, data):
         self.player = player
-        self.items = {}
+        self.items = defaultdict(list)
         self.pg = None
         for tab, iids in data.items():
-            self.items[tab] = []
             for item, count in iids:
                 self.items[ItemType[tab]].append(_ItemCount(bot.item_cache.get_item(item), count))
 
