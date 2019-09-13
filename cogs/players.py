@@ -291,8 +291,6 @@ class Players(commands.Cog):
     async def create(self, ctx):
         """Creates a new player.
         You will be given a random demon to use throughout your journey."""
-        if ctx.player:
-            return await ctx.send("You already own a player.")
 
         msg = _("This appears to be a public server. The messages sent can get spammy, or cause ratelimits.\n"
                 "It is advised to use a private server/channel.")
