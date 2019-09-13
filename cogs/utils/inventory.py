@@ -40,7 +40,7 @@ class Inventory:
         return f"<{self.player.owner.name}'s inventory, {sum(map(len, self.items.values()))} items>"
 
     def to_json(self):
-        return {t.name: list(map(str, k)) for t, k in self.items.items()}
+        return {t.name: [(str(i), i.count) for i in k] for t, k in self.items.items()}
 
     async def view(self, ctx):
         pg = EmbedPaginator()
@@ -72,7 +72,7 @@ class Inventory:
                     break
 
     def remove_item(self, item):
-        for tab, items in self.items.values():
+        for tab, items in self.items.items():
             for i in items:
                 if i == item:
                     i.count -= 1
