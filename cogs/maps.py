@@ -12,6 +12,8 @@ class Maps(commands.Cog):
         self.bot = bot
 
     async def cog_before_invoke(self, ctx):
+        if ctx.author.id in self.bot.get_cog("BattleSystem").battles:
+            raise SilentError  # cant use these commands during battle
         if ctx.command is self.inventory:
             return  # we dont want to interrupt the search if we are just opening our inventory
         if random.randint(1, 5) == 1:

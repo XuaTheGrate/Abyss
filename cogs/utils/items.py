@@ -76,7 +76,6 @@ class HealingItem(_ItemABC):
         self.target = target
 
     async def use(self, ctx, battle=None):
-        # todo: raise Unusable() when no valid targets (ie everyone max sp/hp or no ailments to heal)
         if battle:
             if self.target == 'allies':
                 if self.heal_type == 'sp':
@@ -102,8 +101,12 @@ class HealingItem(_ItemABC):
                         if p.ailment and (self.heal_amount == 'all' or p.ailment.type.name.lower() == self.heal_amount):
                             p.ailment = None
                             await ctx.send(f"> __{p}__ recovered!")
+            else:  # todo: missing targets `ally`, `enemy` and `enemies`
+                raise Unusable()
         else:
             # only one target available
+            if self.target in ('enemy', 'enemies'):
+                raise Unusable()
             if self.heal_type == 'sp':
                 if ctx.player._sp_used == 0:
                     raise Unusable("SP is full.")

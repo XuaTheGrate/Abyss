@@ -169,7 +169,7 @@ Unusable skills that activate automatically when a certain requirement is met.
 Can be automatic buffs at the start of battle, increased criticals or even automatic skill negation.
 > __Ailment__
 Non-damaging skills to inflict various status ailments on the enemy.
-You can view `$faq ailments` to view information about every ailment."""
+You can view `$help ailments` to view information about every ailment."""
         await ctx.send(embed=embed)
 
     @faq.command(aliases=['statuses', 'ailment'])
@@ -178,7 +178,7 @@ You can view `$faq ailments` to view information about every ailment."""
         embed = discord.Embed(title="Help: Ailments")
         embed.set_footer(text="All ailments will heal themselves 2-7 turns after infliction.")
         embed.description = """In total, there are **12** ailments.
-`Technical` is like a crit, but different. See `$faq technicals`
+`Technical` is like a crit, but different. See `$help technicals`
 > \N{FIRE} **Burn**   Technical: Wind/Nuclear
 After you take your turn, you will take 6% of your max HP in damage.
 > \N{SNOWFLAKE} **Freeze**   Technical: Physical/Nuclear
@@ -195,7 +195,7 @@ waking if the enemy hits you with a physical attack.
 You will be unable to use your skills. You can still use Attack and Guard, and your passive skills will
 still work.
 > \N{WHITE QUESTION MARK ORNAMENT} **Confuse**   Technical: Psychokinetic
-Chance to throw away an item/credits, do nothing or use a random skill.
+Chance to throw away an item/credits, do nothing ~~or use a random skill~~.
 > \N{FACE SCREAMING IN FEAR} **Fear**   Technical: Psychokinetic
 High chance of being immobilized. Low chance of running away from battle.
 > \N{FEARFUL FACE} **Despair**   Technical: Psychokinetic

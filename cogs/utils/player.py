@@ -480,7 +480,8 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
         self._shields.clear()
         self._ailment_buff = -1
         self._endured = False
-        self.ailment = None  # todo: only shock and freeze get cleared post-battle
+        if self.ailment and self.ailment.type in (AilmentType.SHOCK, AilmentType.FREEZE):
+            self.ailment = None
         if not ran:
             if any(s.name == 'Victory Cry' for s in self.skills):
                 self._sp_used = 0
