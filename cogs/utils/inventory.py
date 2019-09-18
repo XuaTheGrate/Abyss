@@ -32,6 +32,8 @@ class Inventory:
     def __init__(self, bot, player, data):
         self.player = player
         self.items = defaultdict(list)
+        for t in ItemType:
+            self.items[t] = []
         self.pg = None
         for tab, iids in data.items():
             for item, count in iids:
@@ -48,7 +50,7 @@ class Inventory:
         for tab in self.items:
             pg.add_page(discord.Embed(title=f"<| {ITEM_TYPE_STRINGIFY[tab]} |>",
                                       description="\n".join(f"{i.count}x {i}" for i in self.items[tab])))
-        self.pg = PaginationHandler(ctx.bot, pg, send_as='embed')
+        self.pg = PaginationHandler(ctx.bot, pg, send_as='embed', wrap=True)
         await self.pg.start(ctx)
 
     def get_item(self, name):

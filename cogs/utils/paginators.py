@@ -47,13 +47,14 @@ class EmbedPaginator(BetterPaginator):
 
 class PaginationHandler:
     def __init__(self, abyss, paginator: BetterPaginator, *,
-                 owner=None, send_as="content", no_help=False):
+                 owner=None, send_as="content", no_help=False, wrap=False):
         if paginator.max_size > 1985:
             raise TypeError(f"paginator is too big: {paginator.max_size}/1985")
         self.pg = paginator
         self.abyss = abyss
         self.current_page = 0
         self.msg = None
+        self.wrap = wrap
         bt = [None, None, '\N{RAISED HAND}', None, None]
         ex = [self.first_page, self.previous_page, self.stop, self.next_page, self.last_page]
         if not no_help:
@@ -191,7 +192,9 @@ class PaginationHandler:
             raise RuntimeError("initial message not sent")
 
         if self.current_page == 0:
-            return
+            if not self.wrap:
+                return
+            self.current_page = len(self.pg.pages)
         self.current_page -= 1
         await self.msg.edit(**self.send_kwargs)
 
@@ -201,7 +204,9 @@ class PaginationHandler:
             raise RuntimeError("initial message not sent")
 
         if self.current_page == len(self.pg.pages)-1:
-            return
+            if not self.wrap:
+                return
+            self.current_page = -1
         self.current_page += 1
         await self.msg.edit(**self.send_kwargs)
 
