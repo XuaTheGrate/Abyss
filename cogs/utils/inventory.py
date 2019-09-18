@@ -75,7 +75,7 @@ class Inventory:
     def remove_item(self, item):
         for tab, items in self.items.items():
             for i in items:
-                if i == item:
+                if i.item == item:
                     i.count -= 1
                     if i.count <= 0:
                         self.items[tab].remove(i)
