@@ -5,9 +5,9 @@ psutil
 motor
 aioredis
 dpy-ui
-Pillow ; sys_platform == 'linux'
+Pillow
 contextvars ; python_version < '3.7'
-numpy ; sys_platform == 'linux'
+numpy
 youtube_dl
 aiostream
 tabulate
