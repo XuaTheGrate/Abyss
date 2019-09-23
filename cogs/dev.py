@@ -232,17 +232,17 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
             pass
         except Exception as e:
             await ctx.message.add_reaction(self.bot.tick_no)
-            return await ctx.send_as_paginator(f'```py\n{format_exc(e)}\n```', destination=ctx.author)
+            return await ctx.send(f'```py\n{format_exc(e)}\n```')
         else:
             await ctx.message.add_reaction(self.bot.tick_yes)
             if ret is None:
                 return
             self._env['_'] = ret
             if isinstance(ret, discord.Embed):
-                return await ctx.send_as_paginator(embeds=[ret])
+                return await ctx.send(embed=ret)
             if not isinstance(ret, str):
                 ret = repr(ret)
-            return await ctx.send_as_paginator(ret, codeblock=self._send_in_codeblocks)
+            return await ctx.send(ret)
         code = f"""async def __func__():
     try:
 {textwrap.indent(code_string, '        ')}
@@ -252,7 +252,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
             import_expression.exec(code, self._env)
         except Exception as e:
             await ctx.message.add_reaction(self.bot.tick_no)
-            return await ctx.send_as_paginator(f'```py\n{format_exc(e)}\n```', destination=ctx.author)
+            return await ctx.send(f'```py\n{format_exc(e)}\n```')
 
         func = self._env.pop('__func__')
         try:
@@ -260,7 +260,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
                 ret = await func()
         except Exception as e:
             await ctx.message.add_reaction(self.bot.tick_no)
-            return await ctx.send_as_paginator(f'```py\n{format_exc(e)}\n```', destination=ctx.author)
+            return await ctx.send(f'```py\n{format_exc(e)}\n```')
 
         await ctx.message.add_reaction(self.bot.tick_yes)
 
@@ -270,14 +270,14 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         self._env['_'] = ret
 
         if isinstance(ret, discord.Embed):
-            return await ctx.send_as_paginator(embeds=[ret])
+            return await ctx.send(embed=ret)
 
         if not isinstance(ret, str):
             ret = repr(ret)
 
         if not self._send_in_codeblocks:
-            return await ctx.send_as_paginator(ret)
-        return await ctx.send_as_paginator(ret, codeblock=self._send_in_codeblocks)
+            return await ctx.send(ret)
+        return await ctx.send(ret)
 
     @dev.command()
     async def shutdown(self, ctx):

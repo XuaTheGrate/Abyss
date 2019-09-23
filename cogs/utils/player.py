@@ -52,7 +52,7 @@ class Player(JSONable):
             self.skills = skills
         else:
             self.skills = []
-            self._skills = sorted({'Attack', 'Guard', *skills})
+            self._skills = list({'Attack', 'Guard', *sorted(skills)})
 
         self.map, self.area = kwargs.pop('location', (None, None))
 

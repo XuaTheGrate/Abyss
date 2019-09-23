@@ -11,3 +11,5 @@ numpy
 youtube_dl
 aiostream
 tabulate
+humanize
+requests

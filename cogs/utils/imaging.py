@@ -1,94 +1,106 @@
 import io
 import multiprocessing
+import os
 from functools import partial
 
+import requests
 from PIL import Image, ImageDraw, ImageFont
 
+from cogs.utils.enums import ResistanceModifier
+
 BASE = Image.open('assets/statscreen.png').convert('RGBA')
-FONT = ImageFont.truetype('assets/tahoma.ttf', size=50)
-SMOL = ImageFont.truetype('assets/tahomabd.ttf', size=30)
+
+"""
+$$dev eval from cogs.utils import imaging
+p = cogs.utils.player!.Player(**{'owner': 455289384187592704, 'name': 'Kumbhanda', 'skills': ['Marin Karin', 'Attack', 'Guard'], 'exp': 125, 'stats': [4, 4, 4, 8, 5], 'resistances': [2, 2, 1, 3, 2, 2, 2, 2, 2, 1], 'arcana': 9, 'specialty': 'AILMENT', 'stat_points': 0, 'description': None, 'skill_leaf': None, 'ap': 0, 'unsetskills': [], 'finished_leaves': [], 'credits': 0, 'location': ['Sample Dungeon', 'Floor 1'], 'inventory': {'HEALING': [], 'TRASH': [], 'MATERIAL': [], 'SKILL_CARD': [], 'EQUIPABLE': []}})
+p.owner = "Xua#6666"
+i = await imaging.profile_executor(ctx.bot, p)
+await ctx.send(file=discord.File(i, "test.png"))
+"""
+
+nx = 287
+ax = 145
 
 
-def __remove_whitespace(img: io.BytesIO) -> io.BytesIO:
-    return __ws(img)
+def __download_and_cache(name, data):
+    if not os.path.isdir("assets/cache"):
+        os.mkdir("assets/cache")
+    if os.path.isfile("assets/cache/" + name + ".png"):
+        # print(name, "found in cache")
+        with open("assets/cache/" + name + ".png", "rb") as f:
+            return io.BytesIO(f.read())
+    response = requests.post(
+        'https://api.remove.bg/v1.0/removebg',
+        files={'image_file': data},
+        data={'size': 'auto'},
+        headers={'X-Api-Key': __import__("config").AI_KEY},
+    )
+    assert response.status_code == 200, (response.status_code, response.reason, response.text)
+    data = response.content
+    with open("assets/cache/" + name + ".png", "wb") as f:
+        f.write(data)  # todo: improve
+    # print(name, "saved to cache")
+    return io.BytesIO(data)
 
 
-def __ws(img):
-    im = Image.open(img).convert('RGBA')
-    im.thumbnail((im.size[0] // 3, im.size[1] // 3), Image.BILINEAR)
-    lx, ly = im.size
-    for x in range(lx):
-        for y in range(ly):
-            r, g, b, a = im.getpixel((x, y))
-            if 16777215 - ((r + 1) * (g + 1) * (b + 1)) < 1000000:
-                im.putpixel((x, y), (0, 0, 0, 0))
-    buf = io.BytesIO()
-    im.save(buf, 'png')
-    buf.seek(0)
-    im.close()
-    return buf
+resist_mapping = {
+    ResistanceModifier.NORMAL: ' - ',
+    ResistanceModifier.WEAK: 'Wk ',
+    ResistanceModifier.RESIST: 'Str',
+    ResistanceModifier.ABSORB: 'Abs',
+    ResistanceModifier.IMMUNE: 'Nul',
+    ResistanceModifier.REFLECT: 'Rpl'
+}
 
 
-def __get_rotated_text(text, rotation=9.46, colour=(255, 255, 255, 255), font=FONT):
-    im = Image.new('RGBA', tuple(x * 2 for x in font.getsize(text)), 0)
-    d = ImageDraw.Draw(im)
-    d.text((1, 1), text, font=font, fill=colour, align='center')
-    im = im.rotate(rotation)
-    # buf = io.BytesIO()
-    # im.save(buf, 'png')
-    # buf.seek(0)
-    # im.close()
-    # pasteable = Image.open(__ws(buf)).convert('RGBA')
-    return im
+def __create_profile(player, demon_stuff, *, missing=False):
+    if not missing:
+        demon_stuff = __download_and_cache(player.name, demon_stuff)
+    # print(player.resistances)
 
-
-def __create_profile(player, demon_stuff):
     im = BASE.copy()
-    text = __get_rotated_text(str(player.owner))
-    im.paste(text, (50, 20), text)
-    text.close()
+    draw = ImageDraw.Draw(im)
 
-    demon_name = __get_rotated_text(player.name)
-    im.paste(demon_name, (100, 75), demon_name)
-    demon_name.close()
+    font = ImageFont.truetype('assets/FOT-Skip Std B.otf', size=20)
+    w, h = draw.textsize(str(player.owner), font=font)
+    draw.text(((nx - w) / 2, 53), str(player.owner), font=font)
 
-    pos = ((im.size[0] - demon_stuff.size[0]) - 20, (im.size[1] // 2 - demon_stuff.size[1] // 2))
-    # print(f"HI IM DEBUG {pos}")
-    im.paste(demon_stuff, pos, demon_stuff)
-    demon_stuff.close()
+    mp = 14
+    for rmod in player.resistances.values():
+        # print(repr(rmod), resist_mapping[rmod])
+        draw.text((mp, 180), resist_mapping[rmod], font=font, fill=(255, 165, 10, 255))
+        mp += 49
 
-    st = __get_rotated_text(str(player.strength), 0.0, (0, 0, 0, 255), SMOL)
-    st = st.resize((st.size[0], st.size[1] + 15), resample=Image.BILINEAR)
-    im.paste(st, (725, 465), st)
-    st.close()
+    x = 287
+    y = 328
+    i = 0
+    for s in player._skills:
+        # print(s, i, y, x)
+        if s in ('Attack', 'Guard'):
+            continue
+        draw.text(((x - font.getsize(s)[0]) / 2, y), s, font=font,
+                  fill=(255, 165, 10, 255))
+        i += 1
+        y += 27
+        if i % 4 == 0:
+            x += 582
+            y = 328
 
-    ma = __get_rotated_text(str(player.magic), 0.0, (0, 0, 0, 255), SMOL)
-    ma = ma.resize((ma.size[0], ma.size[1] + 15), resample=Image.BILINEAR)
-    im.paste(ma, (735, 500), ma)
-    ma.close()
+    font = ImageFont.truetype('assets/FOT-Skip Std B.otf', size=30)
+    draw.text((146, 83), player.name, font=font, fill=(42, 50, 42, 255))
 
-    en = __get_rotated_text(str(player.endurance), 0.0, (0, 0, 0, 255), SMOL)
-    en = en.resize((en.size[0], en.size[1] + 15), resample=Image.BILINEAR)
-    im.paste(en, (725, 535), en)
-    en.close()
+    draw.text((80, 112), str(player.level), font=font)
 
-    ag = __get_rotated_text(str(player.agility), 0.0, (0, 0, 0, 255), SMOL)
-    ag = ag.resize((ag.size[0], ag.size[1] + 15), resample=Image.BILINEAR)
-    im.paste(ag, (735, 570), ag)
-    ag.close()
+    x, _ = font.getsize(player.arcana.name.title())
+    # print("font size for", player.arcana.name.title(), ":", x)
+    if x > 145:
+        font = ImageFont.truetype('assets/FOT-Skip Std B.otf', size=20)
+    w, h = font.getsize(player.arcana.name.title())
+    draw.text(((ax - w) / 2, 83), player.arcana.name.title(), font=font)
 
-    lu = __get_rotated_text(str(player.luck), 0.0, (0, 0, 0, 255), SMOL)
-    lu = lu.resize((lu.size[0], lu.size[1] + 15), resample=Image.BILINEAR)
-    im.paste(lu, (725, 605), lu)
-    lu.close()
-
-    lvl = __get_rotated_text(str(player.level))
-    im.paste(lvl, (230, 135), lvl)
-    lvl.close()
-
-    exp = __get_rotated_text(str(player.exp_to_next_level()))
-    im.paste(exp, (395, 115), exp)
-    exp.close()
+    dim = Image.open(demon_stuff).convert("RGBA")
+    im.paste(dim, (510, 5), dim)
+    dim.close()
 
     buffer = io.BytesIO()
     im.save(buffer, 'png')
@@ -97,10 +109,8 @@ def __create_profile(player, demon_stuff):
     handles.put(buffer)
 
 
-def _multiproc_handler(player, demon):
-    dimg = __ws(demon)
-    dimg = Image.open(dimg).convert('RGBA')
-    __create_profile(player, dimg)
+def _multiproc_handler(player, demon, *, missing=False):
+    __create_profile(player, demon, missing=missing)
 
 
 handles = multiprocessing.Queue()
@@ -108,6 +118,7 @@ handles = multiprocessing.Queue()
 
 async def profile_executor(bot, player):
     uri = await bot.redis.get(f"demon:{player.name.replace(' ', '_').title()}")
+    ms = False
     if uri:
         uri = uri.decode()
         async with bot.session.get(uri) as get:
@@ -116,11 +127,10 @@ async def profile_executor(bot, player):
         bot.send_error(f"no url for {player.name}, defaulting to MISSINGNO.")
         with open("assets/MISSINGNO.png", 'rb') as f:
             file = io.BytesIO(f.read())
+        ms = True
 
-    ply = player.to_json()
-    ply['__debug'] = str(player.owner)
-
-    process = multiprocessing.Process(target=_multiproc_handler, args=(player, file), daemon=True)
+    process = multiprocessing.Process(target=_multiproc_handler, args=(player, file), kwargs={"missingno": ms},
+                                      daemon=True)
     process.start()
 
     meth = partial(handles.get, timeout=10)
@@ -130,4 +140,5 @@ async def profile_executor(bot, player):
     finally:
         # if process.is_alive():
         # process.terminate()
+        file.close()
         pass
