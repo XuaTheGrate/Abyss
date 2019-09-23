@@ -129,7 +129,7 @@ async def profile_executor(bot, player):
             file = io.BytesIO(f.read())
         ms = True
 
-    process = multiprocessing.Process(target=_multiproc_handler, args=(player, file), kwargs={"missingno": ms},
+    process = multiprocessing.Process(target=_multiproc_handler, args=(player, file), kwargs={"missing": ms},
                                       daemon=True)
     process.start()
 
