@@ -63,7 +63,7 @@ class Player(JSONable):
 
         # self.resistances = dict(zip(SkillType, map(ResistanceModifier, kwargs.pop("resistances"))))
         # noinspection PyTypeChecker
-        self.resistances = dict(zip(SkillType, kwargs.pop("resistances")))
+        self.resistances = dict(zip(SkillType, map(ResistanceModifier, kwargs.pop("resistances"))))
         # noinspection PyArgumentList
 
         self.inventory = kwargs.pop("inventory", {})
