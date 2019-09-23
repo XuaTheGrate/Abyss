@@ -24,7 +24,7 @@ class Player(JSONable):
         elif key == 'skills':
             return [z.name for z in self.skills]
         elif key == 'resistances':
-            return self._resistances
+            return [x.value for x in self.resistances.values()]
         elif key == 'arcana':
             return self.arcana.value
         elif key == 'specialty':
