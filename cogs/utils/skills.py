@@ -69,6 +69,10 @@ class Skill(JSONable):
     def is_status_skill(self):
         return isinstance(self, StatusMod)
 
+    @property
+    def is_default(self):
+        return self.name in ('Guard', 'Attack')
+
     def __repr__(self):
         return f"<{type(self).__name__} {self.name!r}, {self.type.name.lower()}>"
 
