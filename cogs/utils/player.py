@@ -62,13 +62,8 @@ class Player(JSONable):
         self.strength, self.magic, self.endurance, self.agility, self.luck = kwargs.pop("stats")
 
         # self.resistances = dict(zip(SkillType, map(ResistanceModifier, kwargs.pop("resistances"))))
-        self._resistances = kwargs.pop("resistances")
         # noinspection PyTypeChecker
-        self.resistances = dict(zip(SkillType, [
-            ResistanceModifier.WEAK if x == 3
-            else ResistanceModifier.NORMAL if x == 2
-            else ResistanceModifier.RESIST
-            for x in self._resistances]))
+        self.resistances = dict(zip(SkillType, kwargs.pop("resistances")))
         # noinspection PyArgumentList
 
         self.inventory = kwargs.pop("inventory", {})
@@ -127,7 +122,7 @@ class Player(JSONable):
 --- skills: {", ".join(map(str, self.skills))}
 --- exp: {self.exp}
 --- stats: {self.stats}
---- resistances: {self._resistances}
+--- resistances: {self.resistances}
 --- description: {self.description}
 --- stat_points: {self.stat_points}
 --- arcana: {self.arcana!r}
