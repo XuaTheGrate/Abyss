@@ -360,6 +360,7 @@ class Players(commands.Cog):
 
     @commands.command(hidden=True)
     @ensure_player
+    @commands.cooldown(1, 120, commands.BucketType.user)
     async def profile(self, ctx):
         if not ctx.player:
             return await ctx.send("You don't own a player.")

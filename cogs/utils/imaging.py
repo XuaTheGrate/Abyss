@@ -98,6 +98,34 @@ def __create_profile(player, demon_stuff, *, missing=False):
     w, h = font.getsize(player.arcana.name.title())
     draw.text(((ax - w) / 2, 83), player.arcana.name.title(), font=font)
 
+    """
+        drawObject.ellipse((x+w,y,x+h+w,y+h),fill=bgcolor)
+        drawObject.ellipse((x,y,x+h,y+h),fill=bgcolor)
+        drawObject.rectangle((x+(h/2),y, x+w+(h/2), y+h),fill=bgcolor)
+
+        #if(progress<=0):
+        #    progress = 0.01
+        #if(progress>1):
+        #    progress=1
+        w = w / 100 * progress
+
+        drawObject.ellipse((x+w,y,x+h+w,y+h),fill=color)
+        drawObject.ellipse((x,y,x+h,y+h),fill=color)
+        drawObject.rectangle((x+(h/2),y, x+w+(h/2), y+h),fill=color)
+        """
+
+    x = 124
+    y = 223
+    w = 387
+    h = 230
+    for s in (player.strength, player.magic, player.endurance, player.agility, player.luck):
+        print(x, y, w, h, s)
+        w = w * (s / 99)
+        print(w)
+        draw.rectangle((x, y, w + x, h), fill=(255, 255, 128, 255))
+        y += 20
+        h += 20
+
     dim = Image.open(demon_stuff).convert("RGBA")
     im.paste(dim, (510, 5), dim)
     dim.close()
@@ -116,21 +144,28 @@ def _multiproc_handler(player, demon, *, missing=False):
 handles = multiprocessing.Queue()
 
 
-async def profile_executor(bot, player):
-    uri = await bot.redis.get(f"demon:{player.name.replace(' ', '_').title()}")
-    ms = False
-    if uri:
-        uri = uri.decode()
-        async with bot.session.get(uri) as get:
-            file = io.BytesIO(await get.read())
-    else:
-        bot.send_error(f"no url for {player.name}, defaulting to MISSINGNO.")
-        with open("assets/MISSINGNO.png", 'rb') as f:
-            file = io.BytesIO(f.read())
-        ms = True
+async def get_image_url(bot, goto):
+    # noinspection PyUnresolvedReferences
+    from bs4 import BeautifulSoup
+    keys = iter(['png', 'jpg', 'jpeg'])
+    async with bot.session.get(goto) as get:
+        data = await get.read()
+    soup = BeautifulSoup(data, "html.parser")
+    url = soup.head.find("meta", {"name": "generator"}).meta.find("meta", property="og:image")['content']
+    point = -1
+    while point < 0:
+        point = url.find(next(keys))
+    return url[:point + 3]
 
-    process = multiprocessing.Process(target=_multiproc_handler, args=(player, file), kwargs={"missing": ms},
-                                      daemon=True)
+
+async def profile_executor(bot, player):
+    uri = f"https://megamitensei.fandom.com/wiki/{player.name.title().replace(' ', '_')}"
+    async with bot.session.get(await get_image_url(bot, uri)) as get:
+        file = io.BytesIO(await get.read())
+
+    file = __download_and_cache(player.name, file)
+
+    process = multiprocessing.Process(target=_multiproc_handler, args=(player, file), daemon=True)
     process.start()
 
     meth = partial(handles.get, timeout=10)
