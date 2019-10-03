@@ -92,6 +92,8 @@ class Launcher:
 
     def task_complete(self, task):
         if task.exception():
+            if isinstance(task.exception(), KeyboardInterrupt):
+                raise
             task.print_stack()
             self.keep_alive = self.loop.create_task(self.rebooter())
             self.keep_alive.add_done_callback(self.task_complete)
@@ -127,9 +129,10 @@ class Launcher:
     async def rebooter(self):
         while self.alive:
             # log.info("Cycle!")
-            if not self.clusters:
+            if not self.clusters and self.alive:
+                self.alive = False
                 log.warning("All clusters appear to be dead")
-                return os.kill(os.getpid(), signal.SIGINT)
+                raise KeyboardInterrupt
 
             if self.ipc and not self.ipc.is_alive():
                 log.critical("IPC websocket server dead, require reboot")
