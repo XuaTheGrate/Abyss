@@ -263,10 +263,10 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
             with Timer(ctx.message):
                 await asyncio.wait_for(fut, timeout=self._timeout)
         except asyncio.CancelledError:
-            await ctx.message.add_reaction('stop sign')
+            await ctx.message.add_reaction('\U0001f6d1')
             return
         except asyncio.TimeoutError:
-            await ctx.message.add_reaction('alarm clock')
+            await ctx.message.add_reaction('\u23f0')
             return
         except Exception as e:
             await ctx.message.add_reaction(self.bot.tick_no)
@@ -385,7 +385,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         try:
             await asyncio.wait_for(hdlr(), timeout=self._timeout)
         except asyncio.TimeoutError:
-            await ctx.message.add_reaction("alarm clock")
+            await ctx.message.add_reaction("\u23f0")
         else:
             await ctx.message.add_reaction(self.bot.tick_yes)
 
