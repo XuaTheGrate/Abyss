@@ -126,6 +126,8 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         self._send_in_codeblocks = False
         self._show_stderr = False
         self._perf_loops = 10
+        self._evals = []
+        self._timeout = 60
 
     async def cog_check(self, ctx):
         return await self.bot.is_owner(ctx.author)
@@ -191,13 +193,13 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
             ret = await func(*args)
         except Exception as e:
             await ctx.message.add_reaction(self.bot.tick_no)
-            await ctx.send_as_paginator(f'```py\n{format_exc(e)}\n```')
+            await ctx.send_as_paginator(format_exc(e), codeblock=True)
         else:
             await ctx.message.add_reaction(self.bot.tick_yes)
             if not ret:
                 return
             ret = recursive_decode(ret)
-            await ctx.send_as_paginator(f"```py\n{pformat(ret)}```")
+            await ctx.send_as_paginator(pformat(ret), codeblock=True)
 
     @dev.command()
     async def linecount(self, ctx):
@@ -232,7 +234,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
             pass
         except Exception as e:
             await ctx.message.add_reaction(self.bot.tick_no)
-            return await ctx.send_as_paginator(format_exc(e), codeblock=self._send_in_codeblocks)
+            return await ctx.send_as_paginator(format_exc(e), codeblock=True)
         else:
             await ctx.message.add_reaction(self.bot.tick_yes)
             if ret is None:
@@ -252,15 +254,27 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
             import_expression.exec(code, self._env)
         except Exception as e:
             await ctx.message.add_reaction(self.bot.tick_no)
-            return await ctx.send_as_paginator(format_exc(e), codeblock=self._send_in_codeblocks)
+            return await ctx.send_as_paginator(format_exc(e), codeblock=True)
 
         func = self._env.pop('__func__')
+        fut = asyncio.ensure_future(func(), loop=self.bot.loop)
+        self._evals.append(fut)
         try:
             with Timer(ctx.message):
-                ret = await func()
+                await asyncio.wait_for(fut, timeout=self._timeout)
+        except asyncio.CancelledError:
+            await ctx.message.add_reaction('stop sign')
+            return
+        except asyncio.TimeoutError:
+            await ctx.message.add_reaction('alarm clock')
+            return
         except Exception as e:
             await ctx.message.add_reaction(self.bot.tick_no)
-            return await ctx.send_as_paginator(format_exc(e), codeblock=self._send_in_codeblocks)
+            return await ctx.send_as_paginator(format_exc(e), codeblock=True)
+        else:
+            ret = fut.result()
+        finally:
+            self._evals.remove(fut)
 
         await ctx.message.add_reaction(self.bot.tick_yes)
 
@@ -276,6 +290,21 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
             ret = repr(ret)
 
         return await ctx.send_as_paginator(ret, codeblock=self._send_in_codeblocks)
+
+    @dev.command()
+    async def stop(self, ctx):
+        if self._latest_proc:
+            self._latest_proc._process.kill()
+            await ctx.message.add_reaction(self.bot.tick_yes)
+
+    @dev.command()
+    async def cancel(self, ctx, idx=-1):
+        try:
+            self._evals[idx].cancel()
+        except IndexError:
+            await ctx.message.add_reaction(self.bot.tick_no)
+        else:
+            await ctx.message.add_reaction(self.bot.tick_yes)
 
     @dev.command()
     async def shutdown(self, ctx):
@@ -316,7 +345,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         await ctx.send(f'{self._perf_loops} loops, {min(times)}ms min,'
                        f' {max(times)}ms max, {sum(times)/len(times):.2f}ms avg, success={not f}')
 
-    @dev.command()
+    @dev.command(enabled=False)
     async def lua(self, ctx, *, code_string):
         with open("_exec.lua", "w") as f:
             f.write(code_string)
@@ -345,17 +374,26 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         cmd = ['/bin/bash', '-c', code_string]
 
         pg = BetterPaginator('```sh\n', '\n```')
+
+        async def hdlr():
+            with Timer(ctx.message):
+                async for line in proc:
+                    pg.add_line(line)
+
         self._latest_proc = proc = await Subprocess.init(*cmd, loop=self.bot.loop, filter_error=self._show_stderr)
 
-        with Timer(ctx.message):
-            async for line in proc:
-                pg.add_line(line)
+        try:
+            await asyncio.wait_for(hdlr(), timeout=self._timeout)
+        except asyncio.TimeoutError:
+            await ctx.message.add_reaction("alarm clock")
+        else:
+            await ctx.message.add_reaction(self.bot.tick_yes)
 
         await asyncio.sleep(.1)
         code = proc._process.returncode
         pg.add_line(f'\nExit code: {code}')
         hdlr = PaginationHandler(self.bot, pg, no_help=True)
-        await hdlr.start(ctx)
+        await hdlr.start(ctx)  # todo: fix reactions
 
     @dev.command()
     async def src(self, ctx, *, command):
@@ -378,7 +416,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
     @dev.command()
     async def giveitem(self, ctx, user: discord.Member, item, count=1):
         if user.id not in self.bot.players.players:
-            return await ctx.send("User has no player.")
+            return await ctx.send("User has no (cached) player.")
         player = self.bot.players.players[user.id]
         item = self.bot.item_cache.get_item(item)
         if not item:
@@ -406,10 +444,11 @@ Fast-forward
             return await ctx.send("Nothing to update.")
         ver = re.findall(r'([a-fA-F0-9]{7})\.\.([a-fA-F0-9]{7})', m)
         pre, pos = ver[0]
-        mods = re.findall(r'\s(cogs/[a-z_]+\.py) \|', m)
-        if not await ctx.confirm(f'Update `{pre}` -> `{pos}`\nReload {len(mods)} modules?\n{" | ".join(mod.replace("/", ".")[:-3] for mod in mods)}'):
-            return
-        await ctx.invoke(self.reload, *[m.replace('/', '.')[:-3] for m in mods])
+        await ctx.send(f'Update `{pre}` -> `{pos}`')
+        # mods = re.findall(r'\s(cogs/[a-z_]+\.py) \|', m)
+        # if not await ctx.confirm(f'Update `{pre}` -> `{pos}`\nReload modules?'):
+        #     return
+        # await ctx.invoke(self.reload, *[m.replace('/', '.')[:-3] for m in mods])
 
     @dev.command()
     async def status(self, ctx):
@@ -437,6 +476,11 @@ Fast-forward
     @config.command()
     async def perfloops(self, ctx, amount: int):
         self._perf_loops = amount
+        await ctx.message.add_reaction(self.bot.tick_yes)
+
+    @config.command()
+    async def timeout(self, ctx, amount: int):
+        self._timeout = amount
         await ctx.message.add_reaction(self.bot.tick_yes)
 
 

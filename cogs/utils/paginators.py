@@ -138,13 +138,10 @@ class PaginationHandler:
         """Stops the pagination."""
         self._timeout.cancel()
         self.abyss.remove_listener(self._raw_reaction_event, "on_raw_reaction_add")
-        if self.has_perms:
-            with contextlib.suppress(discord.HTTPException):
-                await self.msg.clear_reactions()
-        else:
+        if not self.has_perms:
             self.abyss.remove_listener(self._raw_reaction_event, "on_raw_reaction_remove")
-            with contextlib.suppress(discord.HTTPException):
-                await self.msg.delete()
+        with contextlib.suppress(discord.HTTPException):
+            await self.msg.delete()
 
     async def start(self, ctx):
         self.msg = await ctx.send(**self.send_kwargs)

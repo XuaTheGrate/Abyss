@@ -45,13 +45,6 @@ class BetterRotatingFileHandler(logging.FileHandler):
         return logging.StreamHandler.emit(self, record)
 
 
-logger = logging.getLogger('discord')
-# log.setLevel(logging.DEBUG)
-handler = BetterRotatingFileHandler('logs/discord.log', encoding='utf-8')
-handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-logger.addHandler(handler)
-
-
 def do_next_script(msg, author=None):
     author = author or msg.author
 
@@ -62,9 +55,8 @@ def do_next_script(msg, author=None):
     return check
 
 
-def get_logger():
-    import builtins
-    log = logging.getLogger(__name__)
+def get_logger(name):
+    log = logging.getLogger(name)
     log.setLevel(logging.DEBUG)
     "uncomment the above line to enable debug logging"
 
@@ -76,13 +68,8 @@ def get_logger():
         stream,
         BetterRotatingFileHandler("logs/log", encoding="utf-8")
     ]
-
-    builtins.log = log
     return log
 
-
-get_logger()
-log.debug(f"--- BOOT @ {datetime.utcnow().strftime('%m-%d-%Y/%H:%M:%S')} ---")
 
 if not os.path.isdir("music"):
     os.mkdir("music")
@@ -132,9 +119,11 @@ class ContextSoWeDontGetBannedBy403(commands.Context):
             await m.delete()
 
 
-class Abyss(commands.Bot):
-    def __init__(self):
-        super().__init__(commands.when_mentioned_or("$"))
+class Abyss(commands.AutoShardedBot):
+    def __init__(self, **kwargs):
+        self.pipe = kwargs.pop('pipe')
+        self.cluster_name = kwargs.pop('cluster_name')
+        super().__init__(commands.when_mentioned_or("$"), **kwargs)
         self.remove_command("help")  # fuck you danny
         self.prepared = asyncio.Event()
         # `prepared` is to make sure the bot has loaded the database and such
@@ -153,9 +142,18 @@ class Abyss(commands.Bot):
         self.map_handler = MapHandler(self)
         self.item_cache = None
 
+        logger = logging.getLogger('discord')
+        # log.setLevel(logging.DEBUG)
+        handler = BetterRotatingFileHandler(f'logs/{self.cluster_name}-discord.log', encoding='utf-8')
+        handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+        logger.addHandler(handler)
+
+        self.log = get_logger(f'Abyss#{self.cluster_name}')
+
         self.add_check(self.global_check)
         # self.before_invoke(self.before_invoke_handler)
         self.prepare_extensions()
+        self.run()
 
     async def on_command_error(self, *__, **_):
         pass
@@ -209,7 +207,7 @@ class Abyss(commands.Bot):
             try:
                 await asyncio.wait_for(task, timeout=30)
             except asyncio.TimeoutError:
-                log.warning(f"{cog!r} unload task did not finish in time.")
+                self.log.warning(f"{cog!r} unload task did not finish in time.")
                 task.cancel()
 
     # noinspection PyMethodMayBeStatic
@@ -292,7 +290,7 @@ class Abyss(commands.Bot):
             try:
                 self.load_extension(filename)
             except Exception as e:
-                log.warning(f"Could not load ext `{filename}`.")
+                self.log.warning(f"Could not load ext `{filename}`.")
                 self.send_error(f"Could not load ext `{filename}`\n```py\n{formats.format_exc(e)}\n````")
 
     async def on_ready(self):
@@ -302,23 +300,27 @@ class Abyss(commands.Bot):
 
         try:
             await self.db.abyss.accounts.find_one({})
+            self.log.info("MongoDB connection success")
             # dummy query to ensure the db is connected
         except Exception as e:
-            log.error("COULD NOT CONNECT TO MONGODB DATABASE.")
-            log.error("This could lead to fatal errors. Falling back prefixes to mentions only.")
+            self.log.error("COULD NOT CONNECT TO MONGODB DATABASE.")
+            self.log.error("This could lead to fatal errors. Falling back prefixes to mentions only.")
             self.send_error(f"FAILED TO CONNECT TO MONGODB\n```py\n{formats.format_exc(e)}\n```")
             return
 
         try:
             self.redis = await aioredis.create_redis_pool(**config.REDIS)
+            self.log.info("Redis connection succeeded")
         except Exception as e:
-            log.error("couldnt connect to redis")
+            self.log.error("couldnt connect to redis")
             self.send_error(F"failed to connect to redis\n```py\n{formats.format_exc(e)}\n```")
 
         self.prepared.set()
         self.start_date = datetime.utcnow()
-        log.warning("Successfully loaded.")
+        self.log.warning("Successfully loaded.")
         await self.change_presence(activity=discord.Game(name="$cmds"))
+        self.pipe.send(1)
+        self.pipe.close()
 
     async def on_message(self, message):
         if message.author.bot:
@@ -345,10 +347,10 @@ class Abyss(commands.Bot):
         await self.process_commands(after)
 
     def run(self):
-        # stupid sphinx inheriting bug
         super().run(config.TOKEN)
 
     async def close(self):
+        self.log.info("Shutting down")
         self.dispatch("logout")
         await self.wait_for_close()
         self.db.close()
@@ -359,7 +361,7 @@ class Abyss(commands.Bot):
         if not self.prepared.is_set():
             return
         to = f""">>> Error occured in event `{event}`
-Arguments: {NL.join(map(repr, args))}
+Arguments: {args}
 KW Arguments: {kwargs}
 ```py
 {traceback.format_exc()}
