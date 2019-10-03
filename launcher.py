@@ -1,9 +1,9 @@
 import asyncio
 import logging
 import multiprocessing
+import os
 import random
 import signal
-import os
 import sys
 import time
 
@@ -63,11 +63,28 @@ class Launcher:
         try:
             self.loop.run_forever()
         except KeyboardInterrupt:
-            self.loop.run_until_complete(self.shutdown())
+            self.shutdown()
         finally:
             self.cleanup()
 
+    def _cleanup(self):
+        tasks = asyncio.all_tasks(self.loop)
+        for t in tasks:
+            t.cancel()
+        self.loop.run_until_complete(asyncio.gather(*tasks, return_exceptions=True))
+        for t in tasks:
+            if t.cancelled():
+                continue
+            if t.exception():
+                t.print_stack()
+
+        if hasattr(self.loop, 'shutdown_asyncgens'):  # 3.6+
+            self.loop.run_until_complete(self.loop.shutdown_asyncgens())
+        if hasattr(self.loop, 'shutdown_default_executor'):  # 3.8+
+            self.loop.run_until_complete(self.loop.shutdown_default_executor())
+
     def cleanup(self):
+        self._cleanup()
         self.loop.stop()
         if sys.platform == 'win32':
             print("press ^C again")
@@ -97,7 +114,7 @@ class Launcher:
         self.keep_alive.add_done_callback(self.task_complete)
         log.info(f"Startup completed in {time.perf_counter()-self.init}s")
 
-    async def shutdown(self):
+    def shutdown(self):
         log.info("Shutting down clusters")
         self.alive = False
         if self.keep_alive:
@@ -106,14 +123,13 @@ class Launcher:
             cluster.stop()
         if self.ipc and self.ipc.is_alive():
             os.kill(self.ipc.pid, signal.SIGINT)
-        self.cleanup()
 
     async def rebooter(self):
         while self.alive:
             # log.info("Cycle!")
             if not self.clusters:
                 log.warning("All clusters appear to be dead")
-                asyncio.ensure_future(self.shutdown())
+                return self.shutdown()
 
             if self.ipc and not self.ipc.is_alive():
                 log.critical("IPC websocket server dead, require reboot")
