@@ -129,7 +129,7 @@ class Launcher:
             # log.info("Cycle!")
             if not self.clusters:
                 log.warning("All clusters appear to be dead")
-                return self.shutdown()
+                return os.kill(os.getpid(), signal.SIGINT)
 
             if self.ipc and not self.ipc.is_alive():
                 log.critical("IPC websocket server dead, require reboot")
