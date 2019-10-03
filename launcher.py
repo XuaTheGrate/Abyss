@@ -93,7 +93,7 @@ class Launcher:
     def task_complete(self, task):
         if task.exception():
             if isinstance(task.exception(), KeyboardInterrupt):
-                raise KeyboardInterrupt
+                return
             task.print_stack()
             self.keep_alive = self.loop.create_task(self.rebooter())
             self.keep_alive.add_done_callback(self.task_complete)
