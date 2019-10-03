@@ -123,7 +123,9 @@ class Abyss(commands.AutoShardedBot):
     def __init__(self, **kwargs):
         self.pipe = kwargs.pop('pipe')
         self.cluster_name = kwargs.pop('cluster_name')
-        super().__init__(commands.when_mentioned_or("$"), **kwargs)
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        super().__init__(commands.when_mentioned_or("$"), **kwargs, loop=loop)
         self.remove_command("help")  # fuck you danny
         self.prepared = asyncio.Event()
         # `prepared` is to make sure the bot has loaded the database and such
