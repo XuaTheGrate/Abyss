@@ -114,7 +114,7 @@ class Launcher:
         await self.start_cluster()
         self.keep_alive = self.loop.create_task(self.rebooter())
         self.keep_alive.add_done_callback(self.task_complete)
-        log.info(f"Startup completed in {time.perf_counter()-self.init}s")
+        log.info(f"Startup completed in {time.perf_counter() - self.init:.2f}s")
 
     def shutdown(self):
         log.info("Shutting down clusters")
