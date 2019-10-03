@@ -132,7 +132,8 @@ class PaginationHandler:
         button = self.buttons[str(payload.emoji)]
         await button()
         if self.has_perms:
-            await self.msg.remove_reaction(str(payload.emoji), self.owner)
+            with contextlib.suppress(discord.HTTPException):
+                await self.msg.remove_reaction(str(payload.emoji), self.owner)
 
     async def stop(self):
         """Stops the pagination."""
