@@ -66,7 +66,7 @@ def get_logger(name):
 
     log.handlers = [
         stream,
-        BetterRotatingFileHandler("logs/log", encoding="utf-8")
+        BetterRotatingFileHandler(f"logs/{name}", encoding="utf-8")
     ]
     return log
 
@@ -146,11 +146,11 @@ class Abyss(commands.AutoShardedBot):
 
         logger = logging.getLogger('discord')
         # log.setLevel(logging.DEBUG)
-        handler = BetterRotatingFileHandler(f'logs/{self.cluster_name}-discord.log', encoding='utf-8')
+        handler = BetterRotatingFileHandler(f'logs/Abyss-{self.cluster_name}-discord.log', encoding='utf-8')
         handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
         logger.addHandler(handler)
 
-        self.log = get_logger(f'Abyss#{self.cluster_name}')
+        self.log = get_logger(f'Abyss-{self.cluster_name}')
 
         self.add_check(self.global_check)
         # self.before_invoke(self.before_invoke_handler)
