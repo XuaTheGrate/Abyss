@@ -120,7 +120,7 @@ class Maps(commands.Cog):
             except asyncio.TimeoutError:
                 await hdlr.stop()
                 break
-            for k in ctx.player.map.areas[ctx.player.map.areas]['interactions']:
+            for k in ctx.player.map.areas[ctx.player.area]['interactions']:
                 if k['type'] == 0 and k['name'].lower() == msg.content:
                     if await ctx.confirm(f"Travel to {k['command']}?"):
                         goto = k['command']
