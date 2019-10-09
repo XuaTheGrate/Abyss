@@ -105,7 +105,7 @@ class Player(JSONable):
     def __repr__(self):
         return f"<({self.arcana.name}) {self.owner}'s  Level {self.level} {self.name!r}>"
 
-    def _populate_skills(self, bot):
+    async def _populate_skills(self, bot):
         self.owner = bot.get_user(self._owner_id)
         if self.map:
             self.map = bot.map_handler.maps[self.map]
@@ -114,6 +114,13 @@ class Player(JSONable):
             self.skills.append(bot.players.skill_cache[skill])
         for skill in self._unset_skills:
             self.unset_skills.append(bot.players.skill_cache[skill])
+
+        sp_used = await bot.redis.get(f'p_sp_used:{self._owner_id}')
+        if sp_used:
+            self._sp_used = int(sp_used)
+        dmg_taken = await bot.redis.get(f'p_dmg_taken:{self._owner_id}')
+        if dmg_taken:
+            self._damage_taken = int(dmg_taken)
         return self
 
     def _debug_repr(self):
@@ -722,3 +729,5 @@ Attacker: 1.05 | Me: 1.05 | 4.00 chance to crit
     async def save(self, bot):
         data = self.to_json()
         await bot.db.abyss.accounts.replace_one({"owner": self._owner_id}, data, upsert=True)
+        await bot.redis.set(f'p_sp_used:{self._owner_id}', self._sp_used)
+        await bot.redis.set(f'p_dmg_taken:{self._owner_id}', self._damage_taken)

@@ -323,7 +323,7 @@ class Players(commands.Cog):
         # await self.bot.redis.set(f"story@{ctx.author.id}", 1)
 
         self.players[ctx.author.id] = player
-        player._populate_skills(self.bot)
+        await player._populate_skills(self.bot)
         await player.save(self.bot)
 
         # await ctx.send(
@@ -353,6 +353,12 @@ class Players(commands.Cog):
             return
 
         await asyncio.gather(m1.delete(), m2.delete())
+
+        scandata = await self.bot.redis.scan(0, match=f'*{ctx.author.id}*', count=1000)
+        for key in scandata[1]:
+            if key.startswith('locale'):
+                continue  # keep locale settings
+            await self.bot.redis.delete(key)
 
         self.players.pop(ctx.author.id)
         await self.bot.db.abyss.accounts.delete_one({"owner": ctx.author.id})

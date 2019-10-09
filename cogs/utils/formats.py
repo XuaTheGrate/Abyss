@@ -1,3 +1,4 @@
+import datetime
 import traceback
 
 from discord.ext import commands
@@ -28,6 +29,10 @@ class NoPlayer(commands.CommandError):
     pass
 
 
+class NotSearched(commands.CommandError):
+    pass
+
+
 def ensure_player(func):
     async def predicate(ctx):
         try:
@@ -37,7 +42,16 @@ def ensure_player(func):
             if not pdata:
                 raise NoPlayer()
             ctx.player = ctx.bot.players.players[ctx.author.id] = Player(**pdata)
-            ctx.player._populate_skills(ctx.bot)
+            await ctx.player._populate_skills(ctx.bot)
+
+        bot = ctx.bot
+        ts = await bot.redis.get(f'last_action:{ctx.author.id}')
+        now = datetime.datetime.utcnow()
+        if ts:
+            ts = datetime.datetime.fromisoformat(ts)
+            if datetime.datetime(now.year, now.month, now.day, 0) > ts:
+                ctx.player._sp_used = 0  # free sp heal every midnight
+        await bot.redis.set(f'last_action:{ctx.author.id}', now.isoformat())
         return True
 
     return commands.check(predicate)(func)
