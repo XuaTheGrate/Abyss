@@ -188,6 +188,7 @@ class Abyss(commands.AutoShardedBot):
 
     @midnight_helper.after_loop
     async def post_midnight_loop_complete(self, *args, **kwargs):
+        self.log.error("loop stopped")
         exc = self.midnight_helper.exception()
         if exc:
             self.send_error(f'>>> Error occured in midnight_helper task\n```py\n{formats.format_exc(exc)}\n```')
