@@ -156,7 +156,7 @@ class Maps(commands.Cog):
         """Interacts with an object in this area.
         You can find what objects are available after `search`ing."""
 
-    @commands.command(enabled=False, aliases=['open-treasure', 'opentreasure'])
+    @commands.command(aliases=['open-treasure', 'opentreasure'])
     @ensure_searched
     @ensure_player
     async def open_treasure(self, ctx):

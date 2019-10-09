@@ -16,7 +16,7 @@ class Map:
 
     async def open_treasure(self, player):
         key = await self.bot.redis.hget(f'treasures_found:{player.owner.id}', player.area)
-        if self.areas[player.area]['treasurecount'] == key:  # None doesn't matter since we havent seen any treasures
+        if key and int(key) == self.areas[player.area]['treasurecount']:
             # also its set to None every 24h
             return -1  # return False indicating that no treasures are available here
         await self.bot.redis.hincrby(f'treasures_found:{player.owner.id}', player.area, 1)
