@@ -143,10 +143,6 @@ class Abyss(commands.AutoShardedBot):
         self.map_handler = MapHandler(self)
         self.item_cache = None
 
-        if self.cluster_name == 'Alpha':
-            # ensure this task only runs on the first cluster
-            self.midnight_helper.start()
-
         logger = logging.getLogger('discord')
         # log.setLevel(logging.DEBUG)
         handler = BetterRotatingFileHandler(f'logs/Abyss-{self.cluster_name}-discord.log', encoding='utf-8')
@@ -154,6 +150,11 @@ class Abyss(commands.AutoShardedBot):
         logger.addHandler(handler)
 
         self.log = get_logger(f'Abyss-{self.cluster_name}')
+
+        if self.cluster_name == 'Alpha':
+            # ensure this task only runs on the first cluster
+            self.log.info("start: hello world")
+            self.midnight_helper.start()
 
         self.add_check(self.global_check)
         # self.before_invoke(self.before_invoke_handler)
