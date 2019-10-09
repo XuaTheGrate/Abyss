@@ -110,7 +110,7 @@ class Maps(commands.Cog):
 
         def filter_location(message):
             return message.author == ctx.author and \
-                   message.id == hdlr.msg.id and \
+                   message.channel.id == ctx.channel.id and \
                    message.content.lower() in valid
 
         goto = None
