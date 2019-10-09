@@ -181,6 +181,10 @@ class Abyss(commands.AutoShardedBot):
             await self.redis.delete(key)
         self.log.info(f'reset treasures of {len(keys)} players')
 
+    @midnight_helper.before_loop
+    async def pre_midnight_loop_start(self, *args, **kwargs):
+        self.log.info("midnight loop: hello world")
+
     @midnight_helper.after_loop
     async def post_midnight_loop_complete(self, *args, **kwargs):
         exc = self.midnight_helper.exception()
