@@ -1,8 +1,11 @@
 import asyncio
 import random
 
+import discord
+
 from cogs.utils.formats import *
 from cogs.utils.items import Unusable
+from cogs.utils.paginators import EmbedPaginator, PaginationHandler
 
 
 def ensure_searched(func):
@@ -18,6 +21,9 @@ def ensure_searched(func):
 class Maps(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+    # note to self: when travelling to another dungeon, will cost 15 sp
+    # 15 because that is the lowest possible amount of sp when full healed
 
     async def cog_before_invoke(self, ctx):
         if ctx.author.id in self.bot.get_cog("BattleSystem").battles:
@@ -41,7 +47,7 @@ class Maps(commands.Cog):
         Has a chance of spawning an enemy, interrupting the search."""
         await self.bot.redis.set(f'{ctx.author.id}:searchedmap-{ctx.player.map.name}:{ctx.player.area}', 1)
         tcount = ctx.player.map.areas[ctx.player.area]['treasurecount']
-        locs = sum(1 for loc in ctx.player.map.areas[ctx.player.area]['interactions'] if loc['type'] == 0)
+        locs = sum(1 for i in ctx.player.map.areas[ctx.player.area]['interactions'] if i['type'] == 0)
         chests = sum(1 for i in ctx.player.map.areas[ctx.player.area]['interactions'] if i['type'] == 1)
         await ctx.send(f'You looked around {ctx.player.map.name}#{ctx.player.area} and found {tcount} treasures, '
                        f'{locs} doors and {chests} chests.')
@@ -85,6 +91,45 @@ class Maps(commands.Cog):
     async def move(self, ctx):
         """Moves to another location.
         You can find what locations are available after `search`ing."""
+        pg = EmbedPaginator()
+        valid = [x['name'].lower() for x in ctx.player.map.areas[ctx.player.area]['interactions']]
+        it = []
+        for k, v in enumerate(
+                [i['name'] for i in ctx.player.map.areas[ctx.player.area]['interactions'] if i['type'] == 0], start=1):
+            it.append(f'{k}. {v}')
+        tot = '\n'.join(it)
+        if len(tot) > 2048:
+            for chunk in [it[x:x + 20] for x in range(0, len(tot), 20)]:
+                embed = discord.Embed(description='\n'.join(chunk), colour=discord.Colour.dark_grey())
+                pg.add_page(embed)
+        else:
+            embed = discord.Embed(description=tot, colour=discord.Colour.dark_grey())
+            pg.add_page(embed)
+        hdlr = PaginationHandler(self.bot, pg, send_as='embed')
+        await hdlr.start(ctx)
+
+        def filter_location(message):
+            return message.author == ctx.author and \
+                   message.id == hdlr.msg.id and \
+                   message.content.lower() in valid
+
+        goto = None
+        while hdlr.running:
+            try:
+                msg = await self.bot.wait_for('message', check=filter_location, timeout=60)
+            except asyncio.TimeoutError:
+                await hdlr.stop()
+                break
+            for k in ctx.player.map.areas[ctx.player.map.areas]['interactions']:
+                if k['type'] == 0 and k['name'].lower() == msg.content:
+                    if await ctx.confirm(f"Travel to {k['command']}?"):
+                        goto = k['command']
+                    break
+            if goto:
+                break
+        await hdlr.stop()
+        ctx.player.area = goto
+        await ctx.send(f"Travelled to {goto}! Remember to use `$search` to look around the area.")
 
     @commands.command(enabled=False)
     @ensure_player
@@ -93,7 +138,7 @@ class Maps(commands.Cog):
         """Interacts with an object in this area.
         You can find what objects are available after `search`ing."""
 
-    @commands.command(enabled=False)
+    @commands.command(enabled=False, aliases=['open-treasure', 'opentreasure'])
     @ensure_player
     @ensure_searched
     async def open_treasure(self, ctx):

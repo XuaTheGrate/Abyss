@@ -7,12 +7,12 @@
             "interactions": [
                 {
                     "name": "L Door",
-                    "command": ["travelto", "Left Hall"],
+                    "command": "Left Hall",
                     "type": 0
                 },
                 {
                     "name": "R Door",
-                    "command": ["travelto", "Right Hall"],
+                    "command": "Right Hall",
                     "type": 0
                 }
             ],
@@ -25,12 +25,12 @@
             "interactions": [
                 {
                     "name": "Chest",
-                    "command": ["giveitem", "SkillCard:Agi"],
+                    "command": "SkillCard:Agi",
                     "type": 1
                 },
                 {
                     "name": "L Door",
-                    "command": ["travelto", "Floor 1"],
+                    "command": "Floor 1",
                     "type": 0
                 }
             ],
@@ -43,7 +43,7 @@
             "interactions": [
                 {
                     "name": "R Door",
-                    "command": ["travelto", "Floor 1"],
+                    "command": "Floor 1",
                     "type": 0
                 }
             ],

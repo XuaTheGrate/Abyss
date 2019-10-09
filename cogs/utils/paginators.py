@@ -55,6 +55,7 @@ class PaginationHandler:
         self.current_page = 0
         self.msg = None
         self.wrap = wrap
+        self.running = False
         bt = [None, None, '\N{RAISED HAND}', None, None]
         ex = [self.first_page, self.previous_page, self.stop, self.next_page, self.last_page]
         if not no_help:
@@ -96,6 +97,7 @@ class PaginationHandler:
 
     async def wait_stop(self):
         await self._stop_event.wait()
+        self.running = False
 
     async def _timeout_task(self):
         while True:
@@ -145,6 +147,7 @@ class PaginationHandler:
             await self.msg.delete()
 
     async def start(self, ctx):
+        self.running = True
         self.msg = await ctx.send(**self.send_kwargs)
         if not self.owner:
             if isinstance(ctx, discord.abc.User):
