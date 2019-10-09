@@ -30,11 +30,12 @@ class _ItemABC:
             raise TypeError("unknown item type '{!r}', excepted enum ItemType".format(tp))
         return object.__new__(cls)
 
-    def __init__(self, *, name: str, type: ItemType, worth: int = 1, desc: str = "no desc"):
+    def __init__(self, *, name: str, type: ItemType, worth: int = 1, desc: str = "no desc", weight: int = 0):
         self.name = name
         self.worth = worth
         self.type = type
         self.desc = desc
+        self.weight = weight  # drop weight
 
     def __str__(self):
         return self.name
@@ -47,8 +48,8 @@ class _ItemABC:
 
 
 class SkillCard(_ItemABC):
-    def __init__(self, *, name, type, skill, worth=1, desc="no desc"):
-        super().__init__(name=name, worth=worth, type=type, desc=desc)
+    def __init__(self, *, skill, **kwargs):
+        super().__init__(**kwargs)
         self.skill = skill
         self.refusable = skill.name not in ()
         # insert names into the tuple to add non-refusable skills
@@ -69,8 +70,8 @@ class TrashItem(_ItemABC):
 
 
 class HealingItem(_ItemABC):
-    def __init__(self, *, name, type, heal_type, heal_amount, target, worth=1, desc="no desc"):
-        super().__init__(name=name, worth=worth, desc=desc, type=type)
+    def __init__(self, *, heal_type, heal_amount, target, **kwargs):
+        super().__init__(**kwargs)
         self.heal_type = heal_type
         self.heal_amount = heal_amount
         self.target = target

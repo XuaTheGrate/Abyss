@@ -3,6 +3,7 @@ import random
 
 import discord
 
+from cogs.utils.enums import ItemType
 from cogs.utils.formats import *
 from cogs.utils.items import Unusable
 from cogs.utils.paginators import EmbedPaginator, PaginationHandler
@@ -24,6 +25,21 @@ class Maps(commands.Cog):
 
     # note to self: when travelling to another dungeon, will cost 15 sp
     # 15 because that is the lowest possible amount of sp when full healed
+
+    def get_item_pool(self):
+        cache = self.bot.item_cache
+        pool = []
+        for item in cache.items.values():
+            if item.type is ItemType.TRASH or item.type is ItemType.HEALING:
+                pool.append(item)
+        maxn = sum(i.weight for i in pool)
+        assert maxn > 0
+        idx = 1
+        npool = {}
+        for i in pool:
+            npool[i] = range(idx, idx + i.weight)
+            idx += i.weight + 1
+        return maxn, npool
 
     async def cog_before_invoke(self, ctx):
         if ctx.author.id in self.bot.get_cog("BattleSystem").battles:
@@ -146,6 +162,21 @@ class Maps(commands.Cog):
     async def open_treasure(self, ctx):
         """Opens a treasure in this room, if there are any remaining.
         Treasures reset daily at midnight UTC."""
+        k = await ctx.player.map.open_treasure(ctx.player)
+        if k == -1:  # no treasures available
+            return await ctx.send("There are no treasures in this area right now, try again after midnight! (utc)")
+        elif k == 0:  # didnt find anything
+            return await ctx.send("There was nothing in the treasure.")
+        elif k == 1:  # give random item
+            # the only pools we can grab from rn are `Trash` and `Healing` pools, remind me to add support for
+            # the `Materials` pool when i make it
+            maxn, pool = self.get_item_pool()
+            p = random.randint(1, maxn)
+            for i, rng in pool.items():
+                if p in rng:
+                    await ctx.send(f"Obtained **{i.name}**!")
+                    ctx.player.inventory.add_item(i)
+                    return
 
 
 def setup(bot):
