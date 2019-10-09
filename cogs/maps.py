@@ -10,7 +10,10 @@ from cogs.utils.paginators import EmbedPaginator, PaginationHandler
 
 def ensure_searched(func):
     async def check(ctx):
-        c = int(await ctx.bot.redis.get(f'{ctx.author.id}:searchedmap-{ctx.player.map.name}'))
+        try:
+            c = int(await ctx.bot.redis.get(f'{ctx.author.id}:searchedmap-{ctx.player.map.name}'))
+        except (ValueError, TypeError):
+            raise NotSearched()
         if not c:
             raise NotSearched()
         return True
@@ -85,7 +88,7 @@ class Maps(commands.Cog):
         if not ctx.player.inventory.remove_item(item):
             self.bot.log.warning(f"apparently {ctx.player} has {item}, but we couldnt remove it for some reason")
 
-    @commands.command(enabled=False)
+    @commands.command()
     @ensure_searched
     @ensure_player
     async def move(self, ctx):
