@@ -151,11 +151,6 @@ class Abyss(commands.AutoShardedBot):
 
         self.log = get_logger(f'Abyss-{self.cluster_name}')
 
-        if self.cluster_name == 'Alpha':
-            # ensure this task only runs on the first cluster
-            self.log.info("start: hello world")
-            self.midnight_helper.start()
-
         self.add_check(self.global_check)
         # self.before_invoke(self.before_invoke_handler)
         self.prepare_extensions()
@@ -333,6 +328,10 @@ class Abyss(commands.AutoShardedBot):
         except Exception as e:
             self.log.error("couldnt connect to redis")
             self.send_error(F"failed to connect to redis\n```py\n{formats.format_exc(e)}\n```")
+
+        if self.cluster_name == "Alpha":
+            self.log.info("start: hello world")
+            self.midnight_helper.start()
 
         self.prepared.set()
         self.start_date = datetime.utcnow()
