@@ -48,7 +48,7 @@ def ensure_player(func):
         ts = await bot.redis.get(f'last_action:{ctx.author.id}')
         now = datetime.datetime.utcnow()
         if ts:
-            ts = datetime.datetime.fromisoformat(ts)
+            ts = datetime.datetime.fromisoformat(ts.decode())
             if datetime.datetime(now.year, now.month, now.day, 0) > ts:
                 ctx.player._sp_used = 0  # free sp heal every midnight
         await bot.redis.set(f'last_action:{ctx.author.id}', now.isoformat())
