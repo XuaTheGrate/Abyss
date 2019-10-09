@@ -40,7 +40,7 @@ class BattleSystem(commands.Cog):
 ```py
 {formats.format_exc(e)}
 ```""")
-            log.warning(f"task died with {e}")
+            self.bot.log.warning(f"task died with {e}")
             self._task = self.bot.loop.create_task(self.task_kill())
 
     async def cog_command_error(self, ctx, error, battle=None):
@@ -68,7 +68,7 @@ Encounter: {list(map(str, battle.enemies))}
         for name in names:
             encounter = await self.bot.db.abyss.encounters.find_one({"name": name})
             e = bt.Enemy(**encounter)
-            e._populate_skills(self.bot)
+            await e._populate_skills(self.bot)
             e.skills.remove(self.bot.players.skill_cache['Guard'])
             enemies.append(e)
         self.battles[ctx.author.id] = bt.WildBattle(ctx.player, ctx, *enemies)
@@ -99,13 +99,14 @@ Encounter: {list(map(str, battle.enemies))}
 
         enc = random.choices(encounters, k=random.randint(1, 3))
 
-        enemies = [bt.Enemy(**e, bot=self.bot)._populate_skills(self.bot) for e in enc]
+        enemies = [await bt.Enemy(**e, bot=self.bot)._populate_skills(self.bot) for e in enc]
 
         fastest = max(enemies, key=lambda e: e.agility)
         weights = [50, 50, 50]
         weights[0] += fastest.agility - ctx.player.agility
         weights[2] -= fastest.agility - ctx.player.agility
-        log.debug(f"encounter weights: {weights}, {random.choices([False, None, True], k=10, weights=weights)}")
+        self.bot.log.debug(
+            f"encounter weights: {weights}, {random.choices([False, None, True], k=10, weights=weights)}")
         ambush = random.choices([False,  # Enemy advantage
                                  None,  # Regular batle
                                  True],  # Player advantage

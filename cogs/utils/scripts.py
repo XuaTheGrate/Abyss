@@ -9,8 +9,6 @@ from contextlib import suppress
 import discord
 from discord.ext import ui
 
-from .formats import format_exc
-
 kill_track = {}
 
 NL = '\n'
@@ -113,7 +111,6 @@ async def do_script(ctx, script, lang="en_US"):
     if not os.path.isfile(path):
         if lang == 'en_US':
             raise TypeError(f"no such file: {path}")
-        log.warning(f"no such file: {path}")
         return await do_script(ctx, script)
 
     with open(path, encoding='utf-8') as f:
@@ -224,22 +221,16 @@ def _download_track_file(name):
           f" --extract-audio --audio-format mp3 --prefer-ffmpeg {TRACKS[name]}"
     proc = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = proc.communicate()
-    if out:
-        log.debug(f"track download stdout: {out.decode()}")
-    if err:
-        log.error(f"track download stderr: {err.decode()}")
 
 
 def _post_track_complete(exc=None):
     if exc:
-        log.error(f"exception during track play:\n{format_exc(exc)}")
         raise exc
 
 
 def _bgm_loop_complete(task):
-    log.debug("bgm loop complete")
     if task.exception():
-        log.error(f"bgm loop error: {format_exc(task.exception())}")
+        task.print_stack()
 
 
 async def queuebgm(ctx, track, aftertrack=None):
@@ -256,11 +247,9 @@ async def queuebgm(ctx, track, aftertrack=None):
         kill_track[ctx.guild.id].set()
 
     if not os.path.isfile("music/"+track+".mp3"):
-        log.debug(f"no file named music/{track}.mp3, downloading")
         loop = ctx.bot.loop
         func = functools.partial(_download_track_file, track)
         await loop.run_in_executor(None, func)
-        log.debug("download finished")
 
     if ctx.guild.id not in kill_track:
         kill_track[ctx.guild.id] = asyncio.Event()

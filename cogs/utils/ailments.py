@@ -242,29 +242,21 @@ class Brainwash(_Ailment):
     emote = "\N{PLAYING CARD BLACK JOKER}"
 
     async def pre_turn_effect_async(self, battle):
-        log.debug("hello, world!")
         super().pre_turn_effect()
-        log.debug("the ailment was not cleared")
         choice = random.choice((True, False))
-        log.debug(f"choice = {choice}")
         if choice:
             await battle.ctx.send(f"> __{self.player}__ is brainwashed!")
-            log.debug("sent msg")
             await asyncio.sleep(1)
             skills = [s for s in self.player.skills if s.type in (SkillType.SUPPORT, SkillType.HEALING)
                       and s.target != 'self' and _skill_cost(self.player, s) and s.name != 'Guard']
-            log.debug(f"len(skills) = {len(skills)}")
             if not skills:
-                log.debug("no skills found")
                 raise UserTurnInterrupted
             s = random.choice(skills)
-            log.debug(f"random skill: {s}, {s.uses_sp}")
             if s.uses_sp:
                 if any(s.name == 'Spell Master' for s in self.player.skills):
                     c = s.cost/2
                 else:
                     c = s.cost
-                log.debug(f"costs {c}/{self.player.sp}")
                 self.player.sp = c
             else:
                 if any(s.name == 'Arms Master' for s in self.player.skills):
@@ -272,20 +264,16 @@ class Brainwash(_Ailment):
                 else:
                     c = s.cost
                 c = self.player.max_hp * (c / 100)
-                log.debug(f"costs {c}/{self.player.hp}")
                 self.player.hp = c
             await battle.ctx.send(f"__{self.player}__ used `{s}`!")
-            log.debug(f"{self.player} used {s}!")
             if self.player in battle.players:
                 if s.target in ('enemy', 'enemies'):
                     await s.effect(battle, battle.players)
                 else:
                     await s.effect(battle, battle.enemies)
-                log.debug("its the player")
             else:
                 if s.target in ('enemy', 'enemies'):
                     await s.effect(battle, battle.enemies)
                 else:
                     await s.effect(battle, battle.players)
-                log.debug("it is not the player")
             raise UserTurnInterrupted

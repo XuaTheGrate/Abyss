@@ -17,10 +17,9 @@ def loop(*, predicate=None, **kwargs):
 
 
 class PredicateLoop(tasks.Loop):
-    def __init__(self, func, *, predicate, seconds=0, hours=0, minutes=0, count=None, reconnect=False, loop=None):
+    def __init__(self, func, *, predicate, loop, **kwargs):
         loop = loop or asyncio.get_event_loop()
-        super().__init__(func, seconds=seconds, hours=hours, minutes=minutes,
-                         count=count, reconnect=reconnect, loop=loop)
+        super().__init__(func, loop=loop, **kwargs)
         self.predicate = predicate
 
     async def _loop(self, *args, **kwargs):

@@ -314,7 +314,7 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
         passive = self.get_passive_immunity(type)
         if passive and not passive.is_evasion:
             get = passive.immunity_handle()  # instead of resisting if you are weak, the weakness is nullified
-            if self._resistances[type] is ResistanceModifier.WEAK and get is ResistanceModifier.RESIST:
+            if self.resistances[type] is ResistanceModifier.WEAK and get is ResistanceModifier.RESIST:
                 return ResistanceModifier.NORMAL
             return get
 
@@ -659,8 +659,6 @@ Attacker: 1.05 | Me: 1.05 | 4.00 chance to crit
         ) and any(s.name == 'Firm Stance' for s in self.skills):
             # log.debug("Evasion: Firm Stance")
             return False
-
-        log.debug(f"{self} -> {self._stat_mod}, {self._until_clear}")
 
         # log.debug(f"{attacker} -> {self} with {skill}")
 

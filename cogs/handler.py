@@ -1,9 +1,6 @@
-import datetime
-
 import discord
-from discord.ext import commands
 
-from .utils.formats import format_exc, SilentError, NoPlayer
+from .utils.formats import *
 
 _handles = {
     commands.DisabledCommand: "This command is disabled, because it is broken, "
@@ -20,7 +17,10 @@ _handles = {
     commands.UserInputError: "Failed to parse arguments for this command. "
                              "Check the help command for proper arguments.",
     commands.TooManyArguments: "Too many arguments were passed to the command. "
-                               "Check the help command for proper arguments."
+                               "Check the help command for proper arguments.",
+    NoPlayer: "This command requires you have an account, but you don't have one. "
+              "You can with `$create`.",
+    NotSearched: "You must search (`$search`) the map before you can use this command!"
 }
 
 
@@ -48,10 +48,6 @@ class ErrorHandler(commands.Cog):
     async def on_command_error(self, ctx, exc, *, force=False):
         if ctx.cog and commands.Cog._get_overridden_method(ctx.cog.cog_command_error) and not force:
             return
-
-        if isinstance(exc, NoPlayer):
-            return await ctx.send("This command requires you have an account, but you don't have one. "
-                                  "You can with `$create`.")
 
         if isinstance(exc, commands.CommandInvokeError):
             ctx.command.reset_cooldown(ctx)
@@ -86,7 +82,7 @@ Bot permissions: {ctx.channel.permissions_for(ctx.me).value}
         msg = _handles.get(type(exc), None)
 
         if not msg:
-            log.warning(f"No handle for {type(exc)}.")
+            self.bot.log.warning(f"No handle for {type(exc)}.")
             return
 
         await ctx.send(_(msg))
