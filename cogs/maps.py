@@ -10,11 +10,8 @@ from cogs.utils.paginators import EmbedPaginator, PaginationHandler
 
 def ensure_searched(func):
     async def check(ctx):
-        try:
-            c = int(await ctx.bot.redis.get(f'{ctx.author.id}:searchedmap-{ctx.player.map.name}:{ctx.player.area}'))
-        except (ValueError, TypeError):
-            raise NotSearched()
-        if not c:
+        c = await ctx.bot.redis.get(f'{ctx.author.id}:searchedmap-{ctx.player.map.name}:{ctx.player.area}')
+        if not c or int(c) == 0:
             raise NotSearched()
         return True
 
