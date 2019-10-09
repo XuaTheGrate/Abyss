@@ -177,6 +177,8 @@ class Maps(commands.Cog):
                     await ctx.send(f"Obtained **{i.name}**!")
                     ctx.player.inventory.add_item(i)
                     return
+        elif k == 2:  # treasure demon
+            await ctx.send("todo")
 
 
 def setup(bot):
