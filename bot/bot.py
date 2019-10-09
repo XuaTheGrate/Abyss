@@ -308,7 +308,7 @@ class Abyss(commands.AutoShardedBot):
 
     async def on_ready(self):
         if self.prepared.is_set():
-            await self.change_presence(activity=discord.Game(name="$cmds"))
+            await self.change_presence(activity=discord.Game(name="$help"))
             return
 
         try:
@@ -331,7 +331,7 @@ class Abyss(commands.AutoShardedBot):
         self.prepared.set()
         self.start_date = datetime.utcnow()
         self.log.warning("Successfully loaded.")
-        await self.change_presence(activity=discord.Game(name="$cmds"))
+        await self.change_presence(activity=discord.Game(name="$help"))
         if self.pipe:
             self.pipe.send(1)
             self.pipe.close()

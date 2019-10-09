@@ -97,12 +97,11 @@ Online for {humanize.naturaldelta(ctx.bot.start_date - datetime.utcnow())}
 """
         await ctx.send(embed=embed)
 
-    @commands.group(invoke_without_command=True, name="help")
+    @commands.group(invoke_without_command=True)
     async def faq(self, ctx):
         """Brings up the Frequently Asked Questions."""
         embed = discord.Embed(title="Help")
         embed.description = "\n".join(f"${c} - **{c.short_doc}**" for c in self.faq.commands)
-        embed.set_footer(text="Looking for the command list? See $commands")
         await ctx.send(embed=embed)
 
     @faq.group()
@@ -210,6 +209,5 @@ Greatly lowers your attack power."""
 
 
 def setup(bot):
-    bot.help_command = commands.MinimalHelpCommand(verify_checks=False,
-                                                   command_attrs={"name": "cmds", "aliases": ["commands"]})
+    bot.help_command = commands.MinimalHelpCommand(verify_checks=False)
     bot.add_cog(Meta())
