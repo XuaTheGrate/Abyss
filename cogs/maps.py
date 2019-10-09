@@ -86,8 +86,8 @@ class Maps(commands.Cog):
             self.bot.log.warning(f"apparently {ctx.player} has {item}, but we couldnt remove it for some reason")
 
     @commands.command(enabled=False)
-    @ensure_player
     @ensure_searched
+    @ensure_player
     async def move(self, ctx):
         """Moves to another location.
         You can find what locations are available after `search`ing."""
@@ -132,15 +132,15 @@ class Maps(commands.Cog):
         await ctx.send(f"Travelled to {goto}! Remember to use `$search` to look around the area.")
 
     @commands.command(enabled=False)
-    @ensure_player
     @ensure_searched
+    @ensure_player
     async def interact(self, ctx):
         """Interacts with an object in this area.
         You can find what objects are available after `search`ing."""
 
     @commands.command(enabled=False, aliases=['open-treasure', 'opentreasure'])
-    @ensure_player
     @ensure_searched
+    @ensure_player
     async def open_treasure(self, ctx):
         """Opens a treasure in this room, if there are any remaining.
         Treasures reset daily at midnight UTC."""
