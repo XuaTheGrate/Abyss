@@ -127,6 +127,8 @@ class Maps(commands.Cog):
                     break
             if goto:
                 break
+        if not goto:
+            return
         await hdlr.stop()
         ctx.player.area = goto
         await ctx.send(f"Travelled to {goto}! Remember to use `$search` to look around the area.")
