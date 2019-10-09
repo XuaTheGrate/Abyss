@@ -2,6 +2,8 @@
     {
         "name": "Stick",
         "worth": 1,
-        "desc": "A stick. Not much else to say."
-    }
+        "desc": "A stick. Not much else to say.",
+        "weight": 15
+    },
+    {"name": "Stone", "worth": 5, "desc": "A stone. Yea...", "weight": 10}
 ]

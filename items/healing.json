@@ -5,7 +5,8 @@
         "desc": "Heals 10 SP to one ally.",
         "heal_type": "sp",
         "heal_amount": 10,
-        "target": "ally"
+        "target": "ally",
+        "weight": 5
     },
     {
         "name": "Medicine",
@@ -13,7 +14,8 @@
         "desc": "Heals 50 HP to one ally.",
         "heal_type": "hp",
         "heal_amount": 50,
-        "target": "ally"
+        "target": "ally",
+        "weight": 5
     },
     {
         "name": "Hiranya",
@@ -21,6 +23,7 @@
         "desc": "Heals all ailments for one ally.",
         "heal_type": "ailment",
         "heal_amount": "all",
-        "target": "ally"
+        "target": "ally",
+        "weight": 1
     }
 ]

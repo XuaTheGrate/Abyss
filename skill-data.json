@@ -1531,26 +1531,12 @@
         "desc": "Fully heals all allies and their ailments.",
         "target": "allies"
     },
-    {
-        "name": "Snipe",
-        "type": "passive",
-        "desc": "Strengthens Gun attacks by 1.25x"
-    },
-    {
-        "name": "Cripple",
-        "type": "passive",
-        "desc": "Strengthens Gun attacks by 1.5x"
-    },
-    {
-        "name": "Fast Heal",
-        "type": "passive",
-        "desc": "Doubles ailment heal rate."
-    },
+    {"name": "Fast Heal", "type": "passive", "desc": "Doubles ailment heal rate."},
     {
         "name": "Evil Touch",
         "type": "ailment",
         "cost": 5,
-      "accuracy": 60,
+        "accuracy": 60,
         "desc": "High chance of inflicting Fear on 1 foe.",
         "ailment": "fear"
     },
@@ -1559,7 +1545,7 @@
         "type": "ailment",
         "cost": 12,
         "desc": "Medium chance of inflicting Fear on all foes.",
-      "accuracy": 40,
+        "accuracy": 40,
         "ailment": "fear"
     },
     {
@@ -1594,7 +1580,7 @@
         "name": "Taunt",
         "type": "ailment",
         "cost": 5,
-      "accuracy": 60,
+        "accuracy": 60,
         "desc": "High chance of inflicting Rage on 1 foe.",
         "ailment": "Rage"
     },
@@ -1620,7 +1606,7 @@
         "name": "Abysmal Surge",
         "type": "ailment",
         "ailment": "despair",
-      "accuracy": 40,
+        "accuracy": 40,
         "desc": "Medium chance of inflicting Despair on all foes.",
         "target": "enemies",
         "cost": 12
@@ -1629,7 +1615,7 @@
         "name": "Ominous Words",
         "type": "ailment",
         "ailment": "despair",
-      "accuracy": 60,
+        "accuracy": 60,
         "desc": "High chance of inflicting Despair on 1 foe.",
         "cost": 5
     },
@@ -1755,7 +1741,7 @@
         "name": "Pulinpa",
         "type": "ailment",
         "cost": 5,
-      "accuracy": 60,
+        "accuracy": 60,
         "ailment": "confuse",
         "desc": "High chance of inflicting Confuse on 1 foe."
     },
@@ -1824,7 +1810,7 @@
         "cost": 12,
         "ailment": "brainwash",
         "target": "enemies",
-      "accuracy": 40
+        "accuracy": 40
     },
     {
         "name": "Marin Karin",
@@ -1832,7 +1818,7 @@
         "desc": "High chance to inflict Brainwash on 1 foe.",
         "cost": 5,
         "ailment": "brainwash",
-      "accuracy": 60
+        "accuracy": 60
     },
     {
         "name": "Almighty Boost",
@@ -1922,7 +1908,7 @@
         "cost": 5,
         "ailment": "forget",
         "desc": "High chance of inflicting Forget on 1 foe.",
-      "accuracy": 60
+        "accuracy": 60
     },
     {
         "name": "Makajamaon",
@@ -1930,7 +1916,7 @@
         "cost": 12,
         "ailment": "forget",
         "desc": "Medium chance of inflicting Forget on all foes.",
-      "accuracy": 40,
+        "accuracy": 40,
         "target": "enemies"
     },
     {
@@ -1940,7 +1926,7 @@
         "ailment": "confuse",
         "desc": "Medium chance of inflicting Confuse on all foes.",
         "target": "enemies",
-      "accuracy": 40
+        "accuracy": 40
     },
     {
         "name": "Wage War",
@@ -1949,7 +1935,7 @@
         "ailment": "rage",
         "desc": "Medium chance of inflicting Rage on all foes.",
         "target": "enemies",
-      "accuracy": 40
+        "accuracy": 40
     },
     {
         "name": "Dazzler",
@@ -1957,15 +1943,15 @@
         "cost": 5,
         "ailment": "dizzy",
         "desc": "High chance of inflicting Dizzy on 1 foe.",
-      "accuracy": 60
+        "accuracy": 60
     },
     {
         "name": "Nocturnal Flash",
         "type": "ailment",
         "cost": 12,
         "ailment": "dizzy",
-      "desc": "Medium chance of inflicting Dizzy on all foes.",
-      "accuracy": 40,
+        "desc": "Medium chance of inflicting Dizzy on all foes.",
+        "accuracy": 40,
         "target": "enemies"
     },
     {
@@ -1974,7 +1960,7 @@
         "cost": 5,
         "ailment": "sleep",
         "desc": "High chance of inflicting Sleep on 1 foe.",
-      "accuracy": 60
+        "accuracy": 60
     },
     {
         "name": "Lullaby",
@@ -1982,7 +1968,7 @@
         "cost": 12,
         "ailment": "sleep",
         "desc": "Medium chance of inflicting Sleep on 1 foe.",
-      "accuracy": 40,
+        "accuracy": 40,
         "target": "enemies"
     },
     {
@@ -2062,11 +2048,7 @@
         "type": "passive",
         "desc": "Boosts accuracy of Light skills by 20."
     },
-    {
-        "name": "Insta-Heal",
-        "type": "passive",
-        "desc": "Heals ailments in 1 turn."
-    },
+    {"name": "Insta-Heal", "type": "passive", "desc": "Heals ailments in 1 turn."},
     {
         "name": "Trigger Happy",
         "desc": "Increase critical rate of all Gun attacks.",

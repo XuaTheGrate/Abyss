@@ -5,13 +5,13 @@ import logging
 import os
 import random
 import traceback
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 
 import aiohttp
 import aioredis
 import discord
 import motor.motor_asyncio
-from discord.ext import commands
+from discord.ext import commands, tasks
 
 import config
 from cogs.utils import i18n, formats
@@ -120,11 +120,11 @@ class ContextSoWeDontGetBannedBy403(commands.Context):
 
 class Abyss(commands.AutoShardedBot):
     def __init__(self, **kwargs):
-        self.pipe = kwargs.pop('pipe')
-        self.cluster_name = kwargs.pop('cluster_name')
+        self.pipe = kwargs.pop('pipe', None)
+        self.cluster_name = kwargs.pop('cluster_name', 'beta')
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        super().__init__(commands.when_mentioned_or("$"), **kwargs, loop=loop)
+        super().__init__(commands.when_mentioned_or("$$"), **kwargs, loop=loop)
         self.remove_command("help")  # fuck you danny
         self.prepared = asyncio.Event()
         # `prepared` is to make sure the bot has loaded the database and such
@@ -143,6 +143,10 @@ class Abyss(commands.AutoShardedBot):
         self.map_handler = MapHandler(self)
         self.item_cache = None
 
+        if self.cluster_name == 'Alpha':
+            # ensure this task only runs on the first cluster
+            self.midnight_helper.start()
+
         logger = logging.getLogger('discord')
         # log.setLevel(logging.DEBUG)
         handler = BetterRotatingFileHandler(f'logs/Abyss-{self.cluster_name}-discord.log', encoding='utf-8')
@@ -155,6 +159,33 @@ class Abyss(commands.AutoShardedBot):
         # self.before_invoke(self.before_invoke_handler)
         self.prepare_extensions()
         self.run()
+
+    @tasks.loop(time=time(0, 0, 0))
+    async def midnight_helper(self):
+        self.log.info("we reached midnight")
+        await self.prepared.wait()
+        cur = False
+        keys = set()
+        while cur != 0:
+            cur, k = await self.redis.scan(cur or 0, match='p_sp_used*', count=1000)
+            keys.update(k)
+        for key in keys:
+            await self.redis.set(key, 0)
+        self.log.info(f"reset sp of {len(keys)} players")
+        cur = False
+        keys.clear()
+        while cur != 0:
+            cur, k = await self.redis.scan(cur or 0, match='treasures_found:*', count=1000)
+            keys.update(k)
+        for key in keys:
+            await self.redis.delete(key)
+        self.log.info(f'reset treasures of {len(keys)} players')
+
+    @midnight_helper.after_loop
+    async def post_midnight_loop_complete(self, *args, **kwargs):
+        exc = self.midnight_helper.exception()
+        if exc:
+            self.send_error(f'>>> Error occured in midnight_helper task\n```py\n{formats.format_exc(exc)}\n```')
 
     async def on_command_error(self, *__, **_):
         pass
@@ -301,8 +332,9 @@ class Abyss(commands.AutoShardedBot):
         self.start_date = datetime.utcnow()
         self.log.warning("Successfully loaded.")
         await self.change_presence(activity=discord.Game(name="$cmds"))
-        self.pipe.send(1)
-        self.pipe.close()
+        if self.pipe:
+            self.pipe.send(1)
+            self.pipe.close()
 
     async def on_message(self, message):
         if message.author.bot:
