@@ -38,7 +38,7 @@ class Maps(commands.Cog):
         npool = {}
         for i in pool:
             npool[i] = range(idx, idx + i.weight)
-            idx += i.weight + 1
+            idx += i.weight
         return maxn, npool
 
     async def cog_before_invoke(self, ctx):
