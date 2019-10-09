@@ -17,7 +17,6 @@ import config
 from cogs.utils import i18n, formats
 from cogs.utils.mapping import MapHandler
 from cogs.utils.paginators import PaginationHandler, EmbedPaginator, BetterPaginator
-from cogs.utils.player import Player
 
 NL = '\n'
 
@@ -184,25 +183,6 @@ class Abyss(commands.AutoShardedBot):
     @property
     def tree(self):
         return self.get_cog("SkillTreeCog")
-
-    async def before_invoke_handler(self, ctx):
-        if not self.players:
-            ctx.player = None
-            return
-        try:
-            ctx.player = self.players.players[ctx.author.id]
-        except KeyError:
-            data = await self.db.abyss.accounts.find_one({"owner": ctx.author.id})
-            if not data:
-                ctx.player = None
-                return
-            ctx.player = self.players.players[ctx.author.id] = player = Player(**data)
-            player._populate_skills(self)
-            if player._active_leaf is not None:
-                key, _ = player._active_leaf.split(':')
-                branch = self.tree.skill_tree[key].copy()
-                branch[player._active_leaf]['name'] = player._active_leaf
-                player.leaf = branch[player._active_leaf]
 
     async def wait_for_close(self):
         for cog, task in self.unload_tasks.items():
