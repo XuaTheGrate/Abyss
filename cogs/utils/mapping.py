@@ -21,7 +21,7 @@ class Map:
             return -1  # return False indicating that no treasures are available here
         await self.bot.redis.hincrby(f'treasures_found:{player.owner.id}', player.area, 1)
         # otherwise, return None (we didnt find anything) or an item/treasure demon
-        choice = random.uniform()
+        choice = random.random()
         if choice <= 0.1:
             # remind me to start a Treasure Demon battle
             return 2
