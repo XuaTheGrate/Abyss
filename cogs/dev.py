@@ -4,6 +4,7 @@ import copy
 import inspect
 import os
 import pathlib
+import random
 import re
 import textwrap
 import time
@@ -14,7 +15,8 @@ import import_expression
 import psutil
 from discord.ext import commands
 
-from .utils.formats import format_exc
+from cogs.utils.battle import TreasureDemonBattle, TreasureDemon
+from .utils.formats import format_exc, ensure_player
 from .utils.paginators import PaginationHandler, BetterPaginator, Timer
 from .utils.subprocess import Subprocess
 
@@ -453,6 +455,15 @@ Fast-forward
     @dev.command()
     async def status(self, ctx):
         pass
+
+    @dev.command()
+    @ensure_player
+    async def force_treasure_demon_battle(self, ctx):
+        mp_cog = self.bot.get_cog('Maps')
+        tdemon = random.choice(mp_cog.treasure_demon_data)
+        enemy = await TreasureDemon(**tdemon)._populate_skills(self.bot)
+        bt_cog = self.bot.get_cog("Battle")
+        bt_cog.battles[ctx.author.id] = TreasureDemonBattle(ctx.player, ctx, enemy)
 
     @dev.group()
     async def config(self, ctx):
