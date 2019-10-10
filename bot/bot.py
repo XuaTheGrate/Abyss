@@ -119,7 +119,9 @@ class ContextSoWeDontGetBannedBy403(commands.Context):
 
 
 loop = asyncio.new_event_loop()
-asyncio.set_event_loop(loop)
+
+
+# asyncio.set_event_loop(loop)
 
 
 class Abyss(commands.AutoShardedBot):
@@ -132,7 +134,11 @@ class Abyss(commands.AutoShardedBot):
         # `prepared` is to make sure the bot has loaded the database and such
 
         self.db = motor.motor_asyncio.AsyncIOMotorClient(
-            username=config.MONGODB_USER, password=config.MONGODB_PASS, authSource=config.MONGODB_DBSE)
+            username=config.MONGODB_USER,
+            password=config.MONGODB_PASS,
+            authSource=config.MONGODB_DBSE,
+            io_loop=self.loop
+        )
         self.redis = None
         self.session = aiohttp.ClientSession()
 
@@ -281,9 +287,9 @@ class Abyss(commands.AutoShardedBot):
                 f = io.BytesIO(message.encode())
                 return await self._send_error(discord.File(f, "error.txt"))
         elif isinstance(message, discord.File):
-            await self.debug_hook.send(file=message)
+            await asyncio.ensure_future(self.debug_hook.send(file=message), loop=self.loop)
         else:
-            await self.debug_hook.send(message)
+            await asyncio.ensure_future(self.debug_hook.send(message), loop=self.loop)
 
     def send_error(self, message):
         return self.loop.create_task(self._send_error(message))
@@ -325,7 +331,7 @@ class Abyss(commands.AutoShardedBot):
             return
 
         try:
-            self.redis = await aioredis.create_redis_pool(**config.REDIS)
+            self.redis = await aioredis.create_redis_pool(**config.REDIS, loop=self.loop)
             self.log.info("Redis connection succeeded")
         except Exception as e:
             self.log.error("couldnt connect to redis")
