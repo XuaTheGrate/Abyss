@@ -118,12 +118,13 @@ class ContextSoWeDontGetBannedBy403(commands.Context):
             await m.delete()
 
 
+loop = asyncio.new_event_loop()
+
+
 class Abyss(commands.AutoShardedBot):
     def __init__(self, **kwargs):
         self.pipe = kwargs.pop('pipe', None)
         self.cluster_name = kwargs.pop('cluster_name', 'beta')
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
         super().__init__(commands.when_mentioned_or("$"), **kwargs, loop=loop)
         self.remove_command("help")  # fuck you danny
         self.prepared = asyncio.Event()
@@ -156,11 +157,11 @@ class Abyss(commands.AutoShardedBot):
         self.prepare_extensions()
         self.run()
 
-    @tasks.loop(time=time(0, 0, 0))
+    @tasks.loop(time=time(0, 0, 0), loop=loop)
     async def midnight_helper(self):
         self.log.info("we reached midnight")
         await self.prepared.wait()
-        cur = False
+        cur = None
         keys = set()
         while cur != 0:
             cur, k = await self.redis.scan(cur or 0, match='p_sp_used*', count=1000)
@@ -168,7 +169,7 @@ class Abyss(commands.AutoShardedBot):
         for key in keys:
             await self.redis.set(key, 0)
         self.log.info(f"reset sp of {len(keys)} players")
-        cur = False
+        cur = None
         keys.clear()
         while cur != 0:
             cur, k = await self.redis.scan(cur or 0, match='treasures_found:*', count=1000)
@@ -178,11 +179,11 @@ class Abyss(commands.AutoShardedBot):
         self.log.info(f'reset treasures of {len(keys)} players')
 
     @midnight_helper.before_loop
-    async def pre_midnight_loop_start(self, *args, **kwargs):
+    async def pre_midnight_loop_start(self):
         self.log.info("midnight loop: hello world")
 
     @midnight_helper.after_loop
-    async def post_midnight_loop_complete(self, *args, **kwargs):
+    async def post_midnight_loop_complete(self):
         self.log.error("loop stopped")
         exc = self.midnight_helper.exception()
         if exc:
