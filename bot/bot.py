@@ -119,6 +119,7 @@ class ContextSoWeDontGetBannedBy403(commands.Context):
 
 
 loop = asyncio.new_event_loop()
+asyncio.set_event_loop(loop)
 
 
 class Abyss(commands.AutoShardedBot):
