@@ -1,8 +1,10 @@
 import asyncio
+import json
 import random
 
 import discord
 
+from cogs.utils.battle import TreasureDemon, TreasureDemonBattle
 from cogs.utils.enums import ItemType
 from cogs.utils.formats import *
 from cogs.utils.items import Unusable
@@ -22,6 +24,9 @@ def ensure_searched(func):
 class Maps(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+        with open("treasure-demons.json") as f:
+            self.treasure_demon_data = json.load(f)
 
     # note to self: when travelling to another dungeon, will cost 15 sp
     # 15 because that is the lowest possible amount of sp when full healed
@@ -178,7 +183,11 @@ class Maps(commands.Cog):
                     ctx.player.inventory.add_item(i)
                     return
         elif k == 2:  # treasure demon
-            await ctx.send("todo")
+            # todo: select treasure demon based on level
+            tdemon = random.choice(self.treasure_demon_data)
+            enemy = await TreasureDemon(**tdemon)._populate_skills(self.bot)
+            bt_cog = self.bot.get_cog("Battle")
+            bt_cog.battles[ctx.author.id] = TreasureDemonBattle(ctx.player, ctx, enemy)
 
 
 def setup(bot):

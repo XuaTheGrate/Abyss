@@ -25,7 +25,7 @@ class Map:
         if choice <= 0.1:
             # remind me to start a Treasure Demon battle
             return 2
-        elif choice <= 0.9:
+        elif choice <= 0.7:
             # return an item of some kind
             return 1
         else:

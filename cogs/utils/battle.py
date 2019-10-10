@@ -77,6 +77,12 @@ class Enemy(Player):
         return select
 
 
+class TreasureDemon(Enemy):
+    @property
+    def max_hp(self):  # treasure demons get a mega boost in hp
+        return math.ceil(40 + self.endurance + (12.5 * self.level))
+
+
 class BattleResult:
     def __init__(self):
         self.flee = False
@@ -822,3 +828,16 @@ class PVPBattle(WildBattle):
         finally:
             await self.menu.stop()
 
+
+class TreasureDemonBattle(WildBattle):
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.run_after = random.randint(2, 4)
+
+    async def handle_enemy_choices(self, enemy):
+        if self.turn_cycle == self.run_after:
+            await self.ctx.send(f"> **{enemy.name}** ran away!")
+            self._ran = True
+            await self.stop()
+        else:
+            await self.ctx.send(f"> **{enemy.name}** is groaning...")
