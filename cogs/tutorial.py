@@ -26,6 +26,7 @@ class Tutorial(commands.Cog):
 
         if conf.done():
             k.cancel()
+            ctx.player = self.bot.players.players[ctx.author.id]
             # confirm finished, so they already have a player.
             await ctx.invoke(self.bot.get_command("status"))
             if not await ctx.confirm("Click the \u23f9 button above, then click the <:tickYes:568613200728293435>."):
@@ -36,18 +37,20 @@ class Tutorial(commands.Cog):
         else:
             # ?????????
             raise AssertionError
-        player = self.bot.players.players[ctx.author.id]
+        ctx.player = player = self.bot.players.players[ctx.author.id]
         self.bot.get_cog("Maps").debug.append(ctx.author.id)
-        if not await ctx.confirm("Now that your player has been created, lets try it out. Type `$search` to look around."
-                                 "\n\nFrom now own, click <:tickYes:568613200728293435> to advance the tutorial, "
-                                 "or click <:tickNo:568613146152009768> to stop the tutorial."):
+        if not await ctx.confirm(
+                "Now that your player has been created, lets try it out. Type `$search` to look around."
+                "\n\nFrom now own, click <:tickYes:568613200728293435> to advance the tutorial, "
+                "or click <:tickNo:568613146152009768> to stop the tutorial."):
             return
-        if not await ctx.confirm("Don't worry about the chests for the time being, but do notice the treasures and doors.\n"
-                                 "The treasures are what gets you the items you want. They can have materials, healing items "
-                                 "and may even contain the extremely rare Treasure Demon. You can open one with `$open-treasure`."
-                                 " Do note that these are limited, once you open every treasure in this area, you cannot open any more"
-                                 " until it has passed midnight (UTC).\n"
-                                 "As for the doors, you can interact with these to travel to other parts of the dungeon."):
+        if not await ctx.confirm(
+                "Don't worry about the chests for the time being, but do notice the treasures and doors.\n"
+                "The treasures are what gets you the items you want. They can have materials, healing items "
+                "and may even contain the extremely rare Treasure Demon. You can open one with `$open-treasure`."
+                " Do note that these are limited, once you open every treasure in this area, you cannot open any more"
+                " until it has passed midnight (UTC).\n"
+                "As for the doors, you can interact with these to travel to other parts of the dungeon."):
             return
         if not await ctx.confirm("Alright, now for the core part of the game, the battling system. "
                                  "I'm going to stick you into a battle against Arsene, one of the easier demons in this area."):
@@ -57,8 +60,9 @@ class Tutorial(commands.Cog):
         en = await Enemy(**data)._populate_skills(self.bot)
         bt_cog.battles[ctx.author.id] = bt = WildBattle(player, ctx, en, ambush=True)
         await asyncio.sleep(3)
-        if not await ctx.confirm("Click on the \u2753 to read some instructions. You can read the faq after the tutorial."
-                                 " Once done, click the tick."):
+        if not await ctx.confirm(
+                "Click on the \u2753 to read some instructions. You can read the faq after the tutorial."
+                " Once done, click the tick."):
             return
         if not await ctx.confirm("Alright, so lets attack it. Click on the \u2694 to view your active skills. "
                                  "We don't really need to worry about any of the others, so lets go with `Attack`. "
@@ -67,9 +71,10 @@ class Tutorial(commands.Cog):
         if not await ctx.confirm("If you haven't already, you can finish off the Arsene to gain some sweet experience. "
                                  "Otherwise, you can click the \N{RUNNER} button to run away. Click the tick to continue, finally."):
             return
-        await ctx.send("And that about does it for the tutorial. If you still have questions, be sure to check the help and faq "
-                       "commands. If your question isn't there, please join the support server where I can answer.\n\n"
-                       "Thanks for playing!")
+        await ctx.send(
+            "And that about does it for the tutorial. If you still have questions, be sure to check the help and faq "
+            "commands. If your question isn't there, please join the support server where I can answer.\n\n"
+            "Thanks for playing!")
 
     @tutorial.after_invoke
     async def finalizer(self, ctx):
