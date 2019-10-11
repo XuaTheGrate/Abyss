@@ -255,7 +255,7 @@ class Abyss(commands.AutoShardedBot):
             await self.debug_hook.send(message)
 
     def send_error(self, message):
-        return self.loop.create_task(self._send_error(message))
+        return asyncio.run_coroutine_threadsafe(self._send_error(message), self.loop)
 
     def prepare_extensions(self):
         try:
@@ -356,4 +356,4 @@ KW Arguments: {kwargs}
 ```py
 {traceback.format_exc()}
 ```"""
-        await self.send_error(to)
+        self.send_error(to)

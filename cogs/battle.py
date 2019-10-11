@@ -36,7 +36,7 @@ class BattleSystem(commands.Cog):
         except asyncio.CancelledError:
             pass
         except Exception as e:
-            await self.bot.send_error(f""">>> Task_kill error occured
+            self.bot.send_error(f""">>> Task_kill error occured
 ```py
 {formats.format_exc(e)}
 ```""")
@@ -56,7 +56,7 @@ Encounter: {list(map(str, battle.enemies))}
 {formats.format_exc(error)}
 ```"""
             await ctx.send("An internal error occured during battle. The battle has been terminated.")
-            return await self.bot.send_error(m)
+            return self.bot.send_error(m)
 
         self.bot.dispatch("command_error", ctx, error, force=True)
 

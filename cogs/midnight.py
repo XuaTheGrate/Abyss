@@ -1,3 +1,4 @@
+import asyncio
 from datetime import time
 
 from discord.ext import commands, tasks
@@ -8,12 +9,14 @@ from cogs.utils import formats
 class Bullshit(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.midnight_helper = tasks.loop(time=time(0, 0, 0), loop=bot.loop)(self.midnight_helper)
+        self.midnight_helper.before_loop(self.pre_midnight_loop_start)
+        self.midnight_helper.after_loop(self.post_midnight_loop_complete)
         self.midnight_helper.start()
 
     def cog_unload(self):
         self.midnight_helper.stop()
 
-    @tasks.loop(time=time(0, 0, 0, 0))
     async def midnight_helper(self):
         self.bot.log.info("we reached midnight")
         await self.bot.prepared.wait()
@@ -33,12 +36,11 @@ class Bullshit(commands.Cog):
         for key in keys:
             await self.bot.redis.delete(key)
         self.bot.log.info(f'reset treasures of {len(keys)} players')
+        await asyncio.sleep(1.5)
 
-    @midnight_helper.before_loop
     async def pre_midnight_loop_start(self):
         self.bot.log.info("midnight loop: hello world")
 
-    @midnight_helper.after_loop
     async def post_midnight_loop_complete(self):
         self.bot.log.error("loop stopped")
         exc = self.midnight_helper.exception()
