@@ -22,7 +22,7 @@ class Map:
         await self.bot.redis.hincrby(f'treasures_found:{player.owner.id}', player.area, 1)
         # otherwise, return None (we didnt find anything) or an item/treasure demon
         choice = random.random()
-        if choice <= 0.1:
+        if choice <= 0.01:
             # remind me to start a Treasure Demon battle
             return 2
         elif choice <= 0.7:

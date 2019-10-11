@@ -296,8 +296,8 @@ class Players(commands.Cog):
         msg = _("This appears to be a public server. The messages sent can get spammy, or cause ratelimits.\n"
                 "It is advised to use a private server/channel.")
 
-        if sum(not m.bot for m in ctx.channel.members) > 100:
-            await ctx.send(msg)
+        if False and sum(not m.bot for m in ctx.channel.members) > 100:
+            await ctx.send(msg)  # remind me to fix this later
             await asyncio.sleep(5)
 
         # task = self.bot.loop.create_task(scripts.do_script(ctx, "creation", i18n.current_locale.get()))

@@ -70,7 +70,7 @@ class Inventory:
             self.items[item.type].append(_ItemCount(item, 1))
         else:
             for i in self.items[item.type]:
-                if i == item:
+                if i.item == item:
                     i.count += 1
                     break
 

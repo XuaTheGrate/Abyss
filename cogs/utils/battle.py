@@ -855,3 +855,5 @@ class TreasureDemonBattle(WildBattle):
             if random.random() >= 0.5:
                 skill = random.choice(self.enemies[0].skills).name
                 await self.ctx.send(f"Obtained **Skill Card: {skill}**!")
+                for p in self.players:  # im looping here because of possible battle jumping (0o0)
+                    p.inventory.add_item(self.ctx.bot.item_cache.items[skill])
