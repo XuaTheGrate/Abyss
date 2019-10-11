@@ -810,7 +810,7 @@ class WildBattle:
             exp = 0
             cash = 0
         else:
-            exp = sum(map(Enemy.get_exp, self.enemies))
+            exp = sum(e.get_exp() for e in self.enemies)
             cash = 0  # TODO: implement this
             msg = f"Nice work!\n{exp} EXP and {cash} Credits earned."
 
