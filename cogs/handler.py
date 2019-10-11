@@ -67,7 +67,12 @@ Bot permissions: {ctx.channel.permissions_for(ctx.me).value}
 ```""")
             return
 
-        if isinstance(exc, (commands.CommandNotFound, commands.NoPrivateMessage, SilentError)):
+        if isinstance(exc, (commands.CommandNotFound, commands.NoPrivateMessage)):
+            return
+
+        if isinstance(exc, SilentError):
+            if str(exc):  # i use this for regular messages
+                await ctx.send(str(exc))
             return
 
         if isinstance(exc, commands.CommandOnCooldown):
