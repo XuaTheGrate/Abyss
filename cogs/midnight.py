@@ -43,6 +43,8 @@ class Bullshit(commands.Cog):
 
     async def post_midnight_loop_complete(self):
         self.bot.log.error("loop stopped")
+        if not self.midnight_helper.failed():
+            return
         exc = self.midnight_helper.exception()
         if exc:
             self.bot.send_error(f'>>> Error occured in midnight_helper task\n```py\n{formats.format_exc(exc)}\n```')
