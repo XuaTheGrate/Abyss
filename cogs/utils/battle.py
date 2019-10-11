@@ -78,6 +78,9 @@ class Enemy(Player):
 
 
 class TreasureDemon(Enemy):
+    def header(self):
+        return f'[Treasure] {self.name}' + (f' {self.ailment.emote}' if self.ailment else '')
+
     def get_exp(self):
         return self.level_ * ((self.level_ * 10) + 50)
 
