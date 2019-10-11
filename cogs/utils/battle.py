@@ -79,8 +79,8 @@ class Enemy(Player):
 
 class TreasureDemon(Enemy):
     @property
-    def max_hp(self):  # treasure demons get a mega boost in hp
-        return math.ceil(40 + self.endurance + (12.5 * self.level))
+    def max_hp(self):  # treasure demons get a boost in hp
+        return math.ceil(20 + self.endurance + (5.7 * self.level))
 
 
 class BattleResult:
@@ -425,6 +425,7 @@ def get_message(resistance, *, reflect=False, miss=False, critical=False):
 
 class WildBattle:
     def __init__(self, player, ctx, *enemies, ambush=False):
+        self.main.after_loop(self.post_battle_complete)
         self.ctx = ctx
         self.cmd = self.ctx.bot.get_cog("BattleSystem").cog_command_error
         self.players = (player,)
@@ -768,7 +769,6 @@ class WildBattle:
         for e in self.enemies:
             e.pre_battle()
 
-    @main.after_loop
     async def post_battle_complete(self):
         # log.debug("complete")
         if self.main.failed():
@@ -841,3 +841,10 @@ class TreasureDemonBattle(WildBattle):
             await self.stop()
         else:
             await self.ctx.send(f"> **{enemy.name}** is groaning...")
+
+    async def post_battle_complete(self):
+        await super().post_battle_complete()
+        if not self._ran:
+            if random.random() >= 0.5:
+                skill = random.choice(self.enemies[0].skills).name
+                await self.ctx.send(f"Obtained **Skill Card: {skill}**!")
