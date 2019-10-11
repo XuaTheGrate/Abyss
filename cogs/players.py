@@ -10,6 +10,7 @@ import discord
 from discord.ext import commands, ui
 
 from cogs.utils.formats import ensure_player
+from cogs.utils.objects import CaseInsensitiveDict
 from cogs.utils.paginators import EmbedPaginator, PaginationHandler
 from .utils import lookups, imaging, items
 from .utils.enums import SkillType
@@ -238,7 +239,7 @@ class Players(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.players = LRUDict(20, bot)
-        self.skill_cache = {"Attack": GenericAttack, "Guard": Guard}
+        self.skill_cache = CaseInsensitiveDict({"Attack": GenericAttack, "Guard": Guard})
         self._base_demon_cache = {}
         self.bot.unload_tasks[self] = self._unloader_task = self.bot.loop.create_task(self.flush_cached_players())
         self.cache_skills()

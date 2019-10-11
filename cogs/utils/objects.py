@@ -19,6 +19,35 @@ class JSONable:
         return ret
 
 
+class CaseInsensitiveDict(dict):
+    def __init__(self, mapping):
+        super().__init__()
+        self.update(mapping)
+
+    def update(self, mapping=None, **kwargs):
+        if mapping:
+            if isinstance(mapping, dict):
+                mapping = mapping.items()
+            mapping = {k.lower(): v for k, v in mapping}
+        kwargs = {k.lower(): v for k, v in kwargs}
+        return super().update(mapping, **kwargs)
+
+    def __getitem__(self, item):
+        if isinstance(item, str):
+            item = item.lower()
+        return super().__getitem__(item)
+
+    def __setitem__(self, key, value):
+        if isinstance(key, str):
+            key = key.lower()
+        return super().__setitem__(key, value)
+
+    def __delitem__(self, key):
+        if isinstance(key, str):
+            key = key.lower()
+        return super().__delitem__(key)
+
+
 class DamageResult:
     __slots__ = ('resistance', 'damage_dealt', 'critical', 'miss', 'fainted', 'was_reflected', 'did_weak', 'skill',
                  'countered', 'endured')
