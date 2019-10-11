@@ -91,6 +91,8 @@ class Launcher:
         self.loop.close()
 
     def task_complete(self, task):
+        if task.cancelled():
+            return
         if task.exception():
             if isinstance(task.exception(), KeyboardInterrupt):
                 return

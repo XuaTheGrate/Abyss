@@ -462,7 +462,7 @@ Fast-forward
         mp_cog = self.bot.get_cog('Maps')
         tdemon = random.choice(mp_cog.treasure_demon_data)
         enemy = await TreasureDemon(**tdemon)._populate_skills(self.bot)
-        bt_cog = self.bot.get_cog("Battle")
+        bt_cog = self.bot.get_cog("BattleSystem")
         bt_cog.battles[ctx.author.id] = TreasureDemonBattle(ctx.player, ctx, enemy)
 
     @dev.group()
