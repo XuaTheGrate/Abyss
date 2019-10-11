@@ -431,7 +431,6 @@ def get_message(resistance, *, reflect=False, miss=False, critical=False):
 
 class WildBattle:
     def __init__(self, player, ctx, *enemies, ambush=False):
-        self.main.after_loop(self.post_battle_complete)
         self.ctx = ctx
         self.cmd = self.ctx.bot.get_cog("BattleSystem").cog_command_error
         self.players = (player,)
@@ -675,6 +674,8 @@ class WildBattle:
 
     @tasks.loop(seconds=1)
     async def main(self):
+        if self.main.current_loop == 1:
+            self.__class__.post_battle_complete = self.main.after_loop(self.__class__.post_battle_complete)
         # log.debug("starting loop")
         if not confirm_not_dead(self):
             # log.debug("confirm not dead failed, stopping")
