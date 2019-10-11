@@ -37,6 +37,11 @@ class CaseInsensitiveDict(dict):
             item = item.lower()
         return super().__getitem__(item)
 
+    def __contains__(self, item):
+        if isinstance(item, str):
+            item = item.lower()
+        return super().__contains__(item)
+
     def __setitem__(self, key, value):
         if isinstance(key, str):
             key = key.lower()
