@@ -78,6 +78,9 @@ class Enemy(Player):
 
 
 class TreasureDemon(Enemy):
+    def get_exp(self):
+        return self.level_ * ((self.level_ * 10) + 50)
+
     @property
     def max_hp(self):  # treasure demons get a boost in hp
         return math.ceil(20 + self.endurance + (5.7 * self.level))
