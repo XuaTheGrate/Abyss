@@ -24,6 +24,7 @@ def ensure_searched(func):
 class Maps(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.debug = []
 
         with open("treasure-demons.json") as f:
             self.treasure_demon_data = json.load(f)
@@ -51,7 +52,7 @@ class Maps(commands.Cog):
             raise SilentError  # cant use these commands during battle
         if ctx.command is self.inventory:
             return  # we dont want to interrupt the search if we are just opening our inventory
-        if random.randint(1, 5) == 1:
+        if ctx.author.id not in self.debug and random.randint(1, 5) == 1:
             await ctx.invoke(self.bot.get_command("encounter"), force=True)
             raise SilentError
 

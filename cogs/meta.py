@@ -20,6 +20,16 @@ class Meta(commands.Cog):
     proc = psutil.Process()
 
     @commands.command()
+    async def support(self, ctx):
+        """Sends my owners general server invite link."""
+        await ctx.send("https://discord.gg/hkweDCD")
+
+    @commands.command()
+    async def invite(self, ctx):
+        """Sends a discord url to invite me to your server."""
+        await ctx.send('<'+discord.utils.oauth_url(ctx.me.id)+'>')
+
+    @commands.command()
     async def ping(self, ctx):
         """Get my websocket latency to Discord."""
         await ctx.send(f":ping_pong: Pong! | {ctx.bot.latency * 1000:.2f}ms websocket latency.")

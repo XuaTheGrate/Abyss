@@ -430,7 +430,7 @@ def get_message(resistance, *, reflect=False, miss=False, critical=False):
 
 
 class WildBattle:
-    def __init__(self, player, ctx, *enemies, ambush=False):
+    def __init__(self, player, ctx, *enemies, ambush=None):
         self.ctx = ctx
         self.cmd = self.ctx.bot.get_cog("BattleSystem").cog_command_error
         self.players = (player,)
