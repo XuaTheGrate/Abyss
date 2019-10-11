@@ -45,6 +45,8 @@ class ErrorHandler(commands.Cog):
         embed.description = ("\N{REGIONAL INDICATOR SYMBOL LETTER G}\N{REGIONAL INDICATOR SYMBOL LETTER B} "
                              "Hello! I'm Abyss. Use `$locale set en_US` to change your personal locale.")
         # await target.send(embed=embed)
+        self.bot.send_error(f'Joined guild **{guild}** ({guild.id}) with **{guild.member_count}** members ('
+                            f'{(sum(map(discord.Member.bot.fget, guild.members))/guild.member_count)*100:.1f}% bots)')
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, exc, *, force=False):
@@ -55,7 +57,7 @@ class ErrorHandler(commands.Cog):
             ctx.command.reset_cooldown(ctx)
             exc = exc.original
             await ctx.send("An internal error occured.")
-            self.bot.send_error(f"""Error during execution of command
+            self.bot.send_error(f""">>> Error during execution of command
 `{ctx.message.clean_content}`
 User: {ctx.author}
 Guild: {ctx.guild}
