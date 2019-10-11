@@ -26,10 +26,7 @@ class Tutorial(commands.Cog):
 
         if conf.done():
             k.cancel()
-            ctx.player = self.bot.players.players[ctx.author.id]
-            # confirm finished, so they already have a player.
-            await ctx.invoke(self.bot.get_command("status"))
-            if not await ctx.confirm("Click the \u23f9 button above, then click the <:tickYes:568613200728293435>."):
+            if not await ctx.confirm("Send `$status`, click the \u23f9 button, then click the <:tickYes:568613200728293435>."):
                 return  # time out 2: electric boogaloo
         elif k.done():
             # ran the $create command
