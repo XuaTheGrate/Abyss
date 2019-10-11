@@ -1,3 +1,4 @@
+Use `$tutorial` to get an understanding on how this bot works.
 # Abyss
 Python 3.7 Discord.py 1.3.0a
 
@@ -5,6 +6,9 @@ A Persona/SMT styled Discord RPG bot.
 
 This bot was originally run under the name `Adventure!`,
 but has been ported to a whole new and improved system.
+
+If you encounter any bugs at all, please join the support server
+and report it. The link can be found at the bottom of this page.
 ## Features
 #### Immersive Battling Simulator
 Engage with your inner demon and defeat the enemy before you.
