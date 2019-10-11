@@ -123,6 +123,7 @@ class Abyss(commands.AutoShardedBot):
         self.pipe = kwargs.pop('pipe', None)
         self.cluster_name = kwargs.pop('cluster_name', 'beta')
         loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
         super().__init__(commands.when_mentioned_or("$"), **kwargs, loop=loop)
         self.remove_command("help")  # fuck you danny
         self.prepared = asyncio.Event()
@@ -302,7 +303,6 @@ class Abyss(commands.AutoShardedBot):
 
         if self.cluster_name == "Alpha":
             self.log.info("start: hello world")
-            self.midnight_helper.start()
 
         self.prepared.set()
         self.start_date = datetime.utcnow()
