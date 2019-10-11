@@ -5,13 +5,13 @@ import logging
 import os
 import random
 import traceback
-from datetime import datetime, timedelta, time
+from datetime import datetime, timedelta
 
 import aiohttp
 import aioredis
 import discord
 import motor.motor_asyncio
-from discord.ext import commands, tasks
+from discord.ext import commands
 
 import config
 from cogs.utils import i18n, formats
@@ -118,16 +118,11 @@ class ContextSoWeDontGetBannedBy403(commands.Context):
             await m.delete()
 
 
-loop = asyncio.new_event_loop()
-
-
-# asyncio.set_event_loop(loop)
-
-
 class Abyss(commands.AutoShardedBot):
     def __init__(self, **kwargs):
         self.pipe = kwargs.pop('pipe', None)
         self.cluster_name = kwargs.pop('cluster_name', 'beta')
+        loop = asyncio.new_event_loop()
         super().__init__(commands.when_mentioned_or("$"), **kwargs, loop=loop)
         self.remove_command("help")  # fuck you danny
         self.prepared = asyncio.Event()
@@ -163,38 +158,6 @@ class Abyss(commands.AutoShardedBot):
         # self.before_invoke(self.before_invoke_handler)
         self.prepare_extensions()
         self.run()
-
-    @tasks.loop(time=time(0, 0, 0), loop=loop)
-    async def midnight_helper(self):
-        self.log.info("we reached midnight")
-        await self.prepared.wait()
-        cur = None
-        keys = set()
-        while cur != 0:
-            cur, k = await self.redis.scan(cur or 0, match='p_sp_used*', count=1000)
-            keys.update(k)
-        for key in keys:
-            await self.redis.set(key, 0)
-        self.log.info(f"reset sp of {len(keys)} players")
-        cur = None
-        keys.clear()
-        while cur != 0:
-            cur, k = await self.redis.scan(cur or 0, match='treasures_found:*', count=1000)
-            keys.update(k)
-        for key in keys:
-            await self.redis.delete(key)
-        self.log.info(f'reset treasures of {len(keys)} players')
-
-    @midnight_helper.before_loop
-    async def pre_midnight_loop_start(self):
-        self.log.info("midnight loop: hello world")
-
-    @midnight_helper.after_loop
-    async def post_midnight_loop_complete(self):
-        self.log.error("loop stopped")
-        exc = self.midnight_helper.exception()
-        if exc:
-            self.send_error(f'>>> Error occured in midnight_helper task\n```py\n{formats.format_exc(exc)}\n```')
 
     async def on_command_error(self, *__, **_):
         pass
@@ -287,9 +250,9 @@ class Abyss(commands.AutoShardedBot):
                 f = io.BytesIO(message.encode())
                 return await self._send_error(discord.File(f, "error.txt"))
         elif isinstance(message, discord.File):
-            await asyncio.ensure_future(self.debug_hook.send(file=message), loop=self.loop)
+            await self.debug_hook.send(message)
         else:
-            await asyncio.ensure_future(self.debug_hook.send(message), loop=self.loop)
+            await self.debug_hook.send(message)
 
     def send_error(self, message):
         return self.loop.create_task(self._send_error(message))

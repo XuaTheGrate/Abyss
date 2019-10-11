@@ -1,0 +1,50 @@
+from datetime import time
+
+from discord.ext import commands, tasks
+
+from cogs.utils import formats
+
+
+class Bullshit(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+        self.midnight_helper.start()
+
+    def cog_unload(self):
+        self.midnight_helper.stop()
+
+    @tasks.loop(time=time(0, 0, 0, 0))
+    async def midnight_helper(self):
+        self.bot.log.info("we reached midnight")
+        await self.bot.prepared.wait()
+        cur = None
+        keys = set()
+        while cur != 0:
+            cur, k = await self.bot.redis.scan(cur or 0, match='p_sp_used*', count=1000)
+            keys.update(k)
+        for key in keys:
+            await self.bot.redis.set(key, 0)
+        self.bot.log.info(f"reset sp of {len(keys)} players")
+        cur = None
+        keys.clear()
+        while cur != 0:
+            cur, k = await self.bot.redis.scan(cur or 0, match='treasures_found:*', count=1000)
+            keys.update(k)
+        for key in keys:
+            await self.bot.redis.delete(key)
+        self.bot.log.info(f'reset treasures of {len(keys)} players')
+
+    @midnight_helper.before_loop
+    async def pre_midnight_loop_start(self):
+        self.bot.log.info("midnight loop: hello world")
+
+    @midnight_helper.after_loop
+    async def post_midnight_loop_complete(self):
+        self.bot.log.error("loop stopped")
+        exc = self.midnight_helper.exception()
+        if exc:
+            self.bot.send_error(f'>>> Error occured in midnight_helper task\n```py\n{formats.format_exc(exc)}\n```')
+
+
+def setup(bot):
+    bot.add_cog(Bullshit(bot))
