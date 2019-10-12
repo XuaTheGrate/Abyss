@@ -26,7 +26,7 @@ class Tutorial(commands.Cog):
 
         if conf.done():
             k.cancel()
-            if not await ctx.confirm("Send `$status`, click the \u23f9 button, then click the <:tickYes:568613200728293435>."):
+            if not await ctx.confirm("Send `$status`, click the \u270b button, then click the <:tickYes:568613200728293435>."):
                 return  # time out 2: electric boogaloo
         elif k.done():
             # ran the $create command
