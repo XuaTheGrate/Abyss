@@ -184,8 +184,10 @@ class Maps(commands.Cog):
                     ctx.player.inventory.add_item(i)
                     return
         elif k == 2:  # treasure demon
-            # todo: select treasure demon based on level
-            tdemon = random.choice(self.treasure_demon_data)
+            try:
+                tdemon = min(filter(lambda d: d['level'] >= ctx.player.level, self.treasure_demon_data))
+            except ValueError:  # player is overlevelled
+                tdemon = max(self.treasure_demon_data, key=lambda f: f['level'])  # return highest
             enemy = await TreasureDemon(**tdemon)._populate_skills(self.bot)
             bt_cog = self.bot.get_cog("Battle")
             bt_cog.battles[ctx.author.id] = TreasureDemonBattle(ctx.player, ctx, enemy)

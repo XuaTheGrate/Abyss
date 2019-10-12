@@ -7,12 +7,18 @@
     {"skill": "Psi"},
     {"skill": "Eiha"},
     {"skill": "Kouha"},
-    {"skill": "Single Shot"},
+
     {"skill": "Lunge"},
+    {"skill": "Single Shot"},
+
     {"skill": "Tarukaja"},
+    {"skill": "Rakukaja"},
+    {"skill": "Sukukaja"},
+
     {"skill": "Dia"},
-    {"skill": "Dodge Phys"},
+
     {"skill": "Dormina"},
+
     {"skill": "Maragi"},
     {"skill": "Mabufu"},
     {"skill": "Magaru"},
@@ -20,5 +26,15 @@
     {"skill": "Mafrei"},
     {"skill": "Mapsi"},
     {"skill": "Maeiha"},
-    {"skill": "Makouha"}
+    {"skill": "Makouha"},
+
+    {"skill": "Dodge Phys"},
+    {"skill": "Dodge Fire"},
+    {"skill": "Dodge Ice"},
+    {"skill": "Dodge Wind"},
+    {"skill": "Dodge Elec"},
+    {"skill": "Dodge Nuke"},
+    {"skill": "Dodge Psy"},
+    {"skill": "Dodge Bless"},
+    {"skill": "Dodge Curse"}
 ]

@@ -14,5 +14,21 @@
             "Maeiha",
             "Makouha"
         ]
+    },
+    {
+        "name": "Stone of Scone",
+        "level": 30,
+        "stats": [20, 20, 20, 20, 20],
+        "resistances": [0, 0, 1, 1, 1, 1, 1, 1, 3, 3],
+        "moves": [
+            "Dodge Fire",
+            "Dodge Ice",
+            "Dodge Wind",
+            "Dodge Elec",
+            "Dodge Nuke",
+            "Dodge Psy",
+            "Dodge Curse",
+            "Dodge Bless"
+        ]
     }
 ]
