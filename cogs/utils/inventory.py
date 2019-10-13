@@ -66,7 +66,7 @@ class Inventory:
     def add_item(self, item):
         if item.type not in self.items:
             self.items[item.type] = []
-        if item not in self.items[item.type]:
+        if not any(i.item == item for i in self.items[item.type]):
             self.items[item.type].append(_ItemCount(item, 1))
         else:
             for i in self.items[item.type]:
