@@ -378,7 +378,8 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
 
     def get_all_auto_mods(self):
         for mod in (StatModifier.TARU, StatModifier.RAKU, StatModifier.SUKU):
-            yield self.get_auto_mod(mod)
+            if self.get_auto_mod(mod):
+                yield mod
 
     def get_regenerate(self):
         if any(s.name.startswith('Regenerate') for s in self.skills):

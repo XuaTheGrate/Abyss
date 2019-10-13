@@ -14,7 +14,7 @@ NL = '\n'
 UNSUPPORTED_SKILLS = ['Growth 1', 'Growth 2', 'Growth 3',
                       'Amrita Shower', 'Amrita Drop',
                       'Fortify Spirit', 'Recarm', 'Samarecarm',
-                      'Rebellion', 'Revolution']
+                      'Rebellion', 'Revolution', 'Foul Breath', 'Stagnant Air']
 
 
 class Enemy(Player):
@@ -88,6 +88,9 @@ class TreasureDemon(Enemy):
     def max_hp(self):  # treasure demons get a boost in hp
         return math.ceil(20 + self.endurance + (5.7 * self.level))
 
+    def get_passive_evasion(self, type):
+        return None
+
 
 class BattleResult:
     def __init__(self):
@@ -106,7 +109,7 @@ class BattleResult:
 
 
 import discord
-from discord.ext import ui, tasks
+from discord.ext import ui
 
 from . import lookups
 
@@ -451,11 +454,25 @@ class WildBattle:
             self.order = sorted([*self.players, *self.enemies], key=lambda i: i.agility, reverse=True)
         self.double_turn = False
         self.order = ListCycle(self.order)
-        self.main.start()
+        self._task = self.start()
+
+    def task_end(self, task):
+        asyncio.ensure_future(self.post_battle_complete(), loop=self.ctx.bot.loop)
+
+    async def _start(self):
+        await self.pre_battle_start()
+        while not self._stopping:
+            await self.main()
+            await asyncio.sleep(1)
+
+    def start(self):
+        task = self.ctx.bot.loop.create_task(self._start())
+        task.add_done_callback(self.task_end)
+        return task
 
     async def stop(self):
         self._stopping = True
-        self.main.stop()
+        self._task.cancel()
         with suppress(AttributeError):
             await self.menu.stop()
 
@@ -672,10 +689,7 @@ class WildBattle:
                 self.double_turn = True
                 await self.ctx.send("> Watch out, {demon} is attacking again!".format(demon=enemy))
 
-    @tasks.loop(seconds=1)
     async def main(self):
-        if self.main.current_loop == 1:
-            self.__class__.post_battle_complete = self.main.after_loop(self.__class__.post_battle_complete)
         # log.debug("starting loop")
         if not confirm_not_dead(self):
             # log.debug("confirm not dead failed, stopping")
@@ -728,7 +742,6 @@ class WildBattle:
             nxt.ailment.post_turn_effect()
         self.order.cycle()
 
-    @main.before_loop
     async def pre_battle_start(self):
         # log.debug("pre battle, determining ambush")
         if self.ambush is True:
@@ -778,8 +791,8 @@ class WildBattle:
 
     async def post_battle_complete(self):
         # log.debug("complete")
-        if self.main.failed():
-            err = self.main.exception()
+        if not self._task.cancelled() and self._task.exception():
+            err = self._task.exception()
             # log.debug(f"error occured: {err!r}")
             await self.cmd(self.ctx, err, battle=self)
             return

@@ -1,4 +1,7 @@
+import os
+import sys
 import traceback
+from contextlib import contextmanager
 
 from discord.ext import commands
 
@@ -110,18 +113,26 @@ def indentitems(items, indent, indentcurrent):
     return res
 
 
+@contextmanager
+def silence_std(out=True):
+    new = open(os.devnull, 'w')
+    if out:
+        old = sys.stdout
+        sys.stdout = new
+    else:
+        old = sys.stderr
+        sys.stderr = new
+    try:
+        yield new
+    finally:
+        if out:
+            sys.stdout = old
+        else:
+            sys.stderr = old
+        new.close()
+
+
 def format_exc(exc):
-    """Helper function for formatting tracebacks.
-
-    Parameters
-    ----------
-    exc: :class:`BaseException`
-        The exception to format.
-
-    Returns
-    -------
-    :class:`str`
-        The formatted traceback."""
     return "".join(traceback.format_exception(type(exc), exc, exc.__traceback__))
 
 

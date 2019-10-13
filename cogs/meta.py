@@ -11,6 +11,7 @@ import psutil
 from discord.ext import commands
 
 from .utils import weather
+from .utils.formats import silence_std
 
 NL = '\n'
 R = re.compile(r"Description:\s+(.+)$")
@@ -83,8 +84,16 @@ Created by {', '.join(str(ctx.bot.get_user(u)) for u in ctx.bot.config.OWNERS)}"
              for d, v in (await ctx.bot.redis.hgetall("command_totals")).items()
              if not d.startswith((b'jishaku', b'dev'))
              }).most_common(5)
-        mem_info = self.proc.memory_full_info()
+        try:
+            mem_info = self.proc.memory_full_info().uss / 1024 / 1024
+        except psutil.AccessDenied:
+            mem_info = self.proc.memory_info().rss / 1024 / 1024
         player_count = await ctx.bot.db.abyss.accounts.count_documents({})
+        try:
+            with silence_std(False):
+                platform = R.findall(os.popen("lsb_release -d").read())[0]
+        except IndexError:
+            platform = 'Non-linux system'
         embed.description = f"""> **Discord**
 {len(ctx.bot.guilds)} Guilds
 {len(set(ctx.bot.get_all_members()))} Members
@@ -100,8 +109,8 @@ Created by {', '.join(str(ctx.bot.get_user(u)) for u in ctx.bot.config.OWNERS)}"
 > **Top commands**
 {NL.join(f"{i + 1}. {c} ({v} uses)" for i, (c, v) in enumerate(cmds))}
 > **Extra**
-{mem_info.uss / 1024 / 1024:.1f} MB Memory Usage
-{R.findall(os.popen("lsb_release -d").read())[0]}
+{mem_info:.1f} MB Memory Usage
+{platform}
 Python {'.'.join(map(str, sys.version_info[:3]))}
 Online for {humanize.naturaldelta(ctx.bot.start_date - datetime.utcnow())}
 """

@@ -460,7 +460,13 @@ Fast-forward
     @ensure_player
     async def force_treasure_demon_battle(self, ctx):
         mp_cog = self.bot.get_cog('Maps')
-        tdemon = random.choice(mp_cog.treasure_demon_data)
+        demons = list(filter(lambda d: d['level'] >= ctx.player.level, mp_cog.treasure_demon_data))
+        if demons:
+            min_demon = min(demons, key=lambda f: f['level'])
+            filt = list(filter(lambda d: d['level'] <= min_demon['level'], mp_cog.treasure_demon_data))
+            tdemon = random.choice(filt)
+        else:
+            tdemon = max(mp_cog.treasure_demon_data, key=lambda f: f['level'])  # return highest
         enemy = await TreasureDemon(**tdemon)._populate_skills(self.bot)
         bt_cog = self.bot.get_cog("BattleSystem")
         bt_cog.battles[ctx.author.id] = TreasureDemonBattle(ctx.player, ctx, enemy)

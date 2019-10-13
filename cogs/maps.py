@@ -38,7 +38,7 @@ class Maps(commands.Cog):
         for item in cache.items.values():
             if item.type is ItemType.TRASH or item.type is ItemType.HEALING:
                 pool.append(item)
-        maxn = sum(i.weight for i in pool)
+        maxn = sum(i.weight for i in pool if i.weight)
         assert maxn > 0
         idx = 1
         npool = {}
@@ -184,9 +184,21 @@ class Maps(commands.Cog):
                     ctx.player.inventory.add_item(i)
                     return
         elif k == 2:  # treasure demon
-            try:
-                tdemon = min(filter(lambda d: d['level'] >= ctx.player.level, self.treasure_demon_data))
-            except ValueError:  # player is overlevelled
+            demons = list(filter(lambda d: d['level'] >= ctx.player.level, self.treasure_demon_data))
+            if demons:
+                # `lambda d: d['level'] <= ctx.player.level`
+                # this wont work as the player might not be a higher
+                # level than the lowest treasure demon on my list
+                # so to counter that, i select the closest one possible
+                # then get every single demon that is that level
+                # or lower level to it, then select a random one
+                min_demon = min(demons, key=lambda f: f['level'])
+                filt = list(filter(lambda d: d['level'] <= min_demon['level'], self.treasure_demon_data))
+                tdemon = random.choice(filt)
+            else:
+                # if `demons` is empty, that means no demons are
+                # a higher level to the player, so we just select
+                # the highest level one instead
                 tdemon = max(self.treasure_demon_data, key=lambda f: f['level'])  # return highest
             enemy = await TreasureDemon(**tdemon)._populate_skills(self.bot)
             bt_cog = self.bot.get_cog("Battle")

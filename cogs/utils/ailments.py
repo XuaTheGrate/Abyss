@@ -22,7 +22,7 @@ class _Ailment:
     emote = None
     # the emote to appear next to the user inflicted with this ailment
 
-    cannot_move_msg = None
+    cannot_move_msg = "> __{self.player}__ can't move!"
     # the message to display when UserIsImmobilized gets raised
 
     def __init__(self, player, type):
@@ -179,7 +179,7 @@ class Confuse(_Ailment):
     emote = "\u2754"
 
     async def pre_turn_effect_async(self, battle):
-        super().pre_turn_effect()
+        self.pre_turn_effect()
         choice = random.randint(1, 5)
         # 1 -> throw away item
         # 2 -> throw away credits
@@ -242,7 +242,7 @@ class Brainwash(_Ailment):
     emote = "\N{PLAYING CARD BLACK JOKER}"
 
     async def pre_turn_effect_async(self, battle):
-        super().pre_turn_effect()
+        self.pre_turn_effect()
         choice = random.choice((True, False))
         if choice:
             await battle.ctx.send(f"> __{self.player}__ is brainwashed!")
@@ -277,3 +277,15 @@ class Brainwash(_Ailment):
                 else:
                     await s.effect(battle, battle.players)
             raise UserTurnInterrupted
+
+
+class Rage(_Ailment):
+    """
+    Ignores commands and attacks enemies.
+    Attack boosted but defense lowered.
+    """
+    emote = '\N{POUTING FACE}'
+
+    async def pre_turn_effect_async(self, battle):
+        self.pre_turn_effect()
+        raise UserIsImmobilized  # temp, todo fix
