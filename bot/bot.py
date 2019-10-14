@@ -102,14 +102,14 @@ class ContextSoWeDontGetBannedBy403(commands.Context):
         else:
             raise TypeError("missing arguments")
 
-    async def confirm(self, message, waiter=None):
+    async def confirm(self, message, *, waiter=None, timeout=60):
         waiter = waiter or self.author
         m = await self.send(message)
         await asyncio.gather(m.add_reaction(self.bot.tick_yes), m.add_reaction(self.bot.tick_no))
         try:
             p = await self.bot.wait_for('raw_reaction_add', check=lambda p: str(p.emoji) in (self.bot.tick_yes, self.bot.tick_no)
                                         and p.user_id == waiter.id and p.message_id == m.id,
-                                        timeout=60)
+                                        timeout=timeout)
         except asyncio.TimeoutError:
             return False
         else:
@@ -124,7 +124,8 @@ class Abyss(commands.AutoShardedBot):
         self.cluster_name = kwargs.pop('cluster_name', 'beta')
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        super().__init__(commands.when_mentioned_or("$"), **kwargs, loop=loop)
+        super().__init__(commands.when_mentioned_or("$"), **kwargs, loop=loop,
+                         activity=discord.Game(name="$help"))
         self.remove_command("help")  # fuck you danny
         self.prepared = asyncio.Event()
         # `prepared` is to make sure the bot has loaded the database and such
@@ -273,6 +274,9 @@ class Abyss(commands.AutoShardedBot):
 
             filename = "cogs." + file
 
+            if filename == "cogs.dbl" and self.cluster_name != "Alpha":
+                continue  # no loady on any other clusters
+
             try:
                 self.load_extension(filename)
             except Exception as e:
@@ -281,7 +285,7 @@ class Abyss(commands.AutoShardedBot):
 
     async def on_ready(self):
         if self.prepared.is_set():
-            await self.change_presence(activity=discord.Game(name="$help"))
+            # await self.change_presence(activity=discord.Game(name="$help"))
             return
 
         try:
@@ -307,7 +311,7 @@ class Abyss(commands.AutoShardedBot):
         self.prepared.set()
         self.start_date = datetime.utcnow()
         self.log.warning("Successfully loaded.")
-        await self.change_presence(activity=discord.Game(name="$help"))
+        # await self.change_presence(activity=discord.Game(name="$help"))
         if self.pipe:
             self.pipe.send(1)
             self.pipe.close()

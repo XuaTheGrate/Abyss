@@ -28,13 +28,13 @@ def _now(d=None):
 
 def get_current_season(date=None):
     now = _now(date)
-    if SPRING_START < now < SPRING_END:
+    if SPRING_START <= now < SPRING_END:
         return Season.SPRING
-    if SUMMER_START < now < SUMMER_END:
+    if SUMMER_START <= now < SUMMER_END:
         return Season.SUMMER
-    if AUTUMN_START < now < AUTUMN_END:
+    if AUTUMN_START <= now < AUTUMN_END:
         return Season.AUTUMN
-    if WINTER_START < now < WINTER_END:
+    if WINTER_START <= now < WINTER_END:
         return Season.WINTER
     raise RuntimeError
 
@@ -50,7 +50,6 @@ def try_severe_weather(season, weather, state=None):
     return rng.random() < 0.1
 
 
-# noinspection PyArgumentList
 def get_current_weather(date=None):
     season = get_current_season()
     chances = VARIATE.copy()

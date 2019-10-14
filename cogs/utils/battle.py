@@ -58,7 +58,7 @@ class Enemy(Player):
                 yield skill
                 continue
             if any(s.name == 'Spell Master' for s in self.skills):
-                c = skill.cost/2
+                c = skill.cost / 2
             else:
                 c = skill.cost
             if c <= self.sp:
@@ -113,6 +113,7 @@ from discord.ext import ui
 
 from . import lookups
 
+
 # exp = ceil(level ** 3 / uniform(1, 3))
 
 
@@ -126,7 +127,7 @@ class TargetSession(ui.Session, ABC):
     def __init__(self, *targets, target):
         super().__init__(timeout=180)
         if target in ('enemy', 'ally'):
-            self.targets = {f"{c+1}\u20e3": targets[c] for c in range(len(targets))}
+            self.targets = {f"{c + 1}\u20e3": targets[c] for c in range(len(targets))}
             for e in self.targets.keys():
                 # log.debug(f"added button for {self.enemies[e]}")
                 self.add_button(self.button_enemy, e)
@@ -191,8 +192,8 @@ class InitialSession(ui.Session):
         self.enemies = battle.enemies
         self.bot = battle.ctx.bot
         self.result = None  # dict, {"type": "fight/run", data: [whatever is necessary]}
-        self.add_command(self.select_skill, "("+"|".join(map(str, filter(
-            lambda s: s.type is not SkillType.PASSIVE, self.player.skills)))+")")
+        self.add_command(self.select_skill, "(" + "|".join(map(str, filter(
+            lambda s: s.type is not SkillType.PASSIVE, self.player.skills))) + ")")
 
     async def stop(self):
         # log.debug("initialsession stop()")
@@ -246,8 +247,7 @@ class InitialSession(ui.Session):
         if skill.lower() == 'guard':
             self.result = {"type": "fight", "data": {"skill": obj}}
             return await self.stop()
-        target = await self.select_target(obj.target)
-        if target != 'cancel':
+        if (target := await self.select_target(obj.target)) != 'cancel':
             self.result = {"type": "fight", "data": {"skill": obj, "targets": target}}
             # log.debug(f"select skill: {self.result}")
             await self.stop()
@@ -351,7 +351,7 @@ VS
 Various buttons have been reacted for use, but move selection requires you to send a message.
 \N{CROSSED SWORDS} Brings you to the Fight menu, where you select your moves.
 \N{BLACK QUESTION MARK ORNAMENT} Shows this page.
-\N{INFORMATION SOURCE} todo
+\N{INFORMATION SOURCE} Overviews the enemies on field.
 \N{RUNNER} Runs from the battle. Useful if you don't think you can beat this enemy.
 \N{HOUSE BUILDING} Brings you back to the home screen.
 
@@ -366,10 +366,7 @@ For more information regarding battles, see `$faq battle`.""")
     async def escape(self, _):
         # log.debug("escape() called")
         chance = 75 - (max(self.enemies, key=lambda e: e.level).level - self.player.level)
-        if random.randint(1, 100) < chance:
-            self.result = {"type": "run", "data": {"success": True}}
-        else:
-            self.result = {"type": "run", "data": {"success": False}}
+        self.result = {"type": "run", "data": {"success": random.randint(1, 100) < chance}}
         return await self.stop()
 
     @ui.button("\N{HOUSE BUILDING}")
@@ -404,20 +401,6 @@ refl_msgs = {
     ResistanceModifier.IMMUNE: "__{demon}__ is **immune** to {skill.type.name} attacks!",
     ResistanceModifier.RESIST: "__{demon}__ **resists** {skill.type.name} attacks and took {damage} damage!"
 }
-
-supp_msgs = [
-    {  # False == 0, decrease
-        StatModifier.TARU: "__{tdemon}__'s **attack** was lowered!",
-        StatModifier.RAKU: "__{tdemon}__'s **defense** was lowered!",
-        StatModifier.SUKU: "__{tdemon}__'s **evasion/accuracy** was lowered!"
-    },
-    {  # True == 1, increase
-        StatModifier.TARU: "__{tdemon}__'s **attack** increased!",
-        StatModifier.RAKU: "__{tdemon}__'s **defense** increased!",
-        StatModifier.SUKU: "__{tdemon}__'s **evasion/accuracy** increased!"
-    },
-    "__{demon}__ used `{skill}`! "
-]
 
 
 def get_message(resistance, *, reflect=False, miss=False, critical=False):
@@ -644,32 +627,32 @@ class WildBattle:
         for target in targets:
             weaked = False
             force_crit = 0
-                
+
             for a in range(random.randint(*skill.hits)):
                 await asyncio.sleep(1.1)  # we are sending messages too fast tbh
                 res = target.take_damage(enemy, skill, enforce_crit=force_crit)
                 force_crit = 1 if res.critical else 2
                 if res.did_weak:
                     weaked = True
-    
+
                 if res.resistance in (
-                    ResistanceModifier.IMMUNE,
-                    ResistanceModifier.REFLECT,
-                    ResistanceModifier.ABSORB
+                        ResistanceModifier.IMMUNE,
+                        ResistanceModifier.REFLECT,
+                        ResistanceModifier.ABSORB
                 ):
                     enemy.unusable_skills.append(skill.name)
                     # the ai learns not to use it in the future, but still use it this turn
-    
+
                 msg = get_message(res.resistance, reflect=res.was_reflected, miss=res.miss, critical=res.critical)
                 msg = msg.format(demon=enemy, tdemon=target, damage=res.damage_dealt, skill=skill)
                 await self.ctx.send(msg)
-    
+
                 if skill.type is SkillType.PHYSICAL:
                     if target.ailment and target.ailment.type is AilmentType.SLEEP:
                         if random.randint(1, 6) != 1:
                             target.ailment = None
                             await self.ctx.send(f"> __{target}__ woke up!")
-    
+
                 if skill.name == 'Attack':
                     if target.ailment and target.ailment.type is AilmentType.SHOCK:
                         if not enemy.ailment and random.randint(1, 3) == 1:
@@ -683,7 +666,7 @@ class WildBattle:
                 enemy._concentrating = False
             else:
                 enemy._charging = False
-                
+
             if weaked and not target.is_fainted():
                 self.order.decycle()
                 self.double_turn = True
@@ -797,8 +780,7 @@ class WildBattle:
             await self.cmd(self.ctx, err, battle=self)
             return
 
-        p = self.players[0]
-        if p.is_fainted():
+        if (p := self.players[0]).is_fainted():
             # TODO: reset map back to first map and lose some cash
             await self.ctx.send("ok so theres supposed to be some magic script thing but i cant figure it out\n"
                                 "ill heal you and then kick you from battle because i havent fixed it yet")

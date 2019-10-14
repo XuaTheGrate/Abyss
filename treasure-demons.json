@@ -3,18 +3,7 @@
         "name": "Regent",
         "level": 20,
         "stats": [10, 10, 10, 10, 10],
-        "resistances": [
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            3,
-            3,
-            1,
-            1
-        ],
+        "resistances": [1, 1, 1, 1, 1, 1, 3, 3, 1, 1],
         "moves": [
             "Maragi",
             "Mabufu",
@@ -27,21 +16,10 @@
         ]
     },
     {
-        "name": "Queen's Necklance",
+        "name": "Queen's Necklace",
         "level": 30,
         "stats": [20, 20, 20, 20, 20],
-        "resistances": [
-            1,
-            3,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            0,
-            0
-        ],
+        "resistances": [1, 3, 1, 1, 1, 1, 1, 1, 0, 0],
         "moves": [
             "Tarukaja",
             "Rakukaja",
@@ -56,25 +34,8 @@
     {
         "name": "Stone of Scone",
         "level": 40,
-        "stats": [
-            30,
-            30,
-            30,
-            30,
-            30
-        ],
-        "resistances": [
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            3
-        ],
+        "stats": [30, 30, 30, 30, 30],
+        "resistances": [0, 0, 0, 0, 0, 0, 0, 0, 0, 3],
         "moves": [
             "Agilao",
             "Bufula",
@@ -85,29 +46,13 @@
             "Eiga",
             "Kouga"
         ]
+
     },
     {
         "name": "Koh-i-Noor",
         "level": 50,
-        "stats": [
-            40,
-            40,
-            40,
-            40,
-            40
-        ],
-        "resistances": [
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            0,
-            0
-        ],
+        "stats": [40, 40, 40, 40, 40],
+        "resistances": [1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
         "moves": [
             "Dodge Fire",
             "Dodge Ice",
@@ -122,25 +67,8 @@
     {
         "name": "Orlov",
         "level": 60,
-        "stats": [
-            50,
-            50,
-            50,
-            50,
-            50
-        ],
-        "resistances": [
-            1,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0
-        ],
+        "stats": [50, 50, 50, 50, 50],
+        "resistances": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         "moves": [
             "Maragion",
             "Mabufula",
@@ -155,25 +83,8 @@
     {
         "name": "Talisman of Charlemagne",
         "level": 70,
-        "stats": [
-            60,
-            60,
-            60,
-            60,
-            60
-        ],
-        "resistances": [
-            1,
-            0,
-            2,
-            5,
-            5,
-            5,
-            5,
-            5,
-            0,
-            0
-        ],
+        "stats": [60, 60, 60, 60, 60],
+        "resistances": [1, 0, 2, 5, 5, 5, 5, 5, 0, 0],
         "moves": [
             "Agidyne",
             "Bufudyne",
@@ -188,25 +99,8 @@
     {
         "name": "Hope Diamond",
         "level": 80,
-        "stats": [
-            70,
-            70,
-            70,
-            70,
-            70
-        ],
-        "resistances": [
-            1,
-            0,
-            4,
-            4,
-            4,
-            2,
-            4,
-            4,
-            0,
-            0
-        ],
+        "stats": [70, 70, 70, 70, 70],
+        "resistances": [1, 0, 4, 4, 4, 2, 4, 4, 0, 0],
         "moves": [
             "Attack Master",
             "Defense Master",
@@ -221,25 +115,8 @@
     {
         "name": "Crystal Skull",
         "level": 90,
-        "stats": [
-            80,
-            80,
-            80,
-            80,
-            80
-        ],
-        "resistances": [
-            1,
-            0,
-            4,
-            4,
-            4,
-            4,
-            4,
-            4,
-            4,
-            4
-        ],
+        "stats": [80, 80, 80, 80, 80],
+        "resistances": [1, 0, 4, 4, 4, 4, 4, 4, 4, 4],
         "moves": [
             "Maragidyne",
             "Mabufudyne",

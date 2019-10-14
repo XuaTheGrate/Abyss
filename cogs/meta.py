@@ -12,6 +12,7 @@ from discord.ext import commands
 
 from .utils import weather
 from .utils.formats import silence_std
+from .utils.paginators import EmbedPaginator, PaginationHandler
 
 NL = '\n'
 R = re.compile(r"Description:\s+(.+)$")
@@ -19,6 +20,21 @@ R = re.compile(r"Description:\s+(.+)$")
 
 class Meta(commands.Cog):
     proc = psutil.Process()
+    bucket = commands.CooldownMapping.from_cooldown(1, 3600, commands.BucketType.default)
+    _changelog = None
+
+    def update_changelog(self):
+        with open("changelog") as f:
+            ch = f.read()
+        pages = ch.split('-'*20+'\n')
+        if not self._changelog:
+            self._changelog = []
+        self._changelog.clear()
+        for page in pages:
+            embed = discord.Embed(title=re.findall(r'^\*\*(v\d\.\d\.\d(?: Alpha)?)\*\*$', page, flags=re.M)[0])
+            embed.description = '\n'.join(l.lstrip('* ') for l in page.split('\n')[1:])
+            embed.colour = discord.Colour.greyple()
+            self._changelog.append(embed)
 
     @commands.command()
     async def support(self, ctx):
@@ -29,6 +45,24 @@ class Meta(commands.Cog):
     async def invite(self, ctx):
         """Sends a discord url to invite me to your server."""
         await ctx.send('<'+discord.utils.oauth_url(ctx.me.id)+'>')
+
+    @commands.command(aliases=['vote'])
+    async def dbl(self, ctx):
+        """Sends the DBL link to my page."""
+        await ctx.send('https://top.gg/bot/574442175534989322')
+
+    @commands.command()
+    @commands.cooldown(1, 5)
+    async def changelog(self, ctx):
+        """Views recent updates, fixes and additions."""
+        rl = self.bucket.update_rate_limit(ctx.message)
+        if not rl:
+            self.update_changelog()
+        assert self._changelog
+        pg = EmbedPaginator()
+        for p in self._changelog:
+            pg.add_page(p)
+        await PaginationHandler(ctx.bot, pg, send_as='embed').start(ctx)
 
     @commands.command()
     async def ping(self, ctx):

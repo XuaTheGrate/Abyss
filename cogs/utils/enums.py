@@ -67,12 +67,12 @@ class StatModifier(Enum):
 
 
 class ResistanceModifier(Enum):
-    IMMUNE = 0
-    RESIST = 1
-    NORMAL = 2
-    WEAK = 3
-    REFLECT = 4
-    ABSORB = 5
+    IMMUNE = 0   # n
+    RESIST = 1   # s
+    NORMAL = 2   # -
+    WEAK = 3     # w
+    REFLECT = 4  # r
+    ABSORB = 5   # d
 
 
 class AilmentType(Enum):

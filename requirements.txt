@@ -5,7 +5,8 @@ psutil
 motor
 aioredis
 dpy-ui
-Pillow
+Pillow ; sys_platform == 'linux'
+Pillow --global-option="build_ext" --global-option="--disable-zlib" --global-option="--disable-jpeg" ; sys_platform == 'windows'
 contextvars ; python_version < '3.7'
 numpy
 youtube_dl

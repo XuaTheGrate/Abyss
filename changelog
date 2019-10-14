@@ -1,0 +1,27 @@
+**v0.1.2 Alpha**
+* Fixed spelling error in Queen's Neckla(n)ce
+* Added changelog sheet
+* Added changelog command to view recent updates
+* Possibly fixed weather system randomly raising errors
+* Fixed all demons type resistances
+* Added status screen so you can view an overview of the enemy during battle
+* Dropped support for 3.6, 3.7 in favour of 3.8
+* Increased tutorial timeout
+* Added extra new lines for mobile user clarity
+* Remove presence change from on_ready due to random breaks
+* Added DBL cog task for internal use
+* Added DBL command to go to my page
+--------------------
+**v0.1.1 Alpha**
+* added foul breath and stagnant air to invalid skills
+* fixed bug where two battles could not occur at once
+* properly select a treasure demon based on the players level
+* added lots of skill cards
+* fixed bug with windows not working with $botstats
+* fixed bug with auto stat mods returning skills instead of mods
+* added temporary `Rage` ailment
+* changed base ailment message
+* fixed item pool to only select items with weight
+--------------------
+**v0.1.0 Alpha**
+* Started tracking changes
