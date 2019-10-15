@@ -2,6 +2,8 @@ import re
 from abc import ABC
 from contextlib import suppress
 
+import tabulate
+
 from . import i18n
 from .ailments import *
 from .objects import ListCycle
@@ -15,6 +17,14 @@ UNSUPPORTED_SKILLS = ['Growth 1', 'Growth 2', 'Growth 3',
                       'Amrita Shower', 'Amrita Drop',
                       'Fortify Spirit', 'Recarm', 'Samarecarm',
                       'Rebellion', 'Revolution', 'Foul Breath', 'Stagnant Air']
+
+
+FAKE_ENEMY_DATA = {
+    "user_id": 0,
+    "enemy": "replace me",
+    "resistances": [-1 for a in range(10)],
+    "moves": []
+}
 
 
 class Enemy(Player):
@@ -124,7 +134,7 @@ def confirm_not_dead(battle):
 
 
 class TargetSession(ui.Session, ABC):
-    def __init__(self, *targets, target):
+    def __init__(self, *targets, target='enemy'):
         super().__init__(timeout=180)
         if target in ('enemy', 'ally'):
             self.targets = {f"{c + 1}\u20e3": targets[c] for c in range(len(targets))}
@@ -183,7 +193,7 @@ class TargetSession(ui.Session, ABC):
         await self.stop()
 
 
-class InitialSession(ui.Session):
+class InitialSession(ui.Session, ABC):
     def __init__(self, battle, player):
         super().__init__(timeout=180)
         # log.debug("initial session init")
@@ -360,7 +370,56 @@ For more information regarding battles, see `$faq battle`.""")
 
     @ui.button("\N{INFORMATION SOURCE}")
     async def status(self, __):
-        pass
+        """
+$dev eval discord.Embed(title='[Wild] Arsene ● Lv. 1',
+ colour=discord.Colour.greyple(), description='546 Max HP ● 216 Max SP').add_field(name='Resistances', value='''
+**Normal**: :fire~1::almighty:
+**Resists**: :phys::nuke:
+**Weak**: :gun~1::psy:
+**Immune**: :ice::curse:
+**Repel**: :wind::bless:
+**Absorb**: :elec:''').add_field(name='Stats', value='''
+:crossed_swords: **Strength** 5
+:sparkles: **Magic** 5
+:shield: **Endurance** 5
+:runner: **Agility** 5
+:four_leaf_clover: **Luck** 5''').add_field(name='Moves', value='''```
+Lunge | Lunge
+Lunge | Lunge
+ ???  | Lunge
+Lunge | Lunge```''', inline=False)
+        """
+        s = TargetSession(*self.enemies)
+        await s.start(self.context)
+        target = s.result
+        if target == 'cancel':
+            return
+        target = target[0]
+        p = discord.Embed(title=f'[Wild] {target.name} ● Lv. {target.level_}')
+        p.colour = discord.Colour.greyple()
+        p.description = f'{target.max_hp} Max HP ● {target.max_sp} Max SP'
+        res_data = await self.context.bot.db.abyss.demonresearch.find_one({"user_id": self.player.owner.id, "enemy": target.name})
+        if not res_data:
+            res_data = FAKE_ENEMY_DATA.copy()
+            res_data['enemy'] = target.name
+        fdata = {}
+        for res, val in zip(SkillType, res_data['resistances']):
+            if val != -1:
+                mod = ResistanceModifier(val)
+                fdata.setdefault(mod.name.title(), []).append(lookups.TYPE_TO_EMOJI[res.name.lower()])
+        p.add_field(name='Resistances', value='\n'.join(f'**{k}**: {"".join(map(str, v))}' for k, v in fdata.items()) or '???')
+        p.add_field(name='Stats', value=f'''\N{CROSSED SWORDS} **Strength** {target.strength}
+\N{SPARKLES} **Magic** {target.magic}
+\N{SHIELD} **Endurance** {target.endurance}
+\N{FOUR LEAF CLOVER} **Luck** {target.luck}
+\N{RUNNER} **Agility** {target.agility}''')
+        s = res_data['moves']
+        while len(s) != 8:
+            s.append('???')
+        skills = tabulate.tabulate([s[x:x+2] for x in range(0, 8, 2)], tablefmt='presto')
+        p.add_field(name='Moves', value=f'```\n{skills}\n```', inline=False)
+        p.set_footer(text="Reaction control is still enabled, click \N{HOUSE BUILDING} to go back.")
+        await self.message.edit(content="", embed=p)
 
     @ui.button("\N{RUNNER}")
     async def escape(self, _):
@@ -375,7 +434,8 @@ For more information regarding battles, see `$faq battle`.""")
         await self.message.edit(content=f"""{self.header}
 
 \N{CROSSED SWORDS} Fight
-\N{INFORMATION SOURCE} Help
+\N{BLACK QUESTION MARK ORNAMENT} Help
+\N{INFORMATION SOURCE} Overview
 \N{RUNNER} Escape""", embed=None)
 
 
@@ -546,6 +606,28 @@ class WildBattle:
                     break  # no point hitting the dead
                 await asyncio.sleep(1.1)
                 res = target.take_damage(player, skill, enforce_crit=force_crit)
+
+                # before we do any message stuff, we have to update the db
+                # especially if the result is a miss, itll just return instantly
+
+                if skill.type.value <= 10:
+                    bot = self.ctx.bot
+                    data = await bot.db.abyss.demonresearch.find_one({"user_id": player.owner.id, "enemy": target.name})
+                    if data:
+                        await bot.db.abyss.demonresearch.update_one({'_id': data['_id']}, {
+                            "$set": {
+                                f"resistances.{skill.type.value-1}": res.resistance.value
+                            }})
+                    else:
+                        ress = [-1 for a in range(10)]
+                        ress[skill.type.value-1] = res.resistance.value
+                        await bot.db.abyss.demonresearch.insert_one({
+                            "user_id": player.owner.id,
+                            "enemy": target.name,
+                            "resistances": ress,
+                            "moves": []
+                        })
+
                 if res.miss:
                     # the first hit was a miss, so just break
                     # the back door is explained in utils/player.py#L526
@@ -605,10 +687,45 @@ class WildBattle:
             return [*self.players] + [e for e in self.enemies if not e.is_fainted()]
 
     async def handle_enemy_choices(self, enemy):
+        """
+        mongodb.demonresearch.find_one({"enemy": enemy name, "user_id": player id})
+        {
+            "_id": ...,
+            "enemy": "enemy name",
+            "user_id": player id,
+            "resistances": [
+                -1,  # unknown
+                0,   # null
+                1,   # resist
+                2,   # normal
+                3,   # weak
+                4,   # repel
+                5,   # absorb
+                -1,
+                -1,
+                -1
+            ],
+            "moves": []  # append moves as learnt
+        }
+        """
         if not self.double_turn:
             await enemy.pre_turn_async(self)
         self.double_turn = False
         skill = enemy.random_move()
+        if skill.name not in ('Attack', 'Guard'):
+            bot = self.ctx.bot  # no need to keep these
+            for p in self.players:
+                data = await bot.db.abyss.demonresearch.find_one({"user_id": p.owner.id, "enemy": enemy.name})
+                if data:
+                    await bot.db.abyss.demonresearch.update_one({"_id": data['_id']},
+                                                                {"$addToSet": {"moves": skill.name}})
+                else:
+                    await bot.db.abyss.demonresearch.insert_one({
+                        "user_id": p.owner.id,
+                        "enemy": enemy.name,
+                        "resistances": [-1 for _z in range(10)],
+                        "moves": [skill.name]
+                    })
         if skill.name in UNSUPPORTED_SKILLS:
             await self.ctx.send(f"{enemy} used an unhandled skill ({skill.name}), skipping")
             return

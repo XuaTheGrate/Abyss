@@ -251,7 +251,7 @@ class HealingSkill(Skill):
         for t in targets:
             heal = random.uniform(min, max)
             t.hp = -heal  # it gets rounded anyways
-            await battle.ctx.send(f"> __{t}__ was healed for {heal} HP!")
+            await battle.ctx.send(f"> __{t}__ was healed for {heal:.0f} HP!")
 
 
 class Salvation(HealingSkill):

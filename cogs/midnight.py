@@ -20,6 +20,10 @@ class Bullshit(commands.Cog):
     async def midnight_helper(self):
         self.bot.log.info("we reached midnight")
         await self.bot.prepared.wait()
+        for p in self.bot.players.players.values():
+            p._sp_used = 0
+        if self.bot.cluster_name != 'Alpha':
+            return
         cur = None
         keys = set()
         while cur != 0:
