@@ -14,7 +14,7 @@ from cogs.utils.objects import CaseInsensitiveDict
 from cogs.utils.paginators import EmbedPaginator, PaginationHandler
 from .utils import (
     lookups,
-    # imaging,
+    imaging,
     items
 )
 from .utils.enums import SkillType
