@@ -12,7 +12,11 @@ from discord.ext import commands, ui
 from cogs.utils.formats import ensure_player
 from cogs.utils.objects import CaseInsensitiveDict
 from cogs.utils.paginators import EmbedPaginator, PaginationHandler
-from .utils import lookups, imaging, items
+from .utils import (
+    lookups,
+    # imaging,
+    items
+)
 from .utils.enums import SkillType
 from .utils.player import Player
 from .utils.skills import Skill, GenericAttack, Guard
@@ -365,7 +369,7 @@ class Players(commands.Cog):
         await self.bot.db.abyss.accounts.delete_one({"owner": ctx.author.id})
         await ctx.send(self.bot.tick_yes)
 
-    @commands.command(hidden=True)
+    @commands.command()
     @ensure_player
     @commands.cooldown(1, 120, commands.BucketType.user)
     async def profile(self, ctx):
