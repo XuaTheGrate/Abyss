@@ -17,7 +17,7 @@ class DBLCrap(commands.Cog, name="DBL"):
     async def tasker(self):
         await self.bot.wait_until_ready()
         while await asyncio.sleep(86400, True):
-            async with self.bot.session.post(f"https://top.gg/bots/{self.bot.user.id}/stats",
+            async with self.bot.session.post(f"https://top.gg/api/bots/{self.bot.user.id}/stats",
                                              data={"server_count": f"{len(self.bot.guilds)}"},
                                              headers={"Authorization": config.DBL_KEY}) as p:
                 if 200 <= p.status < 400:  # OK
