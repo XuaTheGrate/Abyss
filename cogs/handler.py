@@ -56,7 +56,7 @@ class ErrorHandler(commands.Cog):
         if isinstance(exc, commands.CommandInvokeError):
             ctx.command.reset_cooldown(ctx)
             exc = exc.original
-            await ctx.send("An internal error occured.")
+            await ctx.send("An error occured during the execution of this command and has been reported.")
             self.bot.send_error(f""">>> Error during execution of command
 `{ctx.message.clean_content}`
 User: {ctx.author}

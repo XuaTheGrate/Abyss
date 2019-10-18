@@ -1,134 +1,57 @@
 [
     {"skill": "Agi"},
     {"skill": "Bufu"},
-    {
-        "skill": "Zio"
-    },
+    {"skill": "Zio"},
     {"skill": "Garu"},
     {"skill": "Frei"},
     {"skill": "Psi"},
     {"skill": "Eiha"},
     {"skill": "Kouha"},
-    {
-        "skill": "Maragi"
-    },
-    {
-        "skill": "Mabufu"
-    },
-    {
-        "skill": "Mazio"
-    },
-    {
-        "skill": "Magaru"
-    },
-    {
-        "skill": "Mafrei"
-    },
-    {
-        "skill": "Mapsi"
-    },
-    {
-        "skill": "Maeiha"
-    },
-    {
-        "skill": "Makouha"
-    },
-    {
-        "skill": "Agilao"
-    },
-    {
-        "skill": "Bufula"
-    },
-    {
-        "skill": "Zionga"
-    },
-    {
-        "skill": "Garula"
-    },
-    {
-        "skill": "Freila"
-    },
-    {
-        "skill": "Psio"
-    },
-    {
-        "skill": "Eiga"
-    },
-    {
-        "skill": "Kouga"
-    },
-    {
-        "skill": "Maragion"
-    },
-    {
-        "skill": "Mabufula"
-    },
-    {
-        "skill": "Mazionga"
-    },
-    {
-        "skill": "Magarula"
-    },
-    {
-        "skill": "Mafreila"
-    },
-    {
-        "skill": "Mapsio"
-    },
-    {
-        "skill": "Maeiga"
-    },
-    {
-        "skill": "Makouga"
-    },
-    {
-        "skill": "Agidyne"
-    },
-    {
-        "skill": "Bufudyne"
-    },
-    {
-        "skill": "Ziodyne"
-    },
-    {
-        "skill": "Garudyne"
-    },
-    {
-        "skill": "Freidyne"
-    },
-    {
-        "skill": "Psiodyne"
-    },
-    {
-        "skill": "Eigaon"
-    },
-    {
-        "skill": "Kougaon"
-    },
-    {
-        "skill": "Maragidyne"
-    },
-    {
-        "skill": "Mabufudyne"
-    },
-    {
-        "skill": "Maziodyne"
-    },
-    {
-        "skill": "Magarudyne"
-    },
-    {
-        "skill": "Mafreidyne"
-    },
-    {
-        "skill": "Mapsiodyne"
-    },
-    {
-        "skill": "Maeigaon"
-    },
-    {
-        "skill": "Makougaon"
-    },
+
+    {"skill": "Maragi"},
+    {"skill": "Mabufu"},
+    {"skill": "Mazio"},
+    {"skill": "Magaru"},
+    {"skill": "Mafrei"},
+    {"skill": "Mapsi"},
+    {"skill": "Maeiha"},
+    {"skill": "Makouha"},
+
+    {"skill": "Agilao"},
+    {"skill": "Bufula"},
+    {"skill": "Zionga"},
+    {"skill": "Garula"},
+    {"skill": "Freila"},
+    {"skill": "Psio"},
+    {"skill": "Eiga"},
+    {"skill": "Kouga"},
+
+    {"skill": "Maragion"},
+    {"skill": "Mabufula"},
+    {"skill": "Mazionga"},
+    {"skill": "Magarula"},
+    {"skill": "Mafreila"},
+    {"skill": "Mapsio"},
+    {"skill": "Maeiga"},
+    {"skill": "Makouga"},
+
+    {"skill": "Agidyne"},
+    {"skill": "Bufudyne"},
+    {"skill": "Ziodyne"},
+    {"skill": "Garudyne"},
+    {"skill": "Freidyne"},
+    {"skill": "Psiodyne"},
+    {"skill": "Eigaon"},
+    {"skill": "Kougaon"},
+
+    {"skill": "Maragidyne"},
+    {"skill": "Mabufudyne"},
+    {"skill": "Maziodyne"},
+    {"skill": "Magarudyne"},
+    {"skill": "Mafreidyne"},
+    {"skill": "Mapsiodyne"},
+    {"skill": "Maeigaon"},
+    {"skill": "Makougaon"},
 
     {"skill": "Lunge"},
     {"skill": "Single Shot"},
@@ -136,32 +59,16 @@
     {"skill": "Tarukaja"},
     {"skill": "Rakukaja"},
     {"skill": "Sukukaja"},
-    {
-        "skill": "Tarunda"
-    },
-    {
-        "skill": "Rakunda"
-    },
-    {
-        "skill": "Sukunda"
-    },
-    {
-        "skill": "Attack Master"
-    },
-    {
-        "skill": "Defense Master"
-    },
-    {
-        "skill": "Speed Master"
-    },
+    {"skill": "Tarunda"},
+    {"skill": "Rakunda"},
+    {"skill": "Sukunda"},
+    {"skill": "Attack Master"},
+    {"skill": "Defense Master"},
+    {"skill": "Speed Master"},
 
     {"skill": "Dia"},
-    {
-        "skill": "Media"
-    },
-    {
-        "skill": "Recarm"
-    },
+    {"skill": "Media"},
+    {"skill": "Recarm"},
 
     {"skill": "Dormina"},
 
@@ -173,46 +80,23 @@
     {"skill": "Dodge Nuke"},
     {"skill": "Dodge Psy"},
     {"skill": "Dodge Bless"},
-    {
-        "skill": "Dodge Curse"
-    },
-    {
-        "skill": "Endure"
-    },
-    {
-        "skill": "Enduring Soul"
-    },
-    {
-        "skill": "Regenerate 1"
-    },
-    {
-        "skill": "Regenerate 2"
-    },
-    {
-        "skill": "Regenerate 3"
-    },
-    {
-        "skill": "Invigorate 1"
-    },
-    {
-        "skill": "Invigorate 2"
-    },
-    {
-        "skill": "Invigorate 3"
-    },
-    {
-        "skill": "Counter"
-    },
-    {
-        "skill": "Counterstrike"
-    },
-    {
-        "skill": "High Counter"
-    },
-    {
-        "skill": "Fast Heal"
-    },
-    {
-        "skill": "Insta-Heal"
-    }
+    {"skill": "Dodge Curse"},
+
+    {"skill": "Endure"},
+    {"skill": "Enduring Soul"},
+
+    {"skill": "Regenerate 1"},
+    {"skill": "Regenerate 2"},
+    {"skill": "Regenerate 3"},
+
+    {"skill": "Invigorate 1"},
+    {"skill": "Invigorate 2"},
+    {"skill": "Invigorate 3"},
+
+    {"skill": "Counter"},
+    {"skill": "Counterstrike"},
+    {"skill": "High Counter"},
+
+    {"skill": "Fast Heal"},
+    {"skill": "Insta-Heal"}
 ]

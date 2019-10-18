@@ -19,9 +19,10 @@ R = re.compile(r"Description:\s+(.+)$")
 
 
 class Meta(commands.Cog):
-    proc = psutil.Process()
-    bucket = commands.CooldownMapping.from_cooldown(1, 3600, commands.BucketType.default)
-    _changelog = None
+    def __init__(self):
+        self.proc = psutil.Process()
+        self.bucket = commands.CooldownMapping.from_cooldown(1, 3600, commands.BucketType.default)
+        self._changelog = None
 
     def update_changelog(self):
         with open("changelog") as f:
@@ -33,7 +34,6 @@ class Meta(commands.Cog):
         for page in pages:
             embed = discord.Embed(title=re.findall(r'^\*\*(v\d\.\d\.\d(?: Alpha)?)\*\*$', page, flags=re.M)[0])
             embed.description = '\n'.join(l.lstrip('* ') for l in page.split('\n')[1:])
-            embed.colour = discord.Colour.greyple()
             self._changelog.append(embed)
 
     @commands.command()
@@ -133,7 +133,7 @@ Created by {', '.join(str(ctx.bot.get_user(u)) for u in ctx.bot.config.OWNERS)}"
 {len(set(ctx.bot.get_all_members()))} Members
 {len(list(ctx.bot.get_all_channels()))} Channels
 > **Abyss**
-{len(ctx.bot.players.players)}/20 players loaded
+{len(ctx.bot.players.players)} players loaded
 {player_count} total players
 {len(ctx.bot.players.skill_cache)} skills
 {len(ctx.bot.get_cog("BattleSystem").battles)} on-going battles

@@ -9,6 +9,7 @@ import re
 import textwrap
 import time
 from pprint import pformat
+from typing import Union
 
 import discord
 import import_expression
@@ -322,6 +323,42 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         await ctx.message.add_reaction(self.bot.tick_yes)
         await self.bot.logout()
 
+    @dev.command(name='try')
+    async def try_(self, ctx, *, command):
+        nmsg = copy.copy(ctx.message)
+        nmsg.content = ctx.prefix+command
+        nctx = await self.bot.get_context(nmsg)
+        try:
+            await self.bot.invoke(nctx)
+        except Exception as e:
+            await ctx.send_as_paginator(format_exc(e), codeblock=True)
+
+    @dev.command(name='as')
+    async def as_(self, ctx, user: Union[discord.Member, discord.User], *, command):
+        nmsg = copy.copy(ctx.message)
+        nmsg.author = user
+        nmsg.content = ctx.prefix+command
+        nctx = await self.bot.get_context(nmsg)
+        await self.bot.invoke(nctx)
+
+    @dev.command(name='in')
+    async def in_(self, ctx, channel: discord.TextChannel, *, command):
+        nmsg = copy.copy(ctx.message)
+        nmsg.channel = channel
+        nmsg.content = ctx.prefix+command
+        nctx = await self.bot.get_context(nmsg)
+        await self.bot.invoke(nctx)
+
+    @dev.command()
+    async def at(self, ctx, guild_id: int, *, command):
+        if not (g := self.bot.get_guild(guild_id)):
+            return await ctx.send('no guild found')
+        nmsg = copy.copy(ctx.message)
+        nmsg.guild = g
+        nmsg.content = ctx.prefix+command
+        nctx = await self.bot.get_context(nmsg)
+        await self.bot.invoke(nctx)
+
     @dev.command()
     async def timeit(self, ctx, *, command):
         nmsg = copy.copy(ctx.message)
@@ -416,7 +453,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         await PaginationHandler(self.bot, pg, no_help=True).start(ctx)
 
     @dev.command()
-    async def giveitem(self, ctx, user: discord.Member, item, count=1):
+    async def giveitem(self, ctx, user: Union[discord.Member, discord.User], item, count=1):
         if user.id not in self.bot.players.players:
             return await ctx.send("User has no (cached) player.")
         player = self.bot.players.players[user.id]
@@ -425,6 +462,18 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
             return await ctx.send("No item found.")
         for a in range(count):
             player.inventory.add_item(item)
+        await ctx.send(self.bot.tick_yes)
+
+    @dev.command()
+    async def removeitem(self, ctx, user: Union[discord.Member, discord.User], item, count=1):
+        if user.id not in self.bot.players.players:
+            return await ctx.send('User has no (cached) player.')
+        player = self.bot.players.players[user.id]
+        item = self.bot.item_cache.get_item(item)
+        if not item:
+            return await ctx.send('No item found.')
+        for a in range(count):
+            player.inventory.remove_item(item)
         await ctx.send(self.bot.tick_yes)
 
     @dev.command()

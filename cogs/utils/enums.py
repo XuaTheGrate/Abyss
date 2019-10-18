@@ -118,3 +118,5 @@ class ItemType(Enum):
     MATERIAL = 2
     SKILL_CARD = 3
     EQUIPABLE = 4
+    UTILITY = 5
+    KEY = 6

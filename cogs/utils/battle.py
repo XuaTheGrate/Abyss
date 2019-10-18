@@ -1,8 +1,4 @@
-import re
-from abc import ABC
-from contextlib import suppress
-
-import tabulate
+import discord
 
 from . import i18n
 from .ailments import *
@@ -10,6 +6,7 @@ from .objects import ListCycle
 from .player import Player
 from .scripts import do_script
 from .skills import *
+from .targetting import *
 
 NL = '\n'
 
@@ -17,14 +14,6 @@ UNSUPPORTED_SKILLS = ['Growth 1', 'Growth 2', 'Growth 3',
                       'Amrita Shower', 'Amrita Drop',
                       'Fortify Spirit', 'Recarm', 'Samarecarm',
                       'Rebellion', 'Revolution', 'Foul Breath', 'Stagnant Air']
-
-
-FAKE_ENEMY_DATA = {
-    "user_id": 0,
-    "enemy": "replace me",
-    "resistances": [-1 for a in range(10)],
-    "moves": []
-}
 
 
 class Enemy(Player):
@@ -118,12 +107,6 @@ class BattleResult:
                 f"{self.exp_gained} EXP earned>")
 
 
-import discord
-from discord.ext import ui
-
-from . import lookups
-
-
 # exp = ceil(level ** 3 / uniform(1, 3))
 
 
@@ -131,313 +114,6 @@ def confirm_not_dead(battle):
     if all(p.is_fainted() for p in battle.players):
         return False
     return not all(e.is_fainted() for e in battle.enemies)
-
-
-class TargetSession(ui.Session, ABC):
-    def __init__(self, *targets, target='enemy'):
-        super().__init__(timeout=180)
-        if target in ('enemy', 'ally'):
-            self.targets = {f"{c + 1}\u20e3": targets[c] for c in range(len(targets))}
-            for e in self.targets.keys():
-                # log.debug(f"added button for {self.enemies[e]}")
-                self.add_button(self.button_enemy, e)
-        elif target in ('enemies', 'self', 'allies'):
-            self.targets = targets
-            self.add_button(self.target_enemies, '<:tickYes:568613200728293435>')
-        else:
-            raise RuntimeError("unhandled target")
-        self.result = None
-        self.target = target
-
-    async def send_initial_message(self, dm=False):
-        if self.target == 'enemy':
-            c = ["**Pick a target!**\n"]
-            # noinspection PyUnresolvedReferences
-            c.extend([f"{a} {b.name}" for a, b in self.targets.items()])
-            # log.debug("target session initial message")
-            return await self.context.send(NL.join(c))
-        elif self.target == 'enemies':
-            c = ["**Targets all enemies**\n"]
-            c.extend([str(e) for e in self.targets])
-            return await self.context.send(NL.join(c))
-        elif self.target == 'self':
-            return await self.context.send("**You can only use this skill on yourself**")
-        elif self.target == 'allies':
-            c = ["**Targets all allies**\n"]
-            c.extend([str(e) for e in self.targets])
-            return await self.context.send(NL.join(c))
-        elif self.target == 'ally':
-            c = ["**Choose an ally!**\n"]
-            c.extend([str(e) for e in self.targets])
-            return await self.context.send(NL.join(c))
-
-    async def stop(self):
-        with suppress(discord.HTTPException, AttributeError):
-            await self.message.delete()
-        # log.debug("le stop()")
-        await super().stop()
-
-    @ui.button("<:tickNo:568613146152009768>")
-    async def cancel(self, _):
-        self.result = 'cancel'
-        await self.stop()
-
-    async def button_enemy(self, payload):
-        # log.debug("le button")
-        # noinspection PyTypeChecker
-        self.result = (self.targets[str(payload.emoji)],)
-        await self.stop()
-
-    async def target_enemies(self, _):
-        self.result = self.targets
-        await self.stop()
-
-
-class InitialSession(ui.Session, ABC):
-    def __init__(self, battle, player):
-        super().__init__(timeout=180)
-        # log.debug("initial session init")
-        self.battle = battle
-        self.player = player
-        self.enemies = battle.enemies
-        self.bot = battle.ctx.bot
-        self.result = None  # dict, {"type": "fight/run", data: [whatever is necessary]}
-        self.add_command(self.select_skill, "(" + "|".join(map(str, filter(
-            lambda s: s.type is not SkillType.PASSIVE, self.player.skills))) + ")")
-
-    async def stop(self):
-        # log.debug("initialsession stop()")
-        with suppress(discord.HTTPException, AttributeError):
-            await self.message.delete()
-        await super().stop()
-
-    async def start(self, ctx, *, dm=False):
-        self.context = ctx
-
-        self.message = await self.send_initial_message(dm)
-        # `self.context` is replaced inside `send_initial_message` if `dm is True`
-        # however, an initial context is required to re-get the context
-        # so we always use a base context first, then use the updated one down the road
-
-        if self.allowed_users is None:
-            self.allowed_users = {ctx.author.id}
-
-        await self._prepare()
-        # log.debug("after prepare")
-
-        try:
-            # log.debug("before loop")
-            await self._Session__loop()  # @ikusaba-san pls
-            # log.debug("after loop")
-        finally:
-            await self._cleanup()
-            # log.debug("_cleanup")
-
-    async def select_target(self, target):
-        # log.debug("initialsession target selector")
-        if target in ('enemy', 'enemies'):
-            menu = TargetSession(*[e for e in self.enemies if not e.is_fainted()], target=target)
-        elif target == 'self':
-            menu = TargetSession(self.player, target=target)
-        elif target in ('ally', 'allies'):
-            # this is a 1 player only battle, but for future reference this needs to return all allies
-            menu = TargetSession(self.player, target=target)
-        else:
-            raise RuntimeError
-
-        await menu.start(self.context)
-        if not menu.result:
-            # log.debug("no result")
-            return 'cancel'
-        # log.debug(f"result: {menu.result!r}")
-        return menu.result
-
-    async def select_skill(self, _, skill):
-        obj = self.bot.players.skill_cache[skill.title()]
-        if skill.lower() == 'guard':
-            self.result = {"type": "fight", "data": {"skill": obj}}
-            return await self.stop()
-        if (target := await self.select_target(obj.target)) != 'cancel':
-            self.result = {"type": "fight", "data": {"skill": obj, "targets": target}}
-            # log.debug(f"select skill: {self.result}")
-            await self.stop()
-
-    async def handle_timeout(self):
-        self.result = {"type": "run", "data": {"timeout": True}}
-        # log.debug("timeout")
-        await self.stop()
-
-    async def on_message(self, message):
-        if message.channel.id != self.message.channel.id:
-            return
-
-        if message.author.id not in self.allowed_users:
-            return
-
-        for pattern, command in self.__ui_commands__.items():
-            match = re.fullmatch(pattern, message.content, flags=re.IGNORECASE)
-            if not match:
-                continue
-            # log.debug("callback found for message")
-            callback = command.__get__(self, self.__class__)
-            await self._queue.put((callback, message, *match.groups()))
-            break
-
-    @property
-    def header(self):
-        return f"""(Turn {self.battle.turn_cycle})
-{NL.join(e.header() for e in self.battle.players)}
-VS
-{NL.join(e.header() for e in self.enemies)}
-
-{self.player.hp}/{self.player.max_hp} HP
-{self.player.sp}/{self.player.max_sp} SP"""
-
-    def get_home_content(self):
-        return _(f"""{self.header}
-
-\N{CROSSED SWORDS} Fight
-\N{BLACK QUESTION MARK ORNAMENT} Help
-\N{INFORMATION SOURCE} Overview
-\N{RUNNER} Escape
-""")
-
-    async def send_initial_message(self, dm=False):
-        # log.debug("sent initial message")
-        if not dm:
-            m = await self.context.send(self.get_home_content())
-            # log.debug(f"sent non-dm message {m!r}")
-            return m
-        else:
-            m = await self.player.owner.send(self.get_home_content())
-            old_ctx = self.context
-            self.context = await self.context.bot.get_context(m)
-            # log.debug(f"changed context and sent dm message {m!r} {old_ctx!r} {self.context!r} {old_ctx is self.context}")
-            return m
-
-    @ui.button('\N{CROSSED SWORDS}')
-    async def fight(self, __):
-        # log.debug("fight() called")
-        skills = []
-        for skill in self.player.skills:
-            if skill.type is SkillType.PASSIVE:
-                continue
-            e = lookups.TYPE_TO_EMOJI[skill.type.name.lower()]
-            if skill.uses_sp:
-                cost = skill.cost
-                if any(s.name == 'Spell Master' for s in self.player.skills):
-                    cost /= 2
-                can_use = self.player.sp >= cost
-                if skill.name != 'Guard' and self.player.ailment and self.player.ailment.type is AilmentType.FORGET:
-                    can_use = False
-                t = 'SP'
-            else:
-                if skill.cost != 0:
-                    cost = self.player.max_hp * (skill.cost / 100)
-                    if any(s.name == 'Arms Master' for s in self.player.skills):
-                        cost /= 2
-                else:
-                    cost = 0
-                can_use = self.player.max_hp > cost
-                if skill.name != 'Attack' and self.player.ailment and self.player.ailment.type is AilmentType.FORGET:
-                    can_use = False
-                t = 'HP'
-            if can_use:
-                skills.append(f"{e} {skill} ({cost:.0f} {t})")
-            else:
-                skills.append(f"{e} ~~{skill} ({cost:.0f} {t})~~")
-
-        await self.message.edit(content=_(
-            f"{self.header}\n\n{NL.join(skills)}\n\n> Use \N{HOUSE BUILDING} to go back"), embed=None)
-
-    async def _cleanup(self):
-        # log.debug("_cleanup was called???")
-        await super()._cleanup()
-
-    @ui.button("\N{BLACK QUESTION MARK ORNAMENT}")
-    async def help(self, __):
-        # log.debug("info() called")
-        embed = discord.Embed(title="How to: Interactive Battle")
-        embed.description = _("""Partially ported from Adventure, the battle system has been revived!
-Various buttons have been reacted for use, but move selection requires you to send a message.
-\N{CROSSED SWORDS} Brings you to the Fight menu, where you select your moves.
-\N{BLACK QUESTION MARK ORNAMENT} Shows this page.
-\N{INFORMATION SOURCE} Overviews the enemies on field.
-\N{RUNNER} Runs from the battle. Useful if you don't think you can beat this enemy.
-\N{HOUSE BUILDING} Brings you back to the home screen.
-
-For more information regarding battles, see `$faq battle`.""")
-        await self.message.edit(content="", embed=embed)
-
-    @ui.button("\N{INFORMATION SOURCE}")
-    async def status(self, __):
-        """
-$dev eval discord.Embed(title='[Wild] Arsene ● Lv. 1',
- colour=discord.Colour.greyple(), description='546 Max HP ● 216 Max SP').add_field(name='Resistances', value='''
-**Normal**: :fire~1::almighty:
-**Resists**: :phys::nuke:
-**Weak**: :gun~1::psy:
-**Immune**: :ice::curse:
-**Repel**: :wind::bless:
-**Absorb**: :elec:''').add_field(name='Stats', value='''
-:crossed_swords: **Strength** 5
-:sparkles: **Magic** 5
-:shield: **Endurance** 5
-:runner: **Agility** 5
-:four_leaf_clover: **Luck** 5''').add_field(name='Moves', value='''```
-Lunge | Lunge
-Lunge | Lunge
- ???  | Lunge
-Lunge | Lunge```''', inline=False)
-        """
-        s = TargetSession(*self.enemies)
-        await s.start(self.context)
-        target = s.result
-        if target == 'cancel':
-            return
-        target = target[0]
-        p = discord.Embed(title=f'[Wild] {target.name} ● Lv. {target.level_}')
-        p.colour = discord.Colour.greyple()
-        p.description = f'{target.max_hp} Max HP ● {target.max_sp} Max SP'
-        res_data = await self.context.bot.db.abyss.demonresearch.find_one({"user_id": self.player.owner.id, "enemy": target.name})
-        if not res_data:
-            res_data = FAKE_ENEMY_DATA.copy()
-            res_data['enemy'] = target.name
-        fdata = {}
-        for res, val in zip(SkillType, res_data['resistances']):
-            if val != -1:
-                mod = ResistanceModifier(val)
-                fdata.setdefault(mod.name.title(), []).append(lookups.TYPE_TO_EMOJI[res.name.lower()])
-        p.add_field(name='Resistances', value='\n'.join(f'**{k}**: {"".join(map(str, v))}' for k, v in fdata.items()) or '???')
-        p.add_field(name='Stats', value=f'''\N{CROSSED SWORDS} **Strength** {target.strength}
-\N{SPARKLES} **Magic** {target.magic}
-\N{SHIELD} **Endurance** {target.endurance}
-\N{FOUR LEAF CLOVER} **Luck** {target.luck}
-\N{RUNNER} **Agility** {target.agility}''')
-        s = res_data['moves']
-        while len(s) != 8:
-            s.append('???')
-        skills = tabulate.tabulate([s[x:x+2] for x in range(0, 8, 2)], tablefmt='presto')
-        p.add_field(name='Moves', value=f'```\n{skills}\n```', inline=False)
-        p.set_footer(text="Reaction control is still enabled, click \N{HOUSE BUILDING} to go back.")
-        await self.message.edit(content="", embed=p)
-
-    @ui.button("\N{RUNNER}")
-    async def escape(self, _):
-        # log.debug("escape() called")
-        chance = 75 - (max(self.enemies, key=lambda e: e.level).level - self.player.level)
-        self.result = {"type": "run", "data": {"success": random.randint(1, 100) < chance}}
-        return await self.stop()
-
-    @ui.button("\N{HOUSE BUILDING}")
-    async def ret(self, _):
-        # log.debug("ret() called")
-        await self.message.edit(content=f"""{self.header}
-
-\N{CROSSED SWORDS} Fight
-\N{BLACK QUESTION MARK ORNAMENT} Help
-\N{INFORMATION SOURCE} Overview
-\N{RUNNER} Escape""", embed=None)
 
 
 res_msgs = {
@@ -499,9 +175,15 @@ class WildBattle:
         self.double_turn = False
         self.order = ListCycle(self.order)
         self._task = self.start()
+        self.log = self.ctx.bot.log
+        self._turn_task = None
 
     def task_end(self, task):
         asyncio.ensure_future(self.post_battle_complete(), loop=self.ctx.bot.loop)
+
+    def skip_turn(self):
+        if self._turn_task:
+            self._turn_task.cancel()
 
     async def _start(self):
         await self.pre_battle_start()
@@ -529,89 +211,122 @@ class WildBattle:
             await self.menu.stop()
 
     async def handle_player_choices(self, player):
+        # self.log.debug(f"player choices begin {player!r}")
         if not self.double_turn:
+            # self.log.debug("not a double turn, run pre turn effects")
             await player.pre_turn_async(self)
         self.double_turn = False
         result = await self.get_player_choice(player)
+        # self.log.debug(f"got player choices {result!r}")
         if result is None and not self._stopping:
             self.order.decycle()  # shitty way to do it but w.e
+            # self.log.debug(f"stopping due to (result is None)({result is None}) (not self._stopping)({not self._stopping})")
             return await self.stop()
 
         if self._stopping:
+            # self.log.debug("self._stopping is True")
             return
 
         if result['type'] == 'run':
+            # self.log.debug("result['type'] == 'run'")
             if result['data'].get('timeout', False) or result['data'].get('success', True):
+                self._ran = True
                 await self.ctx.send("> You successfully ran away!")
                 await self.stop()
-                self._ran = True
+                # self.log.debug("run was successful")
             else:
                 await self.ctx.send("> You failed to escape!")
+                # self.log.debug("run was NOT successful")
             return
 
         # type must be fight
         skill = result['data']['skill']
+        # self.log.debug(f"got {skill!r} as a skill")
 
         if skill.name == "Guard":
             player.guarding = True
+            # self.log.debug("we did a guard")
             return
 
         targets = result['data']['targets']
+        # self.log.debug(f"got {targets!r} as targets")
 
         if skill.name in UNSUPPORTED_SKILLS:
             await self.ctx.send("this skill doesnt have a handler, this incident has been reported")
             self.ctx.bot.send_error(f"no skill handler for {skill}")
             self.order.decycle()
+            # self.log.debug('skill did not have a handler and was skipped')
+            self.double_turn = True
             return
 
         if skill.uses_sp:
+            # self.log.debug("skill uses sp")
             cost = skill.cost
+            # self.log.debug(f"skill.cost == {cost}")
             if any(s.name == 'Spell Master' for s in player.skills):
                 cost /= 2
+                # self.log.debug("cost was halved due to spell master")
             if player.sp < cost:
                 await self.ctx.send("You don't have enough SP for this move!")
+                # self.log.debug("not enough sp for skill, reverting turn cycle")
+                self.double_turn = True
                 return self.order.decycle()
             if skill.name != 'Guard' and player.ailment and player.ailment.type is AilmentType.FORGET:
                 await self.ctx.send("You've forgotten how to use this move!")
+                self.double_turn = True
+                # self.log.debug("user forgot skill, reverting turn cycle")
                 return self.order.decycle()
             player.sp = cost
+            # self.log.debug("subtracted cost from sp")
         else:
+            # self.log.debug("skill uses hp")
             if skill.cost != 0:
                 cost = player.max_hp * (skill.cost / 100)
+                # self.log.debug(f"cost calculated to {cost}/{skill.cost}")
                 if any(s.name == 'Arms Master' for s in player.skills):
                     cost /= 2
+                    # self.log.debug("lowering cost due to Arms Master")
             else:
                 cost = 0
+            # self.log.debug(f'skill.cost == {cost}')
             if cost > player.hp:
+                # self.log.debug("not enough hp to use skill")
                 await self.ctx.send("You don't have enough HP for this move!")
                 self.double_turn = True
                 return self.order.decycle()
             if skill.name != 'Attack' and player.ailment and player.ailment.type is AilmentType.FORGET:
                 await self.ctx.send("You've forgotten how to use this move!")
                 self.double_turn = True
+                # self.log.debug("forgot how to use skill")
                 return self.order.decycle()
             player.hp = cost
+            # self.log.debug("subtracted cost from HP")
 
         if isinstance(skill, (StatusMod, ShieldSkill, HealingSkill, Karn, Charge, AilmentSkill)):
             await self.ctx.send(f"__{player}__ used `{skill}`!")
             await skill.effect(self, targets)
+            # self.log.debug("skill is StatusMod, ShieldSkill, HealingSkill, Karn, Charge or Ailment")
             return
 
         weaked = False
         # log.debug(f'{targets}, {skill.hits}')
         for target in targets:
             force_crit = 0
+            # self.log.debug(f"attacking enemy {target!r}")
 
             for __ in range(random.randint(*skill.hits)):
+                # self.log.debug(f'hit enemy {target!r} {__} times')
                 if target.is_fainted():
+                    # self.log.debug('enemy was fainted')
                     break  # no point hitting the dead
                 await asyncio.sleep(1.1)
                 res = target.take_damage(player, skill, enforce_crit=force_crit)
-
+                # self.log.debug(f"damage result {res!r}")
                 # before we do any message stuff, we have to update the db
                 # especially if the result is a miss, itll just return instantly
 
                 if skill.type.value <= 10:
+                    # self.log.debug("skill type is CURSE or less")
                     bot = self.ctx.bot
                     data = await bot.db.abyss.demonresearch.find_one({"user_id": player.owner.id, "enemy": target.name})
                     if data:
@@ -619,6 +334,7 @@ class WildBattle:
                             "$set": {
                                 f"resistances.{skill.type.value-1}": res.resistance.value
                             }})
+                        # self.log.debug("updated existing data")
                     else:
                         ress = [-1 for a in range(10)]
                         ress[skill.type.value-1] = res.resistance.value
@@ -628,11 +344,7 @@ class WildBattle:
                             "resistances": ress,
                             "moves": []
                         })
-
-                if res.miss:
-                    # the first hit was a miss, so just break
-                    # the back door is explained in utils/player.py#L526
-                    break
+                        # self.log.debug("added new data")
 
                 # this is to ensure crits only happen IF the first hit did land a crit
                 # we use a Triboolean:
@@ -640,38 +352,55 @@ class WildBattle:
                 # 1: first hit passed, it was a crit
                 # 2: first hit passed, was not a crit
                 force_crit = 1 if res.critical else 2
+                # self.log.debug(f'forcing crit: {force_crit==1}')
                 msg = get_message(res.resistance, reflect=res.was_reflected, miss=res.miss, critical=res.critical)
                 msg = msg.format(demon=player, tdemon=target, damage=res.damage_dealt, skill=skill)
+                # self.log.debug(msg)
                 await self.ctx.send(msg)
                 if res.endured:
                     await self.ctx.send(f"> __{target}__ endured the hit!")
+                    # self.log.debug('target endured the hit via Endure or Enduring Soul')
+
+                if res.miss:
+                    # the first hit was a miss, so just break
+                    # the back door is explained in utils/player.py#L526
+                    # self.log.debug("multihit miss backdoor was closed")
+                    break
 
                 if skill.type is SkillType.PHYSICAL:
                     if target.ailment and target.ailment.type is AilmentType.SLEEP:
                         if random.randint(1, 6) != 1:
                             target.ailment = None
                             await self.ctx.send(f"> __{target}__ woke up!")
+                            # self.log.debug('target awoke due to physical skill')
 
                 if skill.name == 'Attack':
                     if target.ailment and target.ailment.type is AilmentType.SHOCK:
                         if not player.ailment and random.randint(1, 3) == 1:
                             player.ailment = ailments.Shock(player, AilmentType.SHOCK)
                             await self.ctx.send(f"> __{player}__ was inflicted with **Shock**!")
+                            # self.log.debug("player was shocked due to GenericAttack")
                     elif not target.ailment and player.ailment and player.ailment.type is AilmentType.SHOCK:
                         target.ailment = ailments.Shock(target, AilmentType.SHOCK)
                         await self.ctx.send(f"> __{target}__ was inflicted with **Shock**!")
+                        # self.log.debug("target was shocked due to GenericAttack")
 
                 if res.did_weak:
+                    # self.log.debug("managed to land a weak or critical")
                     weaked = True
         if skill.uses_sp:  # reset here so all hits of a skill are charged up
             player._concentrating = False
+            # self.log.debug("stopped concentrating")
         else:
             player._charging = False
+            # self.log.debug("stopped charging")
 
         if weaked and confirm_not_dead(self):
+            # self.log.debug("doing another turn due to knock down")
             self.order.decycle()
             self.double_turn = True
             await self.ctx.send("> Nice hit! Move again!")
+        # self.log.debug("end of function")
 
     def filter_targets(self, skill, user):
         if skill.target == 'enemies':
@@ -816,6 +545,7 @@ class WildBattle:
                 await self.stop()
                 self._ran = True
                 return  # player ran away
+            self.order.cycle()
         except UserTurnInterrupted:
             # await self.ctx.send("turn interrupted but no handler has been done")
             self.order.cycle()
@@ -828,7 +558,14 @@ class WildBattle:
                     nxt.hp = -(nxt.max_hp * 0.05)
                     nxt.sp = -10
                 self.turn_cycle += 1
-            await self.handle_player_choices(nxt)
+            self._turn_task = self.ctx.bot.loop.create_task(self.handle_player_choices(nxt))
+            try:
+                await self._turn_task
+            except asyncio.CancelledError:
+                pass
+            finally:
+                self._turn_task = None
+                await self.menu.stop()
         else:
             if not nxt.is_fainted():
                 # log.debug("next enemy not fainted")
@@ -836,7 +573,13 @@ class WildBattle:
                     if self.ambush is False and any(s.name == 'Heat Up' for s in nxt.skills):
                         nxt.hp = -(nxt.max_hp * 0.05)
                         nxt.sp = -10
-                await self.handle_enemy_choices(nxt)
+                self._turn_task = self.ctx.bot.loop.create_task(self.handle_enemy_choices(nxt))
+                try:
+                    await self._turn_task
+                except asyncio.CancelledError:
+                    pass
+                finally:
+                    self._turn_task = None
             else:
                 self.order.remove(nxt)
         if not nxt.is_fainted() and nxt.ailment is not None:

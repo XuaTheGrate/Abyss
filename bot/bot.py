@@ -168,7 +168,7 @@ class Abyss(commands.AutoShardedBot):
     def description(self):
         return random.choice([
             "> ~~Stuck? Try using `$story` to progress.~~",
-            "> Confused? Try `$help` for more information.",
+            "> Confused? Try `$faq` for more information.",
             "> ~~Bored? Try your hand at an online battle.~~",
             "> If you have spare stat points, you can still use `$levelup` to use them.",
             "> Join the support server for updates and announcements: <https://discord.gg/hkweDCD>",

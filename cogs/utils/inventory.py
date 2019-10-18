@@ -35,6 +35,7 @@ class Inventory:
         for t in ItemType:
             self.items[t] = []
         self.pg = None
+        self.open = False
         for tab, iids in data.items():
             for item, count in iids:
                 self.items[ItemType[tab]].append(_ItemCount(bot.item_cache.get_item(item), count))
@@ -45,23 +46,39 @@ class Inventory:
     def to_json(self):
         return {t.name: [(str(i), i.count) for i in k] for t, k in self.items.items()}
 
+    def set_closed(self, f):
+        self.open = False
+
     async def view(self, ctx):
         pg = EmbedPaginator()
         for tab in self.items:
             pg.add_page(discord.Embed(title=f"<| {ITEM_TYPE_STRINGIFY[tab]} |>",
                                       description="\n".join(f"{i.count}x {i}" for i in self.items[tab])))
         self.pg = PaginationHandler(ctx.bot, pg, send_as='embed', wrap=True)
+        self.pg._timeout.add_done_callback(self.set_closed)
         await self.pg.start(ctx)
+        self.open = True
 
-    def get_item(self, name):
+    def _get_item(self, name):
         for t in self.items.values():
             for i in t:
-                if i.name.lower() == name:
-                    return i.item
+                if i.count > 0 and i.name.lower() == name.lower():
+                    return i
 
-    def has_item(self, name):
-        """Case-insensitive search to check if a player has this item."""
-        return self.get_item(name) is not None
+    def get_item(self, name):
+        i = self._get_item(name)
+        if i:
+            return i.item
+
+    def get_item_count(self, name):
+        i = self._get_item(name)
+        if i:
+            return i.count
+        return 0
+
+    def has_item(self, name, count=1):
+        item = self._get_item(name)
+        return item and item.count >= count
 
     def add_item(self, item):
         if item.type not in self.items:
@@ -74,10 +91,10 @@ class Inventory:
                     i.count += 1
                     break
 
-    def remove_item(self, item):
+    def remove_item(self, name):
         for tab, items in self.items.items():
             for i in items:
-                if i.item == item:
+                if i.item.name == name:
                     i.count -= 1
                     if i.count <= 0:
                         self.items[tab].remove(i)

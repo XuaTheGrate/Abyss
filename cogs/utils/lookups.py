@@ -145,5 +145,7 @@ ITEM_TYPE_STRINGIFY = {
     ItemType.HEALING: "Healing",
     ItemType.TRASH: "Trash",
     ItemType.MATERIAL: "Materials",
-    ItemType.SKILL_CARD: "Skill Cards"
+    ItemType.SKILL_CARD: "Skill Cards",
+    ItemType.UTILITY: 'Utility',
+    ItemType.KEY: 'Key Items'
 }

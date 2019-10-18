@@ -1,0 +1,10 @@
+[
+    {
+        "name": "Lockpick",
+        "desc": "A one time use item to unlock a locked treasure chest.",
+        "worth": 16,
+        "recipe": [["Aluminum Sheet", 1]],
+        "makes": 3,
+        "time": 5
+    }
+]

@@ -1,29 +1,32 @@
 [
     {
         "name": "Soul Drop",
-        "worth": 150,
+        "worth": 400,
         "desc": "Heals 10 SP to one ally.",
         "heal_type": "sp",
         "heal_amount": 10,
         "target": "ally",
-        "weight": 5
+        "weight": 5,
+        "dungeons": ["Sample Dungeon"]
     },
     {
         "name": "Medicine",
-        "worth": 150,
+        "worth": 300,
         "desc": "Heals 50 HP to one ally.",
         "heal_type": "hp",
         "heal_amount": 50,
         "target": "ally",
-        "weight": 5
+        "weight": 5,
+        "dungeons": ["Sample Dungeon"]
     },
     {
         "name": "Hiranya",
-        "worth": 150,
+        "worth": 500,
         "desc": "Heals all ailments for one ally.",
         "heal_type": "ailment",
         "heal_amount": "all",
         "target": "ally",
-        "weight": 1
+        "weight": 1,
+        "dungeons": []
     }
 ]

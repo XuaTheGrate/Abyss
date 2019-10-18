@@ -15,7 +15,7 @@
             "desc": "Hall to the left of the first floor.",
             "encounters": ["Arsene", "Pixie", "Mandrake", "Jack-o'-Lantern"],
             "interactions": [
-                {"name": "Chest", "command": "SkillCard:Agi", "type": 1},
+                {"name": "Chest", "command": "Dia", "type": 1, "locked": false, "id": 0},
                 {"name": "L Door", "command": "Floor 1", "type": 0}
             ],
             "treasurecount": 2
@@ -24,7 +24,10 @@
             "name": "Right Hall",
             "desc": "Hall to the right of the first floor.",
             "encounters": ["Arsene", "Pixie", "Mandrake", "Agathion"],
-            "interactions": [{"name": "R Door", "command": "Floor 1", "type": 0}],
+            "interactions": [
+                {"name": "R Door", "command": "Floor 1", "type": 0},
+                {"name": "Chest", "command": "Mazio", "type": 1, "locked": true, "id": 1}
+            ],
             "treasurecount": 1
         }
     ]

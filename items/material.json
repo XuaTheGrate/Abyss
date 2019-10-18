@@ -1,0 +1,9 @@
+[
+    {
+        "name": "Aluminum Sheet",
+        "worth": 50,
+        "desc": "A thin metal sheet.",
+        "dungeons": ["Sample Dungeon"],
+        "weight": 5
+    }
+]

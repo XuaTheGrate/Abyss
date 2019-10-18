@@ -1,9 +1,7 @@
-import os
-
 from discord.ext import commands
 
 
-class I18nHelpCommand(commands.MinimalHelpCommand):
+class I18nHelpCommand(commands.DefaultHelpCommand):
     def __init__(self, **options):
         super().__init__(**options)
         self.commands_heading = "Commands"
@@ -11,7 +9,7 @@ class I18nHelpCommand(commands.MinimalHelpCommand):
         self.no_category = "No Category"
         self.command_attrs = {
             'description': "Provides help for various commands.",
-            'cooldown': commands.Cooldown(3, 5, commands.BucketType.channel),
+            'cooldown': commands.Cooldown(3, 10, commands.BucketType.channel),
             'name': 'help'
         }
 
@@ -29,53 +27,26 @@ class I18nHelpCommand(commands.MinimalHelpCommand):
     async def send_cog_help(self, cog):  # no cog specific help
         return await self.send_bot_help(self.get_bot_mapping())
 
-    async def send_group_help(self, command):
-        self.paginator.add_line(self.get_command_signature(command), empty=True)
-        locale = await self.context.bot.redis.get(f"locale:{self.context.author.id}")
-        if not locale:
-            locale = 'en_US'
-        else:
-            locale = locale.decode()
-        if not os.path.isfile(f"cogs/help/{locale}/{command.qualified_name.replace(' ', '_')}"):
-            cmdhelp = command.help
-            self.context.bot.log.warning(
-                f"no such file: cogs/help/{locale}/{command.qualified_name.replace(' ', '_')}")
-        else:
-            with open(f"cogs/help/{locale}/{command.qualified_name.replace(' ', '_')}") as f:
-                cmdhelp = f.read().strip()
-        if not cmdhelp:
-            cmdhelp = ""
-        for line in cmdhelp.split('\n'):
-            self.paginator.add_line(line)
-        self.paginator.add_line()
-        self.paginator.add_line(self.get_opening_note(), empty=True)
-        self.paginator.add_line("**Commands**")
-        for cmd in sorted(set(command.commands), key=lambda m: m.name):
-            self.paginator.add_line(f"{self.clean_prefix}{command.qualified_name} {cmd.name}")
-        await self.send_pages()
+    async def filter_commands(self, commands, *, sort=False, key=None):
+        if sort and key is None:
+            key = lambda c: c.name
+        it = filter(lambda c: not c.hidden and c.enabled, commands)
+        if not self.verify_checks:
+            return sorted(it, key=key) if sort else list(it)
 
-    async def send_command_help(self, command):
-        self.paginator.add_line(self.get_command_signature(command), empty=True)
-        locale = await self.context.bot.redis.get(f"locale:{self.context.author.id}")
-        if not locale:
-            locale = 'en_US'
-        else:
-            locale = locale.decode()
-        if not os.path.isfile(f"cogs/help/{locale}/{command.qualified_name.replace(' ', '_')}.scr"):
-            cmdhelp = command.help
-            if locale != 'en_US':
-                self.context.bot.log.warning(
-                    f"no such file: cogs/help/{locale}/{command.qualified_name.replace(' ', '_')}.scr")
-        else:
-            with open(f"cogs/help/{locale}/{command.qualified_name.replace(' ', '_')}.scr") as f:
-                cmdhelp = f.read().strip()
-        if not cmdhelp:
-            cmdhelp = ""
-        for line in cmdhelp.split('\n'):
-            self.paginator.add_line(line)
-        self.paginator.add_line()
-        self.paginator.add_line(self.get_opening_note())
-        await self.send_pages()
+        async def p(cmd):
+            try:
+                return await cmd.can_run(self.context)
+            except commands.CommandError:
+                return False
+
+        fin = []
+        for cmd in it:
+            if await p(cmd):
+                fin.append(cmd)
+        if sort:
+            fin.sort(key=key)
+        return fin
 
 
 def setup(bot):

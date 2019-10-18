@@ -105,8 +105,8 @@ Encounter: {list(map(str, battle.enemies))}
         weights = [50, 50, 50]
         weights[0] += fastest.agility - ctx.player.agility
         weights[2] -= fastest.agility - ctx.player.agility
-        self.bot.log.debug(
-            f"encounter weights: {weights}, {random.choices([False, None, True], k=10, weights=weights)}")
+        # self.bot.log.debug(
+        #     f"encounter weights: {weights}, {random.choices([False, None, True], k=10, weights=weights)}")
         ambush = random.choices([False,  # Enemy advantage
                                  None,  # Regular batle
                                  True],  # Player advantage

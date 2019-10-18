@@ -1,5 +1,4 @@
 import asyncio
-import collections
 import contextlib
 import itertools
 import json
@@ -14,7 +13,7 @@ from cogs.utils.objects import CaseInsensitiveDict
 from cogs.utils.paginators import EmbedPaginator, PaginationHandler
 from .utils import (
     lookups,
-    imaging,
+    # imaging,
     items
 )
 from .utils.enums import SkillType
@@ -31,36 +30,6 @@ FMT = {
     'absorb': 'Absorbs:',
     'reflect': 'Reflects:'
 }
-
-
-class LRUDict(collections.OrderedDict):
-    """a dictionary with fixed size, sorted by last use
-
-    credit to lambda#0987"""
-
-    def __init__(self, size, bot):
-        super().__init__()
-        self.size = size
-        self.bot = bot
-
-    def __getitem__(self, key):
-        # move key to the end
-        result = super().__getitem__(key)
-        del self[key]
-        super().__setitem__(key, result)
-        return result
-
-    def __setitem__(self, key, value):
-        try:
-            # if an entry exists at key, make sure it's moved up
-            del self[key]
-        except KeyError:
-            # we only need to do this when adding a new key
-            if len(self) >= self.size:
-                k, v = self.popitem(last=False)
-                asyncio.run_coroutine_threadsafe(v.save(self.bot), loop=self.bot.loop)
-
-        super().__setitem__(key, value)
 
 
 def prepare_skill_tree_page(player):
@@ -124,8 +93,8 @@ async def status(ctx):
     prog = -1
     arcana = lookups.ROMAN_NUMERAL[player.arcana.value]
     desc = f"""**{arcana}** {player.arcana.name}
-
-{player.description}
+{player.hp}/{player.max_hp} HP
+{player.sp}/{player.max_sp} SP
 
 Specializes in {spec} type skills.
 {NL + f'{player.exp_to_next_level()} to level {player._next_level}' + NL + f'{prog}%' + NL}
@@ -242,7 +211,7 @@ def ensure_no_player(func):
 class Players(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.players = LRUDict(20, bot)
+        self.players = {}
         self.skill_cache = CaseInsensitiveDict({"Attack": GenericAttack, "Guard": Guard})
         self._base_demon_cache = {}
         self.bot.unload_tasks[self] = self._unloader_task = self.bot.loop.create_task(self.flush_cached_players())

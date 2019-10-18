@@ -5,9 +5,7 @@ import random
 import discord
 
 from cogs.utils.battle import TreasureDemon, TreasureDemonBattle
-from cogs.utils.enums import ItemType
 from cogs.utils.formats import *
-from cogs.utils.items import Unusable
 from cogs.utils.paginators import EmbedPaginator, PaginationHandler
 
 
@@ -21,7 +19,7 @@ def ensure_searched(func):
     return commands.check(check)(func)
 
 
-class Maps(commands.Cog):
+class Maps(commands.Cog, name="Exploration"):
     def __init__(self, bot):
         self.bot = bot
         self.debug = []
@@ -32,13 +30,14 @@ class Maps(commands.Cog):
     # note to self: when travelling to another dungeon, will cost 15 sp
     # 15 because that is the lowest possible amount of sp when full healed
 
-    def get_item_pool(self):
+    def get_item_pool(self, map_name):
         cache = self.bot.item_cache
         pool = []
         for item in cache.items.values():
-            if item.type is ItemType.TRASH or item.type is ItemType.HEALING:
+            # dont give items weight if you dont want them in treasures
+            if item.weight and map_name in item.dungeons:
                 pool.append(item)
-        maxn = sum(i.weight for i in pool if i.weight)
+        maxn = sum(i.weight for i in pool)
         assert maxn > 0
         idx = 1
         npool = {}
@@ -50,9 +49,9 @@ class Maps(commands.Cog):
     async def cog_before_invoke(self, ctx):
         if ctx.author.id in self.bot.get_cog("BattleSystem").battles:
             raise SilentError("You can't use this command while you are in a battle!")  # cant use these commands during battle
-        if ctx.command is self.inventory or ctx.command is self.whereami:
-            return  # we dont want to interrupt the search if we are just opening our inventory or checking our location
-        if ctx.author.id not in self.debug and random.randint(1, 5) == 1:
+        if ctx.command is self.whereami:
+            return  # we dont want to interrupt the search if we are just checking our location
+        if ctx.author.id not in self.debug and random.randint(1, 5) == 1:  # debug is the tutorial usually
             await ctx.invoke(self.bot.get_command("encounter"), force=True)
             raise SilentError
 
@@ -75,46 +74,13 @@ class Maps(commands.Cog):
                        f'{locs} doors and {chests} chests.')
 
     @commands.command()
-    @ensure_player
-    async def inventory(self, ctx):
-        """Opens your inventory and shows your items.
-        You can select some items and use them if you wish,
-        though some items may only be used in battle."""
-        await ctx.player.inventory.view(ctx)
-        c1 = self.bot.loop.create_task(
-            self.bot.wait_for(
-                "message",
-                check=lambda m: m.author == ctx.author and m.channel == ctx.channel and ctx.player.inventory.has_item(
-                    m.content.lower()),
-                timeout=60))
-        c2 = self.bot.loop.create_task(ctx.player.inventory.pg.wait_stop())
-        await asyncio.wait([c1, c2], return_when=asyncio.FIRST_COMPLETED)
-        await ctx.player.inventory.pg.stop()
-        if c2.done():
-            c1.cancel()
-            return
-        try:
-            m = c1.result()
-        except asyncio.TimeoutError:
-            return
-
-        item = ctx.player.inventory.get_item(m.content.lower())
-        try:
-            await item.use(ctx)
-        except Unusable as e:
-            await ctx.send(str(e))
-            return
-        if not ctx.player.inventory.remove_item(item):
-            self.bot.log.warning(f"apparently {ctx.player} has {item}, but we couldnt remove it for some reason")
-
-    @commands.command()
     @ensure_searched
     @ensure_player
     async def move(self, ctx):
         """Moves to another location.
         You can find what locations are available after `search`ing."""
         pg = EmbedPaginator()
-        valid = [x['name'].lower() for x in ctx.player.map.areas[ctx.player.area]['interactions']]
+        valid = [x['name'].lower() for x in ctx.player.map.areas[ctx.player.area]['interactions'] if x['type'] == 0]
         it = []
         for k, v in enumerate(
                 [i['name'] for i in ctx.player.map.areas[ctx.player.area]['interactions'] if i['type'] == 0], start=1):
@@ -122,10 +88,10 @@ class Maps(commands.Cog):
         tot = '\n'.join(it)
         if len(tot) > 2048:
             for chunk in [it[x:x + 20] for x in range(0, len(tot), 20)]:
-                embed = discord.Embed(description='\n'.join(chunk), colour=discord.Colour.dark_grey())
+                embed = discord.Embed(description='\n'.join(chunk))
                 pg.add_page(embed)
         else:
-            embed = discord.Embed(description=tot, colour=discord.Colour.dark_grey())
+            embed = discord.Embed(description=tot)
             pg.add_page(embed)
         hdlr = PaginationHandler(self.bot, pg, send_as='embed')
         await hdlr.start(ctx)
@@ -155,12 +121,73 @@ class Maps(commands.Cog):
         ctx.player.area = goto
         await ctx.send(f"Travelled to {goto}! Remember to use `$search` to look around the area.")
 
-    @commands.command(enabled=False)
+    @commands.command()
     @ensure_searched
     @ensure_player
     async def interact(self, ctx):
         """Interacts with an object in this area.
         You can find what objects are available after `search`ing."""
+        pg = EmbedPaginator()
+        valid = [x['id'] for x in ctx.player.map.areas[ctx.player.area]['interactions'] if x['type'] == 1]
+        chest_ids = await self.bot.redis.hgetall(f'open_chests:{ctx.author.id}')
+        for cid in chest_ids.keys():
+            if (i := int(cid)) in valid:
+                valid.remove(i)
+        it = []
+        for v in (i['name'] for i in ctx.player.map.areas[ctx.player.area]['interactions']
+                  if i['type'] == 1 and i['id'] in valid):
+            it.append(f'{v["id"]}. {v}')
+        tot = '\n'.join(it)
+        if len(tot) > 2048:
+            for chunk in [it[x:x+20] for x in range(0, len(tot), 20)]:
+                embed = discord.Embed(description='\n'.join(chunk))
+                embed.set_footer(text="Type the Number to open")
+                pg.add_page(embed)
+        else:
+            embed = discord.Embed(description=tot)
+            embed.set_footer(text="Type the Number to open")
+            pg.add_page(embed)
+        hdlr = PaginationHandler(self.bot, pg, send_as='embed')
+        await hdlr.start(ctx)
+
+        def filter_interaction(message):
+            return message.author == ctx.author and \
+                   message.channel.id == ctx.channel.id and \
+                   message.content.isdigit() and \
+                   int(message.content) in valid
+
+        goto = None
+        while hdlr.running:
+            try:
+                id = await self.bot.wait_for('message', check=filter_interaction, timeout=60)
+            except asyncio.TimeoutError:
+                await hdlr.stop()
+                break
+            id = int(id.content)
+            for k in ctx.player.map.areas[ctx.player.area]['interactions']:
+                if k['type'] == 1 and k['id'] == id:
+                    goto = k
+                    break
+            if goto:
+                break
+        if not goto:
+            return
+        await hdlr.stop()
+
+        chest_id = goto['id']
+        if await self.bot.redis.hget(f'open_chests:{ctx.author.id}', str(chest_id)):
+            return await ctx.send('You\'ve already opened this chest!')
+
+        if goto['locked']:
+            if not ctx.player.inventory.has_item('Lockpick'):
+                return await ctx.send("This chest is locked, and requires 1 **Lockpick** to unlock.")
+            if not await ctx.confirm("This chest is locked. Use **Lockpick**?"):
+                return
+            ctx.player.inventory.remove_item('Lockpick')
+        await self.bot.redis.hset(f'open_chests:{ctx.author.id}', str(chest_id), '1')
+        item = ctx.bot.item_cache.get_item(goto['command'])
+        await ctx.send(f"You opened the chest and obtained **{item.name}**!")
+        ctx.player.inventory.add_item(item)
 
     @commands.command(aliases=['open-treasure', 'opentreasure'])
     @ensure_searched
@@ -176,7 +203,7 @@ class Maps(commands.Cog):
         elif k == 1:  # give random item
             # the only pools we can grab from rn are `Trash` and `Healing` pools, remind me to add support for
             # the `Materials` pool when i make it
-            maxn, pool = self.get_item_pool()
+            maxn, pool = self.get_item_pool(ctx.player.map.name)
             p = random.randint(1, maxn)
             for i, rng in pool.items():
                 if p in rng:

@@ -13,6 +13,9 @@ class BetterPaginator:
         self._pages = []
         self._current_page = ""
 
+    def __bool__(self):
+        return bool(self._pages) or bool(self._current_page)
+
     @property
     def pages(self):
         return self._pages + [f'{self.prefix}{self._current_page}{self.suffix}']
@@ -100,14 +103,12 @@ class PaginationHandler:
         self.running = False
 
     async def _timeout_task(self):
-        while True:
-            try:
-                await asyncio.wait_for(self._stop_event.wait(), timeout=180)
-            except asyncio.TimeoutError:
-                await self.stop()
-                break
-            finally:
-                self._stop_event.clear()
+        try:
+            await asyncio.wait_for(self._stop_event.wait(), timeout=180)
+        except asyncio.TimeoutError:
+            await self.stop()
+        finally:
+            self._stop_event.clear()
 
     async def _update(self):
         if len(self.pg.pages) > 1:
