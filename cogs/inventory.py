@@ -64,7 +64,7 @@ class Inventory(commands.Cog):
     @commands.Cog.listener()
     async def on_craft_complete(self, crafting_data):
         user = self.bot.get_user(crafting_data['user'])
-        channel = self.bot.get_channel('channel')
+        channel = self.bot.get_channel(crafting_data['channel'])
         if not user:
             return
         msg = f'''{user.mention}, your crafting job has been completed!
@@ -86,7 +86,6 @@ Obtained **{crafting_data['count']} {crafting_data['item']}**!
             player = self.bot.players.players[user.id]
             for i in range(crafting_data['count']):
                 player.inventory.add_item(item)
-        print(channel, channel.guild, channel.guild.me, channel.permissions_for(channel.guild.me).send_messages)
         if channel is not None and channel.permissions_for(channel.guild.me).send_messages:
             await channel.send(msg)
         else:
