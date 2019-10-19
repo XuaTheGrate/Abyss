@@ -5,6 +5,7 @@ from .utils.paginators import PaginationHandler
 
 class I18nHelpCommand(commands.DefaultHelpCommand):
     def __init__(self, **options):
+        options['verify_checks'] = False
         super().__init__(**options)
         self.paginator = commands.Paginator(max_size=1985)
         self.commands_heading = "Commands"
