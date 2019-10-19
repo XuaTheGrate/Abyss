@@ -17,7 +17,7 @@ class Subprocess:
         self._stream_handlers = []
         self.loop = loop
         self._close = 0
-        self._stream = None
+        self._streams = None
         self._filter = filter_error
 
     @classmethod
@@ -25,9 +25,12 @@ class Subprocess:
         loop = loop or asyncio.get_event_loop()
         self = cls(loop, filter_error=filter_error)
         self._process = await asyncio.create_subprocess_exec(cmd, *args, loop=loop, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        streams = [formatter(self._process.stdout), formatter(self._process.stderr, self._filter)]
-        self._stream = aiostream.stream.merge(*streams)
+        self._streams = [formatter(self._process.stdout), formatter(self._process.stderr, self._filter)]
         return self
 
-    def __aiter__(self):
-        return self._stream.__aiter__()
+    async def stream(self, callback, async_=False):
+        async with aiostream.stream.merge(*self._streams).stream() as chunks:
+            async for batch in chunks:
+                fn = callback(batch)
+                if async_:
+                    await fn

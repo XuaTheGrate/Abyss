@@ -222,8 +222,12 @@ class Timer:
         self.timer = None
         self.loop = loop or asyncio.get_event_loop()
 
+    async def _timer(self):
+        await asyncio.sleep(1.5)
+        await self.msg.add_reaction('\u23e9')
+
     def __enter__(self):
-        self.timer = self.loop.call_later(1.5, functools.partial(asyncio.ensure_future, self.msg.add_reaction('\u23e9')))
+        self.timer = self.loop.create_task(self._timer())
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.timer.cancel()

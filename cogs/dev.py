@@ -323,8 +323,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
     async def reset(self, ctx):
         self._latest_proc = proc = await Subprocess.init("git", "pull", loop=self.bot.loop)
         with Timer(ctx.message):
-            async for line in proc:
-                pass
+            await proc.stream(lambda c: None)
         await ctx.message.add_reaction(self.bot.tick_yes)
         await self.bot.logout()
 
@@ -400,8 +399,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
                                                          loop=self.bot.loop, filter_error=self._show_stderr)
         # log.debug("process initialized")
         with Timer(ctx.message):
-            async for line in proc:
-                pg.add_line(line)
+            await proc.stream(lambda c: pg.add_line(c))
             # log.debug("_update called")
         await asyncio.sleep(.1)
         code = proc._process.returncode
@@ -421,8 +419,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
 
         async def hdlr():
             with Timer(ctx.message):
-                async for line in proc:
-                    pg.add_line(line)
+                await proc.stream(lambda c: pg.add_line(c))
 
         self._latest_proc = proc = await Subprocess.init(*cmd, loop=self.bot.loop, filter_error=self._show_stderr)
 
@@ -493,8 +490,7 @@ Fast-forward
         """
         data = []
         self._latest_proc = proc = await Subprocess.init('git', 'pull', loop=self.bot.loop)
-        async for line in proc:
-            data.append(line)
+        await proc.stream(lambda c: None)
         m = '\n'.join(data)
         if m.strip() == 'Already up to date.':
             return await ctx.send("Nothing to update.")
