@@ -1,8 +1,11 @@
 from discord.ext import commands
 
+from .utils.paginators import PaginationHandler, BetterPaginator
+
 
 class I18nHelpCommand(commands.DefaultHelpCommand):
     def __init__(self, **options):
+        options['paginator'] = BetterPaginator('```', '```')
         super().__init__(**options)
         self.commands_heading = "Commands"
         self.aliases_heading = "Aliases:"
@@ -27,10 +30,14 @@ class I18nHelpCommand(commands.DefaultHelpCommand):
     async def send_cog_help(self, cog):  # no cog specific help
         return await self.send_bot_help(self.get_bot_mapping())
 
-    async def filter_commands(self, commands, *, sort=False, key=None):
+    async def send_pages(self):
+        pg = PaginationHandler(self.context.bot, self.paginator)
+        await pg.start(self.context)
+
+    async def filter_commands(self, cmds, *, sort=False, key=None):
         if sort and key is None:
             key = lambda c: c.name
-        it = filter(lambda c: not c.hidden and c.enabled, commands)
+        it = filter(lambda c: not c.hidden and c.enabled, cmds)
         if not self.verify_checks:
             return sorted(it, key=key) if sort else list(it)
 
