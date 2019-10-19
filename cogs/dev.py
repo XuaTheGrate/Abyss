@@ -1,6 +1,7 @@
 import asyncio
 import collections
 import copy
+import importlib
 import inspect
 import os
 import pathlib
@@ -8,6 +9,7 @@ import random
 import re
 import textwrap
 import time
+from ast import PyCF_ALLOW_TOP_LEVEL_AWAIT
 from pprint import pformat
 from typing import Union
 
@@ -229,10 +231,13 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
     @dev.command()
     async def eval(self, ctx, *, code_string):
         if not self._env:
-            self._env.update({"discord": discord, "commands": commands, '_': None})
+            self._env.update({"discord": discord,
+                              "commands": commands, '_': None,
+                              import_expression.constants.IMPORTER: importlib.import_module})
         self._env['ctx'] = ctx
         try:
-            ret = import_expression.eval(code_string, self._env)
+            expr = import_expression.compile(code_string, flags=PyCF_ALLOW_TOP_LEVEL_AWAIT)
+            ret = await eval(expr, self._env)
         except SyntaxError:
             pass
         except Exception as e:
