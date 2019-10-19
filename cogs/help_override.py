@@ -1,12 +1,12 @@
 from discord.ext import commands
 
-from .utils.paginators import PaginationHandler, BetterPaginator
+from .utils.paginators import PaginationHandler
 
 
 class I18nHelpCommand(commands.DefaultHelpCommand):
     def __init__(self, **options):
-        options['paginator'] = BetterPaginator('```', '```')
         super().__init__(**options)
+        self.paginator = commands.Paginator(max_size=1985)
         self.commands_heading = "Commands"
         self.aliases_heading = "Aliases:"
         self.no_category = "No Category"
