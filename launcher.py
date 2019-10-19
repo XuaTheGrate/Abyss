@@ -30,6 +30,18 @@ CLUSTER_NAMES = (
 NAMES = iter(CLUSTER_NAMES)
 
 
+def get_shard_count():
+    data = requests.get('https://discordapp.com/api/v7/gateway/bot', headers={
+        "Authorization": "Bot " + TOKEN,
+        "User-Agent": "DiscordBot (https://github.com/Rapptz/discord.py 1.3.0a) Python/3.7 aiohttp/3.6.1"
+    })
+    data.raise_for_status()
+    content = data.json()
+    log.info(f"Successfully got shard count of {content['shards']} ({data.status_code, data.reason})")
+    # return 16
+    return content['shards']
+
+
 class Launcher:
     def __init__(self, loop, *, ipc=False):
         print(random.choice(SPLASHES).strip('\n'))
@@ -45,17 +57,6 @@ class Launcher:
 
         self.start_ipc = ipc
         self.ipc = None
-
-    def get_shard_count(self):
-        data = requests.get('https://discordapp.com/api/v7/gateway/bot', headers={
-            "Authorization": "Bot "+TOKEN,
-            "User-Agent": "DiscordBot (https://github.com/Rapptz/discord.py 1.3.0a) Python/3.7 aiohttp/3.6.1"
-        })
-        data.raise_for_status()
-        content = data.json()
-        log.info(f"Successfully got shard count of {content['shards']} ({data.status_code, data.reason})")
-        # return 16
-        return content['shards']
 
     def start(self):
         self.fut = asyncio.ensure_future(self.startup(), loop=self.loop)
@@ -103,11 +104,11 @@ class Launcher:
     async def startup(self):
         if self.start_ipc:
             log.info("IPC server starting up")
-            import ipc
+            import ipc  # pylint: disable=import-outside-toplevel
             self.ipc = multiprocessing.Process(target=ipc.start, daemon=True)
             self.ipc.start()
 
-        shards = list(range(self.get_shard_count()))
+        shards = list(range(get_shard_count()))
         size = [shards[x:x + 4] for x in range(0, len(shards), 4)]
         log.info(f"Preparing {len(size)} clusters")
         for shard_ids in size:

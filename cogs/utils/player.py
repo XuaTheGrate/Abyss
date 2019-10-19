@@ -105,7 +105,7 @@ class Player(JSONable):
     def __repr__(self):
         return f"<({self.arcana.name}) {self.owner}'s  Level {self.level} {self.name!r}>"
 
-    async def _populate_skills(self, bot):
+    async def populate_skills(self, bot):
         self.owner = bot.get_user(self._owner_id)
         if self.map:
             self.map = bot.map_handler.maps[self.map]

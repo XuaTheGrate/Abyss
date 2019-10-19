@@ -297,7 +297,7 @@ class Players(commands.Cog):
         # await self.bot.redis.set(f"story@{ctx.author.id}", 1)
 
         self.players[ctx.author.id] = player
-        await player._populate_skills(self.bot)
+        await player.populate_skills(self.bot)
         await player.save(self.bot)
 
         # await ctx.send(

@@ -47,17 +47,17 @@ class BetterRotatingFileHandler(logging.FileHandler):
 def do_next_script(msg, author=None):
     author = author or msg.author
 
-    def check(r, u):
-        return u.id == author.id and \
-            r.message.id == msg.id and \
-            str(r.emoji) == '\u25b6'
+    def check(reaction, user):
+        return user.id == author.id and \
+               reaction.message.id == msg.id and \
+               str(reaction.emoji) == '\u25b6'
     return check
 
 
 def get_logger(name):
     log = logging.getLogger(name)
     log.setLevel(logging.DEBUG)
-    "uncomment the above line to enable debug logging"
+    # uncomment the above line to enable debug logging
 
     stream = logging.StreamHandler()
 
@@ -77,45 +77,49 @@ if not os.path.isdir("logs"):
 
 
 class ContextSoWeDontGetBannedBy403(commands.Context):
-    async def send(self, content=None, *, embed=None, file=None, files=None, tts=False, **kwargs):
+    async def send(self, content=None, *, tts=False, embed=None, file=None, files=None, delete_after=None, nonce=None):
         if not self.guild.me.permissions_in(self.channel).send_messages:
             return
         if embed and not self.guild.me.permissions_in(self.channel).embed_links:
             return
-        elif (file or files) and not self.guild.me.permissions_in(self.channel).attach_files:
+        if (file or files) and not self.guild.me.permissions_in(self.channel).attach_files:
             return
-        elif tts and not self.guild.me.permissions_in(self.channel).send_tts_messages:
+        if tts and not self.guild.me.permissions_in(self.channel).send_tts_messages:
             return
-        return await super().send(content, embed=embed, file=file, files=files, tts=tts, **kwargs)
+        return await super().send(content, embed=embed, file=file, files=files,
+                                  tts=tts, delete_after=delete_after, nonce=nonce)
 
     async def send_as_paginator(self, content=None, *, embeds=None, destination=None, codeblock=False):
         if embeds:  # embed has higher priority over content
-            pg = EmbedPaginator()  # also `codeblock` has no effect with embeds
-            for e in embeds:
-                pg.add_page(e)
-            await PaginationHandler(self.bot, pg, send_as="embed", owner=self.author, no_help=True).start(destination or self)
+            paginator = EmbedPaginator()  # also `codeblock` has no effect with embeds
+            for embed in embeds:
+                paginator.add_page(embed)
+            await PaginationHandler(self.bot, paginator, send_as="embed", owner=self.author, no_help=True
+                                    ).start(destination or self)
         elif content:
-            pg = BetterPaginator(prefix='```' if codeblock else None, suffix='```' if codeblock else None, max_size=1985)
-            for l in content.split("\n"):
-                pg.add_line(l)
-            await PaginationHandler(self.bot, pg, no_help=True, owner=self.author).start(destination or self)
+            paginator = BetterPaginator(prefix='```' if codeblock else None, suffix='```' if codeblock else None,
+                                        max_size=1985)
+            for line in content.split("\n"):
+                paginator.add_line(line)
+            await PaginationHandler(self.bot, paginator, no_help=True, owner=self.author).start(destination or self)
         else:
             raise TypeError("missing arguments")
 
     async def confirm(self, message, *, waiter=None, timeout=60):
         waiter = waiter or self.author
-        m = await self.send(message)
-        await asyncio.gather(m.add_reaction(self.bot.tick_yes), m.add_reaction(self.bot.tick_no))
+        msg = await self.send(message)
+        await asyncio.gather(msg.add_reaction(self.bot.tick_yes), msg.add_reaction(self.bot.tick_no))
         try:
-            p = await self.bot.wait_for('raw_reaction_add', check=lambda p: str(p.emoji) in (self.bot.tick_yes, self.bot.tick_no)
-                                        and p.user_id == waiter.id and p.message_id == m.id,
-                                        timeout=timeout)
+            payload = await self.bot.wait_for('raw_reaction_add', check=lambda p: str(p.emoji) in (self.bot.tick_yes,
+                                                                                                   self.bot.tick_no)
+                                              and p.user_id == waiter.id and p.message_id == msg.id,
+                                              timeout=timeout)
         except asyncio.TimeoutError:
             return False
         else:
-            return str(p.emoji) == self.bot.tick_yes
+            return str(payload.emoji) == self.bot.tick_yes
         finally:
-            await m.delete()
+            await msg.delete()
 
 
 class Abyss(commands.AutoShardedBot):
@@ -130,7 +134,9 @@ class Abyss(commands.AutoShardedBot):
         self.prepared = asyncio.Event()
         # `prepared` is to make sure the bot has loaded the database and such
 
-        self.db = motor.motor_asyncio.AsyncIOMotorClient(
+        self.eval_wait = False
+
+        self.db = motor.motor_asyncio.AsyncIOMotorClient(  # pylint: disable=invalid-name
             username=config.MONGODB_USER,
             password=config.MONGODB_PASS,
             authSource=config.MONGODB_DBSE,
@@ -159,21 +165,23 @@ class Abyss(commands.AutoShardedBot):
         self.add_check(self.global_check)
         # self.before_invoke(self.before_invoke_handler)
         self.prepare_extensions()
-        self.run()
+        self.run(config.TOKEN)
 
-    async def on_command_error(self, *__, **_):
+    async def on_command_error(self, context, exception):
         pass
 
     @property
     def description(self):
         return random.choice([
-            "> ~~Stuck? Try using `$story` to progress.~~",
-            "> Confused? Try `$faq` for more information.",
-            "> ~~Bored? Try your hand at an online battle.~~",
-            "> If you have spare stat points, you can still use `$levelup` to use them.",
-            "> Join the support server for updates and announcements: <https://discord.gg/hkweDCD>",
-            "> ~~During scripts, press the stop button to save your progress. Using `$story` will continue where you left off.~~",
-            "> Join a voice channel to experience immersive Background Music!",
+            # "~~Stuck? Try using `$story` to progress.~~",
+            "Confused? Try `$faq` for more information.",
+            # "~~Bored? Try your hand at an online battle.~~",
+            "If you have spare stat points, you can still use `$levelup` to use them.",
+            "Join the support server for updates and announcements via `$support`",
+            # "~~During scripts, press the stop button to save your progress. Using `$story`"
+            # "will continue where you left off.~~",
+            # "Join a voice channel to experience immersive Background Music!",
+            "You can check all the recipes you can currently craft via `$craft list`.",
             "corn"
         ])
 
@@ -205,16 +213,17 @@ class Abyss(commands.AutoShardedBot):
 
     # noinspection PyShadowingNames
     async def confirm(self, msg, user):
-        rs = (str(self.tick_yes), str(self.tick_no))
-        for r in rs:
-            await msg.add_reaction(r)
+        reactions = (str(self.tick_yes), str(self.tick_no))
+        for react in reactions:
+            await msg.add_reaction(react)
         try:
-            r, u = await self.wait_for('reaction_add', check=lambda r, u: str(r.emoji) in rs and u.id == user.id and
-                                       r.message.id == msg.id, timeout=60)
+            react, user = await self.wait_for('reaction_add',
+                                              check=lambda r, u: str(r.emoji) in reactions and u.id == user.id and
+                                              r.message.id == msg.id, timeout=60)
         except asyncio.TimeoutError:
             return False
         else:
-            if str(r.emoji) == rs[0]:
+            if str(react.emoji) == reactions[0]:
                 return True
             return False
         finally:
@@ -249,8 +258,8 @@ class Abyss(commands.AutoShardedBot):
                     return await self._send_error(f"Error too long: https://mystb.in/{data['key']}")
 
                 # no mystbin, fallback to files
-                f = io.BytesIO(message.encode())
-                return await self._send_error(discord.File(f, "error.txt"))
+                file = io.BytesIO(message.encode())
+                return await self._send_error(discord.File(file, "error.txt"))
         elif isinstance(message, discord.File):
             await self.debug_hook.send(message)
         else:
@@ -279,9 +288,9 @@ class Abyss(commands.AutoShardedBot):
 
             try:
                 self.load_extension(filename)
-            except Exception as e:
+            except Exception as exc:
                 self.log.warning(f"Could not load ext `{filename}`.")
-                self.send_error(f"Could not load ext `{filename}`\n```py\n{formats.format_exc(e)}\n````")
+                self.send_error(f"Could not load ext `{filename}`\n```py\n{formats.format_exc(exc)}\n````")
 
     async def on_ready(self):
         if self.prepared.is_set():
@@ -292,18 +301,18 @@ class Abyss(commands.AutoShardedBot):
             await self.db.abyss.accounts.find_one({})
             self.log.info("MongoDB connection success")
             # dummy query to ensure the db is connected
-        except Exception as e:
+        except Exception as exc:
             self.log.error("COULD NOT CONNECT TO MONGODB DATABASE.")
             self.log.error("This could lead to fatal errors. Falling back prefixes to mentions only.")
-            self.send_error(f"FAILED TO CONNECT TO MONGODB\n```py\n{formats.format_exc(e)}\n```")
+            self.send_error(f"FAILED TO CONNECT TO MONGODB\n```py\n{formats.format_exc(exc)}\n```")
             return
 
         try:
             self.redis = await aioredis.create_redis_pool(**config.REDIS, loop=self.loop)
             self.log.info("Redis connection succeeded")
-        except Exception as e:
+        except Exception as exc:
             self.log.error("couldnt connect to redis")
-            self.send_error(F"failed to connect to redis\n```py\n{formats.format_exc(e)}\n```")
+            self.send_error(F"failed to connect to redis\n```py\n{formats.format_exc(exc)}\n```")
 
         if self.cluster_name == "Alpha":
             self.log.info("start: hello world")
@@ -340,9 +349,6 @@ class Abyss(commands.AutoShardedBot):
         i18n.current_locale.set(current.decode())
         await self.process_commands(after)
 
-    def run(self):
-        super().run(config.TOKEN)
-
     async def close(self):
         self.log.info("Shutting down")
         self.dispatch("logout")
@@ -351,13 +357,13 @@ class Abyss(commands.AutoShardedBot):
         await self.session.close()
         await super().close()
 
-    async def on_error(self, event, *args, **kwargs):
+    async def on_error(self, event_method, *args, **kwargs):
         if not self.prepared.is_set():
             return
-        to = f""">>> Error occured in event `{event}`
+        message = f""">>> Error occured in event `{event_method}`
 Arguments: {args}
 KW Arguments: {kwargs}
 ```py
 {traceback.format_exc()}
 ```"""
-        self.send_error(to)
+        self.send_error(message)

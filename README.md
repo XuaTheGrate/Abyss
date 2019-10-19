@@ -14,6 +14,8 @@ and report it. The link can be found at the bottom of this page.
 ## Features
 #### Immersive Battling Simulator
 Engage with your inner demon and defeat the enemy before you.
+
+(Scroll down to see a live example.)
 #### Improved Exploration
 Explore the dungeon and collect various items to power up
 your inner self.
@@ -33,10 +35,8 @@ dungeons.
 #### PVP Simulator
 Battle against your friends to see who has the strongest demon
 inside of themselves.
-## Misc
-Join the support server via [this link](https://discordapp.com/invites/hkweDCD)
-to receive updates and special features, or to voice your opinion
-on what should be changed or added.
+
+![example](https://i.imgur.com/yWeuE82.gif)
 
 ## Changelog
 **v1.1.0**
@@ -58,6 +58,11 @@ Currently can only craft `Lockpick` with `1x Aluminum Sheet`.
 You will lose control of battle while this is open.
 * Refactored how healing items work via using a TargetSession during battle.
 * Fix circular import bug by moving sessions to its own file.
+
+## Misc
+Join the support server via [this link](https://discordapp.com/invites/hkweDCD)
+to receive updates and special features, or to voice your opinion
+on what should be changed or added.
 
 ## Take control of your inner Demon!
 

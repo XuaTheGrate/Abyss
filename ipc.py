@@ -12,23 +12,25 @@ async def dispatch(data):
         print(f'> Cluster[{cluster_name}]')
 
 
-async def serve(ws, path):
-    cluster_name = await ws.recv()
+# pylint: disable=unused-argument
+async def serve(websocket, path):
+    cluster_name = await websocket.recv()
     cluster_name = cluster_name.decode()
     if cluster_name in CLIENTS:
         print(f"! Cluster[{cluster_name}] attempted reconnection")
-        await ws.close(4029, "already connected")
+        await websocket.close(4029, "already connected")
         return
-    CLIENTS[cluster_name] = ws
+    CLIENTS[cluster_name] = websocket
     try:
-        await ws.send(b'{"status":"ok"}')
+        await websocket.send(b'{"status":"ok"}')
         print(f'$ Cluster[{cluster_name}] connected successfully')
-        async for msg in ws:
+        async for msg in websocket:
             print(f'< Cluster[{cluster_name}]: {msg}')
             await dispatch(msg)
     finally:
         CLIENTS.pop(cluster_name)
         print(f'$ Cluster[{cluster_name}] disconnected')
+# pylint: enable=unused-argument
 
 
 def start():

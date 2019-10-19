@@ -1,9 +1,9 @@
 [
     {
-        "name": "Aluminum Sheet",
+        "name": "Silk Yarn",
         "worth": 50,
-        "desc": "A thin metal sheet.",
-        "dungeons": ["Sample Dungeon"],
+        "desc": "A bundle of silk yarn.",
+        "dungeons": ["Sample Dungeon", "Qimranut"],
         "weight": 5
     }
 ]

@@ -58,7 +58,7 @@ class Tutorial(commands.Cog):
             return
         bt_cog = self.bot.get_cog('BattleSystem')
         data = await self.bot.db.abyss.encounters.find_one({"name": "Arsene"})
-        en = await Enemy(**data)._populate_skills(self.bot)
+        en = await Enemy(**data).populate_skills(self.bot)
         bt_cog.battles[ctx.author.id] = bt = WildBattle(player, ctx, en, ambush=True)
         await asyncio.sleep(3)
         if not await ctx.confirm(

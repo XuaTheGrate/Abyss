@@ -1,13 +1,12 @@
 git+https://github.com/Rapptz/discord.py
 PyNaCl ; sys_platform == 'linux'
-import_expression
+import-expression==0.4.0.post1
 psutil
 motor
 aioredis
 dpy-ui
 Pillow ; sys_platform == 'linux'
 Pillow --global-option="build_ext" --global-option="--disable-zlib" --global-option="--disable-jpeg" ; sys_platform == 'windows'
-contextvars ; python_version < '3.7'
 numpy
 youtube_dl
 aiostream

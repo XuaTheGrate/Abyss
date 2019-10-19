@@ -19,32 +19,33 @@ import psutil
 from discord.ext import commands
 
 from cogs.utils.battle import TreasureDemonBattle, TreasureDemon
-from .utils.formats import format_exc, ensure_player
-from .utils.paginators import PaginationHandler, BetterPaginator, Timer
-from .utils.subprocess import Subprocess
+from cogs.utils.formats import format_exc, ensure_player
+from cogs.utils.paginators import PaginationHandler, BetterPaginator, Timer
+from cogs.utils.subprocess import Subprocess
 
 
 def recursive_decode(i):
     if isinstance(i, dict):
         return {recursive_decode(k): recursive_decode(v) for k, v in i.items()}
-    elif isinstance(i, (list, tuple)):
+    if isinstance(i, (list, tuple)):
         return type(i)(map(recursive_decode, i))
-    elif isinstance(i, bytes):
+    if isinstance(i, bytes):
         if i.isdigit():
             return int(i)
         return i.decode()
     return i
 
 
+# pylint: disable=invalid-name
 class FakeUser:
     __slots__ = ('id', 'name', 'display_name')
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self):
         self.id = 0
         self.name = ""
         self.display_name = ""
 
-    async def send(self, *args, **kwargs):
+    async def send(self, *args, **kwargs):  # pylint: disable=unused-argument
         await asyncio.sleep(.093)
         return FakeMessage
 
@@ -52,7 +53,7 @@ class FakeUser:
 class FakeGuild:
     __slots__ = ('id', 'name', 'members')
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self):
         self.id = 0
         self.name = ''
         self.members = []
@@ -61,7 +62,7 @@ class FakeGuild:
 class FakeChannel:
     __slots__ = ('id', 'name', 'category', 'members', 'guild', 'mention')
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self):
         self.id = 0
         self.name = ""
         self.category = None
@@ -69,11 +70,11 @@ class FakeChannel:
         self.guild = FakeGuild
         self.mention = ""
 
-    async def send(self, *args, **kwargs):
+    async def send(self, *args, **kwargs):  # pylint: disable=unused-argument
         await asyncio.sleep(0.093)
         return FakeMessage
 
-    async def delete(self, *args, **kwargs):
+    async def delete(self, *args, **kwargs):  # pylint: disable=unused-argument
         await asyncio.sleep(0.093)
 
 
@@ -87,10 +88,12 @@ class FakeMessage:
         self.channel = FakeChannel
         self.guild = FakeGuild
 
-    async def add_reaction(self, *args, **kwargs):
+    async def add_reaction(self, *args, **kwargs):  # pylint: disable=unused-argument
         await asyncio.sleep(0.093)
+# pylint: enable=invalid-name
 
 
+# pylint: disable=invalid-overridden-method
 class PerformanceContext(commands.Context):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -108,16 +111,17 @@ class PerformanceContext(commands.Context):
     def channel(self):
         return FakeChannel
 
-    async def send(self, *args, **kwargs):
+    async def send(self, *args, **kwargs):  # pylint: disable=arguments-differ,unused-argument
         await asyncio.sleep(0.093)
         return FakeMessage
 
-    async def send_as_paginator(self, *args, **kwargs):
+    async def send_as_paginator(self, *args, **kwargs):  # pylint: disable=unused-argument
         await asyncio.sleep(0.093)
 
-    async def confirm(self, *args, **kwargs):
+    async def confirm(self, *args, **kwargs):  # pylint: disable=unused-argument
         await asyncio.sleep(0.093)
         return True
+# pylint: enable=invalid-overridden-method
 
 
 class Developers(commands.Cog, command_attrs={"hidden": True}):
@@ -161,26 +165,26 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
                     done[mod] = True
                 except commands.NoEntryPointError:
                     done[mod] = False
-                except Exception as e:
-                    done[mod] = format_exc(getattr(e, '__cause__', e) or e)
+                except Exception as exc:
+                    done[mod] = format_exc(getattr(exc, '__cause__', exc) or exc)
             else:
                 try:
                     self.bot.load_extension(mod)
                     done[mod] = True
                 except commands.NoEntryPointError:
                     done[mod] = False
-                except Exception as e:
-                    done[mod] = format_exc(getattr(e, '__cause__', e) or e)
+                except Exception as exc:
+                    done[mod] = format_exc(getattr(exc, '__cause__', exc) or exc)
         if all(z is True for z in done.values()):
             return await ctx.message.add_reaction(self.bot.tick_yes)
         fmt = []
-        for k, v in done.items():
-            if v is True:
-                fmt.append(f"{self.bot.tick_yes} {k}\n")
-            elif v is False:
-                fmt.append(f'\U0001f504 {k}\n')
+        for module, success in done.items():
+            if success is True:
+                fmt.append(f"{self.bot.tick_yes} {module}\n")
+            elif success is False:
+                fmt.append(f'\U0001f504 {module}\n')
             else:
-                fmt.append(f"{self.bot.tick_no} {k}\n```py\n{v}\n```\n")
+                fmt.append(f"{self.bot.tick_no} {module}\n```py\n{success}\n```\n")
         await ctx.send_as_paginator('\n'.join(fmt))
 
     @dev.command()
@@ -196,9 +200,9 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         try:
             func = getattr(self.bot.redis, cmd)
             ret = await func(*args)
-        except Exception as e:
+        except Exception as exc:
             await ctx.message.add_reaction(self.bot.tick_no)
-            await ctx.send_as_paginator(format_exc(e), codeblock=True)
+            await ctx.send_as_paginator(format_exc(exc), codeblock=True)
         else:
             await ctx.message.add_reaction(self.bot.tick_yes)
             if not ret:
@@ -210,7 +214,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
     async def linecount(self, ctx):
         lines = collections.Counter()
         count = collections.Counter()
-        for path, subdirs, files in os.walk("."):
+        for path, _, files in os.walk("."):
             for name in files:
                 ext = name.split(".")[-1]
                 if ext not in self.valid:
@@ -218,14 +222,13 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
                 if any(x in './' + str(pathlib.PurePath(path, name)) for x in ('venv', '.git')):
                     continue
                 count[ext] += 1
-                with open('./' + str(pathlib.PurePath(path, name)), 'r', encoding='utf-8') as f:
-                    for l in f:
-                        if (l.strip().startswith("#") and ext == 'py') or len(l.strip()) == 0:
+                with open('./' + str(pathlib.PurePath(path, name)), 'r', encoding='utf-8') as file:
+                    for line in file:
+                        if (line.strip().startswith("#") and ext == 'py') or len(line.strip()) == 0:
                             continue
                         lines[ext] += 1
-        t = lines
         fmt = "```\n" + "\n".join(
-            sorted([f'{x} {y} ({count[y]} files)' for y, x in t.items()], key=lambda m: len(m))) + "```"
+            sorted([f'{x} {y} ({count[y]} files)' for y, x in lines.items()], key=len)) + "```"
         await ctx.send_as_paginator(fmt)
 
     @dev.command()
@@ -240,9 +243,9 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
             ret = await eval(expr, self._env)
         except SyntaxError:
             pass
-        except Exception as e:
+        except Exception as exc:
             await ctx.message.add_reaction(self.bot.tick_no)
-            return await ctx.send_as_paginator(format_exc(e), codeblock=True)
+            return await ctx.send_as_paginator(format_exc(exc), codeblock=True)
         else:
             await ctx.message.add_reaction(self.bot.tick_yes)
             if ret is None:
@@ -260,9 +263,9 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         globals().update(locals())"""
         try:
             import_expression.exec(code, self._env)
-        except Exception as e:
+        except Exception as exc:
             await ctx.message.add_reaction(self.bot.tick_no)
-            return await ctx.send_as_paginator(format_exc(e), codeblock=True)
+            return await ctx.send_as_paginator(format_exc(exc), codeblock=True)
 
         func = self._env.pop('__func__')
         fut = asyncio.ensure_future(func(), loop=self.bot.loop)
@@ -276,9 +279,9 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         except asyncio.TimeoutError:
             await ctx.message.add_reaction('\u23f0')
             return
-        except Exception as e:
+        except Exception as exc:
             await ctx.message.add_reaction(self.bot.tick_no)
-            return await ctx.send_as_paginator(format_exc(e), codeblock=True)
+            return await ctx.send_as_paginator(format_exc(exc), codeblock=True)
         else:
             ret = fut.result()
         finally:
@@ -302,7 +305,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
     @dev.command()
     async def stop(self, ctx):
         if self._latest_proc:
-            self._latest_proc._process.kill()
+            self._latest_proc.process.kill()
             await ctx.message.add_reaction(self.bot.tick_yes)
 
     @dev.command()
@@ -334,8 +337,8 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         nctx = await self.bot.get_context(nmsg)
         try:
             await self.bot.invoke(nctx)
-        except Exception as e:
-            await ctx.send_as_paginator(format_exc(e), codeblock=True)
+        except Exception as exc:
+            await ctx.send_as_paginator(format_exc(exc), codeblock=True)
 
     @dev.command(name='as')
     async def as_(self, ctx, user: Union[discord.Member, discord.User], *, command):
@@ -353,12 +356,12 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         nctx = await self.bot.get_context(nmsg)
         await self.bot.invoke(nctx)
 
-    @dev.command()
-    async def at(self, ctx, guild_id: int, *, command):
-        if not (g := self.bot.get_guild(guild_id)):
+    @dev.command(name='at')
+    async def at_(self, ctx, guild_id: int, *, command):
+        if not (guild := self.bot.get_guild(guild_id)):  # pylint: disable=superfluous-parens
             return await ctx.send('no guild found')
         nmsg = copy.copy(ctx.message)
-        nmsg.guild = g
+        nmsg.guild = guild
         nmsg.content = ctx.prefix+command
         nctx = await self.bot.get_context(nmsg)
         await self.bot.invoke(nctx)
@@ -371,55 +374,55 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         if nctx.command is None:
             return await ctx.send("No command found.")
         times = []
-        f = False
-        for a in range(self._perf_loops):
+        fail = False
+        for _ in range(self._perf_loops):
             # nctx.command = copy.copy(nctx.command)
             # nctx.command.can_run = _replace_checks
             start = time.perf_counter()
             try:
                 await nctx.reinvoke()
-            except Exception as e:
-                if not f:
-                    f = True
-                    await ctx.author.send(f'```py\n{format_exc(e)}\n```')
+            except Exception as exc:
+                if not fail:
+                    fail = True
+                    await ctx.author.send(f'```py\n{format_exc(exc)}\n```')
             finally:
                 end = time.perf_counter() - start
                 times.append(round(end*1000, 2))
         await ctx.send(f'{self._perf_loops} loops, {min(times)}ms min,'
-                       f' {max(times)}ms max, {sum(times)/len(times):.2f}ms avg, success={not f}')
+                       f' {max(times)}ms max, {sum(times)/len(times):.2f}ms avg, success={not fail}')
 
     @dev.command(enabled=False)
     async def lua(self, ctx, *, code_string):
-        with open("_exec.lua", "w") as f:
-            f.write(code_string)
-        pg = BetterPaginator('```lua\n', '\n```', 1985)
+        with open("_exec.lua", "w") as file:
+            file.write(code_string)
+        paginator = BetterPaginator('```lua\n', '\n```', 1985)
         # log.debug("init")
         # log.debug("handler started")
         self._latest_proc = proc = await Subprocess.init('lua5.3', '_exec.lua',
                                                          loop=self.bot.loop, filter_error=self._show_stderr)
         # log.debug("process initialized")
         with Timer(ctx.message):
-            await proc.stream(lambda c: pg.add_line(c))
+            await proc.stream(paginator.add_line)
             # log.debug("_update called")
         await asyncio.sleep(.1)
-        code = proc._process.returncode
-        pg.add_line(f"\nExit code: {code}")
-        hdlr = PaginationHandler(self.bot, pg, no_help=True)
+        code = proc.process.returncode
+        paginator.add_line(f"\nExit code: {code}")
+        hdlr = PaginationHandler(self.bot, paginator, no_help=True)
         await hdlr.start(ctx)
         # log.debug("eof")
 
-    @dev.command(aliases=['bash'])
-    async def sh(self, ctx, *, code_string):
+    @dev.command(aliases=['sh'])
+    async def bash(self, ctx, *, code_string):
         if os.sys.platform == 'win32':
             return await ctx.send("unsupported")
 
         cmd = ['/bin/bash', '-c', code_string]
 
-        pg = BetterPaginator('```sh\n', '\n```')
+        paginator = BetterPaginator('```sh\n', '\n```')
 
         async def hdlr():
             with Timer(ctx.message):
-                await proc.stream(lambda c: pg.add_line(c))
+                await proc.stream(paginator.add_line)
 
         self._latest_proc = proc = await Subprocess.init(*cmd, loop=self.bot.loop, filter_error=self._show_stderr)
 
@@ -431,9 +434,9 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
             await ctx.message.add_reaction(self.bot.tick_yes)
 
         await asyncio.sleep(.1)
-        code = proc._process.returncode
-        pg.add_line(f'\nExit code: {code}')
-        hdlr = PaginationHandler(self.bot, pg, no_help=True)
+        code = proc.process.returncode
+        paginator.add_line(f'\nExit code: {code}')
+        hdlr = PaginationHandler(self.bot, paginator, no_help=True)
         await hdlr.start(ctx)  # todo: fix reactions
 
     @dev.command()
@@ -442,17 +445,17 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         if not cmd:
             try:
                 obj = import_expression.eval(command, {})
-            except Exception as e:
+            except Exception as exc:
                 await ctx.message.add_reaction(self.bot.tick_no)
-                return await ctx.send_as_paginator(format_exc(e), codeblock=True, destination=ctx.author)
+                return await ctx.send_as_paginator(format_exc(exc), codeblock=True, destination=ctx.author)
         else:
             obj = cmd.callback
 
         lines, firstlno = inspect.getsourcelines(obj)
-        pg = BetterPaginator('```py\n', '```')
+        paginator = BetterPaginator('```py\n', '```')
         for lno, line in enumerate(lines, start=firstlno):
-            pg.add_line(f'{lno}\t{line.rstrip()}'.replace('``', '`\u200b`'))
-        await PaginationHandler(self.bot, pg, no_help=True).start(ctx)
+            paginator.add_line(f'{lno}\t{line.rstrip()}'.replace('``', '`\u200b`'))
+        await PaginationHandler(self.bot, paginator, no_help=True).start(ctx)
 
     @dev.command()
     async def giveitem(self, ctx, user: Union[discord.Member, discord.User], item, count=1):
@@ -462,7 +465,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         item = self.bot.item_cache.get_item(item)
         if not item:
             return await ctx.send("No item found.")
-        for a in range(count):
+        for _ in range(count):
             player.inventory.add_item(item)
         await ctx.send(self.bot.tick_yes)
 
@@ -474,7 +477,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         item = self.bot.item_cache.get_item(item)
         if not item:
             return await ctx.send('No item found.')
-        for a in range(count):
+        for _ in range(count):
             player.inventory.remove_item(item)
         await ctx.send(self.bot.tick_yes)
 
@@ -491,10 +494,10 @@ Fast-forward
         data = []
         self._latest_proc = proc = await Subprocess.init('git', 'pull', loop=self.bot.loop)
         await proc.stream(lambda c: None)
-        m = '\n'.join(data)
-        if m.strip() == 'Already up to date.':
+        output = '\n'.join(data)
+        if output.strip() == 'Already up to date.':
             return await ctx.send("Nothing to update.")
-        ver = re.findall(r'([a-fA-F0-9]{7})\.\.([a-fA-F0-9]{7})', m)
+        ver = re.findall(r'([a-fA-F0-9]{7})\.\.([a-fA-F0-9]{7})', output)
         pre, pos = ver[0]
         await ctx.send(f'Update `{pre}` -> `{pos}`')
         # mods = re.findall(r'\s(cogs/[a-z_]+\.py) \|', m)
@@ -517,7 +520,7 @@ Fast-forward
             tdemon = random.choice(filt)
         else:
             tdemon = max(mp_cog.treasure_demon_data, key=lambda f: f['level'])  # return highest
-        enemy = await TreasureDemon(**tdemon)._populate_skills(self.bot)
+        enemy = await TreasureDemon(**tdemon).populate_skills(self.bot)
         bt_cog = self.bot.get_cog("BattleSystem")
         bt_cog.battles[ctx.author.id] = TreasureDemonBattle(ctx.player, ctx, enemy)
 

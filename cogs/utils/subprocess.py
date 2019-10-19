@@ -13,7 +13,7 @@ async def formatter(stream, err=False):
 
 class Subprocess:
     def __init__(self, loop, *, filter_error=False):
-        self._process = None
+        self.process = None
         self._stream_handlers = []
         self.loop = loop
         self._close = 0
@@ -24,8 +24,8 @@ class Subprocess:
     async def init(cls, cmd, *args, loop=None, filter_error=False):
         loop = loop or asyncio.get_event_loop()
         self = cls(loop, filter_error=filter_error)
-        self._process = await asyncio.create_subprocess_exec(cmd, *args, loop=loop, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        self._streams = [formatter(self._process.stdout), formatter(self._process.stderr, self._filter)]
+        self.process = await asyncio.create_subprocess_exec(cmd, *args, loop=loop, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self._streams = [formatter(self.process.stdout), formatter(self.process.stderr, self._filter)]
         return self
 
     async def stream(self, callback, async_=False):

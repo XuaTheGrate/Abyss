@@ -109,6 +109,7 @@ Created by {', '.join(str(ctx.bot.get_user(u)) for u in ctx.bot.config.OWNERS)}"
 
     @commands.command()
     async def botstats(self, ctx):
+        """Views various statistics about me and my server."""
         embed = discord.Embed(title="Statistics")
         embed.set_footer(text=f'Created by {", ".join(ctx.bot.get_user(u).name for u in ctx.bot.config.OWNERS)}')
         get_total = await ctx.bot.redis.get("commands_used_total")

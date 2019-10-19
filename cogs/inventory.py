@@ -78,7 +78,7 @@ Obtained **{crafting_data['count']} {crafting_data['item']}**!
             pdata = await self.bot.db.abyss.accounts.find_one({"owner": user.id})
             if not pdata:
                 return  # the player was deleted i guess?
-            player = await Player(**pdata)._populate_skills(self.bot)
+            player = await Player(**pdata).populate_skills(self.bot)
             for i in range(crafting_data['count']):
                 player.inventory.add_item(item)
             await player.save(self.bot)
