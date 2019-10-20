@@ -46,7 +46,7 @@ class Meta(commands.Cog):
         """Sends the link to my open source repository, or directly to a command."""
         if not command:
             return await ctx.send("https://github.com/XuaTheGrate/Abyss")
-        base = 'https://https://github.com/XuaTheGrate/Abyss/blob/master/'
+        base = 'https://github.com/XuaTheGrate/Abyss/blob/master/'
         cmd = ctx.bot.get_command(command)
         if not cmd:
             return await ctx.send("Couldn't find that command")
