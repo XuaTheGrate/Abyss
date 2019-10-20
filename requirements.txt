@@ -14,3 +14,4 @@ tabulate
 humanize
 requests
 websockets==8.0.2
+beautifulsoup4

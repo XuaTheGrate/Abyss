@@ -60,7 +60,7 @@ class Player(JSONable):
             self.skills = skills
         else:
             self.skills = []
-            self._skills = sorted({'Attack', 'Guard', *skills})
+            self.pre_skills = sorted({'Attack', 'Guard', *skills})
 
         self.map, self.area = kwargs.pop('location', (None, None))
 
@@ -118,7 +118,7 @@ class Player(JSONable):
         if self.map:
             self.map = bot.map_handler.maps[self.map]
         self.inventory = Inventory(bot, self, self.inventory)
-        for skill in self._skills:
+        for skill in self.pre_skills:
             self.skills.append(bot.players.skill_cache[skill])
         for skill in self._unset_skills:
             self.unset_skills.append(bot.players.skill_cache[skill])
