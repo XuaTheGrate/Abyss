@@ -65,7 +65,7 @@ class Player(JSONable):
         self.map, self.area = kwargs.pop('location', (None, None))
 
         self.exp = kwargs.pop("exp")
-        self._next_level = self.level + 1
+        self.next_level = self.level + 1
 
         self.strength, self.magic, self.endurance, self.agility, self.luck = kwargs.pop("stats")
 
@@ -169,7 +169,7 @@ class Player(JSONable):
 --- _sp_used: {self._sp_used}
 --- _stat_mod: {self.stat_mod}
 --- until_clear: {self.until_clear}
---- _next_level: {self._next_level}
+--- _next_level: {self.next_level}
 --- _active_leaf: {self._active_leaf}
 --- _shields: {self.shields}
 --- _ex_crit_mod: {self._ex_crit_mod}
@@ -238,23 +238,23 @@ class Player(JSONable):
         return max(math.ceil(self.exp ** .333), 1)
 
     def level_up(self):
-        while self._next_level <= self.level:
-            self._next_level += 1
+        while self.next_level <= self.level:
+            self.next_level += 1
             self.stat_points += 3
 
     @property
     def can_level_up(self):
-        return self._next_level <= self.level
+        return self.next_level <= self.level
 
     def header(self):
         return f"[{self.owner.name}] {self.name} {self.ailment.emote if self.ailment else ''}"
 
     def exp_to_next_level(self):
-        return self._next_level ** 3 - self.exp
+        return self.next_level ** 3 - self.exp
 
     def exp_progress(self):
         me = self.exp
-        next = self._next_level ** 3
+        next = self.next_level ** 3
         diff = next - (self.level ** 3)
         mdiff = next - me
         return ((diff - mdiff) / diff) * 100

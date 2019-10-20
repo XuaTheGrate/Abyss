@@ -8,17 +8,17 @@ from operator import itemgetter
 import discord
 from discord.ext import commands, ui
 
+from cogs.utils import (
+    lookups,
+    imaging,
+    items
+)
+from cogs.utils.enums import SkillType
 from cogs.utils.formats import ensure_player
 from cogs.utils.objects import CaseInsensitiveDict
 from cogs.utils.paginators import EmbedPaginator, PaginationHandler
-from .utils import (
-    lookups,
-    # imaging,
-    items
-)
-from .utils.enums import SkillType
-from .utils.player import Player
-from .utils.skills import Skill, GenericAttack, Guard
+from cogs.utils.player import Player
+from cogs.utils.skills import Skill, GenericAttack, Guard
 
 NL = '\n'
 
@@ -37,8 +37,8 @@ def prepare_skill_tree_page(player):
     embed.title = "Skill tree status"
     embed.set_author(name=player.name, icon_url=player.owner.avatar_url_as(format="png", size=32))
     leaf = player.leaf.cost//1000 if player.leaf else 'N/A'
-    embed.description = _("""Current leaf: {player._active_leaf}
-AP Points: {player.ap_points} | {leaf} to finish.""").format(player=player, leaf=leaf)
+    embed.description = """Current leaf: {player._active_leaf}
+AP Points: {player.ap_points} | {leaf} to finish.""".format(player=player, leaf=leaf)
     embed.set_footer(text="<~ Stats | Skills ~>")
     return embed
 
@@ -50,7 +50,7 @@ def skills_page(player):
     skills = [f'{lookups.TYPE_TO_EMOJI[skill.type.name.lower()]} {skill.name}' for skill in player.skills
               if skill.name not in ('Attack', 'Guard')]
     embed.description = '\n'.join(skills) or ':warning:'
-    embed.set_footer(text=_('<~ Skill Tree Status | Unset skills ~>'))
+    embed.set_footer(text='<~ Skill Tree Status | Unset skills ~>')
     return embed
 
 
@@ -59,8 +59,8 @@ def unset_skills_page(player):
     embed.title = "Unused skills"
     embed.set_author(name=player.name, icon_url=player.owner.avatar_url_as(format='png', size=32))
     skills = [f'{lookups.TYPE_TO_EMOJI[skill.type.name.lower()]} {skill.name}' for skill in player.unset_skills]
-    embed.description = '\n'.join(skills) or _('(All skills equipped)')
-    embed.set_footer(text=_('<~ Skills'))
+    embed.description = '\n'.join(skills) or 'All skills equipped'
+    embed.set_footer(text='<~ Skills')
     return embed
 
 
@@ -68,12 +68,12 @@ def stats_page(player):
     embed = discord.Embed(colour=lookups.TYPE_TO_COLOUR[player.specialty.name.lower()])
     embed.title = "{}'s stats".format(player.name)
     embed.set_author(name=player.name, icon_url=player.owner.avatar_url_as(format='png', size=32))
-    embed.description = f"""\u2694 {_('Strength')}: {player.strength}
-\u2728 {_('Magic')}: {player.magic}
-\U0001f6e1 {_('Endurance')}: {player.endurance}
-\U0001f3c3 {_('Agility')}: {player.agility}
-\U0001f340 {_('Luck')}: {player.luck}"""
-    embed.set_footer(text=_('<~ Home | Skill Tree Status ~>'))
+    embed.description = f"""\u2694 {'Strength'}: {player.strength}
+\u2728 {'Magic'}: {player.magic}
+\U0001f6e1 {'Endurance'}: {player.endurance}
+\U0001f3c3 {'Agility'}: {player.agility}
+\U0001f340 {'Luck'}: {player.luck}"""
+    embed.set_footer(text='<~ Home | Skill Tree Status ~>')
     return embed
 
 
@@ -97,17 +97,17 @@ async def status(ctx):
 {player.sp}/{player.max_sp} SP
 
 Specializes in {spec} type skills.
-{NL + f'{player.exp_to_next_level()} to level {player._next_level}' + NL + f'{prog}%' + NL}
+{NL + f'{player.exp_to_next_level()} to level {player.next_level}' + NL + f'{prog}%' + NL}
 __Resistances__
 {res_fmt}"""
     embed.description = desc
-    embed.set_footer(text=_('Stats ~>'))
+    embed.set_footer(text='Stats ~>')
 
-    pg = EmbedPaginator()
-    for e in [embed, stats_page(player), prepare_skill_tree_page(player),
-              skills_page(player), unset_skills_page(player)]:
-        pg.add_page(e)
-    await PaginationHandler(ctx.bot, pg, send_as="embed").start(ctx)
+    paginator = EmbedPaginator()
+    for embed in [embed, stats_page(player), prepare_skill_tree_page(player),
+                  skills_page(player), unset_skills_page(player)]:
+        paginator.add_page(embed)
+    await PaginationHandler(ctx.bot, paginator, send_as="embed").start(ctx)
 
 
 class Statistics(ui.Session):
@@ -115,6 +115,9 @@ class Statistics(ui.Session):
         super().__init__()
         self.player = player
         self.tots = [0, 0, 0, 0, 0]
+
+    async def get_initial_message(self):
+        return
 
     async def send_initial_message(self):
         self.message = await self.context.send(".")
@@ -201,7 +204,7 @@ def ensure_no_player(func):
     async def predicate(ctx):
         if ctx.author.id in ctx.bot.players.players:
             return False
-        elif await ctx.bot.db.abyss.accounts.find_one({"owner": ctx.author.id}) is not None:
+        if await ctx.bot.db.abyss.accounts.find_one({"owner": ctx.author.id}) is not None:
             return False
         return True
 
@@ -227,18 +230,18 @@ class Players(commands.Cog):
 
     async def flush_cached_players(self):
         await self.bot.wait_for("logout")
-        for i in range(len(self.players)):
+        for _ in range(len(self.players)):
             _, player = self.players.popitem()
             await player.save(self.bot)
 
     def cache_skills(self):
-        with open("skill-data.json") as f:
-            sd = json.load(f)
-        for skill in sd:
+        with open("skill-data.json") as file:
+            skill_data = json.load(file)
+        for skill in skill_data:
             self.skill_cache[skill['name']] = Skill(**skill)
 
-        with open("base-demons.json") as f:
-            demon_data = json.load(f)
+        with open("base-demons.json") as file:
+            demon_data = json.load(file)
         for demon in demon_data:
             self._base_demon_cache[demon['name']] = demon
 
@@ -266,8 +269,8 @@ class Players(commands.Cog):
         """Creates a new player.
         You will be given a random demon to use throughout your journey."""
 
-        msg = _("This appears to be a public server. The messages sent can get spammy, or cause ratelimits.\n"
-                "It is advised to use a private server/channel.")
+        msg = ("This appears to be a public server. The messages sent can get spammy, or cause ratelimits.\n"
+               "It is advised to use a private server/channel.")
 
         if False and sum(not m.bot for m in ctx.channel.members) > 100:
             await ctx.send(msg)  # remind me to fix this later
@@ -301,8 +304,8 @@ class Players(commands.Cog):
         await player.save(self.bot)
 
         # await ctx.send(
-        # _("<꽦䐯嬜継ḉ> The deed is done. You have been given the demon `{player.name}`. Use its power wisely..."
-        # ).format(player=player))
+        # "<꽦䐯嬜継ḉ> The deed is done. You have been given the demon `{player.name}`. Use its power wisely..."
+        # .format(player=player))
         await ctx.send(f"Done. You now control the demon `{player.name}`.")
 
     @commands.command()
@@ -318,15 +321,15 @@ class Players(commands.Cog):
         """Deletes your player.
         ! THIS ACTION IS IRREVERSIBLE !"""
 
-        m1 = await ctx.send("Are you sure you want to delete your account? This action is irreversible.")
-        if not await self.bot.confirm(m1, ctx.author):
+        msg1 = await ctx.send("Are you sure you want to delete your account? This action is irreversible.")
+        if not await self.bot.confirm(msg1, ctx.author):
             return
 
-        m2 = await ctx.send("...are you really sure?")
-        if not await self.bot.confirm(m2, ctx.author):
+        msg2 = await ctx.send("...are you really sure?")
+        if not await self.bot.confirm(msg2, ctx.author):
             return
 
-        await asyncio.gather(m1.delete(), m2.delete())
+        await asyncio.gather(msg1.delete(), msg2.delete())
 
         scandata = await self.bot.redis.scan(0, match=f'*{ctx.author.id}*', count=1000)
         for key in scandata[1]:
@@ -395,9 +398,9 @@ class Players(commands.Cog):
         if name not in self.skill_cache:
             return await ctx.send("Couldn't find a skill by that name.")
         skill = self.skill_cache[name]
-        cp = ctx.player.skills.copy()
-        cp.remove(skill)
-        if all(s.type is SkillType.PASSIVE for s in cp):
+        copied = ctx.player.skills.copy()
+        copied.remove(skill)
+        if all(s.type is SkillType.PASSIVE for s in copied):
             return await ctx.send("You must have at least 1 non-active skill equipped.")
         if skill not in ctx.player.skills:
             if skill in ctx.player.unset_skills:
