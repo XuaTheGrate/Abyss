@@ -9,7 +9,7 @@ from contextlib import suppress
 import discord
 from discord.ext import ui
 
-kill_track = {}
+KILL_TRACK = {}
 
 NL = '\n'
 NNL = '\\n'
@@ -22,7 +22,7 @@ class StopScript(Exception):
 ID_GETTER = re.compile(r"@!ID:([0-9]+)!@")
 
 
-_help = {}
+_HELP = {}
 for lang in os.listdir("cogs/utils/scripts"):
     with open(f"cogs/utils/scripts/{lang}/_help.xls") as f:
         data = f.readlines()
@@ -30,10 +30,10 @@ for lang in os.listdir("cogs/utils/scripts"):
     for l in data:
         k, v = shlex.split(l)
         d[k] = v
-    _help[lang] = d
+    _HELP[lang] = d
 
-assert 'en_US' in _help
-assert len(_help['en_US']) > 0
+assert 'en_US' in _HELP
+assert len(_HELP['en_US']) > 0
 
 
 SCRIPT_IDS = {}
@@ -48,7 +48,7 @@ for file in os.listdir("cogs/utils/scripts/en_US"):
         SCRIPT_IDS[file] = int(mid.group(1))
 
 
-scripts = [l for l, v in sorted(SCRIPT_IDS.items(), key=lambda m: m[1])]
+SCRIPTS = [l for l, v in sorted(SCRIPT_IDS.items(), key=lambda m: m[1])]
 
 
 class Choices(ui.Session):
@@ -57,12 +57,15 @@ class Choices(ui.Session):
         self.question = question
         self.choices = {f'{a+1}\u20e3': c for a, c in enumerate(choices)}
         self.result = None
-        for c in self.choices:
-            self.add_button(self.make_choice, c)
+        for choice in self.choices:
+            self.add_button(self.make_choice, choice)
             # log.debug(f"Choices: added {c.encode('unicode-escape')} as button")
 
     async def handle_timeout(self):
         return await self.stop()
+
+    async def get_initial_message(self):
+        pass
 
     async def send_initial_message(self):
         # log.debug("Choices: start")
@@ -83,10 +86,10 @@ class Choices(ui.Session):
 
 
 def check(msg, waiter):
-    def inner(r, u):
-        return str(r.emoji) in ('\u25b6', '⏹') and \
-            u == waiter and \
-            r.message.id == msg.id
+    def inner(reaction, user):
+        return str(reaction.emoji) in ('\u25b6', '⏹') and \
+               user == waiter and \
+               reaction.message.id == msg.id
     return inner
 
 
@@ -94,11 +97,11 @@ async def wait_next(bot, message, user):
     await message.add_reaction('⏹')
     await message.add_reaction('\u25b6')
     try:
-        r, u = await bot.wait_for("reaction_add", check=check(message, user), timeout=180)
+        reaction, _ = await bot.wait_for("reaction_add", check=check(message, user), timeout=180)
     except asyncio.TimeoutError:
         return False
     else:
-        if str(r.emoji) == '\u25b6':
+        if str(reaction.emoji) == '\u25b6':
             return True
         return False
     finally:
@@ -113,8 +116,8 @@ async def do_script(ctx, script, lang="en_US"):
             raise TypeError(f"no such file: {path}")
         return await do_script(ctx, script)
 
-    with open(path, encoding='utf-8') as f:
-        data = f.read()
+    with open(path, encoding='utf-8') as file:
+        data = file.read()
 
     # log.debug(f"opened and read file {script} ({lang})")
 
@@ -125,11 +128,11 @@ async def do_script(ctx, script, lang="en_US"):
     if skip:
         # log.debug(f"skip key found for {ctx.author}")
         key = skip.decode()
-        t_help = _help[lang].get(key)
+        t_help = _HELP[lang].get(key)
         if t_help:
             return await ctx.send(t_help)
         snum, lnum = skip.decode().split(':')
-        if scripts[int(snum)] == ctx.current_script:
+        if SCRIPTS[int(snum)] == ctx.current_script:
             skip = int(lnum)  # we were partway in this script so lets jump to where we were
             # log.debug(f"skip key is for this script")
         else:
@@ -145,39 +148,39 @@ async def do_script(ctx, script, lang="en_US"):
     for line in lines:
         ctx.cln += 1
 
-        l = line.strip().format(ctx=ctx)
+        line = line.strip().format(ctx=ctx)
 
-        if not l or l.startswith(('#', '@!')):
+        if not line or line.startswith(('#', '@!')):
             continue
         # log.debug(f"new line in script: {l.startswith('$choice')} {ctx.cln >= skip} {l.replace(NL, NNL)}")
-        if l.startswith('$choice') and ctx.cln >= skip:
+        if line.startswith('$choice') and ctx.cln >= skip:
             # log.debug("choice command found")
-            cmd, question, *choices = shlex.split(l.lstrip("$"))
+            cmd, question, *choices = shlex.split(line.lstrip("$"))
             outcomes = {}
             # log.debug(f"{cmd},{question},{choices}")
             while True:
-                ln = next(lines)
-                ch, an = shlex.split(ln)
-                assert ch in choices
-                outcomes[ch] = an.rstrip("$")
-                if an.endswith("$"):
+                current_line = next(lines)
+                choice, answers = shlex.split(current_line)
+                assert choice in choices
+                outcomes[choice] = answers.rstrip("$")
+                if answers.endswith("$"):
                     break
 
-            s = Choices(question, *choices)
+            session = Choices(question, *choices)
             # log.debug(f"outcomes")
-            await s.start(ctx)
-            r = s.result
+            await session.start(ctx)
+            result = session.result
             # log.debug(f"{r!r}")
-            if not r:
+            if not result:
                 await breakpoint(ctx, stop=True)
                 return True
-            await ctx.send(outcomes[r])
+            await ctx.send(outcomes[result])
             # log.debug("choice finished")
             continue
 
-        if l.startswith("$") and ctx.cln >= skip:
+        if line.startswith("$") and ctx.cln >= skip:
             # log.debug("regular command found")
-            cmd, *args = shlex.split(l.strip('$'))
+            cmd, *args = shlex.split(line.strip('$'))
             cmd = globals()[cmd]
             try:
                 await cmd(ctx, *args)
@@ -187,8 +190,8 @@ async def do_script(ctx, script, lang="en_US"):
 
         if ctx.cln >= skip:  # skip so we continue where we left off
             # log.debug("regular script line, sending")
-            m = await ctx.send(l)
-            if not await wait_next(ctx.bot, m, ctx.author):
+            msg = await ctx.send(line)
+            if not await wait_next(ctx.bot, msg, ctx.author):
                 await breakpoint(ctx, stop=True)
                 return False
 
@@ -198,7 +201,7 @@ async def do_script(ctx, script, lang="en_US"):
 # internal commands defined here
 
 async def breakpoint(ctx, scriptnum=None, linenum=None, *, stop=False):
-    scriptnum = scriptnum or scripts.index(ctx.current_script)
+    scriptnum = scriptnum or SCRIPTS.index(ctx.current_script)
     linenum = linenum or ctx.cln
     await ctx.bot.redis.set(f"breakpoint@{ctx.author.id}", f'{scriptnum}:{linenum}')
     await ctx.send("*Saving progress...*", delete_after=3)
@@ -244,15 +247,15 @@ async def queuebgm(ctx, track, aftertrack=None):
             return
     elif ctx.voice_client.is_playing():
         ctx.voice_client.stop()
-        kill_track[ctx.guild.id].set()
+        KILL_TRACK[ctx.guild.id].set()
 
     if not os.path.isfile("music/"+track+".mp3"):
         loop = ctx.bot.loop
         func = functools.partial(_download_track_file, track)
         await loop.run_in_executor(None, func)
 
-    if ctx.guild.id not in kill_track:
-        kill_track[ctx.guild.id] = asyncio.Event()
+    if ctx.guild.id not in KILL_TRACK:
+        KILL_TRACK[ctx.guild.id] = asyncio.Event()
 
     task = ctx.bot.loop.create_task(_bgm_loop(ctx, track, aftertrack))
     task.add_done_callback(_bgm_loop_complete)
@@ -264,9 +267,9 @@ async def _bgm_loop(ctx, track, aftertrack=None):
     while True:
         track_wait.clear()
         ctx.voice_client.play(source, after=lambda e: _post_track_complete(e) or track_wait.set())
-        await asyncio.wait([track_wait.wait(), kill_track[ctx.guild.id].wait()])
-        if kill_track[ctx.guild.id].is_set():
-            kill_track[ctx.guild.id].clear()
+        await asyncio.wait([track_wait.wait(), KILL_TRACK[ctx.guild.id].wait()])
+        if KILL_TRACK[ctx.guild.id].is_set():
+            KILL_TRACK[ctx.guild.id].clear()
             ctx.voice_client.stop()
             return
 
@@ -274,10 +277,11 @@ async def _bgm_loop(ctx, track, aftertrack=None):
             return await queuebgm(ctx, track=aftertrack, aftertrack=None)
 
 
+# pylint: disable=unused-argument
 async def mapset(ctx, mapname):
     """Change the players map."""
-    pass
 
 
 async def sleep(ctx, amount):
     await asyncio.sleep(int(amount))
+# pylint: enable=unused-argument

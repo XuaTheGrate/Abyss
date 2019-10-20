@@ -1,10 +1,16 @@
 import datetime
 
 import discord
+from discord.ext import commands
 
-from .utils.formats import *
+from cogs.utils.formats import (
+    format_exc,
+    NoPlayer,
+    NotSearched,
+    SilentError
+)
 
-_handles = {
+HANDLES = {
     commands.DisabledCommand: "This command is disabled, because it is broken, "
                               "in development or some other unspecified reason.",
     commands.BadArgument: "Bad argument passed to this command. Refer to the help command.",
@@ -45,8 +51,10 @@ class ErrorHandler(commands.Cog):
         embed.description = ("\N{REGIONAL INDICATOR SYMBOL LETTER G}\N{REGIONAL INDICATOR SYMBOL LETTER B} "
                              "Hello! I'm Abyss. Use `$locale set en_US` to change your personal locale.")
         # await target.send(embed=embed)
+        # pylint: disable=no-member
         self.bot.send_error(f'Joined guild **{guild}** ({guild.id}) with **{guild.member_count}** members ('
                             f'{(sum(map(discord.Member.bot.fget, guild.members))/guild.member_count)*100:.1f}% bots)')
+        # pylint: enable=no-member
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, exc, *, force=False):
@@ -88,13 +96,13 @@ Bot permissions: {ctx.channel.permissions_for(ctx.me).value}
             if isinstance(ctx.command, commands.Group):
                 return
 
-        msg = _handles.get(type(exc), None)
+        msg = HANDLES.get(type(exc), None)
 
         if not msg:
             self.bot.log.warning(f"No handle for {type(exc)}.")
             return
 
-        await ctx.send(_(msg))
+        await ctx.send(msg)
 
 
 def setup(bot):
