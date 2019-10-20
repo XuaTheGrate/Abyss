@@ -24,6 +24,7 @@ NL = '\n'
 class BetterRotatingFileHandler(logging.FileHandler):
     def __init__(self, *args, **kwargs):
         self.init = datetime.utcnow().strftime("%d-%m-%Y")
+        self.stream = None
         super().__init__(*args, **kwargs)
 
     def _open(self):
