@@ -51,7 +51,7 @@ class _Ailment:
             raise AilmentRemoved
         self.counter += 1
 
-    async def pre_turn_effect_async(self, battle):
+    async def pre_turn_effect_async(self, battle):  # pylint: disable=unused-argument
         self.pre_turn_effect()
 
     def post_turn_effect(self):
@@ -159,17 +159,16 @@ class Fear(_Ailment, Exception):
             raise self
 
 
-def _skill_cost(p, s):
-    cost = s.cost
-    if s.uses_sp:
-        if any(ss.name == 'Spell Master' for ss in p.skills):
+def _skill_cost(player, skill):
+    cost = skill.cost
+    if skill.uses_sp:
+        if any(ss.name == 'Spell Master' for ss in player.skills):
             cost = cost / 2
-        return p.sp >= cost
-    else:
-        if any(ss.name == 'Arms Master' for ss in p.skills):
-            cost = cost / 2
-        cost = p.max_hp * (cost / 100)  # we wanted a % smh
-        return p.hp > cost
+        return player.sp >= cost
+    if any(ss.name == 'Arms Master' for ss in player.skills):
+        cost = cost / 2
+    cost = player.max_hp * (cost / 100)  # we wanted a % smh
+    return player.hp > cost
 
 
 class Confuse(_Ailment):
@@ -207,32 +206,32 @@ class Confuse(_Ailment):
         if choice == 4:
             raise UserTurnInterrupted()
             # todo: this, one day
-            # noinspection PyUnreachableCode
-            """
-            select: Skill
-            select = random.choice(itertools.filterfalse(lambda s: s.type is not SkillType.PASSIVE, self.player.skills))
-            if select.uses_sp:
-                if any(s.name == 'Spell Master' for s in self.player.skills):
-                    cost = select.cost/2
-                else:
-                    cost = select.cost
-                if cost > self.player.sp:
-                    await battle.ctx.send("Not enough SP!")
-                else:
-                    if select.target == 'enemy':
-                        target = random.choice(battle.enemies if self.player not in battle.enemies else battle.players),
-                    elif select.target == "enemies":
-                        target = battle.enemies if self.player not in battle.enemies else battle.players
-                    elif select.target == "self":
-                        target = self.player
-                    elif select.target == "ally":
-                        target = random.choice(battle.enemeis if self.player in battle.enemeis else battle.players),
-                    elif select.target == "allies":
-                        target = battle.enemies if self.player in battle.enemeis else battle.players
-                    else:
-                        raise RuntimeError("??????????????????")
-                    await battle.ctx.send("got this far, its gonna be difficult to continue")
-                raise UserTurnInterrupted()"""
+            # select: Skill
+            # select = random.choice(itertools.filterfalse(
+            #     lambda s: s.type is not SkillType.PASSIVE, self.player.skills))
+            # if select.uses_sp:
+            #     if any(s.name == 'Spell Master' for s in self.player.skills):
+            #         cost = select.cost/2
+            #     else:
+            #         cost = select.cost
+            #     if cost > self.player.sp:
+            #         await battle.ctx.send("Not enough SP!")
+            #     else:
+            #         if select.target == 'enemy':
+            #             target = random.choice(battle.enemies if self.player not in battle.enemies
+            #                                    else battle.players),
+            #         elif select.target == "enemies":
+            #             target = battle.enemies if self.player not in battle.enemies else battle.players
+            #         elif select.target == "self":
+            #             target = self.player
+            #         elif select.target == "ally":
+            #             target = random.choice(battle.enemeis if self.player in battle.enemeis else battle.players),
+            #         elif select.target == "allies":
+            #             target = battle.enemies if self.player in battle.enemeis else battle.players
+            #         else:
+            #             raise RuntimeError("??????????????????")
+            #         await battle.ctx.send("got this far, its gonna be difficult to continue")
+            #     raise UserTurnInterrupted()
 
 
 class Brainwash(_Ailment):
@@ -251,31 +250,31 @@ class Brainwash(_Ailment):
                       and s.target != 'self' and _skill_cost(self.player, s) and s.name != 'Guard']
             if not skills:
                 raise UserTurnInterrupted
-            s = random.choice(skills)
-            if s.uses_sp:
+            skill = random.choice(skills)
+            if skill.uses_sp:
                 if any(s.name == 'Spell Master' for s in self.player.skills):
-                    c = s.cost/2
+                    cost = skill.cost/2
                 else:
-                    c = s.cost
-                self.player.sp = c
+                    cost = skill.cost
+                self.player.sp = cost
             else:
                 if any(s.name == 'Arms Master' for s in self.player.skills):
-                    c = s.cost/2
+                    cost = skill.cost/2
                 else:
-                    c = s.cost
-                c = self.player.max_hp * (c / 100)
-                self.player.hp = c
-            await battle.ctx.send(f"__{self.player}__ used `{s}`!")
+                    cost = skill.cost
+                cost = self.player.max_hp * (cost / 100)
+                self.player.hp = cost
+            await battle.ctx.send(f"__{self.player}__ used `{skill}`!")
             if self.player in battle.players:
-                if s.target in ('enemy', 'enemies'):
-                    await s.effect(battle, battle.players)
+                if skill.target in ('enemy', 'enemies'):
+                    await skill.effect(battle, battle.players)
                 else:
-                    await s.effect(battle, battle.enemies)
+                    await skill.effect(battle, battle.enemies)
             else:
-                if s.target in ('enemy', 'enemies'):
-                    await s.effect(battle, battle.enemies)
+                if skill.target in ('enemy', 'enemies'):
+                    await skill.effect(battle, battle.enemies)
                 else:
-                    await s.effect(battle, battle.players)
+                    await skill.effect(battle, battle.players)
             raise UserTurnInterrupted
 
 
@@ -288,4 +287,4 @@ class Rage(_Ailment):
 
     async def pre_turn_effect_async(self, battle):
         self.pre_turn_effect()
-        raise UserIsImmobilized  # temp, todo fix
+        raise UserIsImmobilized  # temp, fixme
