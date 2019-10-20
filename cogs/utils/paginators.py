@@ -1,6 +1,5 @@
 import asyncio
 import contextlib
-import functools
 
 import discord
 
@@ -26,8 +25,8 @@ class BetterPaginator:
             line += '\n'
         if len(self.prefix)+len(line)+len(self.suffix) >= self.max_size:
             lines = [line[x:x+self.max_size-1] for x in range(0, len(line), self.max_size-1)]
-            for l in lines:
-                self.add_line(l)
+            for new_line in lines:
+                self.add_line(new_line)
             return
 
         if len(self.prefix) + len(self._current_page) + len(self.suffix) + len(line) >= self.max_size:
@@ -53,25 +52,25 @@ class PaginationHandler:
                  owner=None, send_as="content", no_help=False, wrap=False):
         if paginator.max_size > 1985:
             raise TypeError(f"paginator is too big: {paginator.max_size}/1985")
-        self.pg = paginator
+        self.paginator = paginator
         self.abyss = abyss
         self.current_page = 0
         self.msg = None
         self.wrap = wrap
         self.running = False
-        bt = [None, None, '\N{RAISED HAND}', None, None]
-        ex = [self.first_page, self.previous_page, self.stop, self.next_page, self.last_page]
+        buttons = [None, None, '\N{RAISED HAND}', None, None]
+        reactions = [self.first_page, self.previous_page, self.stop, self.next_page, self.last_page]
         if not no_help:
-            bt.append('\N{BLACK QUESTION MARK ORNAMENT}')
-            ex.append(self.help)
-        if len(self.pg.pages) > 1:
-            bt[1] = '\U0001f448'
-            bt[3] = '\U0001f449'
-        if len(self.pg.pages) > 2:
-            bt[0] = '\U0001f91b'
-            bt[4] = '\U0001f91c'
+            buttons.append('\N{BLACK QUESTION MARK ORNAMENT}')
+            reactions.append(self.help)
+        if len(self.paginator.pages) > 1:
+            buttons[1] = '\U0001f448'
+            buttons[3] = '\U0001f449'
+        if len(self.paginator.pages) > 2:
+            buttons[0] = '\U0001f91b'
+            buttons[4] = '\U0001f91c'
         self.buttons = {
-            k: ex[bt.index(k)] for k in bt if k
+            k: reactions[buttons.index(k)] for k in buttons if k
         }
         self.send_as = send_as
         self.has_perms = False
@@ -79,24 +78,27 @@ class PaginationHandler:
         self._stop_event = asyncio.Event()
         self._timeout = abyss.loop.create_task(self._timeout_task())
 
+    # noinspection PyUnresolvedReferences
     @property
     def send_kwargs(self):
-        if len(self.pg.pages) > 1:
+        if len(self.paginator.pages) > 1:
             if isinstance(self.page, discord.Embed):
                 page = self.page.copy()
                 if not self.page.footer:
-                    page.set_footer(text=f"Page {self.current_page+1}/{len(self.pg.pages)}")
+                    page.set_footer(text=f"Page {self.current_page+1}/{len(self.paginator.pages)}")
                 else:
-                    page.set_footer(text=f"{self.page.footer.text} | Page {self.current_page+1}/{len(self.pg.pages)}")
+                    page.set_footer(text=f"{self.page.footer.text} | "
+                                         f"Page {self.current_page+1}/{len(self.paginator.pages)}")
             else:
-                page = self.page + f'\nPage {self.current_page+1}/{len(self.pg.pages)}'
+                page = self.page + f'\nPage {self.current_page+1}/{len(self.paginator.pages)}'
         else:
             page = self.page
-        return {self.send_as: page if page != '' else '\u200b', ('embed' if self.send_as == 'content' else 'content'): None}
+        return {self.send_as: page if page != '' else '\u200b',
+                ('embed' if self.send_as == 'content' else 'content'): None}
 
     @property
     def page(self):
-        return self.pg.pages[self.current_page]
+        return self.paginator.pages[self.current_page]
 
     async def wait_stop(self):
         await self._stop_event.wait()
@@ -111,10 +113,10 @@ class PaginationHandler:
             self._stop_event.clear()
 
     async def _update(self):
-        if len(self.pg.pages) > 1:
+        if len(self.paginator.pages) > 1:
             self.buttons['\U0001f448'] = self.previous_page
             self.buttons['\U0001f449'] = self.next_page
-        if len(self.pg.pages) > 2:
+        if len(self.paginator.pages) > 2:
             self.buttons['\U0001f91b'] = self.first_page
             self.buttons['\U0001f91c'] = self.last_page
         for k in self.buttons:
@@ -156,8 +158,8 @@ class PaginationHandler:
                 self.owner = ctx
             else:  # assume actual Context object
                 self.owner = ctx.author
-        for r in self.buttons:
-            await self.msg.add_reaction(r)
+        for button in self.buttons:
+            await self.msg.add_reaction(button)
         self.abyss.add_listener(self._raw_reaction_event, "on_raw_reaction_add")
         if not self.msg.guild or not ctx.channel.permissions_for(ctx.me).manage_messages:
             self.abyss.add_listener(self._raw_reaction_event, "on_raw_reaction_remove")
@@ -166,12 +168,12 @@ class PaginationHandler:
 
     async def help(self):
         """Shows this screen."""
-        e = discord.Embed(title="Paginator Help")
-        e.description = '\n'.join(f'{m} {f.__doc__}' for m, f in self.buttons.items())
-        e.description += "\n\nIf I don't have `Manage Messages` permissions, removing reactions will also trigger" \
+        embed = discord.Embed(title="Paginator Help")
+        embed.description = '\n'.join(f'{m} {f.__doc__}' for m, f in self.buttons.items())
+        embed.description += "\n\nIf I don't have `Manage Messages` permissions, removing reactions will also trigger" \
                          " the buttons."
-        e.set_footer(text="Session will timeout after 180s")
-        await self.msg.edit(content=None, embed=e)
+        embed.set_footer(text="Session will timeout after 180s")
+        await self.msg.edit(content=None, embed=embed)
 
     async def first_page(self):
         """Brings you back to the first page."""
@@ -186,7 +188,7 @@ class PaginationHandler:
         if not self.msg:
             raise RuntimeError
 
-        self.current_page = len(self.pg.pages)-1
+        self.current_page = len(self.paginator.pages) - 1
         await self.msg.edit(**self.send_kwargs)
 
     async def previous_page(self):
@@ -197,7 +199,7 @@ class PaginationHandler:
         if self.current_page == 0:
             if not self.wrap:
                 return
-            self.current_page = len(self.pg.pages)
+            self.current_page = len(self.paginator.pages)
         self.current_page -= 1
         await self.msg.edit(**self.send_kwargs)
 
@@ -206,7 +208,7 @@ class PaginationHandler:
         if not self.msg:
             raise RuntimeError("initial message not sent")
 
-        if self.current_page == len(self.pg.pages)-1:
+        if self.current_page == len(self.paginator.pages)-1:
             if not self.wrap:
                 return
             self.current_page = -1

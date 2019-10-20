@@ -171,6 +171,9 @@ class Abyss(commands.AutoShardedBot):
     async def on_command_error(self, context, exception):
         pass
 
+    async def is_owner(self, user):
+        return user.id in config.OWNERS
+
     @property
     def description(self):
         return random.choice([
