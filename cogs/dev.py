@@ -240,7 +240,9 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         self._env['ctx'] = ctx
         try:
             expr = import_expression.compile(code_string, flags=PyCF_ALLOW_TOP_LEVEL_AWAIT)
-            ret = await eval(expr, self._env)
+            ret = eval(expr, self._env)
+            if inspect.isawaitable(ret):
+                ret = await ret
         except SyntaxError:
             pass
         except Exception as exc:
