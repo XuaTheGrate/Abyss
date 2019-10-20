@@ -1,15 +1,15 @@
 import collections
 import json
 
-from .enums import *
+from cogs.utils.enums import ResistanceModifier
 
 
 class JSONable:
     __json__ = ()
 
     @staticmethod
-    def _serialize(o):
-        return {k: o.keygetter(k) for k in o.__json__ if not k.startswith('_')}
+    def _serialize(obj):
+        return {k: obj.keygetter(k) for k in obj.__json__ if not k.startswith('_')}
 
     def keygetter(self, key):
         return getattr(self, key)
@@ -94,8 +94,8 @@ class Branch:
         self.name = name
         self.leaves = {}
         for leafn, data in leaves.items():
-            d = {"name": leafn, **data, 'bot': bot}
-            leaf = Leaf(**d)
+            data = {"name": leafn, **data, 'bot': bot}
+            leaf = Leaf(**data)
             for unlock in leaf.unlocks:
                 if unlock in self.leaves and leafn not in self.leaves[unlock].unlock_requires:
                     self.leaves[unlock].unlock_requires.append(leafn)

@@ -13,17 +13,17 @@ def dataclass(cls):
 
 class Unusable(Exception):
     # raised when an item cannot be used
-    def __init__(self, message="Cannot use that here."):
-        super().__init__(message)
+    pass
 
 
 @dataclass
 class _ItemABC:
+    # pylint: disable=self-cls-assignment
     def __new__(cls, **kwargs):
-        tp = kwargs.get('type')
-        if tp is ItemType.SKILL_CARD:
+        typ = kwargs.get('type')
+        if typ is ItemType.SKILL_CARD:
             cls = SkillCard
-        elif tp is ItemType.HEALING:
+        elif typ is ItemType.HEALING:
             cls = HealingItem
         else:
             if 'recipe' in kwargs:
@@ -31,8 +31,10 @@ class _ItemABC:
             else:
                 cls = TrashItem
         return object.__new__(cls)
+    # pylint: enable=self-cls-assignment
 
-    def __init__(self, *, name: str, type: ItemType, worth: int = 1, desc: str = "no desc", weight: int = 0, dungeons: list = None):
+    def __init__(self, *, name: str, type: ItemType, worth: int = 1,
+                 desc: str = "no desc", weight: int = 0, dungeons: list = None):
         self.name = name
         self.worth = worth
         self.type = type
@@ -58,7 +60,7 @@ class Craftable(_ItemABC):
         self.time = time
 
     async def use(self, ctx, battle=None):
-        raise Unusable()
+        raise Unusable("Cannot use that here.")
 
     def can_craft(self, inventory):
         for iname, count in self.recipe:
@@ -90,7 +92,7 @@ class SkillCard(_ItemABC):
 
 class TrashItem(_ItemABC):
     async def use(self, ctx, battle=None):
-        raise Unusable()
+        raise Unusable("Cannot use that here.")
 
 
 class HealingItem(_ItemABC):
@@ -106,15 +108,15 @@ class HealingItem(_ItemABC):
         if battle:
             if self.target not in ('ally', 'allies'):
                 raise Unusable("Cannot use this item outside of battle")
-            s = TargetSession(*battle.players, target=self.target)
-            await s.start(ctx)              # v~~~ everyones sp is full
-            if self.heal_type == 'sp' and all(not p._sp_used for p in s.result):
+            session = TargetSession(*battle.players, target=self.target)
+            await session.start(ctx)            # v~~~ everyones sp is full
+            if self.heal_type == 'sp' and all(not p.sp_used for p in session.result):
                 raise Unusable("All targets' SP is full.")
-            elif self.heal_type == 'hp' and all(not p.damage_taken for p in s.result):
+            if self.heal_type == 'hp' and all(not p.damage_taken for p in session.result):
                 raise Unusable("All targets' HP is full.")
-            elif self.heal_type == 'ailment' and all(not p.ailment for p in s.result):
+            if self.heal_type == 'ailment' and all(not p.ailment for p in session.result):
                 raise Unusable("No targets have a status effect.")
-            for target in s.result:
+            for target in session.result:
                 if self.heal_type == 'hp':
                     target.hp = -self.heal_amount
                 elif self.heal_type == 'sp':
@@ -135,7 +137,7 @@ class HealingItem(_ItemABC):
                 player.hp = -self.heal_amount
                 await ctx.send(f"Recovered {self.heal_amount} HP.")
             elif self.heal_type == 'sp':
-                if not player._sp_used:
+                if not player.sp_used:
                     raise Unusable("SP is full.")
                 player.sp = -self.heal_amount
                 await ctx.send(f"Recovered {self.heal_amount} SP.")
@@ -152,12 +154,12 @@ class _ItemCache:
     def __init__(self, playercog):
         self.items = {}
         for file in os.listdir("items"):
-            tp = ItemType[file[:-5].upper()]
-            with open("items/"+file) as f:
-                itemdata = json.load(f)
+            typ = ItemType[file[:-5].upper()]
+            with open("items/"+file) as file:
+                itemdata = json.load(file)
 
             for item in itemdata:
-                item['type'] = tp
+                item['type'] = typ
                 if item.get('skill'):
                     item['name'] = item['skill']
                     item['skill'] = playercog.skill_cache[item['skill']]

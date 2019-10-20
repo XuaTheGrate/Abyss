@@ -21,7 +21,7 @@ class Bullshit(commands.Cog):
         self.bot.log.info("we reached midnight")
         await self.bot.prepared.wait()
         for p in self.bot.players.players.values():
-            p._sp_used = 0
+            p.sp_used = 0
         if self.bot.cluster_name not in ('Alpha', 'beta'):  # lowercase beta indicates testing bot, uppercase is cluster 2
             return await asyncio.sleep(1.5)
         cur = None

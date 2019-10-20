@@ -644,7 +644,7 @@ class WildBattle:
             await self.ctx.send("ok so theres supposed to be some magic script thing but i cant figure it out\n"
                                 "ill heal you and then kick you from battle because i havent fixed it yet")
             p.post_battle(False)
-            p._sp_used = 0
+            p.sp_used = 0
             p.damage_taken = 0
             p.ailment = None
             return await self.cmd(self.ctx, None, battle=self)
@@ -652,7 +652,7 @@ class WildBattle:
             await do_script(self.ctx, "death", i18n.current_locale.get())
             for p in self.players:
                 p.post_battle(False)
-                p._sp_used = 0
+                p.sp_used = 0
                 p.damage_taken = 0  # heal the player
                 p.ailment = None
             return self.main.restart()

@@ -76,6 +76,7 @@ class Player(JSONable):
 
         self.inventory = kwargs.pop("inventory", {})
 
+        # noinspection PyArgumentList
         self.arcana = Arcana(kwargs.pop("arcana"))
         self.specialty = SkillType[kwargs.pop("specialty").upper()]
         self.description = kwargs.pop("description", "<no description found, report to Xua>")
@@ -90,7 +91,7 @@ class Player(JSONable):
         self.unset_skills = []
 
         self.damage_taken = 0
-        self._sp_used = 0
+        self.sp_used = 0
         self.stat_mod = [0, 0, 0]
         # [attack][defense][agility]
         self.until_clear = [0, 0, 0]  # turns until it gets cleared for each stat, max of 3 turns
@@ -125,7 +126,7 @@ class Player(JSONable):
 
         sp_used = await bot.redis.get(f'p_sp_used:{self._owner_id}')
         if sp_used:
-            self._sp_used = int(sp_used)
+            self.sp_used = int(sp_used)
         dmg_taken = await bot.redis.get(f'p_dmg_taken:{self._owner_id}')
         if dmg_taken:
             self.damage_taken = int(dmg_taken)
@@ -166,7 +167,7 @@ class Player(JSONable):
 
 --- debug: {self.debug}
 --- _damage_taken: {self.damage_taken}    
---- _sp_used: {self._sp_used}
+--- _sp_used: {self.sp_used}
 --- _stat_mod: {self.stat_mod}
 --- until_clear: {self.until_clear}
 --- _next_level: {self.next_level}
@@ -204,7 +205,7 @@ class Player(JSONable):
 
     @property
     def sp(self):
-        return self.max_sp - self._sp_used
+        return self.max_sp - self.sp_used
 
 # In [23]: end = 1
 # ...: for level in range(1, 100):
@@ -223,11 +224,11 @@ class Player(JSONable):
     @sp.setter
     def sp(self, value):
         if self.sp - round(value) <= 0:
-            self._sp_used = self.max_sp
+            self.sp_used = self.max_sp
         elif (self.sp - round(value)) > self.max_sp:
-            self._sp_used = 0
+            self.sp_used = 0
         else:
-            self._sp_used += round(value)
+            self.sp_used += round(value)
 
     @property
     def max_sp(self):
@@ -499,7 +500,7 @@ class Player(JSONable):
             self.ailment = None
         if not ran:
             if any(s.name == 'Victory Cry' for s in self.skills):
-                self._sp_used = 0
+                self.sp_used = 0
                 self.damage_taken = 0
                 return
 
@@ -741,5 +742,5 @@ class Player(JSONable):
     async def save(self, bot):
         data = self.to_json()
         await bot.db.abyss.accounts.replace_one({"owner": self._owner_id}, data, upsert=True)
-        await bot.redis.set(f'p_sp_used:{self._owner_id}', self._sp_used)
+        await bot.redis.set(f'p_sp_used:{self._owner_id}', self.sp_used)
         await bot.redis.set(f'p_dmg_taken:{self._owner_id}', self.damage_taken)
