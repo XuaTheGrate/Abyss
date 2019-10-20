@@ -495,7 +495,7 @@ Fast-forward
         """
         data = []
         self._latest_proc = proc = await Subprocess.init('git', 'pull', loop=self.bot.loop)
-        await proc.stream(lambda c: None)
+        await proc.stream(data.append)
         output = '\n'.join(data)
         if output.strip() == 'Already up to date.':
             return await ctx.send("Nothing to update.")

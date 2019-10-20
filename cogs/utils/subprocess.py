@@ -6,9 +6,9 @@ import aiostream
 async def formatter(stream, err=False):
     async for line in stream:
         if err:
-            yield '[stderr] '+line.decode().strip('\n')
+            yield '[stderr] '+line.decode('utf-8').strip('\n')
         else:
-            yield line.decode().strip('\n')
+            yield line.decode('utf-8').strip('\n')
 
 
 class Subprocess:
@@ -20,6 +20,7 @@ class Subprocess:
         self._streams = None
         self._filter = filter_error
 
+    # noinspection PyTypeChecker
     @classmethod
     async def init(cls, cmd, *args, loop=None, filter_error=False):
         loop = loop or asyncio.get_event_loop()
