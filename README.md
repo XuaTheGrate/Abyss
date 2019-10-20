@@ -4,7 +4,7 @@ Use `$tutorial` to get an understanding on how this bot works.
 
 [**v1.1.0 Changelog**](#changelog)
 # Abyss v1.1.0
-Python 3.7 Discord.py 1.3.0a
+[Python 3.8](https://github.com/python/cpython), [discord.py 1.3.0a](https://github.com/Rapptz/discord.py), [AGPLv3](license.md)
 
 A Persona/SMT styled Discord RPG bot.
 
