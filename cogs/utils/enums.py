@@ -27,27 +27,27 @@ class Arcana(Enum):
 
 class SkillType(Enum):
     # -- physical -- #
-    PHYSICAL      = 1   # tempest slash
-    GUN           = 2   # triple down
+    PHYSICAL = 1   # tempest slash
+    GUN = 2   # triple down
     # -- magic -- #
-    FIRE          = 3   # agi,    maragion
-    ICE           = 4   # bufu,   mabufula
-    ELECTRIC      = 5   # zio,    mazionga
-    WIND          = 6   # garu,   magarula
+    FIRE = 3   # agi,    maragion
+    ICE = 4   # bufu,   mabufula
+    ELECTRIC = 5   # zio,    mazionga
+    WIND = 6   # garu,   magarula
     PSYCHOKINETIC = 7   # psi,    mapsio
-    NUCLEAR       = 8   # frei,   mafreila
-    BLESS         = 9   # kouha,  makouga
-    CURSE         = 10  # eiha,   maeiga
-    ALMIGHTY      = 11  # megido, black viper
+    NUCLEAR = 8   # frei,   mafreila
+    BLESS = 9   # kouha,  makouga
+    CURSE = 10  # eiha,   maeiga
+    ALMIGHTY = 11  # megido, black viper
     # -- instant death -- #
-    DARK          = 16  # mudo, alice is only specialty
-    LIGHT         = 17  # hama, daisoujou is only specialty
+    DARK = 16  # mudo, alice is only specialty
+    LIGHT = 17  # hama, daisoujou is only specialty
     # -- support -- #
-    HEALING       = 12  # dia,     patra
-    AILMENT       = 13  # dormina, pulinpa
-    SUPPORT       = 14  # tarunda, sukukaja
+    HEALING = 12  # dia,     patra
+    AILMENT = 13  # dormina, pulinpa
+    SUPPORT = 14  # tarunda, sukukaja
     # -- other -- #
-    PASSIVE       = 15  # defense master, ice amp
+    PASSIVE = 15  # defense master, ice amp
 
 
 class Severity(Enum):

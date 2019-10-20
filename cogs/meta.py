@@ -1,6 +1,6 @@
 import collections
-import os
 import re
+import subprocess
 import sys
 import time
 from datetime import datetime, timedelta
@@ -10,9 +10,8 @@ import humanize
 import psutil
 from discord.ext import commands
 
-from .utils import weather
-from .utils.formats import silence_std
-from .utils.paginators import EmbedPaginator, PaginationHandler
+from cogs.utils import weather
+from cogs.utils.paginators import EmbedPaginator, PaginationHandler
 
 NL = '\n'
 R = re.compile(r"Description:\s+(.+)$")
@@ -25,9 +24,9 @@ class Meta(commands.Cog):
         self._changelog = None
 
     def update_changelog(self):
-        with open("changelog") as f:
-            ch = f.read()
-        pages = ch.split('-'*20+'\n')
+        with open("changelog") as file:
+            changelog = file.read()
+        pages = changelog.split('-'*20+'\n')
         if not self._changelog:
             self._changelog = []
         self._changelog.clear()
@@ -55,14 +54,14 @@ class Meta(commands.Cog):
     @commands.cooldown(1, 5)
     async def changelog(self, ctx):
         """Views recent updates, fixes and additions."""
-        rl = self.bucket.update_rate_limit(ctx.message)
-        if not rl:
+        ratelimited = self.bucket.update_rate_limit(ctx.message)
+        if not ratelimited:
             self.update_changelog()
         assert self._changelog
-        pg = EmbedPaginator()
-        for p in self._changelog:
-            pg.add_page(p)
-        await PaginationHandler(ctx.bot, pg, send_as='embed').start(ctx)
+        paginator = EmbedPaginator()
+        for page in self._changelog:
+            paginator.add_page(page)
+        await PaginationHandler(ctx.bot, paginator, send_as='embed').start(ctx)
 
     @commands.command()
     async def ping(self, ctx):
@@ -73,9 +72,9 @@ class Meta(commands.Cog):
     async def ping2(self, ctx):
         """Measures round trip time to Discord."""
         start = time.perf_counter()
-        m = await ctx.send("\u200b")
+        msg = await ctx.send("\u200b")
         end = time.perf_counter() - start
-        await m.edit(content=f':ping_pong: Pong! | {end*1000:.2f}ms')
+        await msg.edit(content=f':ping_pong: Pong! | {end*1000:.2f}ms')
 
     @commands.command(aliases=['about'])
     async def info(self, ctx):
@@ -95,16 +94,16 @@ Created by {', '.join(str(ctx.bot.get_user(u)) for u in ctx.bot.config.OWNERS)}"
         season = weather.get_current_season()
         embed = discord.Embed(title=f"Weekly Forecast: {_now.strftime('%B')} ({season.name.title()})")
         embed.description = ""
-        for d in range(0, 7):
-            dt = start + timedelta(days=d)
-            day = dt.strftime("%a")
-            wt = weather.get_current_weather(dt)
-            ws = weather.get_wind_speed(dt)
-            fmt = f"{wt.name.replace('_', ' ').title()}"
-            if dt.day == _now.day:
-                embed.description += f"> `{day} {dt.strftime('%d')}: {fmt} ({ws}km/h wind speed)`\n"
+        for day in range(0, 7):
+            date = start + timedelta(days=day)
+            day = date.strftime("%a")
+            current_weather = weather.get_current_weather(date)
+            wind_speed = weather.get_wind_speed(date)
+            fmt = f"{current_weather.name.replace('_', ' ').title()}"
+            if date.day == _now.day:
+                embed.description += f"> `{day} {date.strftime('%d')}: {fmt} ({wind_speed}km/h wind speed)`\n"
             else:
-                embed.description += f"`{day} {dt.strftime('%d')}: {fmt} ({ws}km/h wind speed)`\n"
+                embed.description += f"`{day} {date.strftime('%d')}: {fmt} ({wind_speed}km/h wind speed)`\n"
         await ctx.send(embed=embed)
 
     @commands.command()
@@ -125,9 +124,10 @@ Created by {', '.join(str(ctx.bot.get_user(u)) for u in ctx.bot.config.OWNERS)}"
             mem_info = self.proc.memory_info().rss / 1024 / 1024
         player_count = await ctx.bot.db.abyss.accounts.count_documents({})
         try:
-            with silence_std(False):
-                platform = R.findall(os.popen("lsb_release -d").read())[0]
-        except IndexError:
+            platform = R.findall(subprocess.run(['/usr/bin/lsb_release', '-d'],
+                                                capture_output=True,
+                                                check=False).stdout.decode('utf-8'))[0]
+        except (IndexError, FileNotFoundError):
             platform = 'Non-linux system'
         embed.description = f"""> **Discord**
 {len(ctx.bot.guilds)} Guilds
@@ -155,7 +155,8 @@ Online for {humanize.naturaldelta(ctx.bot.start_date - datetime.utcnow())}
     async def faq(self, ctx):
         """Brings up the Frequently Asked Questions."""
         embed = discord.Embed(title="Help")
-        embed.description = "\n".join(f"${c} - **{c.short_doc}**" for c in self.faq.commands)
+        embed.description = "\n".join(f"${c} - **{c.short_doc}**"
+                                      for c in self.faq.commands)  # pylint: disable=no-member
         await ctx.send(embed=embed)
 
     @faq.group()
