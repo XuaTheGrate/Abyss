@@ -1,5 +1,3 @@
-import discord
-
 from . import i18n
 from .ailments import *
 from .objects import ListCycle
@@ -389,10 +387,10 @@ class WildBattle:
                     # self.log.debug("managed to land a weak or critical")
                     weaked = True
         if skill.uses_sp:  # reset here so all hits of a skill are charged up
-            player._concentrating = False
+            player.concentrating = False
             # self.log.debug("stopped concentrating")
         else:
-            player._charging = False
+            player.charging = False
             # self.log.debug("stopped charging")
 
         if weaked and confirm_not_dead(self):
@@ -510,9 +508,9 @@ class WildBattle:
                         await self.ctx.send(f"> __{target}__ was inflicted with **Shock**!")
 
             if skill.uses_sp:
-                enemy._concentrating = False
+                enemy.concentrating = False
             else:
-                enemy._charging = False
+                enemy.charging = False
 
             if weaked and not target.is_fainted():
                 self.order.decycle()
@@ -647,7 +645,7 @@ class WildBattle:
                                 "ill heal you and then kick you from battle because i havent fixed it yet")
             p.post_battle(False)
             p._sp_used = 0
-            p._damage_taken = 0
+            p.damage_taken = 0
             p.ailment = None
             return await self.cmd(self.ctx, None, battle=self)
             # noinspection PyUnreachableCode
@@ -655,7 +653,7 @@ class WildBattle:
             for p in self.players:
                 p.post_battle(False)
                 p._sp_used = 0
-                p._damage_taken = 0  # heal the player
+                p.damage_taken = 0  # heal the player
                 p.ailment = None
             return self.main.restart()
 

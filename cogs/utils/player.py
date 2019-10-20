@@ -89,21 +89,21 @@ class Player(JSONable):
         self._unset_skills = kwargs.pop("unsetskills", [])
         self.unset_skills = []
 
-        self._damage_taken = 0
+        self.damage_taken = 0
         self._sp_used = 0
-        self._stat_mod = [0, 0, 0]
+        self.stat_mod = [0, 0, 0]
         # [attack][defense][agility]
-        self._until_clear = [0, 0, 0]  # turns until it gets cleared for each stat, max of 3 turns
+        self.until_clear = [0, 0, 0]  # turns until it gets cleared for each stat, max of 3 turns
         self.guarding = False
         self.ailment = None
-        self._shields = {}
+        self.shields = {}
         self._ex_crit_mod = 1.0  # handled by the battle system in the pre-loop hook
         self._rebellion = [False, -1]  # Rebellion or Revolution, [(is enabled), (time until clear)]
         self._ailment_buff = -1  # > 0: ailment susceptibility is increased
         self._ex_evasion_mod = 1.0  # handled by the battle system, usually only affected by Pressing Stance
         self._endured = False
-        self._charging = False
-        self._concentrating = False
+        self.charging = False
+        self.concentrating = False
         self._tetrakarn = False
         self._makarakarn = False
 
@@ -128,7 +128,7 @@ class Player(JSONable):
             self._sp_used = int(sp_used)
         dmg_taken = await bot.redis.get(f'p_dmg_taken:{self._owner_id}')
         if dmg_taken:
-            self._damage_taken = int(dmg_taken)
+            self.damage_taken = int(dmg_taken)
         return self
 
     def _debug_repr(self):
@@ -165,21 +165,21 @@ class Player(JSONable):
 --- get_counter(): {self.get_counter()}
 
 --- debug: {self.debug}
---- _damage_taken: {self._damage_taken}    
+--- _damage_taken: {self.damage_taken}    
 --- _sp_used: {self._sp_used}
---- _stat_mod: {self._stat_mod}
---- _until_clear: {self._until_clear}
+--- _stat_mod: {self.stat_mod}
+--- until_clear: {self.until_clear}
 --- _next_level: {self._next_level}
 --- _active_leaf: {self._active_leaf}
---- _shields: {self._shields}
+--- _shields: {self.shields}
 --- _ex_crit_mod: {self._ex_crit_mod}
 --- _ailment_buff: {self._ailment_buff}
 --- _ex_evasion_mod: {self._ex_evasion_mod}
 --- _tetrakarn: {self._tetrakarn}
 --- _makarakarn: {self._makarakarn}
 --- _endured: {self._endured}
---- _charging: {self._charging}
---- _concentrating: {self._concentrating}"""
+--- charging: {self.charging}
+--- concentrating: {self.concentrating}"""
 
     @property
     def stats(self):
@@ -187,16 +187,16 @@ class Player(JSONable):
 
     @property
     def hp(self):
-        return self.max_hp - self._damage_taken
+        return self.max_hp - self.damage_taken
 
     @hp.setter
     def hp(self, value):
         if self.hp - round(value) <= 0:
-            self._damage_taken = self.max_hp
+            self.damage_taken = self.max_hp
         elif (self.hp - round(value)) > self.max_hp:
-            self._damage_taken = 0
+            self.damage_taken = 0
         else:
-            self._damage_taken += round(value)
+            self.damage_taken += round(value)
 
     @property
     def max_hp(self):
@@ -260,53 +260,53 @@ class Player(JSONable):
         return ((diff - mdiff) / diff) * 100
 
     def affected_by(self, modifier):
-        return 1.0 + (0.25 * self._stat_mod[modifier.value])
+        return 1.0 + (0.25 * self.stat_mod[modifier.value])
 
     def refresh_stat_modifier(self, modifier=None, boost=True):
         if not modifier:  # all modifiers
             for i in range(3):
-                self._stat_mod[i] += 1 + ((boost - 1) * 2)
-                self._until_clear[i] = 4
+                self.stat_mod[i] += 1 + ((boost - 1) * 2)
+                self.until_clear[i] = 4
             return
         value = modifier.value
-        self._stat_mod[value] += 1 + ((boost - 1) * 2)  # 1 for *kaja (True), -1 for *nda (False)
-        self._until_clear[value] = 4
+        self.stat_mod[value] += 1 + ((boost - 1) * 2)  # 1 for *kaja (True), -1 for *nda (False)
+        self.until_clear[value] = 4
 
     def decrement_stat_modifier(self, modifier=None):
         if not modifier:  # all modifiers
             for i in range(3):
-                if self._until_clear[i] >= 0:
-                    self._until_clear[i] -= 1
-                    if self._until_clear[i] == 0:
-                        self._stat_mod[i] = 0
+                if self.until_clear[i] >= 0:
+                    self.until_clear[i] -= 1
+                    if self.until_clear[i] == 0:
+                        self.stat_mod[i] = 0
             return
-        if self._until_clear[modifier.value] >= 0:
-            self._until_clear[modifier.value] -= 1
-            if self._until_clear[modifier.value] == 0:
-                self._stat_mod[modifier.value] = 0
+        if self.until_clear[modifier.value] >= 0:
+            self.until_clear[modifier.value] -= 1
+            if self.until_clear[modifier.value] == 0:
+                self.stat_mod[modifier.value] = 0
 
     async def decrement_stat_modifier_async(self, battle, modifier=None):
         if not modifier:  # all modifiers
             for i in range(3):
-                if self._until_clear[i] >= 0:
-                    self._until_clear[i] -= 1
-                    if self._until_clear[i] == 0:
-                        self._stat_mod[i] = 0
+                if self.until_clear[i] >= 0:
+                    self.until_clear[i] -= 1
+                    if self.until_clear[i] == 0:
+                        self.stat_mod[i] = 0
                         await battle.ctx.send(f"> __{self.name}__'s {STAT_MOD[i]} reverted.")
             return
-        if self._until_clear[modifier.value] >= 0:
-            self._until_clear[modifier.value] -= 1
-            if self._until_clear[modifier.value] == 0:
-                self._stat_mod[modifier.value] = 0
+        if self.until_clear[modifier.value] >= 0:
+            self.until_clear[modifier.value] -= 1
+            if self.until_clear[modifier.value] == 0:
+                self.stat_mod[modifier.value] = 0
                 await battle.ctx.send(f"> __{self.name}__'s {STAT_MOD[modifier.value]} reverted.")
 
     def clear_stat_modifier(self, modifier=None):
         if not modifier:  # all modifiers
-            self._until_clear = [-1, -1, -1]
-            self._stat_mod = [0, 0, 0]
+            self.until_clear = [-1, -1, -1]
+            self.stat_mod = [0, 0, 0]
         else:
-            self._until_clear[modifier.value] = -1
-            self._stat_mod[modifier.value] = 0
+            self.until_clear[modifier.value] = -1
+            self.stat_mod[modifier.value] = 0
 
     def resists(self, type):
         if type in (SkillType.PHYSICAL, SkillType.GUN):
@@ -325,7 +325,7 @@ class Player(JSONable):
                 return ResistanceModifier.NORMAL
             return get
 
-        if self._shields.get(type.name.title(), 0) > 0:
+        if self.shields.get(type.name.title(), 0) > 0:
             return ResistanceModifier.IMMUNE
 
         try:
@@ -337,8 +337,8 @@ class Player(JSONable):
 
     def is_fainted(self):
         if self.hp <= 0:
-            self._stat_mod = [0, 0, 0]
-            self._until_clear = [0, 0, 0]
+            self.stat_mod = [0, 0, 0]
+            self.until_clear = [0, 0, 0]
             return True
         return False
 
@@ -404,11 +404,11 @@ class Player(JSONable):
     def pre_turn(self):
         self.decrement_stat_modifier()
 
-        for k in self._shields.copy():
-            if self._shields[k] >= 0:
-                self._shields[k] -= 1
-                if self._shields[k] == 0:
-                    self._shields.pop(k)
+        for k in self.shields.copy():
+            if self.shields[k] >= 0:
+                self.shields[k] -= 1
+                if self.shields[k] == 0:
+                    self.shields.pop(k)
 
         if self._ailment_buff >= 0:
             self._ailment_buff -= 1
@@ -432,11 +432,11 @@ class Player(JSONable):
     async def pre_turn_async(self, battle):
         await self.decrement_stat_modifier_async(battle)
 
-        for k in self._shields.copy():
-            if self._shields[k] >= 0:
-                self._shields[k] -= 1
-                if self._shields[k] == -1:
-                    self._shields.pop(k)
+        for k in self.shields.copy():
+            if self.shields[k] >= 0:
+                self.shields[k] -= 1
+                if self.shields[k] == -1:
+                    self.shields.pop(k)
                     await battle.ctx.send(f"> __{self.name}__'s' {k.title()} immunity reverted.")
 
         if self._ailment_buff >= 0:
@@ -488,11 +488,11 @@ class Player(JSONable):
     def post_battle(self, ran=False):
         self._ex_crit_mod = 1.0
         self.clear_stat_modifier()
-        self._charging = False
-        self._concentrating = False
+        self.charging = False
+        self.concentrating = False
         self._tetrakarn = False
         self._makarakarn = False
-        self._shields.clear()
+        self.shields.clear()
         self._ailment_buff = -1
         self._endured = False
         if self.ailment and self.ailment.type in (AilmentType.SHOCK, AilmentType.FREEZE):
@@ -500,7 +500,7 @@ class Player(JSONable):
         if not ran:
             if any(s.name == 'Victory Cry' for s in self.skills):
                 self._sp_used = 0
-                self._damage_taken = 0
+                self.damage_taken = 0
                 return
 
             if any(s.name == 'Life Aid' for s in self.skills):
@@ -603,11 +603,11 @@ class Player(JSONable):
 
         if self.is_fainted() and not self._endured:
             if any(s.name == 'Endure' for s in self.skills):
-                self._damage_taken -= 1
+                self.damage_taken -= 1
                 result.fainted = False
                 result.endured = self._endured = True
             elif any(s.name == 'Enduring Soul' for s in self.skills):
-                self._damage_taken = 0
+                self.damage_taken = 0
                 result.fainted = False
                 result.endured = self._endured = True
 
@@ -742,4 +742,4 @@ class Player(JSONable):
         data = self.to_json()
         await bot.db.abyss.accounts.replace_one({"owner": self._owner_id}, data, upsert=True)
         await bot.redis.set(f'p_sp_used:{self._owner_id}', self._sp_used)
-        await bot.redis.set(f'p_dmg_taken:{self._owner_id}', self._damage_taken)
+        await bot.redis.set(f'p_dmg_taken:{self._owner_id}', self.damage_taken)

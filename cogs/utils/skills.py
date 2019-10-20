@@ -2,7 +2,14 @@ import math
 import random
 
 from . import ailments, weather
-from .enums import *
+from .enums import (
+    AilmentType,
+    ResistanceModifier,
+    Severity,
+    SevereWeather,
+    SkillType,
+    StatModifier,
+)
 from .lookups import WEATHER_TO_TYPE, STAT_MOD
 from .objects import JSONable
 
@@ -25,20 +32,22 @@ class Skill(JSONable):
     def keygetter(self, key):
         if key == 'type':
             return self.type.value
-        elif key == 'severity':
+        if key == 'severity':
             return self.severity.name
-        elif key == 'desc':
+        if key == 'desc':
             return self.description
         return getattr(self, key)
 
+    # pylint: disable=self-cls-assignment
     def __new__(cls, **kwargs):
         name = kwargs['name']
-        new_cls = subclasses.get(name, None)
+        new_cls = SUBCLASSES.get(name, None)
         if new_cls:
             cls = new_cls
         if kwargs['type'] == 'ailment':
             cls = AilmentSkill
         return object.__new__(cls)
+    # pylint: enable=self-cls-assignment
 
     def __init__(self, **kwargs):
         self.name = kwargs.pop("name")
@@ -115,25 +124,25 @@ Skill
         base /= target.affected_by(StatModifier.RAKU)
         base += (attacker.level - target.level)
 
-        we = weather.get_current_weather()
+        current_weather = weather.get_current_weather()
 
-        if isinstance(we, SevereWeather):
+        if isinstance(current_weather, SevereWeather):
             wmod = 3
         else:
             wmod = 2
 
-        weather_mod = WEATHER_TO_TYPE.get(we.name)
+        weather_mod = WEATHER_TO_TYPE.get(current_weather.name)
         if weather_mod == self.type.name:
             base *= wmod
 
         if self.type is SkillType.WIND:
-            base += weather.get_wind_speed()
+            base += current_weather.get_wind_speed()
 
         if self.uses_sp:
-            if attacker._concentrating:
+            if attacker.concentrating:
                 base *= 2.5
         else:
-            if attacker._charging:
+            if attacker.charging:
                 base *= 2.5
 
         return max(1, base * random.uniform(0.75, 1.25))
@@ -146,7 +155,7 @@ class Counter(Skill):
         return random.randint(1, 100) < base
 
 
-_passive_handles = {
+PASSIVE_HANDLES = {
     "Absorb": ResistanceModifier.ABSORB,
     "Repel": ResistanceModifier.REFLECT,
     "Null": ResistanceModifier.IMMUNE,
@@ -162,21 +171,21 @@ class PassiveImmunity(Skill):
     def immunity_handle(self):
         if self.is_evasion:
             return self.accuracy  # we use 20 for Evade, or 10 for Dodge
-        return _passive_handles[self.name.split(" ")[0]]
+        return PASSIVE_HANDLES[self.name.split(" ")[0]]
 
 
 class ShieldSkill(Skill):
     async def effect(self, battle, targets):
         typ = self.name.split(" ")[0]
-        for t in targets:
-            if t._shields.get(typ):
+        for target in targets:
+            if target.shields.get(typ):
                 continue
-            t._shields[typ] = 3  # little hacky, but its easiest this way
+            target.shields[typ] = 3  # little hacky, but its easiest this way
         await battle.ctx.send(f"> Party become protected by an anti-{typ.lower()} shield!")
 
 
 class Karn(Skill):
-    async def effect(self, battle, targets):
+    async def effect(self, battle, targets):  # pylint: disable=unused-argument
         target = targets[0]  # single target
         setattr(target, '_'+self.name.lower(), True)
 
@@ -185,52 +194,53 @@ class StatusMod(Skill):
     async def effect(self, battle, targets):
         if self.name == 'Dekunda':
             for target in targets:
-                s = False
+                did = False
                 for i in range(3):
-                    if target._stat_mod[i] == -1:
-                        target._stat_mod[i] = 0
-                        target._until_clear[i] = -1
-                        s = True
-                if s:
+                    if target.stat_mod[i] == -1:
+                        target.stat_mod[i] = 0
+                        target.until_clear[i] = -1
+                        did = True
+                if did:
                     await battle.ctx.send(f"> __{target}__'s stat decrease nullified.")
         elif self.name == 'Dekaja':
             for target in targets:
-                s = False
+                did = False
                 for i in range(3):
-                    if target._stat_mod[i] == 1:
-                        target._stat_mod[i] = 0
-                        target._until_clear[i] = -1
-                        s = True
-                if s:
+                    if target.stat_mod[i] == 1:
+                        target.stat_mod[i] = 0
+                        target.until_clear[i] = -1
+                        did = True
+                if did:
                     await battle.ctx.send(f"> __{target}__'s stat increase nullified.")
         elif self.name not in ('Debilitate', 'Heat Riser'):
-            up = 1 if self.name.endswith("kaja") else -1
+            boost = 1 if self.name.endswith("kaja") else -1
             mod = StatModifier[self.name[:4].upper()].value
             for target in targets:
-                if target._stat_mod[mod] == up:
-                    target._until_clear[mod] = 4
+                if target.stat_mod[mod] == boost:
+                    target.until_clear[mod] = 4
                     await battle.ctx.send(f"> __{target}__'s {STAT_MOD[mod]} boost extended.")
                 else:
-                    target._stat_mod[mod] += up
-                    if target._stat_mod[mod] == 0:
-                        target._until_clear[mod] = -1
+                    target.stat_mod[mod] += boost
+                    if target.stat_mod[mod] == 0:
+                        target.until_clear[mod] = -1
                     else:
-                        target._until_clear[mod] = 4
-                    await battle.ctx.send(f"> __{target}__'s {STAT_MOD[mod]} {'increased' if up==1 else 'decreased'}.")
+                        target.until_clear[mod] = 4
+                    await battle.ctx.send(f"> __{target}__'s {STAT_MOD[mod]} "
+                                          f"{'increased' if boost==1 else 'decreased'}.")
         else:
-            up = 1 if self.name == 'Heat Riser' else -1
+            boost = 1 if self.name == 'Heat Riser' else -1
             for target in targets:
                 for mod in range(3):
-                    if target._stat_mod[mod] == up:
-                        target._until_clear[mod] = 4
+                    if target.stat_mod[mod] == boost:
+                        target.until_clear[mod] = 4
                     else:
-                        target._stat_mod[mod] += up
-                        if target._stat_mod[mod] == 0:
-                            target._until_clear[mod] = -1
+                        target.stat_mod[mod] += boost
+                        if target.stat_mod[mod] == 0:
+                            target.until_clear[mod] = -1
                         else:
-                            target._until_clear[mod] = 4
+                            target.until_clear[mod] = 4
                 await battle.ctx.send(f"> __{target}__'s Attack, Defense, Agility/Evasion "
-                                      f"{'increased' if up==1 else 'decreased'}.")
+                                      f"{'increased' if boost==1 else 'decreased'}.")
 
 
 class HealingSkill(Skill):
@@ -241,45 +251,45 @@ class HealingSkill(Skill):
         elif self.severity is Severity.MEDIUM:
             min, max = 170, 190
         else:
-            for t in targets:
-                t._damage_taken = 0
-                await battle.ctx.send(f"> __{t}__ was healed for {t.max_hp} HP!")
+            for target in targets:
+                target.damage_taken = 0
+                await battle.ctx.send(f"> __{target}__ was healed for {target.max_hp} HP!")
             return
         if any(s.name == 'Divine Grace' for s in user.skills):
             min *= 1.5  # light -> 60, 90
             max *= 1.5  # medium -> 255, 285
-        for t in targets:
+        for target in targets:
             heal = random.uniform(min, max)
-            t.hp = -heal  # it gets rounded anyways
-            await battle.ctx.send(f"> __{t}__ was healed for {heal:.0f} HP!")
+            target.hp = -heal  # it gets rounded anyways
+            await battle.ctx.send(f"> __{target}__ was healed for {heal:.0f} HP!")
 
 
 class Salvation(HealingSkill):
     async def effect(self, battle, targets):
-        for t in targets:
-            if t.ailment:
-                t.ailment = None
+        for target in targets:
+            if target.ailment:
+                target.ailment = None
         await super().effect(battle, targets)
 
 
 class Cadenza(HealingSkill):
     async def effect(self, battle, targets):
-        for t in targets:
-            t._stat_mod[2] += 1
-            if t._stat_mod[2] == 0:
-                t._until_clear[2] = -1
+        for target in targets:
+            target.stat_mod[2] += 1
+            if target.stat_mod[2] == 0:
+                target.until_clear[2] = -1
             else:
-                t._until_clear[2] = 4
+                target.until_clear[2] = 4
         await super().effect(battle, targets)
 
 
 class Oratorio(HealingSkill):
     async def effect(self, battle, targets):
-        for t in targets:
+        for target in targets:
             for mod in range(3):
-                if t._stat_mod[mod] == -1:
-                    t._stat_mod[mod] = 0
-                    t._until_clear[mod] = -1
+                if target.stat_mod[mod] == -1:
+                    target.stat_mod[mod] = 0
+                    target.until_clear[mod] = -1
         await super().effect(battle, targets)
 
 
@@ -287,9 +297,9 @@ class Charge(Skill):
     async def effect(self, battle, targets):
         target = targets[0]  # only targets the user
         if self.name == 'Charge':
-            target._charging = True
+            target.charging = True
         else:
-            target._concentrating = True
+            target.concentrating = True
         await battle.ctx.send(f"> __{target}__ is focused!")
 
 
@@ -300,52 +310,52 @@ class AilmentSkill(Skill):
 
     async def effect(self, battle, targets):
         ailment = getattr(ailments, self.ailment.name.title())
-        for t in targets:
-            if t.ailment is not None:
+        for target in targets:
+            if target.ailment is not None:
                 continue
-            if not t.try_evade(battle.order.active(), self):  # ailment landed
-                t.ailment = ailment(t, self.ailment)
-                await battle.ctx.send(f"> __{t}__ was inflicted with **{t.ailment.name}**")
+            if not target.try_evade(battle.order.active(), self):  # ailment landed
+                target.ailment = ailment(target, self.ailment)
+                await battle.ctx.send(f"> __{target}__ was inflicted with **{target.ailment.name}**")
 
 
-subclasses = {
+SUBCLASSES = {
     "Counter": Counter,
     "Counterstrike": Counter,
     "High Counter": Counter
 }
-types = ("Curse", "Bless", "Fire", "Elec", "Nuke", "Wind", "Ice", "Psy", "Phys")
-for t in types:
+SKILL_TYPES = ("Curse", "Bless", "Fire", "Elec", "Nuke", "Wind", "Ice", "Psy", "Phys")
+for skill_type in SKILL_TYPES:
     for r in ("Absorb", "Null", "Repel", "Resist", "Dodge", "Evade"):
-        subclasses[f"{r} {t}"] = PassiveImmunity
-    subclasses[f"{t} Shield"] = ShieldSkill
+        SUBCLASSES[f"{r} {skill_type}"] = PassiveImmunity
+    SUBCLASSES[f"{skill_type} Shield"] = ShieldSkill
 
-for s in ('Taru', 'Raku', 'Suku', 'De'):
-    for a in ('kaja', 'nda'):
-        if s == 'De' and a == 'nda':
-            a = 'kunda'
-        subclasses[f"{s}{a}"] = StatusMod
+for stat in ('Taru', 'Raku', 'Suku', 'De'):
+    for mod in ('kaja', 'nda'):
+        if stat == 'De' and mod == 'nda':
+            mod = 'kunda'
+        SUBCLASSES[f"{stat}{mod}"] = StatusMod
 
-for s in ('', 'rama', 'rahan'):
-    subclasses['Dia'+s] = HealingSkill
-    subclasses['Media'+s] = HealingSkill
+for stat in ('', 'rama', 'rahan'):
+    SUBCLASSES['Dia' + stat] = HealingSkill
+    SUBCLASSES['Media' + stat] = HealingSkill
 
-subclasses['Cadenza'] = Cadenza
-subclasses['Oratorio'] = Oratorio
-subclasses['Salvation'] = Salvation
-subclasses['Tetrakarn'] = subclasses['Makarakarn'] = Karn
-subclasses['Charge'] = subclasses['Concentrate'] = Charge
-subclasses['Debilitate'] = subclasses['Heat Riser'] = StatusMod
+SUBCLASSES['Cadenza'] = Cadenza
+SUBCLASSES['Oratorio'] = Oratorio
+SUBCLASSES['Salvation'] = Salvation
+SUBCLASSES['Tetrakarn'] = SUBCLASSES['Makarakarn'] = Karn
+SUBCLASSES['Charge'] = SUBCLASSES['Concentrate'] = Charge
+SUBCLASSES['Debilitate'] = SUBCLASSES['Heat Riser'] = StatusMod
 
 
-GenericAttack = Skill(
+GenericAttack = Skill(  # pylint: disable=invalid-name
     name="Attack",
     cost=0,
     type="physical",
-    severity="miniscule",  # TBD: light or miniscule
+    severity="miniscule",  # todo: light or miniscule
     desc="A regular attack."
 )
 
-Guard = Skill(
+Guard = Skill(  # pylint: disable=invalid-name
     name="Guard",
     cost=0,
     type="support",

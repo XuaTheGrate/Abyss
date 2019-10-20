@@ -110,7 +110,7 @@ class HealingItem(_ItemABC):
             await s.start(ctx)              # v~~~ everyones sp is full
             if self.heal_type == 'sp' and all(not p._sp_used for p in s.result):
                 raise Unusable("All targets' SP is full.")
-            elif self.heal_type == 'hp' and all(not p._damage_taken for p in s.result):
+            elif self.heal_type == 'hp' and all(not p.damage_taken for p in s.result):
                 raise Unusable("All targets' HP is full.")
             elif self.heal_type == 'ailment' and all(not p.ailment for p in s.result):
                 raise Unusable("No targets have a status effect.")
@@ -130,7 +130,7 @@ class HealingItem(_ItemABC):
         else:
             player = ctx.player
             if self.heal_type == 'hp':
-                if not player._damage_taken:
+                if not player.damage_taken:
                     raise Unusable("HP is full.")
                 player.hp = -self.heal_amount
                 await ctx.send(f"Recovered {self.heal_amount} HP.")
