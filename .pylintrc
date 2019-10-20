@@ -67,13 +67,15 @@ disable=missing-module-docstring,
         too-many-instance-attributes,
         too-many-public-methods,
         too-few-public-methods,
+        too-many-statements,
         redefined-outer-name,
         broad-except,
         exec-used,
         eval-used,
         too-many-return-statements,
         too-many-branches,
-        fixme
+        fixme,
+        redefined-builtin
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
@@ -181,7 +183,10 @@ good-names=i,
            k,
            ex,
            Run,
-           _
+           _,
+           hp,
+           sp,
+           me
 
 # Include a hint for the correct naming format with invalid-name.
 include-naming-hint=no

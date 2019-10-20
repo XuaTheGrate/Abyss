@@ -2,12 +2,20 @@ import math
 import random
 import re
 
-from .enums import *
-from .inventory import Inventory
-from .lookups import TYPE_SHORTEN, STAT_MOD
-from .objects import DamageResult, JSONable
-from .skills import Skill
-from .weather import get_current_weather
+from cogs.utils.enums import (
+    AilmentType,
+    Arcana,
+    ResistanceModifier,
+    SevereWeather,
+    SkillType,
+    StatModifier,
+    Weather
+)
+from cogs.utils.inventory import Inventory
+from cogs.utils.lookups import TYPE_SHORTEN, STAT_MOD
+from cogs.utils.objects import DamageResult, JSONable
+from cogs.utils.skills import Skill
+from cogs.utils.weather import get_current_weather
 
 CRITICAL_BASE = 4
 
@@ -21,23 +29,23 @@ class Player(JSONable):
     def keygetter(self, key):
         if key == 'owner':
             return self._owner_id
-        elif key == 'skills':
+        if key == 'skills':
             return [z.name for z in self.skills]
-        elif key == 'resistances':
+        if key == 'resistances':
             return [x.value for x in self.resistances.values()]
-        elif key == 'arcana':
+        if key == 'arcana':
             return self.arcana.value
-        elif key == 'specialty':
+        if key == 'specialty':
             return self.specialty.name
-        elif key == 'skill_leaf':
+        if key == 'skill_leaf':
             return self._active_leaf
-        elif key == 'ap':
+        if key == 'ap':
             return self.ap_points
-        elif key == 'unsetskills':
+        if key == 'unsetskills':
             return [z.name for z in self.unset_skills if z.name not in ('Attack', 'Guard')]
-        elif key == 'location':
+        if key == 'location':
             return (self.map.name if self.map else None), self.area
-        elif key == 'inventory':
+        if key == 'inventory':
             return self.inventory.to_json()
         return getattr(self, key)
 
@@ -198,20 +206,19 @@ class Player(JSONable):
     def sp(self):
         return self.max_sp - self._sp_used
 
-    """
-In [23]: end = 1
-...: for level in range(1, 100):
-...:     end = min(99, end)
-...:     print(f"Level: {level} | Magic: {end} | SP: {math.ceil(10+end+(3.6*level))}, HP: {math.ceil(20+end+(4.7*level))}")
-...:     for a in range(5):
-...:         if random.randint(1, 5) == 1:
-...:             end += 1
-Level: 1 | Magic: 1 | SP: 15, HP: 26
-Level: 2 | Magic: 2 | SP: 20, HP: 32
-...
-Level: 98 | Magic: 91 | SP: 454, HP: 572
-Level: 99 | Magic: 92 | SP: 459, HP: 578
-"""
+# In [23]: end = 1
+# ...: for level in range(1, 100):
+# ...:     end = min(99, end)
+# ...:     print(f"Level: {level} | Magic: {end} | SP: {math.ceil(10+end+(3.6*level))},"
+# ...:           f" HP: {math.ceil(20+end+(4.7*level))}")
+# ...:     for a in range(5):
+# ...:         if random.randint(1, 5) == 1:
+# ...:             end += 1
+# Level: 1 | Magic: 1 | SP: 15, HP: 26
+# Level: 2 | Magic: 2 | SP: 20, HP: 32
+# ...
+# Level: 98 | Magic: 91 | SP: 454, HP: 572
+# Level: 99 | Magic: 92 | SP: 459, HP: 578
 
     @sp.setter
     def sp(self, value):
@@ -255,15 +262,15 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
     def affected_by(self, modifier):
         return 1.0 + (0.25 * self._stat_mod[modifier.value])
 
-    def refresh_stat_modifier(self, modifier=None, to=True):
+    def refresh_stat_modifier(self, modifier=None, boost=True):
         if not modifier:  # all modifiers
             for i in range(3):
-                self._stat_mod[i] += 1 + ((to - 1) * 2)
+                self._stat_mod[i] += 1 + ((boost - 1) * 2)
                 self._until_clear[i] = 4
             return
-        v = modifier.value
-        self._stat_mod[v] += 1 + ((to - 1) * 2)  # 1 for *kaja (True), -1 for *nda (False)
-        self._until_clear[v] = 4
+        value = modifier.value
+        self._stat_mod[value] += 1 + ((boost - 1) * 2)  # 1 for *kaja (True), -1 for *nda (False)
+        self._until_clear[value] = 4
 
     def decrement_stat_modifier(self, modifier=None):
         if not modifier:  # all modifiers
@@ -336,45 +343,48 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
         return False
 
     def get_counter(self):
-        h = None
+        final = None
         for skill in self.skills:
             if skill.is_counter_like:
-                if not h:
-                    h = skill
+                if not final:
+                    final = skill
                 else:
-                    if skill.accuracy > h.accuracy:  # high counter has higher priority over counterstrike
-                        h = skill
-        return h
+                    if skill.accuracy > final.accuracy:  # high counter has higher priority over counterstrike
+                        final = skill
+        return final
 
     def get_passive_immunity(self, type):
-        f = None
+        final = None
         fmt = re.compile(fr"(Null|Repel|Absorb|Resist) {TYPE_SHORTEN[type.name.lower()].title()}")
         for skill in self.skills:
             if skill.is_passive_immunity:
-                n = fmt.findall(skill.name)
-                if not n:
+                find = fmt.findall(skill.name)
+                if not find:
                     continue
-                n = n[0]
-                if not f or IMMUNITY_ORDER.index(n) < IMMUNITY_ORDER.index(f):
-                    f = n
-        return f
+                find = find[0]
+                if not final or IMMUNITY_ORDER.index(find) < IMMUNITY_ORDER.index(final):
+                    final = find
+        return final
 
     def get_passive_evasion(self, type):
-        f = None
+        final = None
         for skill in self.skills:
-            if skill.name == f"Dodge {TYPE_SHORTEN[type.name.lower()].title()}" and not f:
-                f = skill
+            if skill.name == f"Dodge {TYPE_SHORTEN[type.name.lower()].title()}" and not final:
+                final = skill
             elif skill.name == f"Evade {TYPE_SHORTEN[type.name.lower()].title()}":
-                f = skill
+                final = skill
                 break
-        return f
+        return final
 
     def get_auto_mod(self, modifier):
         for skill in self.skills:
-            if (skill.name == 'Attack Master' and modifier is StatModifier.TARU) or (
-                    skill.name == 'Defense Master' and modifier is StatModifier.RAKU) or (
-                    skill.name == 'Speed Master' and modifier is StatModifier.SUKU):
+            if skill.name == 'Attack Master' and modifier is StatModifier.TARU:
                 return skill
+            if skill.name == 'Defense Master' and modifier is StatModifier.RAKU:
+                return skill
+            if skill.name == 'Speed Master' and modifier is StatModifier.SUKU:
+                return skill
+        return None
 
     def get_all_auto_mods(self):
         for mod in (StatModifier.TARU, StatModifier.RAKU, StatModifier.SUKU):
@@ -384,10 +394,12 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
     def get_regenerate(self):
         if any(s.name.startswith('Regenerate') for s in self.skills):
             return max(filter(lambda s: s.name.startswith('Regenerate'), self.skills), key=lambda s: int(s.name[-1]))
+        return None
 
     def get_invigorate(self):
         if any(s.name.startswith('Invigorate') for s in self.skills):
             return max(filter(lambda s: s.name.startswith('Invigorate'), self.skills), key=lambda s: int(s.name[-1]))
+        return None
 
     def pre_turn(self):
         self.decrement_stat_modifier()
@@ -544,8 +556,9 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
         if from_reflect or counter:
             base /= 1.35  # reflected damage is weakened
         else:  # counters arent supposed to crit :^^)
-            if not skill.uses_sp and res is not ResistanceModifier.WEAK and not guarded:  # weakness comes before criticals
-                # guarding also nullifies knock downs, so crits and weaknesses
+            if not skill.uses_sp and res is not ResistanceModifier.WEAK and not guarded:
+                # weakness comes before criticals
+                # guarding also nullifies knock downs, crits and weaknesses
                 if enforce_crit == 0:
                     if skill.type is SkillType.GUN and any(s.name == 'Trigger Happy' for s in self.skills):
                         self._ex_crit_mod += 1.33
@@ -613,45 +626,45 @@ Level: 99 | Magic: 92 | SP: 459, HP: 578
         base *= self.affected_by(StatModifier.SUKU)
         return random.uniform(1, 100) <= base
 
-    """ evasion / critical reference
-In [58]: for my_suku in (0.95, 1.0, 1.05):
-    ...:     for attacker_suku in (0.95, 1.0, 1.05):
-    ...:         base = 90  # todo: determine properly
-    ...:         base *= attacker_suku
-    ...:         base /= my_suku
-    ...:         print(f"Attacker: {attacker_suku:.2f}/{90*attacker_suku:.2f} | Me: {my_suku:.2f}/{90/my_suku:.2f} | {100-base:.2f} evasion chance")
-    ...:
-Attacker: mod / base * mod | Me: mod / base / mod | overall evasion chance
-Attacker: 0.95/85.50 | Me: 0.95/94.74 | 10.00 evasion chance
-Attacker: 1.00/90.00 | Me: 0.95/94.74 | 5.26 evasion chance
-Attacker: 1.05/94.50 | Me: 0.95/94.74 | 0.53 evasion chance
-Attacker: 0.95/85.50 | Me: 1.00/90.00 | 14.50 evasion chance
-Attacker: 1.00/90.00 | Me: 1.00/90.00 | 10.00 evasion chance
-Attacker: 1.05/94.50 | Me: 1.00/90.00 | 5.50 evasion chance
-Attacker: 0.95/85.50 | Me: 1.05/85.71 | 18.57 evasion chance
-Attacker: 1.00/90.00 | Me: 1.05/85.71 | 14.29 evasion chance
-Attacker: 1.05/94.50 | Me: 1.05/85.71 | 10.00 evasion chance
+# evasion / critical reference
+# In [58]: for my_suku in (0.95, 1.0, 1.05):
+#     ...:     for attacker_suku in (0.95, 1.0, 1.05):
+#     ...:         base = 90
+#     ...:         base *= attacker_suku
+#     ...:         base /= my_suku
+#     ...:         print(f"Attacker: {attacker_suku:.2f}/{90*attacker_suku:.2f} | "
+#     ...:               f"Me: {my_suku:.2f}/{90/my_suku:.2f} | {100-base:.2f} evasion chance")
+#     ...:
+# Attacker: mod / base * mod | Me: mod / base / mod | overall evasion chance
+# Attacker: 0.95/85.50 | Me: 0.95/94.74 | 10.00 evasion chance
+# Attacker: 1.00/90.00 | Me: 0.95/94.74 | 5.26 evasion chance
+# Attacker: 1.05/94.50 | Me: 0.95/94.74 | 0.53 evasion chance
+# Attacker: 0.95/85.50 | Me: 1.00/90.00 | 14.50 evasion chance
+# Attacker: 1.00/90.00 | Me: 1.00/90.00 | 10.00 evasion chance
+# Attacker: 1.05/94.50 | Me: 1.00/90.00 | 5.50 evasion chance
+# Attacker: 0.95/85.50 | Me: 1.05/85.71 | 18.57 evasion chance
+# Attacker: 1.00/90.00 | Me: 1.05/85.71 | 14.29 evasion chance
+# Attacker: 1.05/94.50 | Me: 1.05/85.71 | 10.00 evasion chance
 
-In [59]: for my_suku in (0.95, 1.0, 1.05):
-    ...:     for attacker_suku in (0.95, 1.0, 1.05):
-    ...:         base = 4
-    ...:         base /= attacker_suku
-    ...:         base += ((my_luck/10) - (attacker_luck/10))
-    ...:         base *= my_suku
-    ...:         print(f"Attacker: {attacker_suku:.2f} | Me: {my_suku:.2f} | {base:.2f} chance to crit")
-    ...:
-    ...:
-Attacker: mod  | Me: mod  | overall chance to crit
-Attacker: 0.95 | Me: 0.95 | 4.00 chance to crit
-Attacker: 1.00 | Me: 0.95 | 3.80 chance to crit
-Attacker: 1.05 | Me: 0.95 | 3.62 chance to crit
-Attacker: 0.95 | Me: 1.00 | 4.21 chance to crit
-Attacker: 1.00 | Me: 1.00 | 4.00 chance to crit
-Attacker: 1.05 | Me: 1.00 | 3.81 chance to crit
-Attacker: 0.95 | Me: 1.05 | 4.42 chance to crit
-Attacker: 1.00 | Me: 1.05 | 4.20 chance to crit
-Attacker: 1.05 | Me: 1.05 | 4.00 chance to crit
-    """
+# In [59]: for my_suku in (0.95, 1.0, 1.05):
+#     ...:     for attacker_suku in (0.95, 1.0, 1.05):
+#     ...:         base = 4
+#     ...:         base /= attacker_suku
+#     ...:         base += ((my_luck/10) - (attacker_luck/10))
+#     ...:         base *= my_suku
+#     ...:         print(f"Attacker: {attacker_suku:.2f} | Me: {my_suku:.2f} | {base:.2f} chance to crit")
+#     ...:
+#     ...:
+# Attacker: mod  | Me: mod  | overall chance to crit
+# Attacker: 0.95 | Me: 0.95 | 4.00 chance to crit
+# Attacker: 1.00 | Me: 0.95 | 3.80 chance to crit
+# Attacker: 1.05 | Me: 0.95 | 3.62 chance to crit
+# Attacker: 0.95 | Me: 1.00 | 4.21 chance to crit
+# Attacker: 1.00 | Me: 1.00 | 4.00 chance to crit
+# Attacker: 1.05 | Me: 1.00 | 3.81 chance to crit
+# Attacker: 0.95 | Me: 1.05 | 4.42 chance to crit
+# Attacker: 1.00 | Me: 1.05 | 4.20 chance to crit
+# Attacker: 1.05 | Me: 1.05 | 4.00 chance to crit
 
     def try_evade(self, attacker, skill):
         if (
@@ -664,9 +677,9 @@ Attacker: 1.05 | Me: 1.05 | 4.00 chance to crit
         # log.debug(f"{attacker} -> {self} with {skill}")
 
         if not skill.is_instant_kill and skill.type is not SkillType.AILMENT:
-            ag = self.agility / 10
-            # log.debug(f"self.agility/10 == {ag}")
-            base = (skill.accuracy + attacker.agility / 2) - ag / 2
+            agility = self.agility / 10
+            # log.debug(f"self.agility/10 == {agility}")
+            base = (skill.accuracy + attacker.agility / 2) - agility / 2
             # log.debug(f"not instant death and not ailment type: {base}")
         else:
             base = skill.accuracy - (self.luck / 10) / 2  # these are actually based off of luck fun fact

@@ -1,3 +1,5 @@
+[![CodeFactor](https://www.codefactor.io/repository/github/xuathegrate/abyss/badge/master?s=e6e1f34781addab833895bb700c429580bfe5f35)](https://www.codefactor.io/repository/github/xuathegrate/abyss/overview/master)
+
 Use `$tutorial` to get an understanding on how this bot works.
 
 [**v1.1.0 Changelog**](#changelog)
