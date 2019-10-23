@@ -241,14 +241,23 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
         try:
             expr = import_expression.compile(code_string, flags=PyCF_ALLOW_TOP_LEVEL_AWAIT)
             ret = eval(expr, self._env)
-            if inspect.isawaitable(ret):
-                ret = await ret
         except SyntaxError:
             pass
         except Exception as exc:
             await ctx.message.add_reaction(self.bot.tick_no)
             return await ctx.send_as_paginator(format_exc(exc), codeblock=True)
         else:
+            if inspect.isawaitable(ret):
+                fut = asyncio.ensure_future(ret, loop=self.bot.loop)
+                self._evals.append(fut)
+                try:
+                    with Timer(ctx.message):
+                        ret = await asyncio.wait_for(fut, timeout=self._timeout)
+                except Exception as exc:
+                    await ctx.message.add_reaction(self.bot.tick_no)
+                    return await ctx.send_as_paginator(format_exc(exc), codeblock=True)
+                finally:
+                    self._evals.remove(fut)
             await ctx.message.add_reaction(self.bot.tick_yes)
             if ret is None:
                 return
