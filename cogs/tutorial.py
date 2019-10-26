@@ -36,7 +36,7 @@ class Tutorial(commands.Cog):
             # ?????????
             raise AssertionError
         ctx.player = player = self.bot.players.players[ctx.author.id]
-        self.bot.get_cog("Maps").debug.append(ctx.author.id)
+        self.bot.get_cog("Exploration").debug.append(ctx.author.id)
         if not await ctx.confirm(
                 "Now that your player has been created, lets try it out. Type `$search` to look around."
                 "\n\nFrom now own, click <:tickYes:568613200728293435> to advance the tutorial, "
