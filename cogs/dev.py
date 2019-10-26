@@ -129,7 +129,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
 
     def __init__(self, bot):
         self.bot = bot
-        self.valid = ('py', 'po', 'json', 'xls')
+        self.valid = ('py', 'po', 'json', 'xls', 'md', 'txt')
         self._latest_proc = None
         self._env = {}
         self._send_in_codeblocks = False
@@ -228,7 +228,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
                             continue
                         lines[ext] += 1
         fmt = "```\n" + "\n".join(
-            sorted([f'{x} {y} ({count[y]} files)' for y, x in lines.items()], key=len)) + "```"
+            sorted([f'{x:,} {y} ({count[y]:,} files)' for y, x in lines.items()], key=len)) + "```"
         await ctx.send_as_paginator(fmt)
 
     @dev.command()
@@ -369,7 +369,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
 
     @dev.command(name='at')
     async def at_(self, ctx, guild_id: int, *, command):
-        if not (guild := self.bot.get_guild(guild_id)):  # pylint: disable=superfluous-parens
+        if not (guild := self.bot.get_guild(guild_id)):
             return await ctx.send('no guild found')
         nmsg = copy.copy(ctx.message)
         nmsg.guild = guild
