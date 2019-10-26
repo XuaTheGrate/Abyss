@@ -207,16 +207,14 @@ Be careful, as the enemy can also exploit your weakness, which will give them an
 Attacks the enemy is **weak** to will deal 1.5x more damage if they are not guarding.
 On top of this, you will get another turn.
 If the enemy **resists** an attack, it will deal 0.5x damage.
-
-The following 3 only apply with a passive skill. No (none, 0) players will have these without the skill. (Not including demons)
 Nulling an attack is as simple as it sounds. Does no damage.
 Repelling an attack will deal 0.65x damage back to you, resistance inclusive.
 (If you also repel those attacks, it is instead nullified)
-Absorbsing an attack will heal the target by 0.5x the damage you would have dealt, resistance exclusive.
-
-Todo: exploiting all enemies' weaknesses (players only) grants bonuses
-Todo: exploiting an enemy's weakness will knock them down, nullifying any evasion and increasing damage taken by 1.15x
-Todo: dont obtain bonus turns for exploting the same enemy's weakness twice"""
+Absorbsing an attack will heal the target by 0.5x the damage you would have dealt, resistance exclusive."""
+        # Todo: exploiting all enemies' weaknesses (players only) grants bonuses.
+        #  exploiting an enemy's weakness will knock them down,
+        #  nullifying any evasion and increasing damage taken by 1.15x.
+        #  dont obtain bonus turns for exploting the same enemy's weakness twice.
         await ctx.send(embed=embed)
 
     @faq.command(aliases=['skill'])
