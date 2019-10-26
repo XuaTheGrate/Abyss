@@ -30,7 +30,7 @@ class Bullshit(commands.Cog):
             cur, k = await self.bot.redis.scan(cur or 0, match='p_sp_used*', count=1000)
             keys.update(k)
         for key in keys:
-            await self.bot.redis.set(key, 0)
+            await self.bot.redis.delete(key)
         self.bot.log.info(f"reset sp of {len(keys)} players")
         cur = None
         keys.clear()
