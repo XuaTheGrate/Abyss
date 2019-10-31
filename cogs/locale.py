@@ -3,7 +3,7 @@ from discord.ext import commands
 from .utils import i18n
 
 
-class Locale(commands.Cog):
+class Locale(commands.Cog, command_attrs={"hidden": True}):
     def __init__(self, bot):
         self.bot = bot
 
