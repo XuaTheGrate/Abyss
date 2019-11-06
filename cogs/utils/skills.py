@@ -136,7 +136,7 @@ Skill
             base *= wmod
 
         if self.type is SkillType.WIND:
-            base += current_weather.get_wind_speed()
+            base += weather.get_wind_speed()
 
         if self.uses_sp:
             if attacker.concentrating:
