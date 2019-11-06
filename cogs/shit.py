@@ -85,6 +85,10 @@ class Shitpost(commands.Cog):
         """uʍop ǝpᴉsdn ʇxǝʇ ɹnoʎ sǝʞɐɯ"""
         await ctx.send(text.translate(upsidedown))
 
+    @commands.command()
+    async def mock(self, ctx, *, thing: commands.clean_content):
+        await ctx.send(f"haha null byte sucks big {thing}")
+
 
 def setup(bot):
     bot.add_cog(Shitpost(bot))
