@@ -79,13 +79,24 @@ if not os.path.isdir("logs"):
 
 class ContextSoWeDontGetBannedBy403(commands.Context):
     async def send(self, content=None, *, tts=False, embed=None, file=None, files=None, delete_after=None, nonce=None):
+        if not self.guild:
+            return await super().send(content, embed=embed, file=file, files=files,
+                                      tts=tts, delete_after=delete_after, nonce=nonce)
         if not self.guild.me.permissions_in(self.channel).send_messages:
+            self.bot.log.info(
+                "Didn't have permissions to send messages in #{0.name} ({0} {0.guild.id}".format(self.channel))
             return
         if embed and not self.guild.me.permissions_in(self.channel).embed_links:
+            self.bot.log.info(
+                "Didn't have permissions to embed links in #{0.name} ({0} {0.guild.id}".format(self.channel))
             return
         if (file or files) and not self.guild.me.permissions_in(self.channel).attach_files:
+            self.bot.log.info(
+                "Didn't have permissions to attach files in #{0.name} ({0} {0.guild.id}".format(self.channel))
             return
         if tts and not self.guild.me.permissions_in(self.channel).send_tts_messages:
+            self.bot.log.info(
+                "Didn't have permissions to send TTS messages in #{0.name} ({0} {0.guild.id}".format(self.channel))
             return
         return await super().send(content, embed=embed, file=file, files=files,
                                   tts=tts, delete_after=delete_after, nonce=nonce)
@@ -97,14 +108,15 @@ class ContextSoWeDontGetBannedBy403(commands.Context):
                 paginator.add_page(embed)
             await PaginationHandler(self.bot, paginator, send_as="embed", owner=self.author, no_help=True
                                     ).start(destination or self)
-        elif content:
+            return
+        if content:
             paginator = BetterPaginator(prefix='```' if codeblock else None, suffix='```' if codeblock else None,
                                         max_size=1985)
             for line in content.split("\n"):
                 paginator.add_line(line)
             await PaginationHandler(self.bot, paginator, no_help=True, owner=self.author).start(destination or self)
-        else:
-            raise TypeError("missing arguments")
+            return
+        raise TypeError("missing arguments")
 
     async def confirm(self, message, *, waiter=None, timeout=60):
         waiter = waiter or self.author
@@ -129,20 +141,27 @@ class Abyss(commands.AutoShardedBot):
         self.cluster_name = kwargs.pop('cluster_name', 'beta')
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        super().__init__(commands.when_mentioned_or("$"), **kwargs, loop=loop,
-                         activity=discord.Game(name="$help"))
+        if self.cluster_name == 'beta':
+            super().__init__('beta$ ', **kwargs, loop=loop, activity=discord.Game(name='Testing shit'))
+        else:
+            super().__init__(commands.when_mentioned_or("$"), **kwargs, loop=loop,
+                             activity=discord.Game(name="$help"))
         self.remove_command("help")  # fuck you danny
         self.prepared = asyncio.Event()
         # `prepared` is to make sure the bot has loaded the database and such
 
         self.eval_wait = False
 
-        self.db = motor.motor_asyncio.AsyncIOMotorClient(  # pylint: disable=invalid-name
-            username=config.MONGODB_USER,
-            password=config.MONGODB_PASS,
-            authSource=config.MONGODB_DBSE,
-            io_loop=self.loop
-        )
+        if self.cluster_name == 'beta':
+            self.db = motor.motor_asyncio.AsyncIOMotorClient(host=config.MONGODB_HOST, io_loop=self.loop)
+        else:
+            self.db = motor.motor_asyncio.AsyncIOMotorClient(  # pylint: disable=invalid-name
+                host=config.MONGODB_HOST,
+                username=config.MONGODB_USER,
+                password=config.MONGODB_PASS,
+                authSource=config.MONGODB_DBSE,
+                io_loop=self.loop
+            )
         self.redis = None
         self.session = aiohttp.ClientSession()
 
@@ -168,7 +187,7 @@ class Abyss(commands.AutoShardedBot):
         self.prepare_extensions()
         self.run(config.TOKEN)
 
-    async def on_command_error(self, context, exception):
+    async def on_command_error(self, context, exception, *, force=False):
         pass
 
     async def is_owner(self, user):
@@ -209,10 +228,11 @@ class Abyss(commands.AutoShardedBot):
                 self.log.warning(f"{cog!r} unload task did not finish in time.")
                 task.cancel()
 
-    # noinspection PyMethodMayBeStatic
     async def global_check(self, ctx):
-        if not ctx.guild:
+        if not ctx.guild and ctx.author.id not in config.OWNERS:
             raise commands.NoPrivateMessage
+        if self.cluster_name == 'beta' and ctx.author.id not in config.OWNERS:
+            raise commands.NotOwner
         return True
 
     # noinspection PyShadowingNames
