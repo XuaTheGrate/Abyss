@@ -83,7 +83,7 @@ class Tutorial(commands.Cog):
     @tutorial.after_invoke
     async def finalizer(self, ctx):
         try:
-            self.bot.get_cog("Maps").debug.remove(ctx.author.id)
+            self.bot.get_cog("Exploration").debug.remove(ctx.author.id)
         except ValueError:
             pass
 
