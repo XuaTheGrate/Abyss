@@ -134,9 +134,9 @@ class Maps(commands.Cog, name="Exploration"):
             if (i := int(cid)) in valid:
                 valid.remove(i)
         it = []
-        for v in (i['name'] for i in ctx.player.map.areas[ctx.player.area]['interactions']
+        for v in (i for i in ctx.player.map.areas[ctx.player.area]['interactions']
                   if i['type'] == 1 and i['id'] in valid):
-            it.append(f'{v["id"]}. {v}')
+            it.append(f'{v["id"]}. {v["name"]}')
         tot = '\n'.join(it)
         if len(tot) > 2048:
             for chunk in [it[x:x+20] for x in range(0, len(tot), 20)]:
