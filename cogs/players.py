@@ -10,7 +10,7 @@ from discord.ext import commands, ui
 
 from cogs.utils import (
     lookups,
-    imaging,
+    # imaging,
     items
 )
 from cogs.utils.enums import SkillType
@@ -341,7 +341,7 @@ class Players(commands.Cog):
         await self.bot.db.abyss.accounts.delete_one({"owner": ctx.author.id})
         await ctx.send(self.bot.tick_yes)
 
-    @commands.command()
+    @commands.command(enabled=False)
     @ensure_player
     @commands.cooldown(1, 120, commands.BucketType.user)
     async def profile(self, ctx):
