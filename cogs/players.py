@@ -333,7 +333,7 @@ class Players(commands.Cog):
 
         scandata = await self.bot.redis.scan(0, match=f'*{ctx.author.id}*', count=1000)
         for key in scandata[1]:
-            if key.startswith('locale'):
+            if key.startswith(b'locale'):
                 continue  # keep locale settings
             await self.bot.redis.delete(key)
 
