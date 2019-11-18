@@ -35,7 +35,11 @@ class Tutorial(commands.Cog):
         else:
             # ?????????
             raise AssertionError
-        ctx.player = player = self.bot.players.players[ctx.author.id]
+        try:
+            ctx.player = player = self.bot.players.players[ctx.author.id]
+        except KeyError:
+            await ctx.send("Didn't find a player. Try running `$tutorial` again, and create a player this time.")
+            return
         self.bot.get_cog("Exploration").debug.append(ctx.author.id)
         if not await ctx.confirm(
                 "Now that your player has been created, lets try it out. Type `$search` to look around."
