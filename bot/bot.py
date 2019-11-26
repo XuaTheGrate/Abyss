@@ -237,7 +237,7 @@ class Abyss(commands.AutoShardedBot):
     
     def get_command(self, name):
         # patch this to support commands prefixed with space
-        if (c := self.all_commands.get[name]):
+        if (c := self.all_commands.get(name)):
             return c
         return super().get_command(name)
 
