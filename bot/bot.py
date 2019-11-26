@@ -234,6 +234,12 @@ class Abyss(commands.AutoShardedBot):
         if self.cluster_name == 'beta' and ctx.author.id not in config.OWNERS:
             raise commands.NotOwner
         return True
+    
+    def get_command(self, name):
+        # patch this to support commands prefixed with space
+        if (c := self.all_commands.get[name]):
+            return c
+        return super().get_command(name)
 
     # noinspection PyShadowingNames
     async def confirm(self, msg, user):
