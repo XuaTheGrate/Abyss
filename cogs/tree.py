@@ -9,7 +9,7 @@ from .utils import lookups
 from .utils.objects import SkillTree
 
 
-class SkillTreeCog(commands.Cog):
+class SkillTreeCog(commands.Cog, command_attrs={"enabled": False}):
     def __init__(self, bot):
         self.bot = bot
         self.skill_tree = None

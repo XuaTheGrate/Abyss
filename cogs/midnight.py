@@ -1,5 +1,5 @@
 import asyncio
-from datetime import time
+from datetime import datetime
 
 from discord.ext import commands, tasks
 
@@ -9,7 +9,7 @@ from cogs.utils import formats
 class Bullshit(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.midnight_helper = tasks.loop(time=time(0, 0, 0), loop=bot.loop)(self.midnight_helper)
+        self.midnight_helper = tasks.loop(seconds=3, loop=bot.loop)(self.midnight_helper)
         self.midnight_helper.before_loop(self.pre_midnight_loop_start)
         self.midnight_helper.after_loop(self.post_midnight_loop_complete)
         self.midnight_helper.start()
@@ -17,12 +17,19 @@ class Bullshit(commands.Cog):
     def cog_unload(self):
         self.midnight_helper.stop()
 
+    def get_time_until_midnight(self):
+        now = datetime.utcnow()
+        midn = datetime(now.year, now.month, now.day + 1, 0)
+        return (midn - now).total_seconds()
+
     async def midnight_helper(self):
+        sleep = self.get_time_until_midnight()
+        await asyncio.sleep(sleep)
         self.bot.log.info("we reached midnight")
-        await self.bot.prepared.wait()
         for p in self.bot.players.players.values():
             p.sp_used = 0
-        if self.bot.cluster_name not in ('Alpha', 'beta'):  # lowercase beta indicates testing bot, uppercase is cluster 2
+        if self.bot.cluster_name not in ('Alpha', 'beta'):
+            # lowercase beta indicates testing bot, uppercase is cluster 2
             return await asyncio.sleep(1.5)
         cur = None
         keys = set()
@@ -44,6 +51,7 @@ class Bullshit(commands.Cog):
 
     async def pre_midnight_loop_start(self):
         self.bot.log.info("midnight loop: hello world")
+        await self.bot.prepared.wait()
 
     async def post_midnight_loop_complete(self):
         self.bot.log.error("loop stopped")
