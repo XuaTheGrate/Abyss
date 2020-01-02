@@ -1,10 +1,13 @@
 import random
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from .enums import Weather, SevereWeather, Season
 from .lookups import WIND_SPEED_SEASON, WIND_SPEED_WEATHER
 
-_CURRENT_YEAR = datetime.utcnow().year
+
+def get_year():
+    return datetime.utcnow().year
+
 
 VARIATE = [  # base chances
     0.33,  # sunny
@@ -14,16 +17,15 @@ VARIATE = [  # base chances
     0.02   # fog
 ]
 
-SPRING_START = datetime(_CURRENT_YEAR, 3, 20)
-SPRING_END = SUMMER_START = datetime(_CURRENT_YEAR, 6, 21)
-SUMMER_END = AUTUMN_START = datetime(_CURRENT_YEAR, 9, 23)
-AUTUMN_END = WINTER_START = datetime(_CURRENT_YEAR, 12, 22)
-WINTER_END = SPRING_START + timedelta(days=365)
+WINTER_END = SPRING_START = (3, 20)
+SPRING_END = SUMMER_START = (6, 21)
+SUMMER_END = AUTUMN_START = (9, 23)
+AUTUMN_END = WINTER_START = (12, 22)
 
 
 def _now(d=None):
     now = d or datetime.utcnow()
-    return datetime(now.year, now.month, now.day)
+    return now.month, now.day
 
 
 def get_current_season(date=None):
@@ -74,7 +76,8 @@ def get_current_weather(date=None):
         chances[3] += 0.29  # more snow
 
     now = _now(date)
-    nrand = random.Random(int(now.timestamp()))
+    dt = datetime(get_year(), *now)
+    nrand = random.Random(int(dt.timestamp()))
     weather = nrand.choices([w.value for w in Weather], cum_weights=chances)[0]
     weather = Weather(weather)
 
@@ -99,6 +102,7 @@ def get_wind_speed(date=None):  # KM/H
     min_speed += WIND_SPEED_WEATHER[weather]
     max_speed += WIND_SPEED_WEATHER[weather]
 
-    nrand = random.Random(int(now.timestamp()))
+    dt = datetime(get_year(), *now)
+    nrand = random.Random(int(dt.timestamp()))
     speed = nrand.randint(max(min_speed + 1, 1), max(max_speed + 1, 1))
     return speed-1
