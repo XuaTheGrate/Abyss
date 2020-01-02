@@ -6,7 +6,7 @@ from .lookups import WIND_SPEED_SEASON, WIND_SPEED_WEATHER
 
 
 def get_year():
-    return datetime.utcnow().year
+    return datetime.utcnow().timetuple().tm_yday
 
 
 VARIATE = [  # base chances
@@ -17,28 +17,26 @@ VARIATE = [  # base chances
     0.02   # fog
 ]
 
-WINTER_END = SPRING_START = (3, 20)
-SPRING_END = SUMMER_START = (6, 21)
-SUMMER_END = AUTUMN_START = (9, 23)
-AUTUMN_END = WINTER_START = (12, 22)
+SPRING = range(80, 172)
+SUMMER = range(172, 264)
+AUTUMN = range(264, 355)
 
 
 def _now(d=None):
-    now = d or datetime.utcnow()
-    return now.month, now.day
+    if not d:
+        return get_year()
+    return d.timetuple().tm_yday
 
 
 def get_current_season(date=None):
     now = _now(date)
-    if SPRING_START <= now < SPRING_END:
+    if now in SPRING:
         return Season.SPRING
-    if SUMMER_START <= now < SUMMER_END:
+    if now in SUMMER:
         return Season.SUMMER
-    if AUTUMN_START <= now < AUTUMN_END:
+    if now in AUTUMN:
         return Season.AUTUMN
-    if WINTER_START <= now < WINTER_END:
-        return Season.WINTER
-    raise RuntimeError
+    return Season.WINTER
 
 
 def try_severe_weather(season, weather, state=None):
@@ -75,8 +73,8 @@ def get_current_weather(date=None):
         chances[2] = 0.01  # rare rain
         chances[3] += 0.29  # more snow
 
-    now = _now(date)
-    dt = datetime(get_year(), *now)
+    now = date or datetime.utcnow()
+    dt = datetime(now.year, now.month, now.day)
     nrand = random.Random(int(dt.timestamp()))
     weather = nrand.choices([w.value for w in Weather], cum_weights=chances)[0]
     weather = Weather(weather)
@@ -90,7 +88,8 @@ def get_current_weather(date=None):
 
 
 def get_wind_speed(date=None):  # KM/H
-    now = _now(date)
+    now = date or datetime.utcnow()
+    dt = datetime(now.year, now.month, now.day)
     min_speed = 1
     max_speed = 20
 
@@ -102,7 +101,6 @@ def get_wind_speed(date=None):  # KM/H
     min_speed += WIND_SPEED_WEATHER[weather]
     max_speed += WIND_SPEED_WEATHER[weather]
 
-    dt = datetime(get_year(), *now)
     nrand = random.Random(int(dt.timestamp()))
     speed = nrand.randint(max(min_speed + 1, 1), max(max_speed + 1, 1))
     return speed-1
