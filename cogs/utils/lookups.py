@@ -17,7 +17,9 @@ TYPE_TO_COLOUR = {
     'support': 0x326af5,
     'passive': 0xf5d34b,
     'healing': 0x04dc8c,
-    'ailment': 0x5f128a
+    'ailment': 0x5f128a,
+    'dark': 0xf41134,
+    'light': 0xf5f6b0
 }
 
 TYPE_SHORTEN = {
@@ -31,6 +33,8 @@ TYPE_SHORTEN = {
     "psychokinetic": "psy",
     "bless": "bless",
     "curse": "curse",
+    'light': 'light',
+    'dark': 'dark',
     "almighty": "almighty",
     "passive": "passive",
     "ailment": "ailment",
@@ -39,21 +43,23 @@ TYPE_SHORTEN = {
 }
 
 TYPE_TO_EMOJI = {
-    'physical': PartialEmoji(animated=False, name="phys", id=596539297814020108),
-    'gun': PartialEmoji(animated=False, name="gun", id=596539459151986688),
-    'fire': PartialEmoji(animated=False, name="fire", id=596539579390230528),
-    'ice': PartialEmoji(animated=False, name="ice", id=596539715952443392),
-    'electric': PartialEmoji(animated=False, name="elec", id=596539642988462090),
-    'wind': PartialEmoji(animated=False, name="wind", id=596539771787018241),
-    'nuclear': PartialEmoji(animated=False, name="nuke", id=596539998791008279),
-    'psychokinetic': PartialEmoji(animated=False, name="psy", id=596539924828782603),
-    'bless': PartialEmoji(animated=False, name="bless", id=596540126251712538),
-    'curse': PartialEmoji(animated=False, name="curse", id=596540064096321548),
-    'almighty': PartialEmoji(animated=False, name="almighty", id=596540181088305153),
-    'support': PartialEmoji(animated=False, name='support', id=604534784437387265),
-    'passive': PartialEmoji(animated=False, name='passive', id=604535071537496064),
-    'ailment': PartialEmoji(animated=False, name='ailment', id=604534890641227776),
-    'healing': PartialEmoji(animated=False, name='healing', id=604534971012481055)
+    'physical': PartialEmoji(name="phys", id=596539297814020108),
+    'gun': PartialEmoji(name="gun", id=596539459151986688),
+    'fire': PartialEmoji(name="fire", id=596539579390230528),
+    'ice': PartialEmoji(name="ice", id=596539715952443392),
+    'electric': PartialEmoji(name="elec", id=596539642988462090),
+    'wind': PartialEmoji(name="wind", id=596539771787018241),
+    'nuclear': PartialEmoji(name="nuke", id=596539998791008279),
+    'psychokinetic': PartialEmoji(name="psy", id=596539924828782603),
+    'bless': PartialEmoji(name="bless", id=596540126251712538),
+    'curse': PartialEmoji(name="curse", id=596540064096321548),
+    'almighty': PartialEmoji(name="almighty", id=596540181088305153),
+    'support': PartialEmoji(name='support', id=604534784437387265),
+    'passive': PartialEmoji(name='passive', id=604535071537496064),
+    'ailment': PartialEmoji(name='ailment', id=604534890641227776),
+    'healing': PartialEmoji(name='healing', id=604534971012481055),
+    'light': PartialEmoji(name="bless", id=596540126251712538),
+    'dark': PartialEmoji(name="curse", id=596540064096321548),
 }
 
 ROMAN_NUMERAL = [
