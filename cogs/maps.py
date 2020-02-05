@@ -131,7 +131,8 @@ class Maps(commands.Cog, name="Exploration"):
         valid = [x['id'] for x in ctx.player.map.areas[ctx.player.area]['interactions'] if x['type'] == 1]
         chest_ids = await self.bot.redis.hgetall(f'open_chests:{ctx.author.id}')
         for cid in chest_ids.keys():
-            if (i := int(cid)) in valid:
+            i = int(cid)
+            if i in valid:
                 valid.remove(i)
         it = []
         for v in (i for i in ctx.player.map.areas[ctx.player.area]['interactions']

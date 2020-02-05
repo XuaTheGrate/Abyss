@@ -129,7 +129,8 @@ Obtained **{crafting_data['count']} {crafting_data['item']}**!
             return await ctx.send("Not enough materials to craft anything \N{CONFUSED FACE}. "
                                   "Try opening some treasures to find materials.")
         pg = EmbedPaginator()
-        if len(dt := '\n'.join(k)) > 2048:
+        dt = '\n'.join(k)
+        if len(k) > 2048:
             for chunk in [k[x:x+20] for x in range(0, len(dt), 20)]:
                 pg.add_page(discord.Embed(description='\n'.join(chunk)))
         else:

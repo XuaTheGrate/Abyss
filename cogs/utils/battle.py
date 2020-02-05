@@ -639,7 +639,8 @@ class WildBattle:
             await self.cmd(self.ctx, err, battle=self)
             return
 
-        if (p := self.players[0]).is_fainted():
+        p = self.players[0]
+        if p.is_fainted():
             # TODO: reset map back to first map and lose some cash
             await self.ctx.send("ok so theres supposed to be some magic script thing but i cant figure it out\n"
                                 "ill heal you and then kick you from battle because i havent fixed it yet")

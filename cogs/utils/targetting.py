@@ -156,7 +156,8 @@ class InitialSession(ui.Session, ABC):
         if skill.lower() == 'guard':
             self.result = {"type": "fight", "data": {"skill": obj}}
             return await self.stop()
-        if (target := await self.select_target(obj.target)) != 'cancel':
+        target = await self.select_target(obj.target)
+        if target != 'cancel':
             self.result = {"type": "fight", "data": {"skill": obj, "targets": target}}
             # log.debug(f"select skill: {self.result}")
             await self.stop()

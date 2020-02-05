@@ -9,7 +9,6 @@ import random
 import re
 import textwrap
 import time
-from ast import PyCF_ALLOW_TOP_LEVEL_AWAIT
 from pprint import pformat
 from typing import Union
 
@@ -239,7 +238,7 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
                               import_expression.constants.IMPORTER: importlib.import_module})
         self._env['ctx'] = ctx
         try:
-            expr = import_expression.compile(code_string, flags=PyCF_ALLOW_TOP_LEVEL_AWAIT)
+            expr = import_expression.compile(code_string)
             ret = eval(expr, self._env)
         except SyntaxError:
             pass
@@ -369,7 +368,8 @@ class Developers(commands.Cog, command_attrs={"hidden": True}):
 
     @dev.command(name='at')
     async def at_(self, ctx, guild_id: int, *, command):
-        if not (guild := self.bot.get_guild(guild_id)):
+        guild = self.bot.get_guild(guild_id)
+        if not guild:
             return await ctx.send('no guild found')
         nmsg = copy.copy(ctx.message)
         nmsg.guild = guild
