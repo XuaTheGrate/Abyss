@@ -1,9 +1,0 @@
-[
-    {
-        "name": "Silk Yarn",
-        "worth": 50,
-        "desc": "A bundle of silk yarn.",
-        "dungeons": ["Sample Dungeon", "Qimranut"],
-        "weight": 5
-    }
-]
