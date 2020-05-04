@@ -193,6 +193,8 @@ class Confuse(_Ailment):
                 choice = 3
             else:
                 items = functools.reduce(operator.add, self.player.inventory.items.values())
+                if not items:
+                    raise UserTurnInterrupted()
                 select = random.choice(items)
                 self.player.inventory.remove_item(select.name)
                 await battle.ctx.send(f"Threw away 1x `{select}`!")
