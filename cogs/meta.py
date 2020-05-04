@@ -62,13 +62,7 @@ class Meta(commands.Cog):
     @commands.command()
     async def invite(self, ctx):
         """Sends a discord url to invite me to your server."""
-        perms = discord.Permissions(
-            send_messages=True, 
-            read_messages=True, 
-            embed_links=True, 
-            attach_files=True,
-            read_message_history=True
-        )
+        perms = discord.Permissions(379968)
         await ctx.send('<'+discord.utils.oauth_url(ctx.me.id, perms)+'>')
 
     @commands.command(aliases=['vote'])
