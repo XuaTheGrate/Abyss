@@ -1,0 +1,5 @@
+git+https://github.com/Rapptz/discord.py#egg=discord.py[voice]
+aioredis
+rethinkdb
+git+https://github.com/Rapptz/discord-ext-menus
+toml
