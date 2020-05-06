@@ -229,7 +229,7 @@ class Maps(commands.Cog, name="Exploration"):
                 # the highest level one instead
                 tdemon = max(self.treasure_demon_data, key=lambda f: f['level'])  # return highest
             enemy = await TreasureDemon(**tdemon).populate_skills(self.bot)
-            bt_cog = self.bot.get_cog("Battle")
+            bt_cog = self.bot.get_cog("BattleSystem")
             bt_cog.battles[ctx.author.id] = TreasureDemonBattle(ctx.player, ctx, enemy)
 
 
