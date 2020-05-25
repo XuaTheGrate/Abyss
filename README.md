@@ -62,7 +62,7 @@ You will lose control of battle while this is open.
 * Fix circular import bug by moving sessions to its own file.
 
 ## Misc
-Join the support server via [this link](https://discordapp.com/invites/hkweDCD)
+Join the support server via [this link](https://discord.gg/hkweDCD)
 to receive updates and special features, or to voice your opinion
 on what should be changed or added.
 
