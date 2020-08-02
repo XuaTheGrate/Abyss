@@ -42,24 +42,6 @@ class Meta(commands.Cog):
         await ctx.send("https://discord.gg/hkweDCD")
 
     @commands.command()
-    async def source(self, ctx, *, command=None):
-        """Sends the link to my open source repository, or directly to a command."""
-        if not command:
-            return await ctx.send("https://github.com/XuaTheGrate/Abyss")
-        base = 'https://github.com/XuaTheGrate/Abyss/blob/master/'
-        cmd = ctx.bot.get_command(command)
-        if not cmd:
-            return await ctx.send("Couldn't find that command")
-        module = cmd.callback.__module__.replace('.', '/') + '.py'
-        url = base + module
-        try:
-            lines, firstlineno = inspect.getsourcelines(cmd.callback)
-        except OSError:
-            return await ctx.send("Failed to retrieve source code.")
-        endline = (len(lines) + firstlineno) - 1
-        await ctx.send(f'{url}#L{firstlineno}-L{endline}')
-
-    @commands.command()
     async def invite(self, ctx):
         """Sends a discord url to invite me to your server."""
         perms = discord.Permissions(379968)
