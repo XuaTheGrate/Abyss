@@ -1,4 +1,4 @@
-discord.py
+discord.py>=1.4.0
 PyNaCl ; sys_platform == 'linux'
 import-expression==0.4.0.post1
 psutil
